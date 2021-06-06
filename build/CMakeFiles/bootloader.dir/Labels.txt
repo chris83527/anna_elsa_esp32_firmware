@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/net/home/chris/anna_elsa_fruit/anna_elsa_esp32_firmware/build/CMakeFiles/bootloader
+/net/home/chris/anna_elsa_fruit/anna_elsa_esp32_firmware/build/CMakeFiles/bootloader.rule
+/net/home/chris/anna_elsa_fruit/anna_elsa_esp32_firmware/build/CMakeFiles/bootloader-complete.rule
+/net/home/chris/anna_elsa_fruit/anna_elsa_esp32_firmware/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/net/home/chris/anna_elsa_fruit/anna_elsa_esp32_firmware/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/net/home/chris/anna_elsa_fruit/anna_elsa_esp32_firmware/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/net/home/chris/anna_elsa_fruit/anna_elsa_esp32_firmware/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
+/net/home/chris/anna_elsa_fruit/anna_elsa_esp32_firmware/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/net/home/chris/anna_elsa_fruit/anna_elsa_esp32_firmware/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/net/home/chris/anna_elsa_fruit/anna_elsa_esp32_firmware/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
