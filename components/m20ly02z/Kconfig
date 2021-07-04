@@ -1,0 +1,11 @@
+menu "M20LY02Z"
+
+	choice M20LY02Z_IFACE
+		prompt "Interface type"
+		config M20LY02Z_IFACE_SERIAL
+			bool "M20LY02Z [Serial]"			
+		config M20LY02Z_IFACE_PARALLEL
+			bool "M20LY02Z [Parallel]"			
+	endchoice
+
+endmenu

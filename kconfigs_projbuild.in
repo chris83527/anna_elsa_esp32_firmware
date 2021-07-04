@@ -1,0 +1,6 @@
+source "/home/chris/esp/esp-idf/components/app_update/Kconfig.projbuild"
+source "/home/chris/esp/esp-idf/components/bootloader/Kconfig.projbuild"
+source "/home/chris/esp/esp-idf/components/esptool_py/Kconfig.projbuild"
+source "/home/chris/esp/esp-idf/components/partition_table/Kconfig.projbuild"
+source "/net/home/chris/anna_elsa_fruit/anna_elsa_esp32_firmware/components/protocol_common/Kconfig.projbuild"
+source "/net/home/chris/anna_elsa_fruit/anna_elsa_esp32_firmware/main/Kconfig.projbuild"

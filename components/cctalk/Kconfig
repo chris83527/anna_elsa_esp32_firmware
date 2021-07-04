@@ -1,0 +1,10 @@
+menu "ccTalk"
+
+config CCTALK_UART
+	int "UART used to talk to ccTalk devices"
+	default 2
+	range 0 2
+	help
+		Select the UART number that should be used when communicating with ccTalk devices
+    
+endmenu
