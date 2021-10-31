@@ -34,5 +34,13 @@
  *
  * BSD Licensed as described in the file LICENSE
  */
+#ifndef __SPIFFS_H__
+#define __SPIFFS_H__
+
+#include "esp_spiffs.h"
 
 esp_err_t init_spiffs(void);
+
+esp_vfs_spiffs_conf_t spiffs_conf;
+
+#endif

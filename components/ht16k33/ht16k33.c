@@ -36,6 +36,7 @@
  */
 #include <esp_log.h>
 #include <string.h>
+#include <math.h>
 #include <esp_idf_lib_helpers.h>
 #include "ht16k33.h"
 
@@ -62,6 +63,7 @@ static const char *TAG = "ht16k33";
 #define SEG_E (1<<4)
 #define SEG_F (1<<5)    
 #define SEG_G (1<<6)
+#define SEG_DP (1<<7)
 
 // Arrangement for display
 // )
@@ -86,7 +88,7 @@ static const uint8_t charmap[] = {
     SEG_A | SEG_B | SEG_C, // 7
     SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G, // 8
     SEG_A | SEG_B | SEG_C | SEG_D | SEG_F | SEG_G, // 9
-    0b00000000, // decimal point
+    SEG_DP, // decimal point
     0b00000000, // blank
     SEG_G, // minus sign
     SEG_A | SEG_B | SEG_C | SEG_E | SEG_F, // A = 13
@@ -95,23 +97,23 @@ static const uint8_t charmap[] = {
     SEG_B | SEG_C | SEG_D | SEG_E | SEG_G, // D = 16
     SEG_A | SEG_F | SEG_E | SEG_G | SEG_D, // E = 17
     SEG_A | SEG_G | SEG_F | SEG_E, // F = 18
-    0b01111101, // G = 19
-    0b00110011, // H = 20
-    0b00000110, // I = 21
+    SEG_A | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G, // G = 19
+    SEG_F | SEG_E | SEG_G | SEG_B | SEG_C, // H = 20
+    SEG_B | SEG_C, // I = 21
     0b00001110, // J = 22
     0b00000000, // No K!
-    0b00111000, // L = 24
+    SEG_F | SEG_E | SEG_D, // L = 24
     0b00000000, // No M!
-    0b00010101, // N = 26
-    0b01111110, // O = 27
-    0b01110011, // P = 28
+    SEG_E | SEG_F | SEG_A | SEG_B | SEG_C, // N = 26
+    SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F, // O = 27
+    SEG_E | SEG_F | SEG_A | SEG_B | SEG_G, // P = 28
     0b01100111, // Q = 29
-    0b01110000, // R = 30
-    0b01011101 // S = 31
+    SEG_E | SEG_F | SEG_A, // r = 30
+    SEG_A | SEG_F | SEG_G | SEG_C | SEG_D // S = 31
 };
 
 
-esp_err_t ht16k33_init_desc(ht16k33_t *dev, i2c_port_t port, uint8_t addr, gpio_num_t sda_gpio, gpio_num_t scl_gpio)
+esp_err_t ht16k33_init_desc(ht16k33_t *dev, const i2c_port_t port, const uint8_t addr, const gpio_num_t sda_gpio, const gpio_num_t scl_gpio)
 {
     CHECK_ARG(dev);
     if (addr < HT16K33_ADDR_BASE || addr > HT16K33_ADDR_BASE + 7)
@@ -122,6 +124,7 @@ esp_err_t ht16k33_init_desc(ht16k33_t *dev, i2c_port_t port, uint8_t addr, gpio_
 
     dev->port = port;
     dev->addr = addr;
+    dev->cfg.mode = I2C_MODE_MASTER;
     dev->cfg.sda_io_num = sda_gpio;
     dev->cfg.scl_io_num = scl_gpio;
     dev->cfg.clk_flags = 0;
@@ -163,11 +166,23 @@ esp_err_t ht16k33_display(ht16k33_t *dev, uint8_t *arr, const uint8_t dp)
     return ESP_OK;
 }
 
-esp_err_t ht16k33_write_digit (ht16k33_t *dev, const uint8_t pos, const uint8_t val, const uint8_t dp)
+esp_err_t ht16k33_write_digit(ht16k33_t *dev, const uint8_t pos, const uint8_t val, const uint8_t dp)
 {
     CHECK_ARG(dev);
 
     ht16k33_write_pos(dev, pos, charmap[val], dp == pos);
+
+    return ESP_OK;
+}
+
+esp_err_t ht16k33_write_value(ht16k33_t *dev, const char* fmt, const int value) {
+    char buf[6];
+    
+    sprintf(buf, fmt, value);
+    
+    for (int pos = 0 ; pos < 5; pos++) {
+        ht16k33_write_digit(dev, (uint8_t)pos, (uint8_t)(buf[pos] - 48), (uint8_t)2);
+    }
 
     return ESP_OK;
 }
@@ -189,7 +204,7 @@ esp_err_t ht16k33_write_pos(ht16k33_t *dev, const uint8_t pos, const uint8_t mas
     uint8_t new_mask = mask;
     if (dp) 
     {
-        new_mask = 0x07; // dp
+        new_mask |= SEG_DP; // dp
     }
 
     I2C_DEV_TAKE_MUTEX(dev);    

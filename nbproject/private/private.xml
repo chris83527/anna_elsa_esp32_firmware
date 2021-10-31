@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <data xmlns="http://www.netbeans.org/ns/make-project-private/1">
+        <activeConfTypeElem>0</activeConfTypeElem>
+        <activeConfIndexElem>0</activeConfIndexElem>
+    </data>
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/moneycontroller.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/bootloader-flash_args</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/displaycontroller.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/component.mk</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/audiocontroller.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/cctalkcontroller.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/m20ly02z/m20ly02z.c</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/config.env</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/CMakeLists.txt</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/ht16k33/ht16k33.c</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/main.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk.c</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/cctalkcontroller.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/CMakeLists.txt</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/config.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/kconfigs_projbuild.in</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/moneycontroller.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/CMakeLists.txt</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/esp_idf_lib_helpers/component.mk</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/esp_idf_lib_helpers/CMakeLists.txt</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk.h</file>
+            <file>file:/home/chris/esp/esp-idf-lib/components/mcp23x17/mcp23x17.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/entropy.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/bootloader/CMakeFiles/TargetDirectories.txt</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/spiffs.c</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/cmake_install.cmake</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/Makefile</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/ht16k33/CMakeLists.txt</file>
+            <file>file:/home/chris/esp/esp-idf-lib/components/color/rgb.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/ht16k33/component.mk</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalkheaders.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/sdkconfig</file>
+            <file>file:/home/chris/esp/esp-idf/components/nvs_flash/src/nvs_api.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/app-flash_args</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/displaycontroller.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/partitions.csv</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/audiocontroller.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/kconfigs.in</file>
+        </group>
+    </open-files>
+</project-private>

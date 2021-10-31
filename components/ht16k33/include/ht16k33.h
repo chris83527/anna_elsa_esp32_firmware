@@ -54,7 +54,7 @@ typedef i2c_dev_t ht16k33_t;
 /**
  * @brief Initialize device descriptor
  *
- * Default SCL frequency is 1MHz.
+ * Default SCL frequency is 400kHz.
  *
  * @param dev Pointer to device descriptor
  * @param port I2C port number
@@ -63,7 +63,7 @@ typedef i2c_dev_t ht16k33_t;
  * @param scl_gpio SCL GPIO
  * @return `ESP_OK` on success
  */
-esp_err_t ht16k33_init_desc(ht16k33_t *dev, i2c_port_t port, uint8_t addr, gpio_num_t sda_gpio, gpio_num_t scl_gpio);
+esp_err_t ht16k33_init_desc(ht16k33_t *dev, const i2c_port_t port, const uint8_t addr, const gpio_num_t sda_gpio, const gpio_num_t scl_gpio);
 
 /**
  * @brief Free device descriptor
@@ -79,8 +79,9 @@ esp_err_t ht16k33_display_on(ht16k33_t *dev);
 
 esp_err_t ht16k33_display(ht16k33_t *dev, uint8_t *arr, const uint8_t dp);
 
-esp_err_t ht16k33_write_digit (ht16k33_t *dev, const uint8_t pos, const uint8_t val, const uint8_t dp);
+esp_err_t ht16k33_write_digit(ht16k33_t *dev, const uint8_t pos, const uint8_t val, const uint8_t dp);
 
+esp_err_t ht16k33_write_value(ht16k33_t *dev, const char* fmt, const int value);
 
 
 // "Private" methods

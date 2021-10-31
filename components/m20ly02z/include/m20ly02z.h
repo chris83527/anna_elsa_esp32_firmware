@@ -76,7 +76,7 @@ esp_err_t m20ly02z_init(uint8_t latchPin, uint8_t porPin, uint8_t d0, uint8_t d1
  * @param doutPin GPIO Pin connected to Data Out pin of display
  * @return `ESP_OK` on success
  */
-esp_err_t m20ly02z_init(gpio_port_t latchPin, gpio_port_t oePin, gpio_port_t clockPin, gpio_port_t doutPin);
+esp_err_t m20ly02z_init(gpio_num_t latchPin, gpio_num_t oePin, gpio_num_t clockPin, gpio_num_t doutPin);
 
 #endif
 

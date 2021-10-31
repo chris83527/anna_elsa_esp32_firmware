@@ -52,7 +52,7 @@ esp_err_t init_spiffs()
 {
     ESP_LOGI(TAG, "Initializing SPIFFS");
 
-    esp_vfs_spiffs_conf_t conf = {
+    esp_vfs_spiffs_conf_t spiffs_conf = {
         .base_path = "/spiffs",
         .partition_label = NULL,
         .max_files = 5,
@@ -60,7 +60,7 @@ esp_err_t init_spiffs()
 
     // Use settings defined above to initialize and mount SPIFFS filesystem.
     // Note: esp_vfs_spiffs_register is an all-in-one convenience function.
-    esp_err_t ret = esp_vfs_spiffs_register(&conf);
+    esp_err_t ret = esp_vfs_spiffs_register(&spiffs_conf);
 
     if (ret != ESP_OK)
     {
@@ -80,7 +80,7 @@ esp_err_t init_spiffs()
     }
 
     size_t total = 0, used = 0;
-    ret = esp_spiffs_info(conf.partition_label, &total, &used);
+    ret = esp_spiffs_info(spiffs_conf.partition_label, &total, &used);
     if (ret != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to get SPIFFS partition information (%s)", esp_err_to_name(ret));

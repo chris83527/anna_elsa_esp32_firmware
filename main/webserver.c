@@ -54,17 +54,17 @@ void init_webserver(const char *base_path)
 {
     static httpd_handle_t server = NULL;
 
-    ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    ESP_ERROR_CHECK_WITHOUT_ABORT(nvs_flash_init());
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_netif_init());
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_loop_create_default());
 
     /* Register event handlers to start server when Wi-Fi or Ethernet is connected,
      * and stop server when disconnection happens.
      */
 
 #ifdef CONFIG_CONNECT_WIFI
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
 #endif 
 #ifdef CONFIG_CONNECT_ETHERNET
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_ETH_GOT_IP, &connect_handler, &server));
@@ -75,9 +75,9 @@ void init_webserver(const char *base_path)
      * Read "Establishing Wi-Fi or Ethernet Connection" section in
      * examples/protocols/README.md for more information about this function.
      */
-    ESP_ERROR_CHECK(my_connect());
+    ESP_ERROR_CHECK_WITHOUT_ABORT(my_connect());
 
-    start_webserver(base_path);
+    //start_webserver(base_path);
 }
 
 /* Handler to redirect incoming GET request for /index.html to /

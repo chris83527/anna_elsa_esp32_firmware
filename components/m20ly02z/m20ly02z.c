@@ -60,7 +60,7 @@ esp_err_t init(uint8_t latchPin, uint8_t oePin, uint8_t d0, uint8_t d1, uint8_t 
 
 #else
 
-esp_err_t m20ly02z_init(gpio_port_t latchPin, gpio_port_t oePin, gpio_port_t clockPin, gpio_port_t doutPin)
+esp_err_t m20ly02z_init(gpio_num_t latchPin, gpio_num_t oePin, gpio_num_t clockPin, gpio_num_t doutPin)
 {
     ESP_LOGI(TAG, "Initialising VFD Display");
     // if (!latchPin || !oePin || !clockPin || !doutPin)
@@ -97,14 +97,17 @@ esp_err_t m20ly02z_init(gpio_port_t latchPin, gpio_port_t oePin, gpio_port_t clo
     m20ly02z_send_command(0x94); // 20 character modules
     m20ly02z_send_command(0x0e); // initialisation complete
     m20ly02z_send_command(0xc0); // move cursor to pos 1
-
-    m20ly02z_send_byte('H');
-    m20ly02z_send_byte('E');
-    m20ly02z_send_byte('L');
-    m20ly02z_send_byte('L');
-    m20ly02z_send_byte('O');
-
+    
     return ESP_OK;
+}
+
+void clear() 
+{
+    m20ly02z_send_command(0xc0);  // move cursor to pos 1
+    for (int i = 0 ; i < 20 ; i++)
+    {
+        m20ly02z_send_byte(' ');
+    }
 }
 
 void m20ly02z_send_byte(const uint8_t data) 
