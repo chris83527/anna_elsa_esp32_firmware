@@ -101,7 +101,7 @@ esp_err_t m20ly02z_init(gpio_num_t latchPin, gpio_num_t oePin, gpio_num_t clockP
     return ESP_OK;
 }
 
-void clear() 
+void m20ly02z_clear() 
 {
     m20ly02z_send_command(0xc0);  // move cursor to pos 1
     for (int i = 0 ; i < 20 ; i++)
