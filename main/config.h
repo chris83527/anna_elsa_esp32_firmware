@@ -37,12 +37,19 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <string>
+
+#include "driver/gpio.h"
+
+#define I2C_FREQ_HZ 400000
+
 // Running LED
 #define CPU_LED_GPIO GPIO_NUM_19
 
 // ccTalk
-#define CCTALK_GPIO_TX GPIO_NUM_17
-#define CCTALK_GPIO_RX GPIO_NUM_16
+#define CCTALK_GPIO_TX GPIO_NUM_16
+#define CCTALK_GPIO_RX GPIO_NUM_17
+
 
 // I2C
 #define GPIO_I2C_SDA GPIO_NUM_21
@@ -63,6 +70,10 @@
 #define AUDIO_SCLK GPIO_NUM_26
 #define AUDIO_DOUT GPIO_NUM_27
 
+// reels
+#define GPIO_MOTOR_PWM_EN GPIO_NUM_23
+
+
 // Buttons and button lamps (interfaced via MCP23017)
 #define BTN_DOOR        (1<<7)
 #define BTN_START       (1<<5)
@@ -72,31 +83,14 @@
 #define BTN_HOLD_LO     (1<<1)
 #define BTN_TRANSFER    (1<<0)
 
-#define LMP_START       (LED_COUNT + 1)
-#define LMP_COLLECT     (LED_COUNT + 2)
-#define LMP_HOLD_HI     (LED_COUNT + 3)
-#define LMP_HOLD        (LED_COUNT + 4)
-#define LMP_HOLD_LO     (LED_COUNT + 5)
-#define LMP_TRANSFER    (LED_COUNT + 6)
+#define LMP_START       (LED_COUNT + 0)
+#define LMP_COLLECT     (LED_COUNT + 1)
+#define LMP_HOLD_HI     (LED_COUNT + 2)
+#define LMP_HOLD        (LED_COUNT + 3)
+#define LMP_HOLD_LO     (LED_COUNT + 4)
+#define LMP_TRANSFER    (LED_COUNT + 5)
 
 // WS2128B LEDs
-#define LAMP_HI                                 0
-#define LAMP_lO                                 LAMP_HI + 1
-#define LAMP_MATRIX_SHUFFLE_TOP_RIGHT           LAMP_HI + 2
-#define LAMP_MATRIX_FREE_SPIN_CENTRE_RIGHT      LAMP_HI + 3
-#define LAMP_MATRIX_DOUBLE_MONEY_BOTTOM_RIGHT   LAMP_HI + 4
-#define LAMP_MATRIX_PALACE_BOTTOM_CENTRE        LAMP_HI + 5
-#define LAMP_MATRIX_LOSE_CENTRE_CENTRE          LAMP_HI + 6
-#define LAMP_MATRIX_PALACE_TOP_CENTRE           LAMP_HI + 7
-#define LAMP_MATRIX_FREE_SPIN
-
-#define LAMP_NUDGE_5        26
-#define LAMP_NUDGE_4        25
-#define LAMP_NUDGE_3        24
-#define LAMP_NUDGE_2        23
-#define LAMP_NUDGE_1        22
-
-
 #define REEL_LAMP_L1                            0
 #define REEL_LAMP_L2                            1
 #define REEL_LAMP_L3                            2
@@ -106,15 +100,44 @@
 #define REEL_LAMP_R1                            6
 #define REEL_LAMP_R2                            7
 #define REEL_LAMP_R3                            8
+#define LAMP_HI                                 9
+#define LAMP_lO                                 10
+#define LAMP_MATRIX_SHUFFLE_1_1                 11
+#define LAMP_MATRIX_FREE_SPIN_1_2               12
+#define LAMP_MATRIX_DOUBLE_MONEY_1_3            13
+#define LAMP_MATRIX_PALACE_2_3                  14
+#define LAMP_MATRIX_LOSE_2_2             15
+#define LAMP_MATRIX_PALACE_2_1              16
+#define LAMP_MATRIX_FREE_SPIN_3_1               17
+#define LAMP_MATRIX_SHUFFLE_3_2                 18
+#define LAMP_MATRIX_LOSE_3_3                    19
+#define LAMP_MATRIX_FREE_SPIN_4_3               20
+#define LAMP_MATRIX_HI_LO_4_2                   21
+#define LAMP_MATRIX_PALACE_4_1                  22
+#define LAMP_TRAIL_20_CENT        23
+#define LAMP_TRAIL_40_CENT        24
+#define LAMP_TRAIL_60_CENT        25
+#define LAMP_TRAIL_80_CENT        26
+#define LAMP_TRAIL_ONE_EURO       27
+#define LAMP_TRAIL_ONE_TWENTY     28
+#define LAMP_TRAIL_ONE_FOURTY     29
+#define LAMP_TRAIL_ONE_SIXTY      30
+#define LAMP_TRAIL_ONE_EIGHTY     31
+#define LAMP_TRAIL_TWO_EURO       32
+#define LAMP_TRAIL_TWO_FOURTY     33
+#define LAMP_TRAIL_TWO_EIGHTY     34
+#define LAMP_TRAIL_THREE_FOURTY   35
+#define LAMP_TRAIL_THREE_EIGHTY   36
+#define LAMP_TRAIL_FOUR_TWENTY    37
+#define LAMP_TRAIL_FOUR_SIXTY     38
+#define LAMP_TRAIL_FIVE_EURO      39
+#define LAMP_NUDGE_5        40
+#define LAMP_NUDGE_4        41
+#define LAMP_NUDGE_3        42
+#define LAMP_NUDGE_2        43
+#define LAMP_NUDGE_1        44
 
-// Audio files
-#define SND_NOW_THATS_ICE   "nowthatsice.wav"
-#define SND_LOSE            "lose.wav"
-#define SND_LET_IT_GO       "letitgo.wav"
-#define SND_THEYRE_TROLLES  "theyretrolls.wav"
-#define SND_CANT_FEEL_LEGS  "cantfeellegs.wav"
-#define SND_THATS_BETTER    "thatsbetter.wav"
-#define SND_KERCHING        "kerching.wav"
+
 
 
 #endif /* CONFIG_H */

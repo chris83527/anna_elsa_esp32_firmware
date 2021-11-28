@@ -14,8 +14,6 @@
 #ifndef CCTALKCONTROLLER_H
 #define CCTALKCONTROLLER_H
 
-#include <string>
-#include <stdlib.h>
 #include <stdint.h>
 
 #include "cctalk.h"
@@ -26,40 +24,48 @@ public:
     CCTalkController(const CCTalkController& orig);
     virtual ~CCTalkController();
     
-    cctalk_response_t* resetDevice(const uint8_t address, uint8_t *data, uint8_t length);
-    cctalk_response_t* requestManufacturerId(const uint8_t address, uint8_t *data, uint8_t length);
-    cctalk_response_t* requestProductCode(const uint8_t address, uint8_t *data, uint8_t length);
-    cctalk_response_t* requestBuildCode(const uint8_t address, uint8_t *data, uint8_t length);
-    cctalk_response_t* requestSerialNumber(const uint8_t address, uint8_t *data, uint8_t length);
-    cctalk_response_t* requestSoftwareRevision(const uint8_t address, uint8_t *data, uint8_t length);
-    cctalk_response_t* requestCommsRevision(const uint8_t address, uint8_t *data, uint8_t length);
-    cctalk_response_t* pollCredit(const uint8_t address, uint8_t *data, uint8_t length);
-    cctalk_response_t* pollHopperStatus(const uint8_t address, uint8_t *data, uint8_t length);
-    cctalk_response_t* modifyInhibitStatus(const uint8_t address, const uint8_t enable1, const uint8_t enable2, uint8_t *data, uint8_t length);
-    cctalk_response_t* modifyMasterInhibitStatus(const uint8_t address, const uint8_t enable, uint8_t *data, uint8_t length);
-    cctalk_response_t* modifyDefaultSorterPath(const uint8_t address, const uint8_t defaultChute, uint8_t *data, uint8_t length);
-    cctalk_response_t* modifySorterPath(const uint8_t address, const uint8_t path, const uint8_t chute, uint8_t *data, uint8_t length);
-    cctalk_response_t* enableHopper(const uint8_t address, uint8_t *data, uint8_t length);
-    cctalk_response_t* readOptoStates(const uint8_t address, uint8_t *data, uint8_t length);
-    cctalk_response_t* dispenseCoins(const uint8_t address, uint8_t numCoins, uint8_t *data, uint8_t length);
-    cctalk_response_t* requestCipherKey(const uint8_t address, uint8_t *data, uint8_t length);
-    cctalk_response_t* testHopper(const uint8_t address, uint8_t *data, uint8_t length);
-    cctalk_response_t* testSolenoids(const uint8_t address, uint8_t *data, uint8_t length);
-        
-    void begin();    
+    esp_err_t initialise(void);
     
-    cctalk_response_t* sendRequest(const uint8_t header, const uint8_t address);    
+    cctalk_response_t* resetDevice(const uint8_t address);
+    std::string requestManufacturerId(const uint8_t address);
+    std::string requestProductCode(const uint8_t address);
+    std::string requestBuildCode(const uint8_t address);
+    std::string requestSerialNumber(const uint8_t addres);
+    std::string requestSoftwareRevision(const uint8_t address);
+    std::string requestCommsRevision(const uint8_t address);
+    cctalk_response_t* pollCredit(const uint8_t address);
+    cctalk_response_t* pollHopperStatus(const uint8_t address);
+    cctalk_response_t* modifyInhibitStatus(const uint8_t address, const uint8_t enable1, const uint8_t enable2);
+    cctalk_response_t* modifyMasterInhibitStatus(const uint8_t address, const uint8_t enable);
+    cctalk_response_t* modifyDefaultSorterPath(const uint8_t address, const uint8_t defaultChute);
+    cctalk_response_t* modifySorterPath(const uint8_t address, const uint8_t path, const uint8_t chute);
+    cctalk_response_t* enableHopper(const uint8_t address);
+    cctalk_response_t* readOptoStates(const uint8_t address);
+    cctalk_response_t* dispenseCoins(const uint8_t address, uint8_t numCoins);
+    cctalk_response_t* requestCipherKey(const uint8_t address);
+    cctalk_response_t* testHopper(const uint8_t address);
+    cctalk_response_t* testSolenoids(const uint8_t address); 
+    cctalk_response_t* requestPayoutHighLowStatus(const uint8_t address);
     
-    std::string getStringResponse();    
+    const static uint8_t COIN_VALUES[];
+          
+    const static unsigned long VALIDATOR_POLL_INTERVAL = 100;    
+    const static unsigned long HOPPER_STATUS_POLL_INTERVAL = 200;   
+    
+    cctalk_response_t* sendRequest(cctalk_header_e header, const uint8_t address, uint8_t *data, uint8_t length);
+    
+    std::string getStringResponse(cctalk_response_t *response);
     
 private:
     cctalk_device_t *cctalkDevice;
     MainController * mainController;
     
     int getState();
+      
     
-    const uint8_t COIN_VALUES[7] = {0, 5, 10, 20, 50, 100, 200};
 };
+
+
 
 #endif /* CCTALKCONTROLLER_H */
 

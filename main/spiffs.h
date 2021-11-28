@@ -39,8 +39,16 @@
 
 #include "esp_spiffs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
 esp_err_t init_spiffs(void);
 
 esp_vfs_spiffs_conf_t spiffs_conf;
 
+#ifdef __cplusplus
+}
+#endif
+    
 #endif

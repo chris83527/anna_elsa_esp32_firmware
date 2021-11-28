@@ -37,17 +37,21 @@
 #ifndef __WEBSERVER_H__
 #define __WEBSERVER_H__
 
-#include <esp_wifi.h>
-#include <esp_event.h>
-#include <esp_log.h>
-#include <esp_system.h>
-#include <nvs_flash.h>
-#include <sys/param.h>
+#include "esp_wifi.h"
+#include "esp_event.h"
+#include "esp_log.h"
+#include "esp_system.h"
+#include "nvs_flash.h"
+#include "sys/param.h"
 #include "esp_netif.h"
 #include "esp_eth.h"
-#include "protocol_common.h"
+
 
 #include <esp_https_server.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void init_webserver(const char *base_path);
 httpd_handle_t start_webserver(const char *base_path);
@@ -59,4 +63,8 @@ esp_err_t download_get_handler(httpd_req_t *req);
 esp_err_t index_html_get_handler(httpd_req_t *req);
 esp_err_t set_content_type_from_file(httpd_req_t *req, const char *filename);
 
+#ifdef __cplusplus
+}
+#endif
+    
 #endif

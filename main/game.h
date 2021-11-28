@@ -41,7 +41,6 @@
 #include "displaycontroller.h"
 
 
-class SerialMonitorController;
 class MainController; // forward declaration
 
 class Game {
@@ -51,7 +50,7 @@ public:
     void start(void);
     bool isGameInProgress();
     void playNudges(int nudges);
-
+    void initialise(void);
     // 0 = Hans
     // 1 = Olaf
     // 2 = Sven
@@ -72,7 +71,7 @@ private:
 
     MainController* mainController;
 
-    DisplayController::lamp_data_t *lampData;
+    LampData *lampData;
     
     bool isInProgress;
 
@@ -82,7 +81,7 @@ private:
 
     void collectOrContinue();
     void transferOrGamble();
-    void checkHoldPossibilities();
+    bool offerHold();
     void playFeatureMatrix();
     void playTrail();
     void playHiLo();
@@ -126,6 +125,7 @@ private:
     uint8_t PRIZE_TRAIL_PRIZES_LENGTH = sizeof(PRIZE_TRAIL_PRIZES) / 16;
     
     uint8_t moves;
+       
 };
 
 #endif /* GAME_H */

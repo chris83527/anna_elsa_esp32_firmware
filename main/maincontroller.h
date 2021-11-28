@@ -14,8 +14,12 @@
 #ifndef MAINCONTROLLER_H
 #define MAINCONTROLLER_H
 
-#include <stdlib.h>
-#include <nvs_flash.h>
+#include <cstdlib>
+
+#include "ds3231.h"
+#include "nvs_flash.h"
+#include "nvs.h"
+#include "nvs_handle.hpp"
 
 class CCTalkController;
 class ReelController;
@@ -25,85 +29,47 @@ class MoneyController;
 class Game;
 class DisplayController;
 
-
 class MainController {
-public:    
+public:
     MainController();
     MainController(const MainController& orig);
 
     void start();
-    void refreshStatus();
-    void setCredit(uint16_t value);
-    void setBank(uint16_t value);
-    void setTransfer(uint16_t value);
-    uint16_t getBank();
-    uint16_t getTransfer();
-    uint16_t getCredit();
-    void addToBank(uint16_t value);
-    void addToCredit(uint16_t value);
-    void addToTransfer(uint16_t value);
+
     void payout();
-    void incrementGameCounter();
+
     void print_binary(uint8_t value);
     //void dumpEEPROMValues();
     void setDateTime();
-    time_t getDateTime(); 
+    time_t getDateTime();
     //void printDate(Stream *stream);
     uint8_t getVolume();
     //EEProm_Data* getEEPromData();
-    void checkHopperLevel();
+    void checkHopperLevel(); // TODO: this should be in cctalkcontroller
     void processHopperErrors();
     void error(int errorCode);
-    
-    void writeValueToNVS(const char * key, int value);
-    int readValueFromNVS(const char * key);
-    
+
+    void writeValueToNVS(const char * key, uint16_t value);
+    uint16_t readValueFromNVS(const char * key);
+
     AudioController* getAudioController();
     DisplayController* getDisplayController();
     ReelController* getReelController();
-    CCTalkController* getCCTalkController();    
+    CCTalkController* getCCTalkController();
     Game* getGame();
     MoneyController* getMoneyController();
-    
+
 private:
-   
+
+    i2c_dev_t ds3231;
+    
     //EEProm_Data eeprom_data;
 
     int reels = 0;
 
     unsigned int state = 0;
-    unsigned int animationStage = 0;
-    
-    const unsigned long interval = 3000;
+    unsigned int animationStage = 0;  
 
-    const unsigned long tableauRefreshInterval = 100;
-    unsigned long tableauPreviousMillis = 0;
-
-    unsigned long previousMillis;
-    unsigned long currentMillis;
-
-    const unsigned long coinRefreshInterval = 200;
-    unsigned long coinCheckPreviousMillis = 0;
-
-    const unsigned long hopperStatusPollInterval = 100;
-    unsigned long hopperStatusPollPreviousMillis = 0;
-
-    const unsigned long serialReadInterval = 400;
-    unsigned long serialReadPreviousMillis = 0;
-
-    const unsigned long reelRefreshInterval = 2;
-    unsigned long reelRefreshPreviousMillis = 0;
-
-    const unsigned long timeUpdateInterval = 1000;
-    unsigned long timeUpdatePreviousMillis = 0;
-
-    const unsigned long msgUpdateRefreshInterval = 4000;
-    unsigned long msgUpdatePreviousMillis = 0;
-
-    
-    uint8_t validatorEventCounter = 0;
-    uint8_t hopperEventCounter = 0;
-    
     bool startPolling = false;
 
     volatile float counter = 0;
@@ -115,29 +81,31 @@ private:
 
     uint8_t volume = 0;
 
-    bool postInProgress = true;
-    bool payoutInProgress = false;
-
     Game * game;
     ReelController * reelController;
     DisplayController * displayController;
-    CCTalkController * cctalkController;    
+    CCTalkController * cctalkController;
     AudioController * audioController;
     MoneyController * moneyController;
-    
-    nvs_handle_t nvs_handle;        
 
+    std::shared_ptr<nvs::NVSHandle> nvs_handle;
+
+    const char* NVS_PARTITION_SETTINGS = "settings";
+
+    enum class MachineState : uint8_t {
+        INITIALISING,
+        IDLE,
+        ANIMATION,
+        IN_GAME,
+        PAYING_OUT
+    };
 };
 
-enum class MachineState : uint8_t {
-    INITIALISING,
-    IDLE,
-    ANIMATION,
-    IN_GAME,
-    PAYING_OUT
-};
 
-void blinkTask(void *pvParameters);
+
+void blinkCPUStatusLEDTask(void *pvParameters);
+
+
 
 #endif /* MAINCONTROLLER_H */
 

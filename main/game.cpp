@@ -43,286 +43,210 @@
 #include "audiocontroller.h"
 #include "reelcontroller.h"
 #include "maincontroller.h"
-#include "entropy.h"
+#include "lib8tion/random8.h"
 
 
 #include "game.h"
+#include "moneycontroller.h"
 
 using namespace std;
 
-Game::Game(MainController *mainController)
-{
-    mainController->getDisplayController()->resetLampData(); // switch everything off and set to defined state
-    
-    this->lampData = mainController->getDisplayController()->getLampData();
+static const char *TAG = "Game";
+
+Game::Game(MainController *mainController) {
+
+    ESP_LOGI(TAG, "Entering constructor");
+
     this->mainController = mainController;
     this->isInProgress = false;
+
+    ESP_LOGI(TAG, "Leaving constructor");
 }
 
-Game::Game(const Game &orig)
-{
+Game::Game(const Game &orig) {
 }
 
-void Game::start()
-{
-    mainController->incrementGameCounter();
+void Game::initialise() {
+    this->lampData = mainController->getDisplayController()->getLampData();
+}
+
+void Game::start() {
+
+    ESP_LOGI(TAG, "Beginning game");
+
+    mainController->getDisplayController()->resetLampData(true);
+    mainController->getAudioController()->stopPlaying();
 
     this->isInProgress = true;
 
-    // while (!Entropy.available())
-    // {
-    //     mainController->refreshStatus();
-    // }
+    uint8_t nudges = random8_to(6); // 0 - 5    
+    bool hold = offerHold();
 
-    uint32_t nudges = Entropy.random(6); // 0 - 5
-    uint32_t hold = Entropy.random(2);    //0 or 1
-    
-    lampData[REEL_LAMP_L2].on = true;
-    lampData[REEL_LAMP_C2].on = true;
-    lampData[REEL_LAMP_R2].on = true;
+    lampData[REEL_LAMP_L2].lampState = LampState::on;
+    lampData[REEL_LAMP_C2].lampState = LampState::on;
+    lampData[REEL_LAMP_R2].lampState = LampState::on;
 
-    mainController->getDisplayController()->updateLampData(lampData, true);
-    
-        
-    // TODO: implement stopPlaying method
-    //mainController->getAudioController()->stopPlaying(); // in case any other music is currently playing.
-
-    if (hold > 0)
-    {
-        lampData[LMP_START]->blinkspeed.blinkSlow = true;
-        lampData[LMP_START]->blink = true;
-        lampData[LMP_START]->on = true;
-        lampData[LMP_HOLD_LO]->blinkspeed.blinkSlow = true;
-        lampData[LMP_HOLD_LO]->blink = true;
-        lampData[LMP_HOLD_LO]->on = true;
-        lampData[LMP_HOLD]->blinkspeed.blinkSlow = true;
-        lampData[LMP_HOLD]->blink = true;
-        lampData[LMP_HOLD]->on = true;
-        lampData[LMP_HOLD_HI]->blinkspeed.blinkSlow = true;
-        lampData[LMP_HOLD_HI]->blink = true;
-        lampData[LMP_HOLD_HI]->on = true;
-                                
-        mainController->getDisplayController()->updateLampData(lampData, true);
-    }
-    else
-    {
-        lampData[LMP_START]->blinkspeed.blinkSlow = true;
-        lampData[LMP_START]->blink = true;
-        lampData[LMP_START]->on = true;
-        mainController->getDisplayController()->updateLampData(lampData, true);
-    }
-
-    uint8_t btnStatus = mainController->getDisplayController()->getButtonStatus();
+    if (hold) {
+        lampData[LMP_START].lampState = LampState::blinkslow;
+        lampData[LMP_HOLD_LO].lampState = LampState::blinkslow;
+        lampData[LMP_HOLD].lampState = LampState::blinkslow;
+        lampData[LMP_HOLD_HI].lampState = LampState::blinkslow;
+    } else {
+        lampData[LMP_START].lampState = LampState::blinkslow;
+    }    
 
     mainController->getDisplayController()->setText("PRESS START TO BEGIN");
     mainController->getDisplayController()->displayText();
 
+    
     // loop waiting for button press.
-    while (!(btnStatus & BTN_START))
-    {
+    uint8_t btnStatus = mainController->getDisplayController()->getButtonStatus();
+    while (!(btnStatus & BTN_START)) {
         btnStatus = this->mainController->getDisplayController()->getButtonStatus();
-        mainController->refreshStatus();
+        vTaskDelay(pdMS_TO_TICKS(50));
 
         holdLeft = false;
         holdCentre = false;
         holdRight = false;
 
-        if (hold)
-        {
-            if (btnStatus & BTN_HOLD)
-            {
+        if (hold) {
+            if (btnStatus & BTN_HOLD) {
                 holdCentre = true;
-                lampData[LMP_HOLD]->blink = false;
-                
-                mainController->getDisplayController()->updateLampData(lampData, true);
-            }
-            else if (btnStatus & BTN_HOLD_HI)
-            {
+                lampData[LMP_HOLD].lampState = LampState::on;
+            } else if (btnStatus & BTN_HOLD_HI) {
                 holdRight = true;
-                lampData[LMP_HOLD_HI]->blink = false;
-                
-                mainController->getDisplayController()->updateLampData(lampData, true);
-            }
-            else if (btnStatus & BTN_HOLD_LO)
-            {
+                lampData[LMP_HOLD_HI].lampState = LampState::on;
+            } else if (btnStatus & BTN_HOLD_LO) {
                 holdLeft = true;
-                lampData[LMP_HOLD_LO]->blink = false;
-                
-                mainController->getDisplayController()->updateLampData(lampData, true);
+                lampData[LMP_HOLD_LO].lampState = LampState::on;
             }
         }
-        
+
         vTaskDelay(pdMS_TO_TICKS(100)); // let the processor do something else
     }
-
-    mainController->getAudioController()->playAudioFile(SND_NOW_THATS_ICE);
+    mainController->getMoneyController()->incrementGameCount();
+    mainController->getMoneyController()->removeFromCredit(20);
+    mainController->getAudioController()->playAudioFileSync(Sounds::SND_NOW_THATS_ICE);
 
     spinReels();
 
-    if (isWinningLine())
-    {
+    if (isWinningLine()) {
         transferOrGamble();
-    }
-    else if (nudges > 0)
-    {
+    } else if (nudges > 0) {
         playNudges(nudges);
-    }
-    else
-    {
-        mainController->getAudioController()->playAudioFile(SND_LOSE);
+    } else {
+        mainController->getAudioController()->playAudioFile(Sounds::SND_LOSE);
     }
 
-        
-    lampData[LMP_START].blink = false;
-    lampData[LMP_START].on = false;    
-    lampData[LMP_COLLECT].blink = false;
-    lampData[LMP_COLLECT].on = false;
-    lampData[LMP_HOLD_HI].blink = false;
-    lampData[LMP_HOLD_HI].on = false;
-    lampData[LMP_HOLD].blink = false;
-    lampData[LMP_HOLD].on = false;
-    lampData[LMP_HOLD_LO].blink = false;
-    lampData[LMP_HOLD_LO].on = false;
-    lampData[LMP_TRANSFER].blink = false;
-    lampData[LMP_TRANSFER].on = false;
-    
-    mainController->getDisplayController()->updateLampData(lampData, true);
-    
+    lampData[LMP_START].lampState = LampState::off;
+    lampData[LMP_COLLECT].lampState = LampState::off;
+    lampData[LMP_HOLD_HI].lampState = LampState::off;
+    lampData[LMP_HOLD].lampState = LampState::off;
+    lampData[LMP_HOLD_LO].lampState = LampState::off;
+    lampData[LMP_TRANSFER].lampState = LampState::off;
+
     // payout
-    if ((mainController->getBank() > 0) && (mainController->getCredit() < 20))
-    {
+    if ((mainController->getMoneyController()->getBank() > 0) && (mainController->getMoneyController()->getCredit() < 20)) {
         collectOrContinue();
     }
 
     Game::isInProgress = false;
+    ESP_LOGI(TAG, "Exiting game");
 }
 
-void Game::spinReels()
-{
-    uint32_t reelStopLeft = holdLeft ? 0 : Entropy.random(26);
-    uint32_t reelStopCentre = holdCentre ? 0 : Entropy.random(26);
-    uint32_t reelStopRight = holdRight ? 0 : Entropy.random(26);
+void Game::spinReels() {
 
-    mainController->setCredit(mainController->getCredit() - 20);
-    lampData[LMP_START].on = false;
-    mainController->getDisplayController()->updateLampData(lampData, true);
+    ESP_LOGI(TAG, "Entering spinReels()");
+
+    //uint8_t reelStopLeft = holdLeft ? 0 : random8_to(26);
+    //uint8_t reelStopCentre = holdCentre ? 0 : random8_to(26);
+    //uint8_t reelStopRight = holdRight ? 0 : random8_to(26);
+    
+    uint8_t reelStopLeft = random8_to(26);
+    uint8_t reelStopCentre = random8_to(26);
+    uint8_t reelStopRight = random8_to(26);
+    
+    lampData[LMP_START].lampState = LampState::off;
 
     this->mainController->getDisplayController()->setText("    LET IT GO!!     ");
     this->mainController->getDisplayController()->displayText();
 
     mainController->getReelController()->spin(reelStopLeft, reelStopCentre, reelStopRight);
 
-    while (mainController->getReelController()->isCommandInProgress())
-    {
-        this->mainController->refreshStatus();
-        this->moves = Entropy.random(13);
-        this->mainController->getDisplayController()->setMoves(this->moves);
+    while (mainController->getReelController()->isCommandInProgress()) {
+        vTaskDelay(pdMS_TO_TICKS(50));
+        this->moves = random8_to(13);
+        //this->mainController->getDisplayController()->setMoves(this->moves); // TODO: fix this
     }
+
+    ESP_LOGI(TAG, "Exiting spinReels()");
 }
 
-void Game::shuffleReels()
-{
-    uint32_t reelStopLeft = Entropy.random(26);
-    uint32_t reelStopCentre = Entropy.random(26);
-    uint32_t reelStopRight = Entropy.random(26);
+void Game::shuffleReels() {
+    uint8_t reelStopLeft = random8_to(26);
+    uint8_t reelStopCentre = random8_to(26);
+    uint8_t reelStopRight = random8_to(26);
 
-    mainController->setCredit(mainController->getCredit() - 20);
-    lampData[LMP_START].on = false;
-    mainController->getDisplayController()->updateLampData(lampData, true);
+    mainController->getMoneyController()->removeFromCredit(20);
+    lampData[LMP_START].lampState = LampState::off;
 
     this->mainController->getDisplayController()->setText("    LET IT GO!!     ");
     this->mainController->getDisplayController()->displayText();
 
     mainController->getReelController()->shuffle(reelStopLeft, reelStopCentre, reelStopRight);
 
-    while (mainController->getReelController()->isCommandInProgress())
-    {
-        this->mainController->refreshStatus();
-        this->moves = Entropy.random(12);
-        this->mainController->getDisplayController()->setMoves(this->moves);
+    while (mainController->getReelController()->isCommandInProgress()) {
+        vTaskDelay(pdMS_TO_TICKS(50));
+        this->moves = random8_to(12);
+        //this->mainController->getDisplayController()->setMoves(this->moves);   // TODO: fix this
     }
 }
 
-void Game::playNudges(int nudges)
-{
-
-    uint8_t leftPos;
-    uint8_t centrePos;
-    uint8_t rightPos;
+void Game::playNudges(int nudges) {
+    ESP_LOGI(TAG, "Entering playNudges(%d)", nudges);
 
     std::string nudgeText = "        NUDGE        ";
 
     mainController->getDisplayController()->setText(nudgeText);
     mainController->getDisplayController()->displayText();
 
-    lampData[LMP_START].blink = false;
-    lampData[LMP_START].on = false;    
-    lampData[LMP_COLLECT].blink = false;
-    lampData[LMP_COLLECT].on = false;
-    lampData[LMP_HOLD_HI].blink = false;
-    lampData[LMP_HOLD_HI].on = false;
-    lampData[LMP_HOLD].blink = false;
-    lampData[LMP_HOLD].on = false;
-    lampData[LMP_HOLD_LO].blink = false;
-    lampData[LMP_HOLD_LO].on = false;
-    lampData[LMP_TRANSFER].blink = false;
-    lampData[LMP_TRANSFER].on = false;
-    
-    lampData[NUDGE_LAMPS[nudges]]->blinkspeed.blinkFast = true;
-    lampData[NUDGE_LAMPS[nudges]]->blink = true;
-    lampData[NUDGE_LAMPS[nudges]]->on = true;
-    
-    mainController->getDisplayController()->updateLampData(lampData, true);
-    
-    for (int i = 1; i <= nudges; i++) {
-        lampData[NUDGE_LAMPS[i]]->blinkspeed.blinkFast = true;
-        lampData[NUDGE_LAMPS[i]]->blink = true;
-        lampData[NUDGE_LAMPS[i]]->on = true;
+    mainController->getDisplayController()->resetLampData(false);
+    for (int i = 0; i < nudges; i++) {
+        lampData[DisplayController::NUDGE_LAMPS[i]].lampState = LampState::on;
+        lampData[DisplayController::NUDGE_LAMPS[i]].rgb.r = 0;
+        lampData[DisplayController::NUDGE_LAMPS[i]].rgb.g = 0;
+        lampData[DisplayController::NUDGE_LAMPS[i]].rgb.b = 255;
     }
+    lampData[DisplayController::NUDGE_LAMPS[nudges]].lampState = LampState::blinkfast;
 
-    //mainController->getDisplayController()->lampsOn(NUDGES_COL, lmpData, false);
+    bool win;
+    
+    while (nudges > 0) {
+        
+        win = isWinningLine();
 
-    mainController->getDisplayController()->clearAllData(false);
-    for (int i = 0; i < nudges; i++)
-    {
-        mainController->getDisplayController()->setLampRGBData(&mainController->getDisplayController()->NUDGE_LAMPS[i], BLINK_MASK_NONE | RGB_BLUE, false);
-    }
-    mainController->getDisplayController()->setLampRGBData(&mainController->getDisplayController()->NUDGE_LAMPS[nudges], BLINK_MASK_FAST | RGB_WHITE, true);
+        lampData[LMP_HOLD].lampState = LampState::blinkfast;
+        lampData[LMP_HOLD_HI].lampState = LampState::blinkfast;
+        lampData[LMP_HOLD_LO].lampState = LampState::blinkfast;
 
-    while (nudges > 0)
-    {
-
-        mainController->getDisplayController()->lampsBlinkFast(BTN_COL, LMP_HOLD | LMP_HOLD_HI | LMP_HOLD_LO, false);
-
-        if (isWinningLine())
-        {
-            mainController->getDisplayController()->lampsBlinkFast(BTN_COL, (mainController->getDisplayController()->getShortBlinkData(BTN_COL) | LMP_TRANSFER), false);
-            mainController->getDisplayController()->lampsBlinkSlow(BTN_COL, (mainController->getDisplayController()->getShortBlinkData(BTN_COL) | LMP_START), false);
-            mainController->getDisplayController()->lampsOn(BTN_COL, (mainController->getDisplayController()->getLampData(BTN_COL) | LMP_TRANSFER | LMP_START), true);
-        }
-        else
-        {
-            mainController->getDisplayController()->lampsOn(BTN_COL, LMP_HOLD_LO | LMP_HOLD | LMP_HOLD_HI, true);
+        if (win) {           
+            break;
         }
 
         uint8_t btnStatus = mainController->getDisplayController()->getButtonStatus();
 
         // loop waiting for button press.
-        while ((!isWinningLine() && (!(btnStatus & (BTN_HOLD_LO | BTN_HOLD | BTN_HOLD_HI)))) || (isWinningLine() && (!(btnStatus & (BTN_TRANSFER | BTN_HOLD_LO | BTN_HOLD | BTN_HOLD_HI | BTN_START)))))
-        {
+        while ((!win && (!(btnStatus & (BTN_HOLD_LO | BTN_HOLD | BTN_HOLD_HI)))) || (win && (!(btnStatus & (BTN_TRANSFER | BTN_HOLD_LO | BTN_HOLD | BTN_HOLD_HI | BTN_START))))) {
             btnStatus = mainController->getDisplayController()->getButtonStatus();
-            mainController->refreshStatus();
+            vTaskDelay(pdMS_TO_TICKS(50));
         }
 
-        if (isWinningLine() && (btnStatus & BTN_TRANSFER))
-        {
-            mainController->addToBank(mainController->getTransfer());
-            mainController->setTransfer(0);
-            mainController->getAudioController()->playAudioFile("kerching.wav");
+        if (win && (btnStatus & BTN_TRANSFER)) {            
+            mainController->getMoneyController()->addToBank(mainController->getMoneyController()->getTransfer());
+            mainController->getMoneyController()->setTransfer(0);
+            mainController->getAudioController()->playAudioFile(Sounds::SND_KERCHING);
             return;
-        }
-        else if (isWinningLine() && (btnStatus & BTN_START))
-        {
+        } else if (win && (btnStatus & BTN_START)) {
             playFeatureMatrix();
             return;
         }
@@ -332,141 +256,128 @@ void Game::playNudges(int nudges)
         mainController->getDisplayController()->setText(nudgeText);
         mainController->getDisplayController()->displayText();
 
-        mainController->getDisplayController()->clearAllData(false);
-
-        for (int i = 0; i < nudges; i++)
-        {
-            mainController->getDisplayController()->setLampRGBData(&mainController->getDisplayController()->NUDGE_LAMPS[i], BLINK_MASK_NONE | RGB_BLUE, false);
+        mainController->getDisplayController()->resetLampData(false);
+        for (int i = 0; i < nudges; i++) {
+            lampData[DisplayController::NUDGE_LAMPS[i]].lampState = LampState::on;
+            lampData[DisplayController::NUDGE_LAMPS[i]].rgb.r = 0;
+            lampData[DisplayController::NUDGE_LAMPS[i]].rgb.g = 0;
+            lampData[DisplayController::NUDGE_LAMPS[i]].rgb.b = 255;
         }
-        mainController->getDisplayController()->setLampRGBData(&mainController->getDisplayController()->NUDGE_LAMPS[nudges], BLINK_MASK_FAST | RGB_WHITE, true);
+        lampData[nudges].lampState = LampState::blinkfast;
 
-        //mainController->getDisplayController()->lampsOn(NUDGES_COL, lmpData, false);
-        mainController->getDisplayController()->lampsBlinkFast(BTN_COL, LMP_HOLD | LMP_HOLD_HI | LMP_HOLD_LO, false);
-        mainController->getDisplayController()->lampsOn(BTN_COL, LMP_HOLD | LMP_HOLD_HI | LMP_HOLD_LO, true);
+        lampData[LMP_HOLD].lampState = LampState::blinkfast;
+        lampData[LMP_HOLD_LO].lampState = LampState::blinkfast;
+        lampData[LMP_HOLD_HI].lampState = LampState::blinkfast;
 
-        if ((btnStatus & BTN_HOLD_LO) == BTN_HOLD_LO)
-        {
-            // switch off lamps and reset blink status
-            mainController->getDisplayController()->lampsBlinkFast(BTN_COL, 0x0000, false);
-            mainController->getDisplayController()->lampsOn(BTN_COL, 0x0000, true); // all button lamps off
-            mainController->getReelController()->getReelPositions(leftPos, centrePos, rightPos);
+
+        if ((btnStatus & BTN_HOLD_LO) == BTN_HOLD_LO) {            
             mainController->getReelController()->nudge(1, 0, 0);
-        }
-        else if ((btnStatus & BTN_HOLD) == BTN_HOLD)
-        {
-            // switch off lamps and reset blink status
-            mainController->getDisplayController()->lampsBlinkFast(BTN_COL, 0x0000, false);
-            mainController->getDisplayController()->lampsOn(BTN_COL, 0x0000, true); // all button lamps off
-            mainController->getReelController()->getReelPositions(leftPos, centrePos, rightPos);
+        } else if ((btnStatus & BTN_HOLD) == BTN_HOLD) {            
             mainController->getReelController()->nudge(0, 1, 0);
-        }
-        else if ((btnStatus & BTN_HOLD_HI) == BTN_HOLD_HI)
-        {
-            // switch off lamps and reset blink status
-            mainController->getDisplayController()->clsetLampsBlinkFast(BTN_COL, 0x0000, false);
-            mainController->getDisplayController()->setAllLampsOff(true); // all button lamps off
-            mainController->getReelController()->getReelPositions(leftPos, centrePos, rightPos);
+        } else if ((btnStatus & BTN_HOLD_HI) == BTN_HOLD_HI) {            
             mainController->getReelController()->nudge(0, 0, 1);
         }
 
         // wait for reel controller to finish command
-        while (mainController->getReelController()->isCommandInProgress())
-        {
-            mainController->refreshStatus();
+        while (mainController->getReelController()->isCommandInProgress()) {
+            vTaskDelay(pdMS_TO_TICKS(50));
         }
     }
 
-    mainController->getDisplayController()->clearAllData(true);
-    if (isWinningLine())
-    {
+    mainController->getDisplayController()->resetLampData(true);
+
+    if (isWinningLine()) {
         transferOrGamble();
+    } else {
+        mainController->getAudioController()->playAudioFile(Sounds::SND_LOSE);
     }
-    else
-    {
-        mainController->getAudioController()->playAudioFile(SND_LOSE);
-    }
+
+    ESP_LOGI(TAG, "Exiting nudges()");
 }
 
-void Game::checkHoldPossibilities()
-{
+bool Game::offerHold() {
+    ESP_LOGI(TAG, "Entering offerHold()");
 
     uint8_t leftPos;
     uint8_t centrePos;
     uint8_t rightPos;
+
+    uint8_t hold = random8_to(2); //0 or 1
 
     mainController->getReelController()->getReelPositions(leftPos, centrePos, rightPos);
 
     uint8_t leftSymbolId = symbolsLeftReel[leftPos];
     uint8_t centreSymbolId = symbolsCentreReel[centrePos];
     uint8_t rightSymbolId = symbolsRightReel[rightPos];
-
-    // TODO: work out algorithm for which symbols to hold random? two of the same symbols?
+    
+    bool result = (((leftSymbolId == centreSymbolId) || (leftSymbolId == rightSymbolId) || (centreSymbolId == rightSymbolId)) && hold > 0); 
+    
+    ESP_LOGI(TAG, "Exiting offerHold(). Returning %s", result ? "true" : "false");
+    
+    return result;
 }
 
-void Game::transferOrGamble()
-{
+void Game::transferOrGamble() {
+    ESP_LOGI(TAG, "Entering transferOrGamble()");
 
-    mainController->getDisplayController()->lampsBlinkFast(BTN_COL, LMP_TRANSFER, false);
-    mainController->getDisplayController()->lampsBlinkSlow(BTN_COL, LMP_START, false);
-    mainController->getDisplayController()->lampsOn(BTN_COL, LMP_START | LMP_TRANSFER, true);
+    lampData[LMP_TRANSFER].lampState = LampState::blinkfast;
+    lampData[LMP_START].lampState = LampState::blinkslow;
 
     uint8_t btnStatus = mainController->getDisplayController()->getButtonStatus();
 
     // loop waiting for button press.
-    while (!(btnStatus & (BTN_TRANSFER | BTN_START)))
-    {
+    while (!(btnStatus & (BTN_TRANSFER | BTN_START))) {
         btnStatus = mainController->getDisplayController()->getButtonStatus();
-        mainController->refreshStatus();
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 
-    mainController->getDisplayController()->lampsBlinkFast(BTN_COL, 0x0000, false);
-    mainController->getDisplayController()->lampsBlinkSlow(BTN_COL, 0x0000, false);
-    mainController->getDisplayController()->lampsOn(BTN_COL, 0x0000, true); // all button lamps off
+    lampData[LMP_START].lampState = LampState::off;
+    lampData[LMP_COLLECT].lampState = LampState::off;
+    lampData[LMP_TRANSFER].lampState = LampState::off;
+    lampData[LMP_HOLD_LO].lampState = LampState::off;
+    lampData[LMP_HOLD].lampState = LampState::off;
+    lampData[LMP_HOLD_HI].lampState = LampState::off;
 
-    if (btnStatus & BTN_TRANSFER)
-    {
-        mainController->addToBank(mainController->getTransfer());
-        mainController->setTransfer(0);
-        mainController->getAudioController()->playAudioFile("kerching.wav");
-    }
-    else if (btnStatus & BTN_START)
-    {
+
+    if (btnStatus & BTN_TRANSFER) {
+        mainController->getMoneyController()->moveTransferToBank();
+        mainController->getAudioController()->playAudioFile(Sounds::SND_KERCHING);
+    } else if (btnStatus & BTN_START) {
         playFeatureMatrix();
     }
+
+    ESP_LOGI(TAG, "Exiting transferOrGamble()");
 }
 
-void Game::collectOrContinue()
-{
-    mainController->getDisplayController()->lampsBlinkFast(BTN_COL, LMP_START, false);
-    mainController->getDisplayController()->lampsBlinkSlow(BTN_COL, LMP_COLLECT, false);
-    mainController->getDisplayController()->lampsOn(BTN_COL, LMP_START | LMP_COLLECT, true);
+void Game::collectOrContinue() {
+
+    ESP_LOGI(TAG, "Entering collectOrContinue()");
+
+    lampData[LMP_START].lampState = LampState::blinkfast;
+    lampData[LMP_COLLECT].lampState = LampState::blinkslow;
 
     uint8_t btnStatus = mainController->getDisplayController()->getButtonStatus();
 
     // loop waiting for button press.
-    while (!(btnStatus & (BTN_COLLECT | BTN_START)))
-    {
+    while (!(btnStatus & (BTN_COLLECT | BTN_START))) {
         btnStatus = mainController->getDisplayController()->getButtonStatus();
-        mainController->refreshStatus();
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 
-    mainController->getDisplayController()->lampsBlinkFast(BTN_COL, 0x0000, false);
-    mainController->getDisplayController()->lampsBlinkSlow(BTN_COL, 0x0000, false);
-    mainController->getDisplayController()->lampsOn(BTN_COL, 0x0000, true); // all button lamps off
+    lampData[LMP_START].lampState = LampState::off;
+    lampData[LMP_COLLECT].lampState = LampState::off;
 
-    if ((btnStatus & BTN_COLLECT))
-    {
+    if ((btnStatus & BTN_COLLECT)) {
         mainController->payout();
+    } else if ((btnStatus & BTN_START)) {
+        mainController->getMoneyController()->moveBankToCredit();
     }
-    else if ((btnStatus & BTN_START))
-    {
-        mainController->addToCredit(mainController->getBank());
-        mainController->setBank(0);
-    }
+
+    ESP_LOGI(TAG, "Exiting collectOrContinue()");
 }
 
-bool Game::isWinningLine()
-{
+bool Game::isWinningLine() {
+    ESP_LOGI(TAG, "Entering isWinningLine()");
     uint8_t leftPos;
     uint8_t centrePos;
     uint8_t rightPos;
@@ -479,158 +390,149 @@ bool Game::isWinningLine()
     uint8_t centreSymbolId = symbolsCentreReel[centrePos];
     uint8_t rightSymbolId = symbolsRightReel[rightPos];
 
-    //for (uint8_t i = 0; i < (sizeof (uint8_t) / sizeof (*_winningCombinations)); i++) {
-    for (uint8_t i = 0; i < 7; i++)
-    {
+    ESP_LOGI(TAG, "Reel positions: %s - %s - %s", Game::symbolMap[leftSymbolId].c_str(), Game::symbolMap[centreSymbolId].c_str(), Game::symbolMap[rightSymbolId].c_str());
+
+    for (uint8_t i = 0; i < 7; i++) {
 
         if (((leftSymbolId == winningCombinations[i].leftSymbolId) || (winningCombinations[i].leftSymbolId == 255)) &&
-            ((centreSymbolId == winningCombinations[i].centreSymbolId) || (winningCombinations[i].centreSymbolId == 255)) &&
-            ((rightSymbolId == winningCombinations[i].rightSymbolId) || (winningCombinations[i].rightSymbolId == 255)))
-        {
-            mainController->setTransfer(this->winningCombinations[i].amount);
+                ((centreSymbolId == winningCombinations[i].centreSymbolId) || (winningCombinations[i].centreSymbolId == 255)) &&
+                ((rightSymbolId == winningCombinations[i].rightSymbolId) || (winningCombinations[i].rightSymbolId == 255))) {
+            mainController->getMoneyController()->setTransfer(this->winningCombinations[i].amount);
             isWin = true;
             break;
         }
     }
 
+    ESP_LOGI(TAG, "Exiting isWinningLine()");
     return isWin;
 }
 
-void Game::playFeatureMatrix()
-{
-    uint32_t featureIndex = 0;
-    mainController->getAudioController()->playAudioFile(SND_LET_IT_GO);
-
-    mainController->getDisplayController()->lampsBlinkFast(LMP_START, false);
-    mainController->getDisplayController()->lampsOn(LMP_START, true);
+void Game::playFeatureMatrix() {
+    uint8_t featureIndex = 0;
+    mainController->getAudioController()->playAudioFile(Sounds::SND_LET_IT_GO);
+    lampData = mainController->getDisplayController()->getLampData();
+    lampData[LMP_START].lampState = LampState::blinkslow;
 
     // loop waiting for button press.
     uint8_t btnStatus = mainController->getDisplayController()->getButtonStatus();
-    while ((btnStatus & (BTN_START)) == 0)
-    {
-        featureIndex = Entropy.random(13);                                                                      // number of features
-        // uint32_t lampData = pgm_read_dword(&mainController->getDisplayController()->FEATURE_LAMPS[featureIndex]);
-        mainController->getDisplayController()->setLampRGBData(LMP_TRAIL_BASE + featureIndex, RGB_WHITE, true); // switch on feature LED
-        mainController->refreshStatus();
+    while ((btnStatus & (BTN_START)) == 0) {
+        featureIndex = random8_to(13); // number of features
+
+        lampData[DisplayController::FEATURE_LAMPS[featureIndex]].lampState = LampState::on;
+
         btnStatus = mainController->getDisplayController()->getButtonStatus();
-        mainController->getDisplayController()->setLampRGBData(LMP_TRAIL_BASE + featureIndex, RGB_BLACK, true); // switch feature LED back off
+
+        // TODO: do something here.
+
+        lampData[DisplayController::FEATURE_LAMPS[featureIndex]].lampState = LampState::off;
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 
     // Feature has been chosen, let's continue...
-    switch (featureIndex)
-    {
-    // String featureMap[12] = {"Free Spin", "Double Money", "Shuffle", "Lose", "Palace", "Palace", "Shuffle", "Lose", "Free Spin", "Hi/Lo", "Free Spin", "Palace"};
-    case 0:
-    case 8:
-    case 10:
-        // Free Spin
-        playFreeSpin();
-        break;
-    case 1:
-        // Double Money
-        break;
-    case 2:
-    case 6:
-        // Shuffle
-        playShuffle();
-        break;
-    case 3:
-    case 7:
-        // Lose
-        break;
-    case 4:
-    case 5:
-    case 11:
-        // Palace
-        playTrail();
-        break;
-    case 9:
-        // Hi/Lo
-        playHiLo();
-        break;
+    switch (featureIndex) {
+            // String featureMap[12] = {"Free Spin", "Double Money", "Shuffle", "Lose", "Palace", "Palace", "Shuffle", "Lose", "Free Spin", "Hi/Lo", "Free Spin", "Palace"};
+        case 0:
+        case 8:
+        case 10:
+            // Free Spin
+            playFreeSpin();
+            break;
+        case 1:
+            // Double Money
+            break;
+        case 2:
+        case 6:
+            // Shuffle
+            playShuffle();
+            break;
+        case 3:
+        case 7:
+            // Lose
+            break;
+        case 4:
+        case 5:
+        case 11:
+            // Palace
+            playTrail();
+            break;
+        case 9:
+            // Hi/Lo
+            playHiLo();
+            break;
     }
 }
 
-void Game::playTrail()
-{
+void Game::playTrail() {
     uint8_t index = 0;
-    while (PRIZE_TRAIL_PRIZES[index] < mainController->getTransfer() && index < PRIZE_TRAIL_PRIZES_LENGTH)
-    {
+    while (PRIZE_TRAIL_PRIZES[index] < mainController->getMoneyController()->getTransfer() && index < PRIZE_TRAIL_PRIZES_LENGTH) {
         index++;
     }
 
     //mainController->getDisplayController()->lampsOn(mainController->getDisplayController()->TRAIL_LAMPS[index], false);
 }
 
-void Game::playHiLo()
-{
+void Game::playHiLo() {
 }
 
-void Game::playShuffle()
-{
+void Game::playShuffle() {
     uint8_t btnStatus = mainController->getDisplayController()->getButtonStatus();
 
     mainController->getDisplayController()->setText("      SHUFFLE!      ");
     mainController->getDisplayController()->displayText();
     // loop waiting for button press.
-    while ((btnStatus & BTN_START) != BTN_START)
-    {
+    while ((btnStatus & BTN_START) != BTN_START) {
         btnStatus = this->mainController->getDisplayController()->getButtonStatus();
-        mainController->refreshStatus();
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 
-    mainController->getAudioController()->playAudioFile(SND_NOW_THATS_ICE);
-
-    uint32_t nudges = Entropy.random(6);
+    mainController->getAudioController()->playAudioFile(Sounds::SND_NOW_THATS_ICE);    
 
     shuffleReels();
 
-    if (isWinningLine())
-    {
+    if (isWinningLine()) {
         transferOrGamble();
-    }
-    else
-    {
-        mainController->getAudioController()->playAudioFile(SND_LOSE);
+    } else {
+        mainController->getAudioController()->playAudioFile(Sounds::SND_LOSE);
     }
 
-    mainController->getDisplayController()->lampsBlinkFast(BTN_COL, 0x0000, false);
-    mainController->getDisplayController()->lampsBlinkSlow(BTN_COL, 0x0000, false);
-    mainController->getDisplayController()->lampsOn(BTN_COL, 0x0000, true);
+    lampData = mainController->getDisplayController()->getLampData();
+    lampData[LMP_START].lampState = LampState::off;
+    lampData[LMP_COLLECT].lampState = LampState::off;
+    lampData[LMP_HOLD_LO].lampState = LampState::off;
+    lampData[LMP_HOLD].lampState = LampState::off;
+    lampData[LMP_HOLD_HI].lampState = LampState::off;
 }
 
-void Game::playFreeSpin()
-{
+void Game::playFreeSpin() {
     uint8_t btnStatus = mainController->getDisplayController()->getButtonStatus();
 
-    mainController->getDisplayController()->setText(string("     FREE SPIN!     "));
+    mainController->getDisplayController()->setText("     FREE SPIN!     ");
     mainController->getDisplayController()->displayText();
     // loop waiting for button press.
-    while ((btnStatus & BTN_START) != BTN_START)
-    {
+    while ((btnStatus & BTN_START) != BTN_START) {
         btnStatus = this->mainController->getDisplayController()->getButtonStatus();
-        mainController->refreshStatus();
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 
-    mainController->getAudioController()->playAudioFile(SND_NOW_THATS_ICE);
+    mainController->getAudioController()->playAudioFile(Sounds::SND_NOW_THATS_ICE);
 
     spinReels();
 
-    if (isWinningLine())
-    {
+    if (isWinningLine()) {
         transferOrGamble();
-    }
-    else
-    {
-        mainController->getAudioController()->playAudioFile(SND_LOSE);
+    } else {
+        mainController->getAudioController()->playAudioFile(Sounds::SND_LOSE);
     }
 
-    mainController->getDisplayController()->lampsBlinkFast(BTN_COL, 0x0000, false);
-    mainController->getDisplayController()->lampsBlinkSlow(BTN_COL, 0x0000, false);
-    mainController->getDisplayController()->lampsOn(BTN_COL, 0x0000, true);
+    lampData = mainController->getDisplayController()->getLampData();
+    lampData[LMP_START].lampState = LampState::off;
+    lampData[LMP_COLLECT].lampState = LampState::off;
+    lampData[LMP_TRANSFER].lampState = LampState::off;
+    lampData[LMP_HOLD_LO].lampState = LampState::off;
+    lampData[LMP_HOLD].lampState = LampState::off;
+    lampData[LMP_HOLD_HI].lampState = LampState::off;
 }
 
-bool Game::isGameInProgress()
-{
+bool Game::isGameInProgress() {
     return this->isInProgress;
 }

@@ -41,12 +41,12 @@
 #include <stdint.h>
 #include <string>
 
-#include <led_strip.h>
-#include <driver/rmt.h>
-#include <mcp23x17.h>
-#include <m20ly02z.h>
-#include <ht16k33.h>
-
+#include "led_strip.h"
+#include "driver/rmt.h"
+#include "mcp23x17.h"
+#include "m20ly02z.h"
+#include "ht16k33.h"
+#include "color.h"
 #include "config.h"
 
 
@@ -54,37 +54,33 @@
 #define CHASE_SPEED_MS (100)
 
 class MainController;
-  
+
+
+enum class LampState {off, blinkslow, blinkfast, on};   
+
+class LampData {
+public:
+    rgb_t rgb;
+    LampState lampState;
+private:
+    
+};
+     
 
 class DisplayController {
 public:
     DisplayController(MainController *mainController);
     DisplayController(const DisplayController &orig);
 
-    esp_err_t initialise(void);
+    esp_err_t initialise(void);    
 
-    typedef union {
-        bool blinkSlow;
-        bool blinkFast;
-    } blink_u;
-
-    struct lamp_data_t {
-        int lampIndex;
-        rgb_t rgb;
-        bool on;
-        blink_u blinkspeed;
-        bool blink;
-    };
-    
     void setMoves(uint8_t value);
 
-    void resetLampData();
-    void updateLampData(lamp_data_t lampData, bool performUpdate);
-    lamp_data_t* getLampData();
+    void resetLampData(bool performUpdate);
 
-
-    void setText(const char *text);
-    void setText(std::string &text);
+    LampData* getLampData(void);
+    
+    void setText(const std::string &text);
     void clearText(void);
     void displayText(void);
 
@@ -92,16 +88,27 @@ public:
 
     void test();
     void test2(bool pauseBetweenLamps);
-    void reset();
-    void updateData();
-    
-    void ledStripHsv2rgb(uint8_t h, uint8_t s, uint8_t v, uint8_t *r, uint8_t *g, uint8_t *b);
 
+    void ledStripHsv2rgb(uint8_t h, uint8_t s, uint8_t v, uint8_t *r, uint8_t *g, uint8_t *b);
     
-    uint8_t getHue(void);
-    uint8_t getStartRgb(void);    
-    void setHue(uint8_t hue);
-    void setStartRgb(uint8_t startRgb);
+    void beginAnimation(void);
+
+    ht16k33_t* getBankDisplay(void);
+    ht16k33_t* getCreditDisplay(void);
+    ht16k33_t* getMovesDisplay(void);
+
+    led_strip_t* getLedStrip(void);
+    mcp23x17_t* getButtonIO(void);
+
+    const static uint8_t NUDGE_LAMPS_LENGTH = 6;
+    const static uint8_t FEATURE_LAMPS_LENGTH = 12;
+    const static uint8_t TRAIL_LAMPS_LENGTH = 17;
+
+    const static uint8_t NUDGE_LAMPS[NUDGE_LAMPS_LENGTH];
+    const static uint8_t SEGMENTS[];
+    const static uint8_t FEATURE_LAMPS[FEATURE_LAMPS_LENGTH];
+    const static uint8_t TRAIL_LAMPS[TRAIL_LAMPS_LENGTH];
+
 
     /*
 
@@ -116,7 +123,7 @@ Row/Column	0               1               2               3                   4
 7           -               -               -               -                   -	-	-	-	-           -       -           -       -   -	-	-
      */
 
-   
+
 protected:
 private:
     led_strip_t *led_strip;
@@ -124,18 +131,17 @@ private:
     ht16k33_t movesDisplay;
     ht16k33_t creditDisplay;
     ht16k33_t bankDisplay;
+
     mcp23x17_t buttonIO;
 
-    lamp_data_t *lampData;
+    LampData lampData[LED_COUNT + 6];    
 
     uint8_t hue;
-    uint8_t start_rgb;    
+    uint8_t start_rgb;
 
     MainController *mainController;
 
-    bool sblink[LED_COUNT + 6];
-    bool lblink[LED_COUNT + 6];
-
+    void testLamps(void);
     uint8_t keyStatus;
 
     uint32_t lampDataNew[LED_COUNT + 6];
@@ -151,19 +157,14 @@ private:
     //   e = A2   |         | c = A4
     //            |_________|
     //               d = A3
-    
-    static uint8_t NUDGE_LAMPS[6];
-    static uint8_t SEGMENTS[];    
-    static uint32_t FEATURE_LAMPS[];
-    static uint32_t TRAIL_LAMPS[];
-        
-    static const uint8_t FEATURE_LAMPS_LENGTH;
-    static const uint8_t TRAIL_LAMPS_LENGTH;
 
+
+
+    static void rainbowChaseTask(void *pvParameters);
+    static void updateSevenSegDisplaysTask(void *pvParameters);
+    static void updateLampsTask(void *pvParameters);
 };
 
-extern void rainbowChaseTask(DisplayController *displayController);
-extern void updateSevenSegDisplaysTask(MainController *mainController);
 
 
 #endif // __DISPLAYCONTROLLER_H__

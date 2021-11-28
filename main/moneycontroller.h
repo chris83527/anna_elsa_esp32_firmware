@@ -39,21 +39,58 @@
 
 #include <stdint.h>
 
+
+class MainController;
+
+class Payment {
+public:
+    void addTenCent(void);
+    void addTwentyCent(void);
+    void addFiftyCent(void);
+    void addOneEuro(void);
+    void addTwoEuro(void);
+    
+    uint16_t getTenCent(void);
+    uint16_t getTwentyCent(void);
+    uint16_t getFiftyCent(void);
+    uint16_t getOneEuro(void);
+    uint16_t getTwoEuro(void);
+private:
+    uint16_t tenCentIn;
+    uint16_t twentyCentIn;
+    uint16_t fiftyCentIn;
+    uint16_t oneEuroIn;
+    uint16_t twoEuroIn;
+};
+
 class MoneyController {
 public:
-    MoneyController();
+    MoneyController(MainController* mainController);
     ~MoneyController();
-    
-    void addToCredit(const int value);
-    void addToBank(const int value);
-    void addToTransfer(const int value);
-    void removeFromCredit(const int value);
-    void removeFromBank(const int value);
-    void removeFromTransfer(const int value);
-    int getCredit(void);
-    int getBank(void);
-    int getTransfer(void);
+
     void initialise(void);
+
+    void addToCredit(Payment payment);
+    void addToCredit(uint16_t value);
+    void addToBank(const uint16_t value);
+    void setTransfer(const uint16_t value);
+    void incrementGameCount(void);
+    void removeFromCredit(const uint16_t value);
+    void removeFromBank(const uint16_t value);
+    void moveBankToCredit(void);
+    void moveTransferToBank(void);
+    //void removeFromTransfer(const int value);
+    uint16_t getCredit(void);
+    uint16_t getBank(void);
+    uint16_t getTransfer(void);
+    uint16_t getGameCount(void);
+
+    uint16_t getPayoutTotal(void);
+    uint16_t getIncomeTotal(void);
+
+    void setPayoutInProgress(bool inProgress);
+    bool isPayoutInProgress(void);
+    void resetCounters(void);
 
 private:
 
@@ -62,6 +99,30 @@ private:
     uint16_t credit;
     uint16_t bank;
     uint16_t transfer;
+    uint16_t gamecount;
+    uint16_t payoutTotal;
+    uint16_t incomeTotal;
+    uint16_t tencentin;
+    uint16_t twentyCentIn;
+    uint16_t fiftyCentIn;
+    uint16_t oneEuroIn;
+    uint16_t twoEuroIn;
+
+    const char* NVS_KEY_CREDIT = "credit";
+    const char* NVS_KEY_BANK = "bank";
+    const char* NVS_KEY_TRANSFER = "transfer";
+    const char* NVS_KEY_GAME_COUNT = "gameCount";
+    const char* NVS_KEY_PAYOUT_TOTAL = "payoutTotal";
+    const char* NVS_KEY_INCOME_TOTAL = "incomeTotal";
+    const char* NVS_KEY_TEN_CENT_IN = "tenCentIn";
+    const char* NVS_KEY_TWENTY_CENT_IN = "twentyCentIn";
+    const char* NVS_KEY_FIFTY_CENT_IN = "fiftyCentIn";
+    const char* NVS_KEY_ONE_EURO_IN = "oneEuroIn";
+    const char* NVS_KEY_TWO_EURO_IN = "twoEuroIn";
+
+    MainController* mainController;
+
+    bool payoutInProgress;
 };
 
 #endif

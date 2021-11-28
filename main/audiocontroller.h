@@ -37,13 +37,49 @@
 #ifndef __AUDIOCONTROLLER_H__
 #define __AUDIOCONTROLLER_H__
 
-class AudioController
-{
-    private:
+#include "driver/i2s.h"
+#include "spiffs_stream.h"
+#include "i2s_stream.h"
+#include "ogg_decoder.h"
+#include "board.h"
+#include "audio_def.h"
+#include "esp_audio.h"
 
-    public:
-        void initialise(void);
-        void playAudioFile(const char *filename);
+class Sounds {
+public:
+    // Audio files
+    static constexpr const char* SND_NOW_THATS_ICE = "spiffs/nowthatsice.ogg";
+    static constexpr const char* SND_LOSE = "spiffs/lose.ogg";
+    static constexpr const char* SND_LET_IT_GO = "spiffs/letitgo.ogg";
+    static constexpr const char* SND_THEYRE_TROLLES = "spiffs/theyretrolls.ogg";
+    static constexpr const char* SND_CANT_FEEL_LEGS = "spiffs/cantfeellegs.ogg";
+    static constexpr const char* SND_THATS_BETTER = "spiffs/thatsbetter.ogg";
+    static constexpr const char* SND_KERCHING = "spiffs/kerching.ogg";
+    static constexpr const char* SND_REEL_STOP = "spiffs/reelstop.ogg";
+};
+
+class AudioController {
+public:
+
+    AudioController(void);
+    AudioController(const AudioController &orig);
+    virtual ~AudioController();
+
+    void initialise(void);
+    void playAudioFile(const char* filepath);
+    void playAudioFileSync(const char* filepath);
+    void stopPlaying(void);
+    void setVolume(int volume);
+    bool isPlaying(void);
+
+private:
+    esp_audio_handle_t player;
+    esp_audio_cfg_t cfg;
+    spiffs_stream_cfg_t spiffs_reader;
+    audio_board_handle_t board_handle;
+    i2s_stream_cfg_t i2s_writer;
+    ogg_decoder_cfg_t ogg_dec_cfg;
+    i2s_port_t I2S_NUM;
 };
 
 #endif /* __AUDIOCONTROLLER_H__ */

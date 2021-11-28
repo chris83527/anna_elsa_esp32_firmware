@@ -10,91 +10,205 @@
  *
  * Created on July 28, 2018, 6:33 PM
  */
-#define __STDC_FORMAT_MACROS
-
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-
 #include <string>
-#include <inttypes.h>
-#include <esp_log.h>
-#include <esp_system.h>
-#include <nvs_flash.h>
-#include <nvs.h>
+#include <stdlib.h>
+#include <ctime>
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_log.h"
+#include "esp_system.h"
+#include "nvs_flash.h"
+#include "nvs.h"
+#include "nvs_handle.hpp"
+#include "ds3231.h"
 
 
 #include "config.h"
 #include "reelcontroller.h"
 #include "displaycontroller.h"
-#include "cctalk.h"
+#include "cctalkcontroller.h"
 #include "game.h"
 #include "audiocontroller.h"
 #include "moneycontroller.h"
 #include "maincontroller.h"
 #include "webserver.h"
+#include "spiffs.h"
 //#include "errors.h"
 
 static const char *TAG = "MainController";
+
+void blinkCPUStatusLEDTask(void *pvParameter) {
+    while (1) {
+        /* Blink off (output low) */
+        gpio_set_level(CPU_LED_GPIO, 0);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        /* Blink on (output high) */
+        gpio_set_level(CPU_LED_GPIO, 1);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
+
+void hopperStatusCheckTask(void *pvParameter) {
+    ESP_LOGD(TAG, "Hopper status check task started.");
+    MainController *mainController = reinterpret_cast<MainController *> (pvParameter);
+    CCTalkController *cctalkController = mainController->getCCTalkController();
+    MoneyController *moneyController = mainController->getMoneyController();
+
+    int hopperEventCounter = 0;
+
+    for (;;) {
+
+        if (!moneyController->isPayoutInProgress()) {
+            if (mainController->getCCTalkController()->testHopper(CCTALK_HOPPER)) {
+
+            }
+
+            //mainController->checkHopperLevel();
+
+        } else {
+
+            cctalk_response_t *response = cctalkController->pollHopperStatus(CCTALK_HOPPER);
+
+            if (response) {
+                uint8_t tmpEventCounter = response->additionalData[0];
+                uint8_t coinsRemaining = response->additionalData[1];
+                uint8_t coinsPaid = response->additionalData[2];
+                //uint8_t coinsUnpaid = response->additionalData[3];
+
+                if (tmpEventCounter > hopperEventCounter) {
+                    // all coins have been paid, or some could not be paid
+                    if (coinsRemaining == 0) {
+                        hopperEventCounter = tmpEventCounter;
+                        moneyController->setPayoutInProgress(false);
+                        moneyController->removeFromBank(coinsPaid * 20);
+                    } else {
+                        //processHopperErrors();
+                    }
+                } else {
+                    moneyController->setPayoutInProgress(false);
+                    // TODO: We got a negative response polling hopper status. This means we should find out what went wrong
+                    cctalk_response_t *response = cctalkController->testHopper(CCTALK_HOPPER);
+
+                }
+            }
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(CCTalkController::HOPPER_STATUS_POLL_INTERVAL));
+    }
+}
+
+void pollCoinValidatorTask(void *pvParameter) {
+
+    MainController *mainController = reinterpret_cast<MainController *> (pvParameter);
+    CCTalkController *cctalkController = mainController->getCCTalkController();
+    MoneyController *moneyController = mainController->getMoneyController();
+
+
+    static int numEvents = 0;
+    static int validatorEventCounter = 0;    
     
+    for (;;) {
+        // now switch to polling for credit
+        cctalk_response_t *response = cctalkController->pollCredit(CCTALK_COIN_VALIDATOR);
+
+        // make sure we have the current cipher key from the hopper
+        if (response && response->additionalData[0] > validatorEventCounter) {
+
+            uint8_t tmpCounter = response->additionalData[0];
+            numEvents = tmpCounter - validatorEventCounter;
+            ESP_LOGI(TAG, "Coin validator event count: %d ", numEvents);
+
+            Payment payment;
+            for (int i = 1; i <= numEvents; i += 2) {
+                ESP_LOGI(TAG, "Coin value for event %d: %d ", i, CCTalkController::COIN_VALUES[response->additionalData[i]]);
+                switch (response->additionalData[i]) {
+                    case 2:
+                        payment.addTenCent();
+                        break;
+                    case 3:
+                        payment.addTwentyCent();
+                        break;
+                    case 4:
+                        payment.addFiftyCent();
+                        break;
+                    case 5:
+                        payment.addOneEuro();
+                        break;
+                    case 6:
+                        payment.addTwoEuro();
+                        break;
+                }
+            }
+            moneyController->addToCredit(payment);
+            validatorEventCounter = tmpCounter;
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(CCTalkController::VALIDATOR_POLL_INTERVAL));
+    }
+}
+
 MainController::MainController() {
-
-    //CCTalk_Device *cctalkDevice = new CCTalk_Device(this, &Serial1, (uint8_t) 1);
-    this->cctalkController = new CCTalkController(this, cctalkDevice);
-    this->audioController = new AudioController(this);
-    this->displayController = new DisplayController(this);
-    this->reelController = new ReelController(this);
-    this->game = new Game(this);
-
-
+    ESP_LOGD(TAG, "Entering constructor");
+    ESP_LOGD(TAG, "Leaving constructor");
 }
 
 MainController::MainController(const MainController& orig) {
 }
 
 void MainController::start() {
+    ESP_LOGD(TAG, "start() called");
 
+    this->cctalkController = new CCTalkController(this);
+    this->audioController = new AudioController();
+    this->displayController = new DisplayController(this);
+    this->reelController = new ReelController(this);
+    this->moneyController = new MoneyController(this);
+    this->game = new Game(this);
+
+    ESP_LOGD(TAG, "Calling i2cdev_init()");
     ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());
 
+
     // Initialize NVS
-    esp_err_t err = nvs_flash_init();
-    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    ESP_LOGD(TAG, "Setting up NVS");
+    esp_err_t err = nvs_flash_init_partition(NVS_PARTITION_SETTINGS);
+    if (err == ESP_ERR_NVS_NOT_FOUND || err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         // NVS partition was truncated and needs to be erased
         // Retry nvs_flash_init
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        err = nvs_flash_init();
+        ESP_ERROR_CHECK(nvs_flash_erase_partition(NVS_PARTITION_SETTINGS));
+        err = nvs_flash_init_partition(NVS_PARTITION_SETTINGS);
     }
     ESP_ERROR_CHECK(err);
 
-    // intialise audio subsystem
-    audioController->initialise();
-    moneyController->initialise();
+    // initialise ds3231 RTC
+
+    err = ds3231_init_desc(&ds3231, 0, GPIO_I2C_SDA, GPIO_I2C_SCL);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Error initialising RTC!");
+    } else {
+        ESP_LOGI(TAG, "RTC initialised ok");
+    }
 
     init_spiffs();
     init_webserver("/spiffs");
 
-    if (cctalk_init_desc(CCTALK_GPIO_TX, CCTALK_GPIO_RX) != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
-    } else {
-        xTaskCreate(&check_coin_validator, "check_coin_validator", 2048, NULL, 5, NULL);
-    }
+    // intialise audio subsystem    
+    audioController->initialise();
+    moneyController->initialise();
 
-    if (init_reels() != ESP_OK) {
+    if (reelController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise reel controller subsystem");
     } else {
+        ESP_LOGD(TAG, "Reel controller initialisation ok.");
     }
-
-
-
 
     if (displayController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise tableau subsystem");
     } else {
-        xTaskCreate(&updateSevenSegDisplaysTask, "update_7seg_displays", 2048, &mainController, 5, NULL);
-        xTaskCreate(&rainbowChaseTask, "rainbow_chase_task", 2048, NULL, 5, NULL);
-    }
+        ESP_LOGD(TAG, "Display controller initialisation ok.");
+    } 
 
-    validatorEventCounter = 0;
-    hopperEventCounter = 0;
     letitgoCountdown = 0;
 
     // set the value to something sensible if the value hasn't yet been set in EEPROM
@@ -103,254 +217,126 @@ void MainController::start() {
     // }
     // this->audioController->setVolume(eeprom_data.volume, eeprom_data.volume);    
 
-    audioController->playAudioFile(SND_LET_IT_GO);
+   
+    xTaskCreate(&blinkCPUStatusLEDTask, "cpu_status_led_blink", 2048, this, 5, NULL);
 
-    startPolling = true;
-}
-
-void MainController::refreshStatus() {
-
-    uint8_t data[256];
-    uint8_t length;
-
-    this->currentMillis = millis(); // grab current time
-
-    if (this->startPolling) {
-        this->cctalkController->poll();
+    if (cctalkController->initialise() != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
+    } else {
+        ESP_LOGD(TAG, "Starting validator and hopper status polling");
+        xTaskCreate(&pollCoinValidatorTask, "check_coin_validator", 2048, this, 5, NULL);
+        xTaskCreate(&hopperStatusCheckTask, "check_hopper_status", 4096, this, 5, NULL);
     }
+    
+    audioController->playAudioFile(Sounds::SND_LET_IT_GO);
 
-    if (!(game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
-        ESP_LOGD(TAG, "Starting game...");
-        this->game->start();
-    }
-
-
-    // check reel status and play "reel stop" sound effect
-    uint8_t reelStatus = reelController->getStatus();
-    if ((oldReelStatus != reelStatus) && (reelStatus & REEL_STATUS_OK_LEFT || reelStatus & REEL_STATUS_OK_CENTRE || reelStatus & REEL_STATUS_OK_RIGHT)) {
-        oldReelStatus = reelStatus;
-        this->audioController->playAudioFile(AUDIO_REEL_STOP);
-    }
-
-    if ((unsigned long) (currentMillis - serialReadPreviousMillis) >= serialReadInterval) {
-        serialReadPreviousMillis = millis();
-    }
-
-    if (((unsigned long) (currentMillis - coinCheckPreviousMillis) >= coinRefreshInterval) && !payoutInProgress) {
-        // now switch to polling for credit
-
-        bool result = cctalkController->pollCredit(CCTalk_Device::COIN_VALIDATOR, data, length);
-        // make sure we have the current cipher key from the hopper
-        if (result && (data[0] > validatorEventCounter)) {
-
-            uint8_t tmpCounter = data[0];
-            uint8_t numEvents = tmpCounter - validatorEventCounter;
-
-            for (int i = 1; i <= numEvents; i += 2) {
-                this->addToCredit(cctalkController->COIN_VALUES[data[i]]);
-                switch (data[i]) {
-                    case 2:
-                        this->eeprom_data.in10ct++;
-                        break;
-                    case 3:
-                        this->eeprom_data.in20ct++;
-                        break;
-                    case 4:
-                        this->eeprom_data.in50ct++;
-                        break;
-                    case 5:
-                        this->eeprom_data.in1eur++;
-                        break;
-                    case 6:
-                        this->eeprom_data.in2eur++;
-                        break;
-                }
-
-            }
-            validatorEventCounter = tmpCounter;
-
-        }
-        coinCheckPreviousMillis = millis();
-    }
-
-    if ((unsigned long) (currentMillis - hopperStatusPollPreviousMillis) >= hopperStatusPollInterval) {
-
-        if (!payoutInProgress) {
-            if (cctalkController->testHopper(CCTalk_Device::HOPPER, data, length)) {
-
-            }
-
-            checkHopperLevel();
-
-            hopperStatusPollPreviousMillis = millis();
-
-        } else if (payoutInProgress) {
-
-            bool result = cctalkController->pollHopperStatus(CCTalk_Device::HOPPER, data, length);
-
-            if (result) {
-                uint8_t tmpEventCounter = data[0];
-                uint8_t coinsRemaining = data[1];
-                uint8_t coinsPaid = data[2];
-                //uint8_t coinsUnpaid = data[3];
-
-                if (tmpEventCounter > hopperEventCounter) {
-                    // all coins have been paid, or some could not be paid
-                    if (coinsRemaining == 0) {
-                        hopperEventCounter = tmpEventCounter;
-                        payoutInProgress = false;
-                        bank -= coinsPaid * 20;
-                        this->eeprom_data.coinsOut += coinsPaid;
-                    } else {
-                        processHopperErrors();
-                    }
-                } else {
-                    payoutInProgress = false;
-                    // TODO: We got a negative response polling hopper status. This means we should find out what went wrong
-                    cctalkController->testHopper(CCTalk_Device::HOPPER, data, length);
-
-                }
-            }
+    game->initialise();
+    this->displayController->beginAnimation();
+    
+    for (;;) {
+        if (!(game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
+            ESP_LOGD(TAG, "Starting game...");
+            this->game->start();
+            this->displayController->beginAnimation();
         }
 
-        hopperStatusPollPreviousMillis = millis();
-    }
-
-    if ((!game->isGameInProgress()) && ((unsigned long) (currentMillis - msgUpdatePreviousMillis) >= msgUpdateRefreshInterval)) {
-        switch (state) {
-            case 0:
-                getDisplayController()->setText("       FROZEN       ");
-                break;
-            case 1:
-                getDisplayController()->setText("      PLAY ME       ");
-                break;
-            case 2:
-                getDisplayController()->setText("     20CT GAME      ");
-                break;
-            case 3:
-                getDisplayController()->setText("    INSERT COINS    ");
-                break;
-        }
-
-        // reset state
-        if (state >= 3) {
-            state = 0;
-        } else {
-            state++;
-        }
-
-
-        msgUpdatePreviousMillis = millis();
-    }
-
-    if ((!game->isGameInProgress()) && ((unsigned long) (currentMillis - tableauPreviousMillis) >= tableauRefreshInterval)) {
-
-
-        displayController->clearAllData(false);
-        for (int i = 0; i < MAX_LEDS; i++) {
-            displayController->setLampRGBData(i, pgm_read_dword(&DisplayController::ANIMATION_IMAGES[animationStage][i]), false);
-        }
-        displayController->updateData();
-
-
-        if (++animationStage >= DisplayController::ANIMATION_IMAGES_LENGTH) {
-            animationStage = 0;
-        }
-
-        if (letitgoCountdown++ > 20) {
-            letitgoCountdown = 0;
-            audioController->startPlayingFile("letitgo.ogg");
-        }
-
-        tableauPreviousMillis = millis();
+        vTaskDelay(pdMS_TO_TICKS(200));
     }
 
 }
 
 void MainController::payout() {
-    uint8_t data[255];
-    uint8_t length;
+    
+    ESP_LOGI(TAG, "Entering payout()");
 
-    uint8_t numCoins = this->bank / 20;
+    uint8_t numCoins = (this->moneyController->getBank() / 20);
 
     // Prepare for payout
-    cctalkController->enableHopper(CCTalk_Device::HOPPER, data, length);
+    cctalkController->enableHopper(CCTALK_HOPPER);
 
-    if (cctalkController->dispenseCoins(CCTalk_Device::HOPPER, numCoins, data, length)) {
-        this->payoutInProgress = true;
+    if (cctalkController->dispenseCoins(CCTALK_HOPPER, numCoins)) {
+        moneyController->setPayoutInProgress(true);
     }
 
+    ESP_LOGI(TAG, "Exiting payout()");
 }
 
-void MainController::incrementGameCounter() {
-    this->eeprom_data.numGamesPlayed++;
-}
-
-void MainController::dumpEEPROMValues() {
-    this->getSerialMonitorController()->clearScreenAndDrawBorder();
-    term->println("EEPROM dump");
-    char buf[255];
-    snprintf(buf, sizeof (buf), "Credit: %05u", this->eeprom_data.credit);
-    term->println(buf);
-    snprintf(buf, sizeof (buf), "Bank: %05u", this->eeprom_data.bank);
-    term->println(buf);
-    snprintf(buf, sizeof (buf), "Games Played (total): %05lu", this->eeprom_data.numGamesPlayed);
-    term->println(buf);
-    snprintf(buf, sizeof (buf), "10ct in: %05lu", this->eeprom_data.in10ct);
-    term->println(buf);
-    snprintf(buf, sizeof (buf), "20ct in: %05lu", this->eeprom_data.in20ct);
-    term->println(buf);
-    snprintf(buf, sizeof (buf), "50ct in: %05lu", this->eeprom_data.in50ct);
-    term->println(buf);
-    snprintf(buf, sizeof (buf), "1Eur in: %05lu", this->eeprom_data.in1eur);
-    term->println(buf);
-    snprintf(buf, sizeof (buf), "2Eur in: %05lu", this->eeprom_data.in2eur);
-    term->println(buf);
-    snprintf(buf, sizeof (buf), "Coins out: %05lu", this->eeprom_data.coinsOut);
-    term->println(buf);
-    snprintf(buf, sizeof (buf), "Volume: %02u", this->eeprom_data.volume);
-    term->println(buf);
-
-}
+//void MainController::dumpEEPROMValues() {
+//    this->getSerialMonitorController()->clearScreenAndDrawBorder();
+//    term->println("EEPROM dump");
+//    char buf[255];
+//    snprintf(buf, sizeof (buf), "Credit: %05u", this->eeprom_data.credit);
+//    term->println(buf);
+//    snprintf(buf, sizeof (buf), "Bank: %05u", this->eeprom_data.bank);
+//    term->println(buf);
+//    snprintf(buf, sizeof (buf), "Games Played (total): %05lu", this->eeprom_data.numGamesPlayed);
+//    term->println(buf);
+//    snprintf(buf, sizeof (buf), "10ct in: %05lu", this->eeprom_data.in10ct);
+//    term->println(buf);
+//    snprintf(buf, sizeof (buf), "20ct in: %05lu", this->eeprom_data.in20ct);
+//    term->println(buf);
+//    snprintf(buf, sizeof (buf), "50ct in: %05lu", this->eeprom_data.in50ct);
+//    term->println(buf);
+//    snprintf(buf, sizeof (buf), "1Eur in: %05lu", this->eeprom_data.in1eur);
+//    term->println(buf);
+//    snprintf(buf, sizeof (buf), "2Eur in: %05lu", this->eeprom_data.in2eur);
+//    term->println(buf);
+//    snprintf(buf, sizeof (buf), "Coins out: %05lu", this->eeprom_data.coinsOut);
+//    term->println(buf);
+//    snprintf(buf, sizeof (buf), "Volume: %02u", this->eeprom_data.volume);
+//    term->println(buf);
+//
+//}
 
 void MainController::setDateTime() {
-    serialMonitorController->clearScreenAndDrawBorder();
-    term->position(4, 2);
-    term->println(F("Please enter the current date/time (yyyymmddHHMMSS"));
-    String dateString;
-
-    for (int i = 0; i < 14; i++) {
-        char c = term->read();
-        while (c == -1) {
-            c = term->read();
-        }
-        term->write(c);
-        dateString.concat(c);
-    }
-
-    int year = dateString.substring(0, 4).toInt();
-    int month = dateString.substring(4, 6).toInt();
-    int day = dateString.substring(6, 8).toInt();
-    int hours = dateString.substring(8, 10).toInt();
-    int minutes = dateString.substring(10, 12).toInt();
-    int seconds = dateString.substring(12, 14).toInt();
-
-    setTime(hours, minutes, seconds, day, month, year);
-    time_t t = now();
-    RTC.set(t);
+        tm time;
+        time.tm_hour = 0;
+        time.tm_min = 0;
+        time.tm_sec = 0;
+        time.tm_isdst = true;
+        time.tm_mon = 11;
+        time.tm_year = 2021;
+        time.tm_mday = 27;
+        
+        ds3231_set_time(&ds3231, &time);
+        
+    //    serialMonitorController->clearScreenAndDrawBorder();
+    //    term->position(4, 2);
+    //    term->println(F("Please enter the current date/time (yyyymmddHHMMSS"));
+    //    String dateString;
+    //
+    //    for (int i = 0; i < 14; i++) {
+    //        char c = term->read();
+    //        while (c == -1) {
+    //            c = term->read();
+    //        }
+    //        term->write(c);
+    //        dateString.concat(c);
+    //    }
+    //
+    //    int year = dateString.substring(0, 4).toInt();
+    //    int month = dateString.substring(4, 6).toInt();
+    //    int day = dateString.substring(6, 8).toInt();
+    //    int hours = dateString.substring(8, 10).toInt();
+    //    int minutes = dateString.substring(10, 12).toInt();
+    //    int seconds = dateString.substring(12, 14).toInt();
+    //
+    //    setTime(hours, minutes, seconds, day, month, year);
+    //    time_t t = now();
+    //    RTC.set(t);
 }
 
-void MainController::printDate(Stream *stream) {
-    // digital clock display of the time
-
-    char buf[20];
-    snprintf(buf, sizeof (buf), "%02d-%02d-%04d %02d:%02d:%02d", day(), month(), year(), hour(), minute(), second());
-    stream->println(buf);
-}
-
-time_t MainController::getDateTime() {
-    return RTC.get();
-}
+//void MainController::printDate() {
+//    ESP_LOGI(TAG, )
+//}
+////
+//std::string MainController::getDateTime() {
+//    tm time; 
+//    std::string dateTimeString;
+//    ds3231_get_time(&ds3231, &time);
+//    
+//    dateTimeStringappend(time.tm_hour).append(":").append()
+//}
 
 AudioController* MainController::getAudioController() {
     return audioController;
@@ -368,6 +354,10 @@ DisplayController* MainController::getDisplayController() {
     return displayController;
 }
 
+MoneyController* MainController::getMoneyController() {
+    return moneyController;
+}
+
 uint8_t MainController::getVolume() {
     return volume;
 }
@@ -381,24 +371,20 @@ Game* MainController::getGame() {
  * if high indicator set, then hopper full and we must modify the sorter path, so that the 20ct coins are diverted to cash box
  */
 void MainController::checkHopperLevel() {
-    uint8_t data[2];
-    uint8_t length;
 
-    bool result = cctalkController->requestPayoutHighLowStatus(CCTalk_Device::HOPPER, data, length);
+    cctalk_response_t *response = cctalkController->requestPayoutHighLowStatus(CCTALK_HOPPER);
 
-    if (result) {
-        if ((data[0] >> 1) & 1U) { // high mark
-            cctalkController->modifySorterPath(CCTalk_Device::COIN_VALIDATOR, 3, 1, data, length); // 20ct send to cash box
-        } else {
-            cctalkController->modifySorterPath(CCTalk_Device::COIN_VALIDATOR, 3, 2, data, length); // 20ct (Hopper, adapter slot C, cctalk sort chute 2)
-        }
-        if ((data[0] >> 0) & 1U) {
-            // hopper low / maybe empty
-            error(HOPPER_LOW);
-        }
+
+    if ((response->additionalData[0] >> 1) & 1U) { // high mark
+        cctalkController->modifySorterPath(CCTALK_COIN_VALIDATOR, 3, 1); // 20ct send to cash box
+    } else {
+        cctalkController->modifySorterPath(CCTALK_COIN_VALIDATOR, 3, 2); // 20ct (Hopper, adapter slot C, cctalk sort chute 2)
     }
 
-
+    if ((response->additionalData[0] >> 0) & 1U) {
+        // hopper low / maybe empty
+        //error(HOPPER_LOW);
+    }
 }
 
 void MainController::processHopperErrors() {
@@ -406,33 +392,35 @@ void MainController::processHopperErrors() {
 }
 
 void MainController::error(int errorCode) {
-    displayController->clearText();
-    //displayController->setText(errors[errorCode].errorMsg);
-
-    if (errors[errorCode].attendantRequired) {
-        // loop with blinking lights
-        while (true) {
-
-        }
-    }
+    //    displayController->clearText();
+    //    //displayController->setText(errors[errorCode].errorMsg);
+    //
+    //    if (errors[errorCode].attendantRequired) {
+    //        // loop with blinking lights
+    //        while (true) {
+    //
+    //        }
+    //    }
 }
 
-void MainController::writeValueToNVS(const char * key, int value) {
-    err = nvs_open("nvs", NVS_READWRITE, &nvs_handle);
+void MainController::writeValueToNVS(const char * key, uint16_t value) {
+    esp_err_t err;
+
+    nvs_handle = nvs::open_nvs_handle_from_partition(NVS_PARTITION_SETTINGS, NVS_PARTITION_SETTINGS, NVS_READWRITE, &err);
 
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(err));
     } else {
-        ESP_LOGI("Done");
+        ESP_LOGD(TAG, "Done");
 
 
         // Write
         ESP_LOGI(TAG, "Updating %s in NVS ... ", key);
 
-        err = nvs_set_i32(nvs_handle, key, value);
+        err = nvs_handle->set_item<uint16_t>(key, value);
         switch (err) {
             case ESP_OK:
-                ESP_LOGI("Done");
+                ESP_LOGI(TAG, "Done");
                 break;
             default:
                 ESP_LOGE(TAG, "Failed!");
@@ -442,63 +430,51 @@ void MainController::writeValueToNVS(const char * key, int value) {
         // After setting any values, nvs_commit() must be called to ensure changes are written
         // to flash storage. Implementations may write to storage at other times,
         // but this is not guaranteed.
-        ESP_LOGI(TAG, "Committing updates in NVS ... ");
-
-        err = nvs_commit(my_handle);
+        ESP_LOGD(TAG, "Committing updates in NVS ... ");
+        err = nvs_handle->commit();
 
         switch (err) {
             case ESP_OK:
-                ESP_LOGI("Done");
+                ESP_LOGD(TAG, "Done");
                 break;
             default:
                 ESP_LOGE(TAG, "Failed!");
         }
 
     }
-    // Close
-    nvs_close(nvs_handle);
-
+    
+   
 }
 
-int MainController::readValueFromNVS(const char * key) {
-    err = nvs_open("nvs", NVS_READONLY, &nvs_handle);
+uint16_t MainController::readValueFromNVS(const char * key) {
+    esp_err_t err;
+
+    nvs_handle = nvs::open_nvs_handle_from_partition(NVS_PARTITION_SETTINGS, NVS_PARTITION_SETTINGS, NVS_READONLY, &err);
 
     int value = 0;
-    
+
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(err));
     } else {
-        ESP_LOGI("Done");
- // Read
+        ESP_LOGD(TAG, "Done");
+        // Read
         ESP_LOGI(TAG, "Reading %s from NVS ... ", key);
-        int32_t value = 0; // value will default to 0, if not set yet in NVS
-        err = nvs_get_i32(nvs_handle, key, &value);
+        uint16_t value = 0; // value will default to 0, if not set yet in NVS
+        err = nvs_handle->get_item<uint16_t>(key, value);
         switch (err) {
             case ESP_OK:
                 ESP_LOGI(TAG, "Done");
-                ESP_LOGI(TAG, "%s = %d", key, restart_counter);
+                ESP_LOGI(TAG, "%s = %d", key, value);
                 break;
             case ESP_ERR_NVS_NOT_FOUND:
-                ESP_LOGE(TAG, "The value is not initialized yet!");
+                ESP_LOGE(TAG, "The value for %s is not initialized yet! Initialising now to 0", key);
+                writeValueToNVS(key, 0);
                 break;
-            default :
-                ESP_LOGE(TAG,"Error reading %s!", esp_err_to_name(err));
+            default:
+                ESP_LOGE(TAG, "Error reading %s!", esp_err_to_name(err));
         }
     }
-    
-    // Close
-    nvs_close(nvs_handle);
-    
+
     return value;
 }
 
-void blinkTask(void *pvParameter) {
-    while (1) {
-        /* Blink off (output low) */
-        gpio_set_level(CPU_LED_GPIO, 0);
-        vTaskDelay(pdMS_TO_TICKS(1000));
-        /* Blink on (output high) */
-        gpio_set_level(CPU_LED_GPIO, 1);
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-}

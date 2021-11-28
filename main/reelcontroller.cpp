@@ -35,17 +35,19 @@
  * BSD Licensed as described in the file LICENSE
  */
 #include <string.h>
-#include <mcp23008.h>
-#include <esp_log.h>
-#include <driver/ledc.h>
-#include <driver/gpio.h>
+
+#include "mcp23008.h"
+#include "esp_log.h"
+#include "driver/ledc.h"
+#include "driver/gpio.h"
 
 #include "config.h"
 #include "reelcontroller.h"
+#include "audiocontroller.h"
 
 #define LEDC_TIMER LEDC_TIMER_0
 #define LEDC_MODE LEDC_LOW_SPEED_MODE
-#define LEDC_CHANNEL LEDC_CHANNEL_0
+#define LEDC_CHANNEL LEDC_CHANNEL_1
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
 #define LEDC_DUTY_QUARTER (4095)        // Set duty to 12,5%
 #define LEDC_DUTY_FULL (8190)           // Set duty to 50%.((2 ** 13) - 1) * 50% = 4095
@@ -69,28 +71,10 @@ i2c_dev_t reel_right;
 uint8_t cw_steps[4] = {5, 6, 10, 9};
 uint8_t ccw_steps[4] = {9, 10, 6, 5};
 
-// Prepare and then apply the LEDC PWM timer configuration
-ReelController::ledc_timer = {
-    .speed_mode = LEDC_MODE,
-    .timer_num = LEDC_TIMER,
-    .duty_resolution = LEDC_DUTY_RES,
-    .freq_hz = LEDC_FREQUENCY, // Set output frequency at 100Hz
-    .clk_cfg = LEDC_AUTO_CLK
-};
-
-// Prepare and then apply the LEDC PWM channel configuration
-ReelController::ledc_channel = {
-    .speed_mode = LEDC_MODE,
-    .channel = LEDC_CHANNEL,
-    .timer_sel = LEDC_TIMER,
-    .intr_type = LEDC_INTR_DISABLE,
-    .gpio_num = GPIO_MOTOR_PWM_EN,
-    .duty = 0,
-    .hpoint = 0
-};
-
 ReelController::ReelController(MainController *mainController) {
+    ESP_LOGD(TAG, "Entering constructor");
     this->mainController = mainController;
+    ESP_LOGD(TAG, "Leaving constructor");
 }
 
 ReelController::ReelController(const ReelController &orig) {
@@ -109,16 +93,15 @@ bool ReelController::isCommandInProgress() {
 }
 
 void ReelController::getReelPositions(uint8_t &leftPos, uint8_t &centrePos, uint8_t &rightPos) {
-    leftPos = _reelPosLeft;
-    centrePos = _reelPosCentre;
-    rightPos = _reelPosRight;
+    leftPos = reel_status_data_left.stop;
+    centrePos = reel_status_data_centre.stop;
+    rightPos = reel_status_data_right.stop;
 }
 
-uint8_t ReelController::getStatus() {
+esp_err_t ReelController::initialise() {
+    ESP_LOGD(TAG, "initialise() called");
 
-}
 
-esp_err_t ReelController::initialise(void) {
     memset(&reel_left, 0, sizeof (i2c_dev_t));
     memset(&reel_centre, 0, sizeof (i2c_dev_t));
     memset(&reel_right, 0, sizeof (i2c_dev_t));
@@ -126,6 +109,27 @@ esp_err_t ReelController::initialise(void) {
     memset(&reel_status_data_left, 0, sizeof (reel_status_data_t));
     memset(&reel_status_data_centre, 0, sizeof (reel_status_data_t));
     memset(&reel_status_data_right, 0, sizeof (reel_status_data_t));
+
+    memset(&ledc_timer, 0, sizeof (ledc_timer_config_t));
+    memset(&ledc_channel, 0, sizeof (ledc_channel_config_t));
+
+    // Prepare and then apply the LEDC PWM timer configuration
+
+    ledc_timer.speed_mode = LEDC_MODE;
+    ledc_timer.timer_num = LEDC_TIMER;
+    ledc_timer.duty_resolution = LEDC_DUTY_RES;
+    ledc_timer.freq_hz = LEDC_FREQUENCY; // Set output frequency at 100Hz
+    ledc_timer.clk_cfg = LEDC_AUTO_CLK;
+
+
+    // Prepare and then apply the LEDC PWM channel configuration
+    ledc_channel.speed_mode = LEDC_MODE;
+    ledc_channel.channel = LEDC_CHANNEL;
+    ledc_channel.timer_sel = LEDC_TIMER;
+    ledc_channel.intr_type = LEDC_INTR_DISABLE;
+    ledc_channel.gpio_num = GPIO_MOTOR_PWM_EN;
+    ledc_channel.duty = 0;
+    ledc_channel.hpoint = 0;
 
     ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
 
@@ -140,7 +144,7 @@ esp_err_t ReelController::initialise(void) {
     } else {
         // motor outputs to our H-bridge
         if (mcp23008_set_mode(&reel_left, GPIO_MOTOR_1, MCP23008_GPIO_OUTPUT) != ESP_OK) {
-            ESP_LOGE(TAG, "An error occurred initialising right reel");
+            ESP_LOGE(TAG, "An error occurred initialising left reel");
             return ESP_FAIL;
         }
         mcp23008_set_mode(&reel_left, GPIO_MOTOR_2, MCP23008_GPIO_OUTPUT);
@@ -154,7 +158,7 @@ esp_err_t ReelController::initialise(void) {
         mcp23008_set_mode(&reel_left, 6, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_left, 7, MCP23008_GPIO_OUTPUT);
 
-        ESP_LOGI(TAG, "Left reel initialised ok.");
+        ESP_LOGD(TAG, "Left reel initialised ok.");
     }
 
     if (mcp23008_init_desc(&reel_centre, 0, MCP23008_I2C_ADDR_BASE + 1, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
@@ -177,7 +181,7 @@ esp_err_t ReelController::initialise(void) {
         mcp23008_set_mode(&reel_centre, 6, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_centre, 7, MCP23008_GPIO_OUTPUT);
 
-        ESP_LOGI(TAG, "Centre reel initialised ok.");
+        ESP_LOGD(TAG, "Centre reel initialised ok.");
     }
 
     if (mcp23008_init_desc(&reel_right, 0, MCP23008_I2C_ADDR_BASE + 2, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
@@ -193,11 +197,12 @@ esp_err_t ReelController::initialise(void) {
         mcp23008_set_mode(&reel_right, GPIO_MOTOR_4, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_right, GPIO_PHOTO_INTERRUPTER, MCP23008_GPIO_INPUT);
         mcp23008_set_pullup(&reel_right, GPIO_PHOTO_INTERRUPTER, true); // switch on pullup (should be on the board, but forgot)
+        // following outputs are not used
         mcp23008_set_mode(&reel_right, 5, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_right, 6, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_right, 7, MCP23008_GPIO_OUTPUT);
 
-        ESP_LOGI(TAG, "Right reel initialised ok.");
+        ESP_LOGD(TAG, "Right reel initialised ok.");
     }
 
     spinToZero();
@@ -234,9 +239,11 @@ void ReelController::move(int reels, direction_t dir_left, direction_t dir_centr
         reel_status_data_right.step++;
     }
 
-    //mcp23008_port_write(&reel_right, reel_status_data_right.step_data);
-    //mcp23008_port_write(&reel_centre, reel_status_data_centre.step_data);
-    ESP_LOGI(TAG, "Step data: %d", reel_status_data_left.step_data);
+    ESP_LOGD(TAG, "Right reel Step data: %d", reel_status_data_right.step_data);
+    mcp23008_port_write(&reel_right, reel_status_data_right.step_data);
+    ESP_LOGD(TAG, "Centre reel Step data: %d", reel_status_data_centre.step_data);
+    mcp23008_port_write(&reel_centre, reel_status_data_centre.step_data);
+    ESP_LOGD(TAG, "Left reel Step data: %d", reel_status_data_left.step_data);
     mcp23008_port_write(&reel_left, reel_status_data_left.step_data);
 
     if (reel_status_data_left.step < 0)
@@ -264,11 +271,11 @@ void ReelController::move(int reels, direction_t dir_left, direction_t dir_centr
  * 
  */
 void ReelController::spinToZero() {
-    ESP_LOGI(TAG, "spinToZero begin");
+    ESP_LOGD(TAG, "spinToZero begin");
 
     int reels = REEL_LEFT | REEL_CENTRE | REEL_RIGHT;
 
-    ESP_LOGI(TAG, "Setting 50pc duty cycle");
+    ESP_LOGD(TAG, "Setting 50pc duty cycle");
 
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
@@ -283,64 +290,73 @@ void ReelController::spinToZero() {
 
     for (counter = 0; counter < ((MAX_STEPS * 2) * 4); counter++) // two spins, multiply by 4 steps
     {
-        ESP_LOGI(TAG, "Calling move...");
+        ESP_LOGD(TAG, "Calling move...");
+        
         move(reels, Clockwise, Clockwise, Clockwise); // all reels forwards
-        vTaskDelay(25 / portTICK_PERIOD_MS);
+        
+        vTaskDelay(pdMS_TO_TICKS(25));
+        
         mcp23008_get_level(&reel_left, GPIO_PHOTO_INTERRUPTER, &mcp23008_state); // read bit 4 (Photointerrupter)
-        ESP_LOGI(TAG, "mcp23008 returned %d", mcp23008_state);
-        if ((counter > 4) && (mcp23008_state == false)) // 4 means we made at least one whole step and triggered photointerrupter
+        ESP_LOGD(TAG, "Left reel photointerrupter returned %d", mcp23008_state);
+        if ((counter > 4) && ((mcp23008_state & (1 << GPIO_PHOTO_INTERRUPTER)) == 0)) // 4 means we made at least one whole step and triggered photointerrupter
         {
             reels &= ~REEL_LEFT;
             leftOk = true;
         }
-        // mcp23008_get_level(&reel_centre, GPIO_PHOTO_INTERRUPTER, &mcp23008_state);
-        // if ((counter > 4) && ((mcp23008_state & (1<<GPIO_PHOTO_INTERRUPTER)) == 0))
-        // {
-        //     reels &= ~REEL_CENTRE;
-        //     centreOk = true;
-        // }
-        // mcp23008_get_level(&reel_right, GPIO_PHOTO_INTERRUPTER, &mcp23008_state);
-        // if ((counter > 4) && ((mcp23008_state & (1<<GPIO_PHOTO_INTERRUPTER)) == 0))
-        // {
-        //     reels &= ~REEL_RIGHT;
-        //     rightOk = true;
-        // }
+        
+        mcp23008_get_level(&reel_centre, GPIO_PHOTO_INTERRUPTER, &mcp23008_state);
+        ESP_LOGD(TAG, "Centre reel photointerrupter returned %d", mcp23008_state);
+        if ((counter > 4) && ((mcp23008_state & (1 << GPIO_PHOTO_INTERRUPTER)) == 0)) {
+            reels &= ~REEL_CENTRE;
+            centreOk = true;
+        }
+        
+        mcp23008_get_level(&reel_right, GPIO_PHOTO_INTERRUPTER, &mcp23008_state);
+        ESP_LOGD(TAG, "Right reel photointerrupter returned %d", mcp23008_state);
+        if ((counter > 4) && ((mcp23008_state & (1 << GPIO_PHOTO_INTERRUPTER)) == 0)) {
+            reels &= ~REEL_RIGHT;
+            rightOk = true;
+        }
 
-        //if (leftOk && centreOk && rightOk)
-        if (leftOk) {
+        if (leftOk && centreOk && rightOk) {
+
             break;
         }
     }
 
     if (leftOk) {
-        reel_status_data_left.status |= STATUS_OK;
+        reel_status_data_left.status = STATUS_OK;
     } else {
         ESP_LOGE(TAG, "Left reel optic problem");
-        reel_status_data_left.status |= STATUS_ERR_REEL_OPTIC;
+        reel_status_data_left.status = STATUS_ERR_REEL_OPTIC;
     }
 
     if (centreOk) {
-        reel_status_data_centre.status |= STATUS_OK;
+        reel_status_data_centre.status = STATUS_OK;
     } else {
         ESP_LOGE(TAG, "Centre reel optic problem");
-        reel_status_data_centre.status |= STATUS_ERR_REEL_OPTIC;
+        reel_status_data_centre.status = STATUS_ERR_REEL_OPTIC;
     }
 
     if (rightOk) {
-        reel_status_data_right.status |= STATUS_OK;
+        reel_status_data_right.status = STATUS_OK;
     } else {
         ESP_LOGE(TAG, "Right reel optic problem");
-        reel_status_data_right.status |= STATUS_ERR_REEL_OPTIC;
+        reel_status_data_right.status = STATUS_ERR_REEL_OPTIC;
     }
 
-    ESP_LOGI(TAG, "Setting 25pc duty cycle");
+    ESP_LOGD(TAG, "Setting 25pc duty cycle");
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-    ESP_LOGI(TAG, "spinToZero end");
+    ESP_LOGD(TAG, "spinToZero end");
 }
 
 void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uint8_t rightPos) {
+
+    reel_status_data_left.stop = leftPos;
+    reel_status_data_centre.stop = midPos;
+    reel_status_data_right.stop = rightPos;
 
     spinToZero(); // get us back to a known position
 
@@ -359,9 +375,9 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
     int reels = 0;
     int dly = 25;
 
-    reel_status_data_left.status = 0; // reset status
-    reel_status_data_centre.status = 0; // reset status
-    reel_status_data_right.status = 0; // reset status
+    reel_status_data_left.status = STATUS_INITIAL; // reset status
+    reel_status_data_centre.status = STATUS_INITIAL; // reset status
+    reel_status_data_right.status = STATUS_INITIAL; // reset status
 
     // 50% duty cycle (~250Hz). Stop the stepper motor getting too hot
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
@@ -369,25 +385,34 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
 
     for (int i = 0; i <= maxSteps; i++) {
 
-        if (i < leftSteps) {
-            reels |= REEL_LEFT;
-        } else {
-            reels &= ~REEL_LEFT;
-            reel_status_data_left.status = STATUS_OK;
+        if (reel_status_data_left.status != STATUS_OK) {
+            if (i < leftSteps) {
+                reels |= REEL_LEFT;
+            } else {
+                reels &= ~REEL_LEFT;
+                reel_status_data_left.status = STATUS_OK;
+                this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
+            }
         }
 
-        if (i < midSteps) {
-            reels |= REEL_CENTRE;
-        } else {
-            reels &= ~REEL_CENTRE;
-            reel_status_data_centre.status = STATUS_OK;
+        if (reel_status_data_centre.status != STATUS_OK) {
+            if (i < midSteps) {
+                reels |= REEL_CENTRE;
+            } else {
+                reels &= ~REEL_CENTRE;
+                reel_status_data_centre.status = STATUS_OK;
+                this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
+            }
         }
 
-        if (i < rightSteps) {
-            reels |= REEL_RIGHT;
-        } else {
-            reels &= ~REEL_RIGHT;
-            reel_status_data_right.status |= STATUS_OK;
+        if (reel_status_data_right.status != STATUS_OK) {
+            if (i < rightSteps) {
+                reels |= REEL_RIGHT;
+            } else {
+                reels &= ~REEL_RIGHT;
+                reel_status_data_right.status = STATUS_OK;
+                this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
+            }
         }
 
         move(reels, Clockwise, Clockwise, Clockwise); // 7 = all reels forward direction
@@ -396,14 +421,21 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
             dly -= 10;
         }
 
-        vTaskDelay(dly / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(dly));
     }
 
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+
+
 }
 
 void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const uint8_t rightPos) {
+
+    reel_status_data_left.stop = leftPos;
+    reel_status_data_centre.stop = midPos;
+    reel_status_data_right.stop = rightPos;
+
     spinToZero(); // get us back to a known position
 
     int leftSteps = ((reel_status_data_left.stop + 75) * 4);
@@ -431,21 +463,21 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
             reels |= REEL_LEFT;
         } else {
             reels &= ~REEL_LEFT;
-            reel_status_data_left.status |= STATUS_OK;
+            reel_status_data_left.status = STATUS_OK;
         }
 
         if (i < midSteps) {
             reels |= REEL_CENTRE;
         } else {
             reels &= ~REEL_CENTRE;
-            reel_status_data_centre.status |= STATUS_OK;
+            reel_status_data_centre.status = STATUS_OK;
         }
 
         if (i < rightSteps) {
             reels |= REEL_RIGHT;
         } else {
             reels &= ~REEL_RIGHT;
-            reel_status_data_right.status |= STATUS_OK;
+            reel_status_data_right.status = STATUS_OK;
         }
 
         move(reels, Clockwise, CounterClockwise, Clockwise); // 5= left, right forwards; centre reverse
@@ -454,7 +486,7 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
             dly -= 10;
         }
 
-        vTaskDelay(dly / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(dly));
     }
 
     //delay(100);
@@ -462,7 +494,11 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 }
 
-void ReelController::nudge(const uint8_t leftPos, const uint8_t midPos, const uint8_t rightPos) {
+void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, const uint8_t rightStops) {
+
+    reel_status_data_left.stop += leftStops;
+    reel_status_data_centre.stop += midStops;
+    reel_status_data_right.stop += rightStops;
 
     int leftSteps = reel_status_data_left.stop;
     int midSteps = reel_status_data_centre.stop;
@@ -480,7 +516,7 @@ void ReelController::nudge(const uint8_t leftPos, const uint8_t midPos, const ui
         maxSteps = rightSteps;
     }
 
-    reel_status_data_left.status = 0; // reset status
+    reel_status_data_left.status = STATUS_INITIAL; // reset status
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
@@ -489,32 +525,29 @@ void ReelController::nudge(const uint8_t leftPos, const uint8_t midPos, const ui
             reels |= REEL_LEFT;
         } else {
             reels &= ~REEL_LEFT;
-            reel_status_data_left.status |= STATUS_OK;
+            reel_status_data_left.status = STATUS_OK;
         }
         if (i < midSteps) {
             reels |= REEL_CENTRE;
         } else {
             reels &= ~REEL_CENTRE;
-            reel_status_data_centre.status |= STATUS_OK;
+            reel_status_data_centre.status = STATUS_OK;
         }
         if (i < rightSteps) {
             reels |= REEL_RIGHT;
         } else {
             reels &= ~REEL_RIGHT;
-            reel_status_data_right.status |= STATUS_OK;
+            reel_status_data_right.status = STATUS_OK;
         }
         move(reels, Clockwise, Clockwise, Clockwise);
-        vTaskDelay(25 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(25));
         move(reels, Clockwise, Clockwise, Clockwise);
-        vTaskDelay(25 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(25));
         move(reels, Clockwise, Clockwise, Clockwise);
-        vTaskDelay(25 / portTICK_PERIOD_MS);
-        move(reels, Clockwise, Clockwise, Clockwise);
-        vTaskDelay(500 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(25));
+        move(reels, Clockwise, Clockwise, Clockwise);        
     }
 
-    //delay(100);
-    //analogWrite(MOTOR_EN, 150);
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 }

@@ -4,6 +4,9 @@ cmake_minimum_required(VERSION 3.16.0)
 
 #set(EXTRA_COMPONENT_DIRS components/led_strip components/protocol_common /home/chris/esp/esp-idf-lib/components components/cctalk)
 set(EXTRA_COMPONENT_DIRS "components/cctalk"
+"components/anna_elsa_audio_board"
+"components/ht16k33"
+"components/m20ly02z"
 "/home/chris/esp/esp-idf/components/esp_hw_support"
 "/home/chris/esp/esp-idf/components/spiffs"
 "/home/chris/esp/esp-idf-lib/components/color"
@@ -13,7 +16,9 @@ set(EXTRA_COMPONENT_DIRS "components/cctalk"
 "/home/chris/esp/esp-idf-lib/components/ds3231"
 "/home/chris/esp/esp-idf-lib/components/mcp23008"
 "/home/chris/esp/esp-idf-lib/components/mcp23x17"
-"/home/chris/esp/esp-idf-lib/components/led_strip"
+"/home/chris/esp/esp-idf-lib/components/lib8tion"
+"/home/chris/esp/esp-idf-lib/components/esp_idf_lib_helpers"
+"/home/chris/esp/esp-idf/examples/common_components/led_strip"
 "/home/chris/esp/esp-adf/components")
 
 

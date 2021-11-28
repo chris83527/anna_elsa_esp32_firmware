@@ -41,6 +41,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/task.h"
+#include "freertos/semphr.h"
 #include "esp_types.h"
 #include "esp_event.h"
 #include "esp_err.h"
@@ -89,10 +90,11 @@ extern "C" {
         rx_state_e rxstate;
         bool hasError;
         error_e error;
+        SemaphoreHandle_t mutex; //!< Device mutex
     } cctalk_device_t;
-
-
-    void cctalk_init_device(uart_port_t uart_num, int tx_pin, int rx_pin, uint8_t source);
+    
+    
+    cctalk_device_t* cctalk_init_device(uart_port_t uart_num, int tx_pin, int rx_pin, uint8_t source);
     cctalk_response_t* cctalk_send_request(cctalk_device_t *device, cctalk_request_t *request);
 
 #ifdef __cplusplus

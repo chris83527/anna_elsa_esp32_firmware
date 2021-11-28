@@ -79,11 +79,17 @@
                 <df name="src">
                 </df>
               </df>
+              <df name="efuse-common-table.dir">
+              </df>
+              <df name="efuse-custom-table.dir">
+              </df>
               <df name="efuse_common_table.dir">
               </df>
               <df name="efuse_custom_table.dir">
               </df>
               <df name="efuse_test_table.dir">
+              </df>
+              <df name="show-efuse-table.dir">
               </df>
               <df name="show_efuse_table.dir">
               </df>
@@ -127,6 +133,8 @@
           </df>
           <df name="esp_system">
             <df name="CMakeFiles">
+              <df name="__idf_esp_system.dir">
+              </df>
             </df>
           </df>
           <df name="esptool_py">
@@ -212,16 +220,164 @@
         <df name="bootloader">
           <df name="CMakeFiles">
             <df name="3.16.3">
+              <df name="CompilerIdASM">
+              </df>
               <df name="CompilerIdC">
+                <df name="tmp">
+                </df>
                 <in>CMakeCCompilerId.c</in>
               </df>
               <df name="CompilerIdCXX">
+                <df name="tmp">
+                </df>
                 <in>CMakeCXXCompilerId.cpp</in>
               </df>
+            </df>
+            <df name="bootloader.elf.dir">
+            </df>
+            <df name="CMakeTmp">
+            </df>
+            <df name="git-data">
             </df>
           </df>
           <df name="config">
             <in>sdkconfig.h</in>
+          </df>
+          <df name="esp-idf">
+            <df name="bootloader">
+              <df name="CMakeFiles">
+              </df>
+            </df>
+            <df name="bootloader_support">
+              <df name="CMakeFiles">
+                <df name="__idf_bootloader_support.dir">
+                  <df name="src">
+                    <df name="esp32">
+                    </df>
+                  </df>
+                </df>
+              </df>
+            </df>
+            <df name="CMakeFiles">
+            </df>
+            <df name="efuse">
+              <df name="CMakeFiles">
+                <df name="__idf_efuse.dir">
+                  <df name="esp32">
+                  </df>
+                  <df name="src">
+                  </df>
+                </df>
+              </df>
+            </df>
+            <df name="esp32">
+              <df name="CMakeFiles">
+              </df>
+            </df>
+            <df name="esp_common">
+              <df name="CMakeFiles">
+                <df name="__idf_esp_common.dir">
+                  <df name="src">
+                  </df>
+                </df>
+              </df>
+            </df>
+            <df name="esp_hw_support">
+              <df name="CMakeFiles">
+                <df name="__idf_esp_hw_support.dir">
+                  <df name="port">
+                    <df name="esp32">
+                    </df>
+                  </df>
+                </df>
+              </df>
+              <df name="port">
+                <df name="esp32">
+                  <df name="CMakeFiles">
+                  </df>
+                </df>
+              </df>
+            </df>
+            <df name="esp_rom">
+              <df name="CMakeFiles">
+                <df name="__idf_esp_rom.dir">
+                  <df name="patches">
+                  </df>
+                </df>
+              </df>
+            </df>
+            <df name="esp_system">
+              <df name="CMakeFiles">
+                <df name="__idf_esp_system.dir">
+                </df>
+              </df>
+            </df>
+            <df name="esptool_py">
+              <df name="CMakeFiles">
+              </df>
+            </df>
+            <df name="freertos">
+              <df name="CMakeFiles">
+              </df>
+            </df>
+            <df name="hal">
+              <df name="CMakeFiles">
+                <df name="__idf_hal.dir">
+                </df>
+              </df>
+            </df>
+            <df name="log">
+              <df name="CMakeFiles">
+                <df name="__idf_log.dir">
+                </df>
+              </df>
+            </df>
+            <df name="main">
+              <df name="CMakeFiles">
+                <df name="__idf_main.dir">
+                </df>
+              </df>
+            </df>
+            <df name="micro-ecc">
+              <df name="CMakeFiles">
+                <df name="__idf_micro-ecc.dir">
+                </df>
+              </df>
+            </df>
+            <df name="newlib">
+              <df name="CMakeFiles">
+              </df>
+            </df>
+            <df name="partition_table">
+              <df name="CMakeFiles">
+              </df>
+            </df>
+            <df name="soc">
+              <df name="CMakeFiles">
+                <df name="__idf_soc.dir">
+                  <df name="esp32">
+                  </df>
+                </df>
+              </df>
+              <df name="esp32">
+                <df name="CMakeFiles">
+                </df>
+              </df>
+            </df>
+            <df name="spi_flash">
+              <df name="CMakeFiles">
+                <df name="__idf_spi_flash.dir">
+                  <df name="esp32">
+                  </df>
+                </df>
+              </df>
+            </df>
+            <df name="xtensa">
+              <df name="CMakeFiles">
+                <df name="__idf_xtensa.dir">
+                </df>
+              </df>
+            </df>
           </df>
           <in>project_elf_src_esp32.c</in>
         </df>
@@ -269,6 +425,12 @@
               </df>
             </df>
           </df>
+          <df name="anna_elsa_audio_board">
+            <df name="CMakeFiles">
+              <df name="__idf_anna_elsa_audio_board.dir">
+              </df>
+            </df>
+          </df>
           <df name="app_trace">
             <df name="CMakeFiles">
               <df name="__idf_app_trace.dir">
@@ -301,10 +463,6 @@
           </df>
           <df name="audio_board">
             <df name="CMakeFiles">
-              <df name="__idf_audio_board.dir">
-                <df name="custom">
-                </df>
-              </df>
             </df>
           </df>
           <df name="audio_hal">
@@ -395,6 +553,12 @@
               </df>
             </df>
           </df>
+          <df name="cctalk">
+            <df name="CMakeFiles">
+              <df name="__idf_cctalk.dir">
+              </df>
+            </df>
+          </df>
           <df name="clouds">
             <df name="CMakeFiles">
             </df>
@@ -417,8 +581,6 @@
                 <df name="libcoap">
                   <df name="src">
                   </df>
-                </df>
-                <df name="port">
                 </df>
               </df>
             </df>
@@ -523,8 +685,6 @@
           </df>
           <df name="esp32">
             <df name="CMakeFiles">
-              <df name="__idf_esp32.dir">
-              </df>
             </df>
           </df>
           <df name="esp_actions">
@@ -647,12 +807,6 @@
             <df name="CMakeFiles">
             </df>
           </df>
-          <df name="esp_ipc">
-            <df name="CMakeFiles">
-              <df name="__idf_esp_ipc.dir">
-              </df>
-            </df>
-          </df>
           <df name="esp_lcd">
             <df name="CMakeFiles">
               <df name="__idf_esp_lcd.dir">
@@ -755,6 +909,8 @@
                   </df>
                 </df>
               </df>
+            </df>
+            <df name="ld">
             </df>
             <df name="port">
               <df name="CMakeFiles">
@@ -878,8 +1034,12 @@
           <df name="freertos">
             <df name="CMakeFiles">
               <df name="__idf_freertos.dir">
-                <df name="port">
-                  <df name="xtensa">
+                <df name="esp_additions">
+                </df>
+                <df name="FreeRTOS-Kernel">
+                  <df name="portable">
+                    <df name="xtensa">
+                    </df>
                   </df>
                 </df>
               </df>
@@ -896,6 +1056,10 @@
           <df name="heap">
             <df name="CMakeFiles">
               <df name="__idf_heap.dir">
+                <df name="port">
+                  <df name="esp32">
+                  </df>
+                </df>
               </df>
             </df>
           </df>
@@ -912,6 +1076,10 @@
             </df>
           </df>
           <df name="idf_test">
+            <df name="CMakeFiles">
+            </df>
+          </df>
+          <df name="ieee802154">
             <df name="CMakeFiles">
             </df>
           </df>
@@ -1439,6 +1607,10 @@
               </df>
             </df>
           </df>
+          <df name="usb">
+            <df name="CMakeFiles">
+            </df>
+          </df>
           <df name="vfs">
             <df name="CMakeFiles">
               <df name="__idf_vfs.dir">
@@ -1478,6 +1650,10 @@
           <df name="wpa_supplicant">
             <df name="CMakeFiles">
               <df name="__idf_wpa_supplicant.dir">
+                <df name="esp_supplicant">
+                  <df name="src">
+                  </df>
+                </df>
                 <df name="port">
                 </df>
                 <df name="src">
@@ -1488,8 +1664,6 @@
                   <df name="crypto">
                   </df>
                   <df name="eap_peer">
-                  </df>
-                  <df name="esp_supplicant">
                   </df>
                   <df name="rsn_supp">
                   </df>
@@ -1569,13 +1743,19 @@
         </df>
       </df>
       <df name="components">
+        <df name="anna_elsa_audio_board">
+          <in>board.c</in>
+          <in>board.h</in>
+          <in>board_def.h</in>
+          <in>board_pins_config.c</in>
+          <in>board_pins_config.h</in>
+          <in>new_codec.c</in>
+          <in>new_codec.h</in>
+        </df>
         <df name="cctalk">
           <in>cctalk.c</in>
           <in>cctalk.h</in>
           <in>cctalkheaders.h</in>
-        </df>
-        <df name="esp_idf_lib_helpers">
-          <in>esp_idf_lib_helpers.h</in>
         </df>
         <df name="ht16k33">
           <df name="include">
@@ -1599,6 +1779,12 @@
             <df name="__idf_adf_utils.dir">
               <df name="cloud_services">
               </df>
+            </df>
+          </df>
+        </df>
+        <df name="anna_elsa_audio_board">
+          <df name="CMakeFiles">
+            <df name="__idf_anna_elsa_audio_board.dir">
             </df>
           </df>
         </df>
@@ -1636,6 +1822,8 @@
           <df name="CMakeFiles">
             <df name="__idf_audio_board.dir">
               <df name="custom">
+              </df>
+              <df name="lyrat_v4_3">
               </df>
             </df>
           </df>
@@ -1836,11 +2024,17 @@
               <df name="src">
               </df>
             </df>
+            <df name="efuse-common-table.dir">
+            </df>
+            <df name="efuse-custom-table.dir">
+            </df>
             <df name="efuse_common_table.dir">
             </df>
             <df name="efuse_custom_table.dir">
             </df>
             <df name="efuse_test_table.dir">
+            </df>
+            <df name="show-efuse-table.dir">
             </df>
             <df name="show_efuse_table.dir">
             </df>
@@ -1880,6 +2074,8 @@
             </df>
             <df name="esp32_linker_script.dir">
             </df>
+          </df>
+          <df name="ld">
           </df>
         </df>
         <df name="esp_actions">
@@ -2068,6 +2264,12 @@
               <df name="src">
               </df>
             </df>
+            <df name="encrypted-phy-flash.dir">
+            </df>
+            <df name="phy-flash.dir">
+            </df>
+            <df name="phy_init_data.dir">
+            </df>
           </df>
         </df>
         <df name="esp_pm">
@@ -2110,6 +2312,12 @@
                 </df>
               </df>
             </df>
+            <df name="__ldgen_output_sections.ld.dir">
+            </df>
+            <df name="memory_ld.dir">
+            </df>
+          </df>
+          <df name="ld">
           </df>
           <df name="port">
             <df name="CMakeFiles">
@@ -2239,6 +2447,14 @@
         <df name="freertos">
           <df name="CMakeFiles">
             <df name="__idf_freertos.dir">
+              <df name="esp_additions">
+              </df>
+              <df name="FreeRTOS-Kernel">
+                <df name="portable">
+                  <df name="xtensa">
+                  </df>
+                </df>
+              </df>
               <df name="port">
                 <df name="xtensa">
                 </df>
@@ -2257,6 +2473,10 @@
         <df name="heap">
           <df name="CMakeFiles">
             <df name="__idf_heap.dir">
+              <df name="port">
+                <df name="esp32">
+                </df>
+              </df>
             </df>
           </df>
         </df>
@@ -2273,6 +2493,10 @@
           </df>
         </df>
         <df name="idf_test">
+          <df name="CMakeFiles">
+          </df>
+        </df>
+        <df name="ieee802154">
           <df name="CMakeFiles">
           </df>
         </df>
@@ -2688,7 +2912,13 @@
         </df>
         <df name="partition_table">
           <df name="CMakeFiles">
+            <df name="encrypted-partition-table-flash.dir">
+            </df>
             <df name="encrypted-partition_table-flash.dir">
+            </df>
+            <df name="partition-table-flash.dir">
+            </df>
+            <df name="partition-table.dir">
             </df>
             <df name="partition_table-flash.dir">
             </df>
@@ -2820,6 +3050,10 @@
             </df>
           </df>
         </df>
+        <df name="usb">
+          <df name="CMakeFiles">
+          </df>
+        </df>
         <df name="vfs">
           <df name="CMakeFiles">
             <df name="__idf_vfs.dir">
@@ -2859,6 +3093,10 @@
         <df name="wpa_supplicant">
           <df name="CMakeFiles">
             <df name="__idf_wpa_supplicant.dir">
+              <df name="esp_supplicant">
+                <df name="src">
+                </df>
+              </df>
               <df name="port">
               </df>
               <df name="src">
@@ -2901,8 +3139,6 @@
         <in>config.h</in>
         <in>displaycontroller.cpp</in>
         <in>displaycontroller.h</in>
-        <in>entropy.cpp</in>
-        <in>entropy.h</in>
         <in>game.cpp</in>
         <in>game.h</in>
         <in>main.cpp</in>
@@ -3065,6 +3301,10 @@
         <in>max31725.c</in>
         <in>max31725.h</in>
       </df>
+      <df name="max31865">
+        <in>max31865.c</in>
+        <in>max31865.h</in>
+      </df>
       <df name="max7219">
         <in>max7219.c</in>
         <in>max7219.h</in>
@@ -3109,6 +3349,10 @@
       <df name="onewire">
         <in>onewire.c</in>
         <in>onewire.h</in>
+      </df>
+      <df name="pca9557">
+        <in>pca9557.c</in>
+        <in>pca9557.h</in>
       </df>
       <df name="pca9685">
         <in>pca9685.c</in>
@@ -3211,11 +3455,28 @@
           <in>esp_app_trace_util.h</in>
           <in>esp_sysview_trace.h</in>
         </df>
+        <df name="port">
+          <df name="include">
+            <in>esp_app_trace_port.h</in>
+          </df>
+          <df name="riscv">
+            <in>port.c</in>
+          </df>
+          <df name="xtensa">
+            <in>port.c</in>
+          </df>
+        </df>
+        <df name="private_include">
+          <in>esp_app_trace_membufs_proto.h</in>
+        </df>
         <df name="sys_view">
           <df name="Config">
             <in>Global.h</in>
             <in>SEGGER_RTT_Conf.h</in>
             <in>SEGGER_SYSVIEW_Conf.h</in>
+          </df>
+          <df name="esp">
+            <in>SEGGER_RTT_esp.c</in>
           </df>
           <df name="esp32">
             <in>SEGGER_RTT_esp32.c</in>
@@ -3246,6 +3507,7 @@
           <in>test_trace.c</in>
         </df>
         <in>app_trace.c</in>
+        <in>app_trace_membufs_proto.c</in>
         <in>app_trace_util.c</in>
         <in>heap_trace_tohost.c</in>
         <in>host_file_io.c</in>
@@ -4299,6 +4561,13 @@
                   <in>test_ecdh.c</in>
                   <in>test_ecdsa.c</in>
                 </df>
+                <in>asm_arm.inc</in>
+                <in>asm_arm_mult_square.inc</in>
+                <in>asm_arm_mult_square_umaal.inc</in>
+                <in>asm_avr.inc</in>
+                <in>asm_avr_mult_square.inc</in>
+                <in>curve-specific.inc</in>
+                <in>platform-specific.inc</in>
                 <in>types.h</in>
                 <in>uECC.c</in>
                 <in>uECC.h</in>
@@ -4314,11 +4583,16 @@
               </df>
               <df name="esp32c3">
               </df>
+              <df name="esp32h2">
+              </df>
               <df name="esp32s2">
               </df>
               <df name="esp32s3">
               </df>
+              <df name="esp8684">
+              </df>
             </df>
+            <in>bootloader_hooks.h</in>
             <in>bootloader_start.c</in>
           </df>
         </df>
@@ -4329,6 +4603,7 @@
           <in>bootloader_common.h</in>
           <in>bootloader_flash.h</in>
           <in>bootloader_flash_config.h</in>
+          <in>bootloader_flash_override.h</in>
           <in>bootloader_mem.h</in>
           <in>bootloader_random.h</in>
           <in>bootloader_util.h</in>
@@ -4345,6 +4620,7 @@
           <in>bootloader_flash_priv.h</in>
           <in>bootloader_init.h</in>
           <in>bootloader_sha.h</in>
+          <in>bootloader_soc.h</in>
           <in>bootloader_utility.h</in>
           <in>flash_qio_mode.h</in>
         </df>
@@ -4352,24 +4628,42 @@
           <df name="esp32">
             <in>bootloader_esp32.c</in>
             <in>bootloader_sha.c</in>
+            <in>bootloader_soc.c</in>
             <in>flash_encryption_secure_features.c</in>
             <in>secure_boot_secure_features.c</in>
           </df>
           <df name="esp32c3">
             <in>bootloader_esp32c3.c</in>
             <in>bootloader_sha.c</in>
+            <in>bootloader_soc.c</in>
             <in>flash_encryption_secure_features.c</in>
             <in>secure_boot_secure_features.c</in>
+          </df>
+          <df name="esp32h2">
+            <in>bootloader_esp32h2.c</in>
+            <in>bootloader_sha.c</in>
+            <in>bootloader_soc.c</in>
+            <in>flash_encrypt.c</in>
+            <in>secure_boot.c</in>
           </df>
           <df name="esp32s2">
             <in>bootloader_esp32s2.c</in>
             <in>bootloader_sha.c</in>
+            <in>bootloader_soc.c</in>
             <in>flash_encryption_secure_features.c</in>
             <in>secure_boot_secure_features.c</in>
           </df>
           <df name="esp32s3">
             <in>bootloader_esp32s3.c</in>
             <in>bootloader_sha.c</in>
+            <in>bootloader_soc.c</in>
+            <in>flash_encryption_secure_features.c</in>
+            <in>secure_boot_secure_features.c</in>
+          </df>
+          <df name="esp8684">
+            <in>bootloader_esp8684.c</in>
+            <in>bootloader_sha.c</in>
+            <in>bootloader_soc.c</in>
             <in>flash_encryption_secure_features.c</in>
             <in>secure_boot_secure_features.c</in>
           </df>
@@ -4397,21 +4691,27 @@
           <in>bootloader_console_loader.c</in>
           <in>bootloader_efuse_esp32.c</in>
           <in>bootloader_efuse_esp32c3.c</in>
+          <in>bootloader_efuse_esp32h2.c</in>
           <in>bootloader_efuse_esp32s2.c</in>
           <in>bootloader_efuse_esp32s3.c</in>
+          <in>bootloader_efuse_esp8684.c</in>
           <in>bootloader_flash.c</in>
           <in>bootloader_flash_config_esp32.c</in>
           <in>bootloader_flash_config_esp32c3.c</in>
+          <in>bootloader_flash_config_esp32h2.c</in>
           <in>bootloader_flash_config_esp32s2.c</in>
           <in>bootloader_flash_config_esp32s3.c</in>
+          <in>bootloader_flash_config_esp8684.c</in>
           <in>bootloader_init.c</in>
           <in>bootloader_mem.c</in>
           <in>bootloader_panic.c</in>
           <in>bootloader_random.c</in>
           <in>bootloader_random_esp32.c</in>
           <in>bootloader_random_esp32c3.c</in>
+          <in>bootloader_random_esp32h2.c</in>
           <in>bootloader_random_esp32s2.c</in>
           <in>bootloader_random_esp32s3.c</in>
+          <in>bootloader_random_esp8684.c</in>
           <in>bootloader_utility.c</in>
           <in>esp_image_format.c</in>
           <in>flash_encrypt.c</in>
@@ -4425,6 +4725,14 @@
       </df>
       <df name="bt">
         <df name="common">
+          <df name="api">
+            <df name="include">
+              <df name="api">
+                <in>esp_blufi_api.h</in>
+              </df>
+            </df>
+            <in>esp_blufi_api.c</in>
+          </df>
           <df name="btc">
             <df name="core">
               <in>btc_alarm.c</in>
@@ -4436,6 +4744,27 @@
                 <in>btc_alarm.h</in>
                 <in>btc_manage.h</in>
                 <in>btc_task.h</in>
+              </df>
+            </df>
+            <df name="profile">
+              <df name="esp">
+                <df name="blufi">
+                  <df name="bluedroid_host">
+                    <in>esp_blufi.c</in>
+                  </df>
+                  <df name="include">
+                    <in>blufi_int.h</in>
+                    <in>esp_blufi.h</in>
+                  </df>
+                  <df name="nimble_host">
+                    <in>esp_blufi.c</in>
+                  </df>
+                  <in>blufi_prf.c</in>
+                  <in>blufi_protocol.c</in>
+                </df>
+                <df name="include">
+                  <in>btc_blufi_prf.h</in>
+                </df>
               </df>
             </df>
           </df>
@@ -4479,12 +4808,21 @@
         <df name="controller">
           <df name="esp32">
             <in>bt.c</in>
+            <in>hli_api.c</in>
+            <in>hli_api.h</in>
+            <in>hli_vectors.S</in>
           </df>
           <df name="esp32c3">
             <in>bt.c</in>
           </df>
+          <df name="esp32h2">
+          </df>
+          <df name="esp32s2">
+          </df>
           <df name="esp32s3">
             <in>bt.c</in>
+          </df>
+          <df name="esp8684">
           </df>
           <df name="lib_esp32">
             <df name="esp32">
@@ -4737,7 +5075,6 @@
                 <df name="api">
                   <in>esp_a2dp_api.h</in>
                   <in>esp_avrc_api.h</in>
-                  <in>esp_blufi_api.h</in>
                   <in>esp_bt_defs.h</in>
                   <in>esp_bt_device.h</in>
                   <in>esp_bt_main.h</in>
@@ -4750,6 +5087,8 @@
                   <in>esp_hf_ag_api.h</in>
                   <in>esp_hf_client_api.h</in>
                   <in>esp_hf_defs.h</in>
+                  <in>esp_hidd_api.h</in>
+                  <in>esp_hidh_api.h</in>
                   <in>esp_spp_api.h</in>
                 </df>
               </df>
@@ -4765,6 +5104,8 @@
               <in>esp_gatts_api.c</in>
               <in>esp_hf_ag_api.c</in>
               <in>esp_hf_client_api.c</in>
+              <in>esp_hidd_api.c</in>
+              <in>esp_hidh_api.c</in>
               <in>esp_spp_api.c</in>
             </df>
             <df name="bta">
@@ -4819,6 +5160,14 @@
                 <in>bta_gatts_co.c</in>
                 <in>bta_gatts_main.c</in>
                 <in>bta_gatts_utils.c</in>
+              </df>
+              <df name="hd">
+                <df name="include">
+                  <in>bta_hd_int.h</in>
+                </df>
+                <in>bta_hd_act.c</in>
+                <in>bta_hd_api.c</in>
+                <in>bta_hd_main.c</in>
               </df>
               <df name="hf_ag">
                 <df name="include">
@@ -4878,6 +5227,7 @@
                   <in>bta_gattc_ci.h</in>
                   <in>bta_gattc_co.h</in>
                   <in>bta_gatts_co.h</in>
+                  <in>bta_hd_api.h</in>
                   <in>bta_hf_client_api.h</in>
                   <in>bta_hf_client_co.h</in>
                   <in>bta_hfp_defs.h</in>
@@ -4950,14 +5300,10 @@
                     <in>button_pro.c</in>
                   </df>
                   <df name="blufi">
-                    <df name="include">
-                      <in>blufi_int.h</in>
-                    </df>
                     <in>blufi_prf.c</in>
                     <in>blufi_protocol.c</in>
                   </df>
                   <df name="include">
-                    <in>btc_blufi_prf.h</in>
                     <in>button_pro.h</in>
                     <in>wx_airsync_prf.h</in>
                   </df>
@@ -5013,10 +5359,9 @@
                     <in>btc_hf_client.c</in>
                   </df>
                   <df name="hid">
-                    <df name="include">
-                      <in>hid_conn.h</in>
-                      <in>hidh_int.h</in>
-                    </df>
+                    <in>bta_hh_co.c</in>
+                    <in>btc_hd.c</in>
+                    <in>btc_hh.c</in>
                     <in>hidh_api.c</in>
                     <in>hidh_conn.c</in>
                   </df>
@@ -5035,8 +5380,10 @@
                     <in>btc_gatt_util.h</in>
                     <in>btc_gattc.h</in>
                     <in>btc_gatts.h</in>
+                    <in>btc_hd.h</in>
                     <in>btc_hf_ag.h</in>
                     <in>btc_hf_client.h</in>
+                    <in>btc_hh.h</in>
                     <in>btc_spp.h</in>
                     <in>dis_api.h</in>
                     <in>srvc_api.h</in>
@@ -5114,6 +5461,7 @@
                     <in>framing-sbc.c</in>
                     <in>framing.c</in>
                     <in>oi_codec_version.c</in>
+                    <in>readsamplesjoint.inc</in>
                     <in>synthesis-8-generated.c</in>
                     <in>synthesis-dct8.c</in>
                     <in>synthesis-sbc.c</in>
@@ -5272,6 +5620,16 @@
                 <in>hciblecmds.c</in>
                 <in>hcicmds.c</in>
               </df>
+              <df name="hid">
+                <df name="include">
+                  <in>hid_conn.h</in>
+                  <in>hid_int.h</in>
+                </df>
+                <in>hidd_api.c</in>
+                <in>hidd_conn.c</in>
+                <in>hidh_api.c</in>
+                <in>hidh_conn.c</in>
+              </df>
               <df name="include">
                 <df name="stack">
                   <in>a2d_api.h</in>
@@ -5291,6 +5649,7 @@
                   <in>gattdefs.h</in>
                   <in>hcidefs.h</in>
                   <in>hcimsgs.h</in>
+                  <in>hidd_api.h</in>
                   <in>hiddefs.h</in>
                   <in>hidh_api.h</in>
                   <in>l2c_api.h</in>
@@ -6518,6 +6877,7 @@
               <df name="iar_v4">
                 <df name="incIAR">
                   <in>AT91SAM7X-EK.h</in>
+                  <in>AT91SAM7X256.inc</in>
                   <in>AT91SAM7X256_inc.h</in>
                   <in>ioat91sam7x256.h</in>
                   <in>lib_AT91SAM7X256.h</in>
@@ -6758,7 +7118,15 @@
       </df>
       <df name="coap">
         <df name="libcoap">
+          <df name=".github">
+            <df name="ISSUE_TEMPLATE">
+            </df>
+            <df name="workflows">
+            </df>
+          </df>
           <df name="build-env">
+          </df>
+          <df name="cmake">
           </df>
           <df name="doc">
           </df>
@@ -6776,6 +7144,7 @@
               <in>server.c</in>
             </df>
             <in>client.c</in>
+            <in>coap-client.c</in>
             <in>coap-rd.c</in>
             <in>coap-server.c</in>
             <in>coap_list.c</in>
@@ -6789,6 +7158,7 @@
               <df name="aes">
                 <in>rijndael.c</in>
                 <in>rijndael.h</in>
+                <in>rijndael_wrap.c</in>
               </df>
               <df name="doc">
               </df>
@@ -6817,6 +7187,13 @@
                 <in>sha2speed.c</in>
               </df>
               <df name="tests">
+                <df name="unit-tests">
+                  <in>test_ccm.c</in>
+                  <in>test_ccm.h</in>
+                  <in>test_ecc.c</in>
+                  <in>test_ecc.h</in>
+                  <in>testdriver.c</in>
+                </df>
                 <in>cbc_aes128-test.c</in>
                 <in>cbc_aes128-testdata.c</in>
                 <in>ccm-test.c</in>
@@ -6859,18 +7236,34 @@
             </df>
           </df>
           <df name="include">
-            <df name="coap2">
+            <df name="coap3">
               <in>address.h</in>
               <in>async.h</in>
-              <in>bits.h</in>
               <in>block.h</in>
+              <in>coap_asn1_internal.h</in>
+              <in>coap_async_internal.h</in>
+              <in>coap_block_internal.h</in>
+              <in>coap_cache.h</in>
+              <in>coap_cache_internal.h</in>
               <in>coap_debug.h</in>
               <in>coap_dtls.h</in>
+              <in>coap_dtls_internal.h</in>
               <in>coap_event.h</in>
+              <in>coap_forward_decls.h</in>
               <in>coap_hashkey.h</in>
+              <in>coap_internal.h</in>
               <in>coap_io.h</in>
+              <in>coap_io_internal.h</in>
               <in>coap_mutex.h</in>
+              <in>coap_net_internal.h</in>
+              <in>coap_pdu_internal.h</in>
+              <in>coap_prng.h</in>
+              <in>coap_resource_internal.h</in>
+              <in>coap_riot.h</in>
               <in>coap_session.h</in>
+              <in>coap_session_internal.h</in>
+              <in>coap_subscribe_internal.h</in>
+              <in>coap_tcp_internal.h</in>
               <in>coap_time.h</in>
               <in>encode.h</in>
               <in>libcoap.h</in>
@@ -6879,7 +7272,6 @@
               <in>net.h</in>
               <in>option.h</in>
               <in>pdu.h</in>
-              <in>prng.h</in>
               <in>resource.h</in>
               <in>str.h</in>
               <in>subscribe.h</in>
@@ -6891,6 +7283,7 @@
           <df name="m4">
           </df>
           <df name="man">
+            <in>examples-code-check.c</in>
           </df>
           <df name="scripts">
           </df>
@@ -6898,15 +7291,21 @@
             <in>address.c</in>
             <in>async.c</in>
             <in>block.c</in>
+            <in>coap_asn1.c</in>
+            <in>coap_cache.c</in>
             <in>coap_debug.c</in>
             <in>coap_event.c</in>
             <in>coap_gnutls.c</in>
             <in>coap_hashkey.c</in>
             <in>coap_io.c</in>
             <in>coap_io_lwip.c</in>
+            <in>coap_io_riot.c</in>
+            <in>coap_mbedtls.c</in>
             <in>coap_notls.c</in>
             <in>coap_openssl.c</in>
+            <in>coap_prng.c</in>
             <in>coap_session.c</in>
+            <in>coap_tcp.c</in>
             <in>coap_time.c</in>
             <in>coap_tinydtls.c</in>
             <in>encode.c</in>
@@ -6922,7 +7321,10 @@
           <df name="tests">
             <df name="oss-fuzz">
               <in>pdu_parse_target.c</in>
+              <in>split_uri_target.c</in>
             </df>
+            <in>test_encode.c</in>
+            <in>test_encode.h</in>
             <in>test_error_response.c</in>
             <in>test_error_response.h</in>
             <in>test_options.c</in>
@@ -6956,9 +7358,8 @@
         </df>
         <df name="port">
           <df name="include">
-            <df name="coap">
+            <df name="coap3">
               <in>coap.h</in>
-              <in>coap_dtls.h</in>
             </df>
             <in>coap_config.h</in>
             <in>coap_config_posix.h</in>
@@ -6996,6 +7397,11 @@
         <in>cxx_guards.cpp</in>
       </df>
       <df name="driver">
+        <df name="deprecated">
+          <df name="driver">
+            <in>periph_ctrl.h</in>
+          </df>
+        </df>
         <df name="esp32">
           <df name="include">
             <df name="driver">
@@ -7009,6 +7415,17 @@
           <in>touch_sensor.c</in>
         </df>
         <df name="esp32c3">
+          <df name="include">
+            <df name="driver">
+              <in>adc.h</in>
+              <in>temp_sensor.h</in>
+            </df>
+          </df>
+          <in>adc.c</in>
+          <in>adc2_init_cal.c</in>
+          <in>rtc_tempsensor.c</in>
+        </df>
+        <df name="esp32h2">
           <df name="include">
             <df name="driver">
               <in>adc.h</in>
@@ -7042,6 +7459,15 @@
               <in>touch_sensor.h</in>
             </df>
           </df>
+          <in>touch_sensor.c</in>
+        </df>
+        <df name="esp8684">
+          <df name="include">
+            <df name="driver">
+              <in>adc.h</in>
+              <in>temp_sensor.h</in>
+            </df>
+          </df>
         </df>
         <df name="include">
           <df name="driver">
@@ -7056,7 +7482,6 @@
             <in>ledc.h</in>
             <in>mcpwm.h</in>
             <in>pcnt.h</in>
-            <in>periph_ctrl.h</in>
             <in>rmt.h</in>
             <in>rtc_cntl.h</in>
             <in>rtc_io.h</in>
@@ -7077,11 +7502,14 @@
             <in>twai.h</in>
             <in>uart.h</in>
             <in>uart_select.h</in>
+            <in>usb_serial_jtag.h</in>
           </df>
           <df name="esp_private">
             <in>adc_cali.h</in>
             <in>gdma.h</in>
             <in>gpio.h</in>
+            <in>i2s_platform.h</in>
+            <in>periph_ctrl.h</in>
           </df>
         </df>
         <df name="test">
@@ -7113,8 +7541,11 @@
             </df>
             <in>test_esp32.c</in>
             <in>test_esp32s2.c</in>
+            <in>test_touch_v1.c</in>
+            <in>test_touch_v2.c</in>
             <in>touch_scope.c</in>
           </df>
+          <in>test_adc.c</in>
           <in>test_adc2_with_wifi.c</in>
           <in>test_adc_common.c</in>
           <in>test_adc_dma.c</in>
@@ -7177,6 +7608,7 @@
         <in>touch_sensor_common.c</in>
         <in>twai.c</in>
         <in>uart.c</in>
+        <in>usb_serial_jtag.c</in>
       </df>
       <df name="efuse">
         <df name="esp32">
@@ -7205,6 +7637,20 @@
           <in>esp_efuse_table.c</in>
           <in>esp_efuse_utility.c</in>
         </df>
+        <df name="esp32h2">
+          <df name="include">
+            <in>esp_efuse.h</in>
+            <in>esp_efuse_rtc_calib.h</in>
+            <in>esp_efuse_table.h</in>
+          </df>
+          <df name="private_include">
+            <in>esp_efuse_utility.h</in>
+          </df>
+          <in>esp_efuse_fields.c</in>
+          <in>esp_efuse_rtc_calib.c</in>
+          <in>esp_efuse_table.c</in>
+          <in>esp_efuse_utility.c</in>
+        </df>
         <df name="esp32s2">
           <df name="include">
             <in>esp_efuse.h</in>
@@ -7220,6 +7666,20 @@
           <in>esp_efuse_utility.c</in>
         </df>
         <df name="esp32s3">
+          <df name="include">
+            <in>esp_efuse.h</in>
+            <in>esp_efuse_rtc_calib.h</in>
+            <in>esp_efuse_table.h</in>
+          </df>
+          <df name="private_include">
+            <in>esp_efuse_utility.h</in>
+          </df>
+          <in>esp_efuse_fields.c</in>
+          <in>esp_efuse_rtc_calib.c</in>
+          <in>esp_efuse_table.c</in>
+          <in>esp_efuse_utility.c</in>
+        </df>
+        <df name="esp8684">
           <df name="include">
             <in>esp_efuse.h</in>
             <in>esp_efuse_table.h</in>
@@ -7278,12 +7738,6 @@
       </df>
       <df name="esp32">
         <df name="include">
-          <df name="esp32">
-            <in>dport_access.h</in>
-            <in>himem.h</in>
-            <in>rtc.h</in>
-            <in>spiram.h</in>
-          </df>
           <df name="rom">
             <in>aes.h</in>
             <in>bigint.h</in>
@@ -7305,21 +7759,14 @@
             <in>tjpgd.h</in>
             <in>uart.h</in>
           </df>
-          <in>esp_himem.h</in>
-          <in>esp_spiram.h</in>
-        </df>
-        <df name="ld">
         </df>
         <df name="test">
           <in>test_4mpsram.c</in>
           <in>test_aes_sha_rsa.c</in>
           <in>test_ahb_arb.c</in>
-          <in>test_ahb_arb_asm.S</in>
           <in>test_backtrace.c</in>
           <in>test_dport.c</in>
-          <in>test_dport_xt_highint5.S</in>
           <in>test_fastbus.c</in>
-          <in>test_fastbus_asm.S</in>
           <in>test_fp.c</in>
           <in>test_himem.c</in>
           <in>test_sha.c</in>
@@ -7332,23 +7779,9 @@
         <in>esp_himem.c</in>
         <in>spiram.c</in>
         <in>spiram_psram.c</in>
-        <in>spiram_psram.h</in>
       </df>
       <df name="esp32c3">
-        <df name="include">
-          <df name="esp32c3">
-            <in>dport_access.h</in>
-            <in>memprot.h</in>
-            <in>rtc.h</in>
-          </df>
-          <in>esp_crypto_lock.h</in>
-          <in>esp_ds.h</in>
-          <in>esp_hmac.h</in>
-        </df>
-        <df name="ld">
-        </df>
         <df name="test">
-          <in>digital_signature_test_cases.h</in>
           <in>test_ds.c</in>
           <in>test_sha.c</in>
         </df>
@@ -7358,23 +7791,10 @@
         <in>esp_hmac.c</in>
         <in>memprot.c</in>
       </df>
+      <df name="esp32h2">
+      </df>
       <df name="esp32s2">
-        <df name="include">
-          <df name="esp32s2">
-            <in>dport_access.h</in>
-            <in>memprot.h</in>
-            <in>rtc.h</in>
-            <in>spiram.h</in>
-          </df>
-          <in>esp_crypto_lock.h</in>
-          <in>esp_ds.h</in>
-          <in>esp_hmac.h</in>
-          <in>esp_spiram.h</in>
-        </df>
-        <df name="ld">
-        </df>
         <df name="test">
-          <in>digital_signature_test_cases.h</in>
           <in>test_ds.c</in>
           <in>test_hmac.c</in>
           <in>test_sha.c</in>
@@ -7387,27 +7807,15 @@
         <in>memprot.c</in>
         <in>spiram.c</in>
         <in>spiram_psram.c</in>
-        <in>spiram_psram.h</in>
       </df>
       <df name="esp32s3">
-        <df name="include">
-          <df name="esp32s3">
-            <in>dport_access.h</in>
-            <in>memprot.h</in>
-            <in>rtc.h</in>
-            <in>spiram.h</in>
-          </df>
-          <in>esp_crypto_lock.h</in>
-          <in>esp_spiram.h</in>
-        </df>
-        <df name="ld">
-        </df>
         <in>dport_access.c</in>
         <in>esp_crypto_lock.c</in>
         <in>memprot.c</in>
         <in>spiram.c</in>
         <in>spiram_psram.c</in>
-        <in>spiram_psram.h</in>
+      </df>
+      <df name="esp8684">
       </df>
       <df name="esp_adc_cal">
         <df name="include">
@@ -7415,7 +7823,9 @@
         </df>
         <in>esp_adc_cal_esp32.c</in>
         <in>esp_adc_cal_esp32c3.c</in>
+        <in>esp_adc_cal_esp32h2.c</in>
         <in>esp_adc_cal_esp32s2.c</in>
+        <in>esp_adc_cal_esp32s3.c</in>
       </df>
       <df name="esp_common">
         <df name="include">
@@ -7460,6 +7870,7 @@
           <in>esp_eth_phy_ksz80xx.c</in>
           <in>esp_eth_phy_ksz8851snl.c</in>
           <in>esp_eth_phy_lan8720.c</in>
+          <in>esp_eth_phy_lan87xx.c</in>
           <in>esp_eth_phy_rtl8201.c</in>
           <in>esp_eth_phy_w5500.c</in>
           <in>ksz8851.h</in>
@@ -7469,8 +7880,21 @@
         <df name="test">
           <in>test_emac.c</in>
         </df>
+        <df name="test_apps">
+          <df name="main">
+            <in>esp_eth_test.c</in>
+          </df>
+        </df>
       </df>
       <df name="esp_event">
+        <df name="host_test">
+          <df name="esp_event_unit_test">
+            <df name="main">
+              <in>esp_event_test.cpp</in>
+            </df>
+          </df>
+          <in>fixtures.hpp</in>
+        </df>
         <df name="include">
           <in>esp_event.h</in>
           <in>esp_event_base.h</in>
@@ -7490,6 +7914,7 @@
         <in>esp_event_private.c</in>
         <in>event_loop_legacy.c</in>
         <in>event_send.c</in>
+        <in>event_send_compat.inc</in>
       </df>
       <df name="esp_gdbstub">
         <df name="esp32">
@@ -7499,10 +7924,18 @@
           <in>gdbstub_esp32c3.c</in>
           <in>gdbstub_target_config.h</in>
         </df>
+        <df name="esp32h2">
+          <in>gdbstub_esp32h2.c</in>
+          <in>gdbstub_target_config.h</in>
+        </df>
         <df name="esp32s2">
           <in>gdbstub_target_config.h</in>
         </df>
         <df name="esp32s3">
+          <in>gdbstub_target_config.h</in>
+        </df>
+        <df name="esp8684">
+          <in>gdbstub_esp8684.c</in>
           <in>gdbstub_target_config.h</in>
         </df>
         <df name="esp_common">
@@ -7542,14 +7975,15 @@
         <df name="private">
           <in>ble_hidd.h</in>
           <in>ble_hidh.h</in>
+          <in>bt_hidd.h</in>
           <in>bt_hidh.h</in>
-          <in>esp_bt_hh_api.h</in>
           <in>esp_hidd_private.h</in>
           <in>esp_hidh_private.h</in>
         </df>
         <df name="src">
           <in>ble_hidd.c</in>
           <in>ble_hidh.c</in>
+          <in>bt_hidd.c</in>
           <in>bt_hidh.c</in>
           <in>esp_hid_common.c</in>
           <in>esp_hidd.c</in>
@@ -7626,23 +8060,67 @@
         <df name="include">
           <df name="esp_private">
             <in>esp_clk.h</in>
+            <in>sleep_gpio.h</in>
+            <in>sleep_mac_bb.h</in>
+            <in>sleep_retention.h</in>
           </df>
           <df name="soc">
             <df name="esp32">
               <in>clk.h</in>
+              <in>dport_access.h</in>
+              <in>himem.h</in>
+              <in>rtc.h</in>
+              <in>spiram.h</in>
             </df>
             <df name="esp32c3">
               <in>clk.h</in>
+              <in>dport_access.h</in>
+              <in>esp_crypto_lock.h</in>
+              <in>esp_ds.h</in>
+              <in>esp_hmac.h</in>
+              <in>memprot.h</in>
+              <in>rtc.h</in>
+            </df>
+            <df name="esp32h2">
+              <in>clk.h</in>
+              <in>dport_access.h</in>
+              <in>esp_crypto_lock.h</in>
+              <in>esp_ds.h</in>
+              <in>esp_hmac.h</in>
+              <in>memprot.h</in>
+              <in>rtc.h</in>
             </df>
             <df name="esp32s2">
               <in>clk.h</in>
+              <in>dport_access.h</in>
+              <in>esp_crypto_lock.h</in>
+              <in>esp_ds.h</in>
+              <in>esp_hmac.h</in>
+              <in>memprot.h</in>
+              <in>rtc.h</in>
+              <in>spiram.h</in>
             </df>
             <df name="esp32s3">
               <in>clk.h</in>
+              <in>dport_access.h</in>
+              <in>esp_crypto_lock.h</in>
+              <in>esp_ds.h</in>
+              <in>esp_hmac.h</in>
+              <in>memprot.h</in>
+              <in>rtc.h</in>
+              <in>spiram.h</in>
+            </df>
+            <df name="esp8684">
+              <in>dport_access.h</in>
+              <in>esp_crypto_lock.h</in>
+              <in>memprot.h</in>
+              <in>rtc.h</in>
             </df>
             <in>clk_ctrl_os.h</in>
             <in>compare_set.h</in>
             <in>cpu.h</in>
+            <in>esp_himem.h</in>
+            <in>esp_spiram.h</in>
             <in>rtc_wdt.h</in>
             <in>spinlock.h</in>
           </df>
@@ -7666,7 +8144,10 @@
               <in>regi2c_apll.h</in>
               <in>regi2c_bbpll.h</in>
             </df>
+            <in>cache_sram_mmu.c</in>
             <in>chip_info.c</in>
+            <in>dport_access.c</in>
+            <in>esp_himem.c</in>
             <in>regi2c_ctrl.h</in>
             <in>rtc_clk.c</in>
             <in>rtc_clk_common.h</in>
@@ -7676,6 +8157,9 @@
             <in>rtc_sleep.c</in>
             <in>rtc_time.c</in>
             <in>rtc_wdt.c</in>
+            <in>spiram.c</in>
+            <in>spiram_psram.c</in>
+            <in>spiram_psram.h</in>
           </df>
           <df name="esp32c3">
             <df name="private_include">
@@ -7688,8 +8172,42 @@
             </df>
             <in>chip_info.c</in>
             <in>cpu_util_esp32c3.c</in>
+            <in>dport_access.c</in>
+            <in>esp_crypto_lock.c</in>
+            <in>esp_ds.c</in>
+            <in>esp_hmac.c</in>
             <in>i2c_brownout.h</in>
             <in>i2c_rtc_clk.h</in>
+            <in>memprot.c</in>
+            <in>regi2c_ctrl.h</in>
+            <in>rtc_clk.c</in>
+            <in>rtc_clk_common.h</in>
+            <in>rtc_clk_init.c</in>
+            <in>rtc_init.c</in>
+            <in>rtc_pm.c</in>
+            <in>rtc_sleep.c</in>
+            <in>rtc_time.c</in>
+          </df>
+          <df name="esp32h2">
+            <df name="private_include">
+              <in>regi2c_bbpll.h</in>
+              <in>regi2c_bias.h</in>
+              <in>regi2c_brownout.h</in>
+              <in>regi2c_dig_reg.h</in>
+              <in>regi2c_lp_bias.h</in>
+              <in>regi2c_pmu.h</in>
+              <in>regi2c_saradc.h</in>
+              <in>regi2c_ulp.h</in>
+            </df>
+            <in>chip_info.c</in>
+            <in>cpu_util_esp32h2.c</in>
+            <in>dport_access.c</in>
+            <in>esp_crypto_lock.c</in>
+            <in>esp_ds.c</in>
+            <in>esp_hmac.c</in>
+            <in>i2c_brownout.h</in>
+            <in>i2c_rtc_clk.h</in>
+            <in>memprot.c</in>
             <in>regi2c_ctrl.h</in>
             <in>rtc_clk.c</in>
             <in>rtc_clk_common.h</in>
@@ -7709,6 +8227,11 @@
             </df>
             <in>async_memcpy_impl_cp_dma.c</in>
             <in>chip_info.c</in>
+            <in>dport_access.c</in>
+            <in>esp_crypto_lock.c</in>
+            <in>esp_ds.c</in>
+            <in>esp_hmac.c</in>
+            <in>memprot.c</in>
             <in>regi2c_ctrl.c</in>
             <in>regi2c_ctrl.h</in>
             <in>rtc_clk.c</in>
@@ -7719,15 +8242,26 @@
             <in>rtc_sleep.c</in>
             <in>rtc_time.c</in>
             <in>rtc_wdt.c</in>
+            <in>spiram.c</in>
+            <in>spiram_psram.c</in>
+            <in>spiram_psram.h</in>
           </df>
           <df name="esp32s3">
             <df name="private_include">
               <in>regi2c_bbpll.h</in>
               <in>regi2c_brownout.h</in>
               <in>regi2c_dig_reg.h</in>
+              <in>regi2c_lp_bias.h</in>
+              <in>regi2c_saradc.h</in>
               <in>regi2c_ulp.h</in>
             </df>
             <in>chip_info.c</in>
+            <in>dport_access.c</in>
+            <in>esp_crypto_lock.c</in>
+            <in>esp_ds.c</in>
+            <in>esp_hmac.c</in>
+            <in>memprot.c</in>
+            <in>opiram_psram.c</in>
             <in>regi2c_ctrl.h</in>
             <in>rtc_clk.c</in>
             <in>rtc_clk_common.h</in>
@@ -7737,6 +8271,33 @@
             <in>rtc_sleep.c</in>
             <in>rtc_time.c</in>
             <in>rtc_wdt.c</in>
+            <in>spiram.c</in>
+            <in>spiram_psram.c</in>
+            <in>spiram_psram.h</in>
+          </df>
+          <df name="esp8684">
+            <df name="private_include">
+              <in>regi2c_bbpll.h</in>
+              <in>regi2c_bias.h</in>
+              <in>regi2c_brownout.h</in>
+              <in>regi2c_dig_reg.h</in>
+              <in>regi2c_lp_bias.h</in>
+              <in>regi2c_saradc.h</in>
+            </df>
+            <in>chip_info.c</in>
+            <in>cpu_util_esp8684.c</in>
+            <in>dport_access.c</in>
+            <in>esp_crypto_lock.c</in>
+            <in>i2c_brownout.h</in>
+            <in>i2c_rtc_clk.h</in>
+            <in>regi2c_ctrl.h</in>
+            <in>rtc_clk.c</in>
+            <in>rtc_clk_common.h</in>
+            <in>rtc_clk_init.c</in>
+            <in>rtc_init.c</in>
+            <in>rtc_pm.c</in>
+            <in>rtc_sleep.c</in>
+            <in>rtc_time.c</in>
           </df>
           <df name="include">
             <in>esp_async_memcpy_impl.h</in>
@@ -7744,10 +8305,26 @@
           <in>async_memcpy_impl_gdma.c</in>
         </df>
         <df name="test">
+          <in>digital_signature_test_cases_3072.h</in>
+          <in>digital_signature_test_cases_4096.h</in>
+          <in>test_4mpsram.c</in>
+          <in>test_ahb_arb.c</in>
+          <in>test_ahb_arb_asm.S</in>
           <in>test_async_memcpy.c</in>
+          <in>test_dport.c</in>
+          <in>test_dport_xt_highint5.S</in>
+          <in>test_ds.c</in>
+          <in>test_fastbus.c</in>
+          <in>test_fastbus_asm.S</in>
+          <in>test_fp.c</in>
+          <in>test_himem.c</in>
+          <in>test_hmac.c</in>
           <in>test_intr_alloc.c</in>
           <in>test_random.c</in>
           <in>test_rtc_clk.c</in>
+          <in>test_spiram_cache_flush.c</in>
+          <in>test_tsens.c</in>
+          <in>test_unal_dma.c</in>
         </df>
         <in>clk_ctrl_os.c</in>
         <in>compare_set.c</in>
@@ -7758,12 +8335,12 @@
         <in>intr_alloc.c</in>
         <in>mac_addr.c</in>
         <in>regi2c_ctrl.c</in>
+        <in>sleep_gpio.c</in>
+        <in>sleep_mac_bb.c</in>
         <in>sleep_modes.c</in>
+        <in>sleep_retention.c</in>
       </df>
       <df name="esp_ipc">
-        <df name="include">
-          <in>esp_ipc.h</in>
-        </df>
         <df name="test">
           <in>test_ipc.c</in>
         </df>
@@ -7787,8 +8364,10 @@
           <in>esp_lcd_panel_commands.h</in>
           <in>esp_lcd_panel_io.c</in>
           <in>esp_lcd_panel_io_i2c.c</in>
+          <in>esp_lcd_panel_io_i2s.c</in>
           <in>esp_lcd_panel_io_i80.c</in>
           <in>esp_lcd_panel_io_spi.c</in>
+          <in>esp_lcd_panel_nt35510.c</in>
           <in>esp_lcd_panel_ops.c</in>
           <in>esp_lcd_panel_ssd1306.c</in>
           <in>esp_lcd_panel_st7789.c</in>
@@ -7796,10 +8375,13 @@
         </df>
         <df name="test">
           <in>test_i2c_lcd_panel.c</in>
+          <in>test_i80_board.h</in>
           <in>test_i80_lcd_panel.c</in>
           <in>test_lvgl_port.c</in>
           <in>test_lvgl_port.h</in>
+          <in>test_lvgl_port_v7.c</in>
           <in>test_rgb_panel.c</in>
+          <in>test_spi_board.h</in>
           <in>test_spi_lcd_panel.c</in>
         </df>
       </df>
@@ -7873,6 +8455,11 @@
             <in>phy_init_data.h</in>
           </df>
         </df>
+        <df name="esp32h2">
+          <df name="include">
+            <in>phy_init_data.h</in>
+          </df>
+        </df>
         <df name="esp32s2">
           <df name="include">
             <in>phy_init_data.h</in>
@@ -7892,6 +8479,8 @@
           </df>
           <df name="esp32c3">
           </df>
+          <df name="esp32h2">
+          </df>
           <df name="esp32s2">
           </df>
           <df name="esp32s3">
@@ -7899,6 +8488,7 @@
         </df>
         <df name="src">
           <in>phy_init.c</in>
+          <in>phy_init_esp32hxx.c</in>
         </df>
         <df name="test">
           <in>test_phy_rtc.c</in>
@@ -7912,10 +8502,16 @@
           <df name="esp32c3">
             <in>pm.h</in>
           </df>
+          <df name="esp32h2">
+            <in>pm.h</in>
+          </df>
           <df name="esp32s2">
             <in>pm.h</in>
           </df>
           <df name="esp32s3">
+            <in>pm.h</in>
+          </df>
+          <df name="esp8684">
             <in>pm.h</in>
           </df>
           <df name="esp_private">
@@ -7953,6 +8549,11 @@
           </df>
           <in>esp_rom_caps.h</in>
         </df>
+        <df name="esp32h2">
+          <df name="ld">
+          </df>
+          <in>esp_rom_caps.h</in>
+        </df>
         <df name="esp32s2">
           <df name="ld">
           </df>
@@ -7963,6 +8564,18 @@
           <df name="ld">
           </df>
           <in>esp_rom_caps.h</in>
+        </df>
+        <df name="esp8684">
+          <df name="ld">
+          </df>
+          <in>esp_rom_caps.h</in>
+        </df>
+        <df name="host_test">
+          <df name="rom_test">
+            <df name="main">
+              <in>rom_test.cpp</in>
+            </df>
+          </df>
         </df>
         <df name="include">
           <df name="esp32">
@@ -8005,7 +8618,33 @@
               <in>lldesc.h</in>
               <in>md5_hash.h</in>
               <in>miniz.h</in>
-              <in>newlib.h</in>
+              <in>rom_layout.h</in>
+              <in>rsa_pss.h</in>
+              <in>rtc.h</in>
+              <in>secure_boot.h</in>
+              <in>sha.h</in>
+              <in>spi_flash.h</in>
+              <in>tjpgd.h</in>
+              <in>uart.h</in>
+            </df>
+          </df>
+          <df name="esp32h2">
+            <df name="rom">
+              <in>aes.h</in>
+              <in>apb_backup_dma.h</in>
+              <in>bigint.h</in>
+              <in>cache.h</in>
+              <in>crc.h</in>
+              <in>digital_signature.h</in>
+              <in>efuse.h</in>
+              <in>esp_flash.h</in>
+              <in>ets_sys.h</in>
+              <in>gpio.h</in>
+              <in>hmac.h</in>
+              <in>libc_stubs.h</in>
+              <in>lldesc.h</in>
+              <in>md5_hash.h</in>
+              <in>miniz.h</in>
               <in>rom_layout.h</in>
               <in>rsa_pss.h</in>
               <in>rtc.h</in>
@@ -8069,6 +8708,7 @@
                 <in>usb_persist.h</in>
               </df>
               <in>aes.h</in>
+              <in>apb_backup_dma.h</in>
               <in>bigint.h</in>
               <in>cache.h</in>
               <in>crc.h</in>
@@ -8092,17 +8732,54 @@
               <in>uart.h</in>
             </df>
           </df>
+          <df name="esp8684">
+            <df name="rom">
+              <in>apb_backup_dma.h</in>
+              <in>cache.h</in>
+              <in>crc.h</in>
+              <in>efuse.h</in>
+              <in>esp_flash.h</in>
+              <in>ets_sys.h</in>
+              <in>gpio.h</in>
+              <in>libc_stubs.h</in>
+              <in>lldesc.h</in>
+              <in>md5_hash.h</in>
+              <in>miniz.h</in>
+              <in>newlib.h</in>
+              <in>rom_layout.h</in>
+              <in>rsa_pss.h</in>
+              <in>rtc.h</in>
+              <in>secure_boot.h</in>
+              <in>sha.h</in>
+              <in>spi_flash.h</in>
+              <in>tjpgd.h</in>
+              <in>uart.h</in>
+            </df>
+          </df>
+          <df name="linux">
+            <df name="soc">
+              <in>reset_reasons.h</in>
+            </df>
+          </df>
           <in>esp_rom_crc.h</in>
           <in>esp_rom_efuse.h</in>
           <in>esp_rom_gpio.h</in>
           <in>esp_rom_md5.h</in>
           <in>esp_rom_sys.h</in>
+          <in>esp_rom_tjpgd.h</in>
           <in>esp_rom_uart.h</in>
+        </df>
+        <df name="linux">
+          <in>esp_rom_crc.c</in>
+          <in>esp_rom_efuse.c</in>
+          <in>esp_rom_md5.c</in>
+          <in>esp_rom_sys.c</in>
         </df>
         <df name="patches">
           <in>esp_rom_crc.c</in>
           <in>esp_rom_longjmp.S</in>
           <in>esp_rom_sys.c</in>
+          <in>esp_rom_tjpgd.c</in>
           <in>esp_rom_uart.c</in>
         </df>
         <df name="test">
@@ -8120,8 +8797,10 @@
           </df>
           <df name="essl_spi">
             <in>esp32c3_defs.h</in>
+            <in>esp32h2_defs.h</in>
             <in>esp32s2_defs.h</in>
             <in>esp32s3_defs.h</in>
+            <in>esp8684_defs.h</in>
           </df>
         </df>
         <in>essl.c</in>
@@ -8139,17 +8818,36 @@
             <in>system_internal.h</in>
             <in>usb_console.h</in>
           </df>
+          <in>eh_frame_parser.h</in>
           <in>esp_debug_helpers.h</in>
           <in>esp_expression_with_stack.h</in>
           <in>esp_freertos_hooks.h</in>
           <in>esp_int_wdt.h</in>
+          <in>esp_ipc.h</in>
+          <in>esp_ipc_isr.h</in>
           <in>esp_system.h</in>
           <in>esp_task.h</in>
           <in>esp_task_wdt.h</in>
+          <in>esp_xt_wdt.h</in>
+        </df>
+        <df name="ld">
+          <df name="esp32">
+          </df>
+          <df name="esp32c3">
+          </df>
+          <df name="esp32h2">
+          </df>
+          <df name="esp32s2">
+          </df>
+          <df name="esp32s3">
+          </df>
+          <df name="esp8684">
+          </df>
         </df>
         <df name="port">
           <df name="arch">
             <df name="riscv">
+              <in>debug_stubs.c</in>
               <in>expression_with_stack.c</in>
               <in>expression_with_stack_asm.S</in>
               <in>panic_arch.c</in>
@@ -8157,6 +8855,10 @@
             <df name="xtensa">
               <in>debug_helpers.c</in>
               <in>debug_helpers_asm.S</in>
+              <in>debug_stubs.c</in>
+              <in>esp_ipc_isr.c</in>
+              <in>esp_ipc_isr_handler.S</in>
+              <in>esp_ipc_isr_routines.S</in>
               <in>expression_with_stack.c</in>
               <in>expression_with_stack_asm.S</in>
               <in>panic_arch.c</in>
@@ -8167,6 +8869,9 @@
           <df name="include">
             <df name="port">
               <in>panic_funcs.h</in>
+            </df>
+            <df name="riscv">
+              <in>eh_frame_parser_impl.h</in>
             </df>
             <in>esp_clk_internal.h</in>
           </df>
@@ -8180,7 +8885,7 @@
               <in>cache_err_int.c</in>
               <in>cache_err_int.h</in>
               <in>clk.c</in>
-              <in>dport_panic_highint_hdl.S</in>
+              <in>highint_hdl.S</in>
               <in>intr.c</in>
               <in>reset_reason.c</in>
               <in>system_internal.c</in>
@@ -8193,23 +8898,39 @@
               <in>reset_reason.c</in>
               <in>system_internal.c</in>
             </df>
+            <df name="esp32h2">
+              <in>apb_backup_dma.c</in>
+              <in>cache_err_int.c</in>
+              <in>cache_err_int.h</in>
+              <in>clk.c</in>
+              <in>reset_reason.c</in>
+              <in>system_internal.c</in>
+            </df>
             <df name="esp32s2">
               <in>cache_err_int.c</in>
               <in>cache_err_int.h</in>
               <in>clk.c</in>
-              <in>dport_panic_highint_hdl.S</in>
+              <in>highint_hdl.S</in>
               <in>reset_reason.c</in>
               <in>system_internal.c</in>
               <in>usb_console.c</in>
             </df>
             <df name="esp32s3">
+              <in>apb_backup_dma.c</in>
               <in>cache_err_int.c</in>
               <in>cache_err_int.h</in>
               <in>clk.c</in>
-              <in>dport_panic_highint_hdl.S</in>
+              <in>highint_hdl.S</in>
               <in>reset_reason.c</in>
               <in>system_internal.c</in>
               <in>usb_console.c</in>
+            </df>
+            <df name="esp8684">
+              <in>apb_backup_dma.c</in>
+              <in>cache_err_int.c</in>
+              <in>clk.c</in>
+              <in>reset_reason.c</in>
+              <in>system_internal.c</in>
             </df>
           </df>
           <in>brownout.c</in>
@@ -8217,15 +8938,29 @@
           <in>panic_handler.c</in>
         </df>
         <df name="test">
+          <in>test_backtrace.c</in>
           <in>test_delay.c</in>
+          <in>test_ipc.c</in>
+          <in>test_ipc_isr.S</in>
+          <in>test_ipc_isr.c</in>
           <in>test_reset_reason.c</in>
           <in>test_sleep.c</in>
           <in>test_stack_check.c</in>
           <in>test_system_time.c</in>
         </df>
+        <df name="test_eh_frame_parser">
+          <df name="esp_private">
+            <in>panic_internal.h</in>
+          </df>
+          <in>eh_frame_parser_impl.h</in>
+          <in>main.c</in>
+        </df>
         <in>crosscore_int.c</in>
         <in>dbg_stubs.c</in>
+        <in>debug_stubs.c</in>
+        <in>eh_frame_parser.c</in>
         <in>esp_err.c</in>
+        <in>esp_ipc.c</in>
         <in>esp_system.c</in>
         <in>fpga_overrides.c</in>
         <in>freertos_hooks.c</in>
@@ -8236,6 +8971,7 @@
         <in>system_time.c</in>
         <in>task_wdt.c</in>
         <in>ubsan.c</in>
+        <in>xt_wdt.c</in>
       </df>
       <df name="esp_timer">
         <df name="include">
@@ -8388,7 +9124,20 @@
           <in>core_dump_uart.c</in>
         </df>
         <df name="test">
+          <df name="esp32">
+          </df>
+          <df name="esp32c3">
+          </df>
+          <df name="esp32s2">
+          </df>
+          <df name="esp32s3">
+          </df>
           <in>test_core_dump.c</in>
+        </df>
+        <df name="test_apps">
+          <df name="main">
+            <in>test_core_dump.c</in>
+          </df>
         </df>
       </df>
       <df name="esptool_py">
@@ -8416,6 +9165,8 @@
               <df name="esp32c3">
                 <df name="__pycache__">
                 </df>
+              </df>
+              <df name="esp32h2">
               </df>
               <df name="esp32s2">
                 <df name="__pycache__">
@@ -8455,6 +9206,12 @@
           </df>
           <df name="test">
             <df name="ci">
+            </df>
+            <df name="efuse_scripts">
+              <df name="esp32">
+              </df>
+              <df name="esp32xx">
+              </df>
             </df>
             <df name="elf2image">
               <df name="esp32-too-many-sections">
@@ -8587,6 +9344,8 @@
           <in>diskio_wl.c</in>
           <in>diskio_wl.h</in>
         </df>
+        <df name="fatfsgen_utils">
+        </df>
         <df name="port">
           <df name="freertos">
             <in>ffsystem.c</in>
@@ -8617,6 +9376,8 @@
           </df>
           <in>main.cpp</in>
           <in>test_fatfs.cpp</in>
+        </df>
+        <df name="test_fatfsgen">
         </df>
         <df name="vfs">
           <in>esp_vfs_fat.h</in>
@@ -8741,62 +9502,107 @@
         </df>
       </df>
       <df name="freertos">
-        <df name="include">
-          <df name="freertos">
-            <in>FreeRTOS.h</in>
-            <in>FreeRTOSConfig.h</in>
-            <in>atomic.h</in>
-            <in>croutine.h</in>
-            <in>deprecated_definitions.h</in>
-            <in>event_groups.h</in>
-            <in>list.h</in>
-            <in>message_buffer.h</in>
-            <in>mpu_wrappers.h</in>
-            <in>portable.h</in>
-            <in>projdefs.h</in>
-            <in>queue.h</in>
-            <in>semphr.h</in>
-            <in>stack_macros.h</in>
-            <in>stream_buffer.h</in>
-            <in>task.h</in>
-            <in>timers.h</in>
+        <df name="esp_additions">
+          <df name="include">
+            <df name="freertos">
+              <in>FreeRTOSConfig.h</in>
+              <in>task_snapshot.h</in>
+            </df>
+            <in>freertos_tasks_c_additions.h</in>
           </df>
+          <in>freertos_v8_compat.c</in>
+          <in>task_snapshot.c</in>
+        </df>
+        <df name="FreeRTOS-Kernel">
+          <df name="include">
+            <df name="freertos">
+              <in>FreeRTOS.h</in>
+              <in>StackMacros.h</in>
+              <in>atomic.h</in>
+              <in>croutine.h</in>
+              <in>deprecated_definitions.h</in>
+              <in>event_groups.h</in>
+              <in>list.h</in>
+              <in>message_buffer.h</in>
+              <in>mpu_prototypes.h</in>
+              <in>mpu_wrappers.h</in>
+              <in>portable.h</in>
+              <in>projdefs.h</in>
+              <in>queue.h</in>
+              <in>semphr.h</in>
+              <in>stack_macros.h</in>
+              <in>stream_buffer.h</in>
+              <in>task.h</in>
+              <in>timers.h</in>
+            </df>
+          </df>
+          <df name="portable">
+            <df name="linux">
+              <df name="include">
+                <df name="freertos">
+                  <in>FreeRTOSConfig_arch.h</in>
+                  <in>portmacro.h</in>
+                </df>
+              </df>
+            </df>
+            <df name="priv_include">
+              <in>port_systick.h</in>
+            </df>
+            <df name="riscv">
+              <df name="include">
+                <df name="freertos">
+                  <in>FreeRTOSConfig_arch.h</in>
+                  <in>portbenchmark.h</in>
+                  <in>portmacro.h</in>
+                  <in>portmacro_deprecated.h</in>
+                </df>
+              </df>
+              <in>port.c</in>
+              <in>portasm.S</in>
+            </df>
+            <df name="xtensa">
+              <df name="include">
+                <df name="freertos">
+                  <in>FreeRTOSConfig_arch.h</in>
+                  <in>portbenchmark.h</in>
+                  <in>portmacro.h</in>
+                  <in>portmacro_deprecated.h</in>
+                  <in>xtensa_api.h</in>
+                  <in>xtensa_config.h</in>
+                  <in>xtensa_context.h</in>
+                  <in>xtensa_rtos.h</in>
+                  <in>xtensa_timer.h</in>
+                </df>
+              </df>
+              <in>port.c</in>
+              <in>portasm.S</in>
+              <in>xt_asm_utils.h</in>
+              <in>xtensa_context.S</in>
+              <in>xtensa_init.c</in>
+              <in>xtensa_loadstore_handler.S</in>
+              <in>xtensa_overlay_os_hook.c</in>
+              <in>xtensa_vector_defaults.S</in>
+              <in>xtensa_vectors.S</in>
+            </df>
+            <in>port_common.c</in>
+            <in>port_systick.c</in>
+          </df>
+          <in>croutine.c</in>
+          <in>event_groups.c</in>
+          <in>list.c</in>
+          <in>queue.c</in>
+          <in>stream_buffer.c</in>
+          <in>tasks.c</in>
+          <in>timers.c</in>
         </df>
         <df name="port">
           <df name="riscv">
-            <df name="include">
-              <df name="freertos">
-                <in>FreeRTOSConfig.h</in>
-                <in>portbenchmark.h</in>
-                <in>portmacro.h</in>
-              </df>
-            </df>
             <in>port.c</in>
-            <in>portasm.S</in>
           </df>
           <df name="xtensa">
-            <df name="include">
-              <df name="freertos">
-                <in>FreeRTOSConfig.h</in>
-                <in>portbenchmark.h</in>
-                <in>portmacro.h</in>
-                <in>portmacro_priv.h</in>
-                <in>xtensa_api.h</in>
-                <in>xtensa_config.h</in>
-                <in>xtensa_context.h</in>
-                <in>xtensa_rtos.h</in>
-                <in>xtensa_timer.h</in>
-              </df>
-            </df>
             <in>port.c</in>
-            <in>portasm.S</in>
-            <in>xt_asm_utils.h</in>
-            <in>xtensa_context.S</in>
             <in>xtensa_init.c</in>
-            <in>xtensa_loadstore_handler.S</in>
             <in>xtensa_overlay_os_hook.c</in>
-            <in>xtensa_vector_defaults.S</in>
-            <in>xtensa_vectors.S</in>
           </df>
           <in>port_common.c</in>
         </df>
@@ -8810,6 +9616,7 @@
           <in>test_freertos_get_state.c</in>
           <in>test_freertos_isinisrcontext.c</in>
           <in>test_freertos_mutex.c</in>
+          <in>test_freertos_scheduling_round_robin.c</in>
           <in>test_freertos_scheduling_time.c</in>
           <in>test_freertos_task_delay_until.c</in>
           <in>test_freertos_task_delete.c</in>
@@ -8926,6 +9733,52 @@
               <in>twai_ll.h</in>
               <in>uart_ll.h</in>
               <in>uhci_ll.h</in>
+              <in>usb_serial_jtag_ll.h</in>
+              <in>xt_wdt_ll.h</in>
+            </df>
+          </df>
+          <in>adc_hal.c</in>
+          <in>brownout_hal.c</in>
+          <in>hmac_hal.c</in>
+          <in>rtc_cntl_hal.c</in>
+        </df>
+        <df name="esp32h2">
+          <df name="include">
+            <df name="hal">
+              <in>adc_hal.h</in>
+              <in>adc_hal_conf.h</in>
+              <in>adc_ll.h</in>
+              <in>aes_ll.h</in>
+              <in>clk_gate_ll.h</in>
+              <in>cpu_ll.h</in>
+              <in>ds_ll.h</in>
+              <in>gdma_ll.h</in>
+              <in>gpio_ll.h</in>
+              <in>gpspi_flash_ll.h</in>
+              <in>hmac_hal.h</in>
+              <in>hmac_ll.h</in>
+              <in>i2c_ll.h</in>
+              <in>i2s_ll.h</in>
+              <in>interrupt_controller_ll.h</in>
+              <in>ledc_ll.h</in>
+              <in>memprot_ll.h</in>
+              <in>mpu_ll.h</in>
+              <in>mwdt_ll.h</in>
+              <in>rmt_ll.h</in>
+              <in>rtc_cntl_ll.h</in>
+              <in>rwdt_ll.h</in>
+              <in>sha_ll.h</in>
+              <in>sigmadelta_ll.h</in>
+              <in>soc_ll.h</in>
+              <in>spi_flash_encrypted_ll.h</in>
+              <in>spi_flash_ll.h</in>
+              <in>spi_ll.h</in>
+              <in>spimem_flash_ll.h</in>
+              <in>systimer_ll.h</in>
+              <in>timer_ll.h</in>
+              <in>twai_ll.h</in>
+              <in>uart_ll.h</in>
+              <in>uhci_ll.h</in>
               <in>uhci_types.h</in>
               <in>usb_serial_jtag_ll.h</in>
             </df>
@@ -8980,6 +9833,8 @@
               <in>twai_ll.h</in>
               <in>uart_ll.h</in>
               <in>usb_ll.h</in>
+              <in>usb_phy_ll.h</in>
+              <in>xt_wdt_ll.h</in>
             </df>
           </df>
           <in>adc_hal.c</in>
@@ -8992,15 +9847,17 @@
         <df name="esp32s3">
           <df name="include">
             <df name="hal">
-              <in>adc_hal.h</in>
               <in>adc_hal_conf.h</in>
               <in>adc_ll.h</in>
               <in>aes_ll.h</in>
               <in>clk_gate_ll.h</in>
               <in>cpu_ll.h</in>
+              <in>ds_ll.h</in>
               <in>gdma_ll.h</in>
               <in>gpio_ll.h</in>
               <in>gpspi_flash_ll.h</in>
+              <in>hmac_hal.h</in>
+              <in>hmac_ll.h</in>
               <in>i2c_ll.h</in>
               <in>i2s_ll.h</in>
               <in>interrupt_controller_ll.h</in>
@@ -9029,13 +9886,53 @@
               <in>trace_ll.h</in>
               <in>twai_ll.h</in>
               <in>uart_ll.h</in>
+              <in>uhci_ll.h</in>
               <in>usb_ll.h</in>
+              <in>usb_phy_ll.h</in>
               <in>usb_serial_jtag_ll.h</in>
+              <in>xt_wdt_ll.h</in>
             </df>
           </df>
           <in>brownout_hal.c</in>
+          <in>hmac_hal.c</in>
           <in>interrupt_descriptor_table.c</in>
+          <in>rtc_cntl_hal.c</in>
           <in>touch_sensor_hal.c</in>
+        </df>
+        <df name="esp8684">
+          <df name="include">
+            <df name="hal">
+              <in>adc_hal.h</in>
+              <in>adc_hal_conf.h</in>
+              <in>adc_ll.h</in>
+              <in>aes_ll.h</in>
+              <in>clk_gate_ll.h</in>
+              <in>cpu_ll.h</in>
+              <in>gdma_ll.h</in>
+              <in>gpio_ll.h</in>
+              <in>gpspi_flash_ll.h</in>
+              <in>i2c_ll.h</in>
+              <in>interrupt_controller_ll.h</in>
+              <in>ledc_ll.h</in>
+              <in>memprot_ll.h</in>
+              <in>mpu_ll.h</in>
+              <in>mwdt_ll.h</in>
+              <in>rtc_cntl_ll.h</in>
+              <in>rwdt_ll.h</in>
+              <in>sha_ll.h</in>
+              <in>soc_ll.h</in>
+              <in>spi_flash_encrypted_ll.h</in>
+              <in>spi_flash_ll.h</in>
+              <in>spi_ll.h</in>
+              <in>spimem_flash_ll.h</in>
+              <in>systimer_ll.h</in>
+              <in>timer_ll.h</in>
+              <in>uart_ll.h</in>
+            </df>
+          </df>
+          <in>adc_hal.c</in>
+          <in>brownout_hal.c</in>
+          <in>rtc_cntl_hal.c</in>
         </df>
         <df name="include">
           <df name="hal">
@@ -9063,10 +9960,12 @@
             <in>interrupt_controller_hal.h</in>
             <in>interrupt_controller_types.h</in>
             <in>lcd_hal.h</in>
+            <in>lcd_types.h</in>
             <in>ledc_hal.h</in>
             <in>ledc_types.h</in>
             <in>mcpwm_hal.h</in>
             <in>mcpwm_types.h</in>
+            <in>memprot_types.h</in>
             <in>mpu_hal.h</in>
             <in>mpu_types.h</in>
             <in>pcnt_hal.h</in>
@@ -9101,12 +10000,16 @@
             <in>twai_types.h</in>
             <in>uart_hal.h</in>
             <in>uart_types.h</in>
+            <in>uhci_types.h</in>
             <in>usb_hal.h</in>
+            <in>usb_phy_hal.h</in>
+            <in>usb_phy_types.h</in>
             <in>usb_types_private.h</in>
             <in>usbh_hal.h</in>
             <in>usbh_ll.h</in>
             <in>wdt_hal.h</in>
             <in>wdt_types.h</in>
+            <in>xt_wdt_hal.h</in>
           </df>
         </df>
         <df name="platform_port">
@@ -9148,6 +10051,7 @@
         <in>soc_hal.c</in>
         <in>spi_flash_encrypt_hal_iram.c</in>
         <in>spi_flash_hal.c</in>
+        <in>spi_flash_hal_common.inc</in>
         <in>spi_flash_hal_gpspi.c</in>
         <in>spi_flash_hal_iram.c</in>
         <in>spi_hal.c</in>
@@ -9163,16 +10067,44 @@
         <in>uart_hal.c</in>
         <in>uart_hal_iram.c</in>
         <in>usb_hal.c</in>
+        <in>usb_phy_hal.c</in>
         <in>usbh_hal.c</in>
         <in>wdt_hal_iram.c</in>
+        <in>xt_wdt_hal.c</in>
       </df>
       <df name="heap">
         <df name="include">
+          <df name="soc">
+            <in>soc_memory_layout.h</in>
+          </df>
           <in>esp_heap_caps.h</in>
           <in>esp_heap_caps_init.h</in>
           <in>esp_heap_task_info.h</in>
           <in>esp_heap_trace.h</in>
+          <in>heap_memory_layout.h</in>
+          <in>heap_trace.inc</in>
           <in>multi_heap.h</in>
+        </df>
+        <df name="port">
+          <df name="esp32">
+            <in>memory_layout.c</in>
+          </df>
+          <df name="esp32c3">
+            <in>memory_layout.c</in>
+          </df>
+          <df name="esp32h2">
+            <in>memory_layout.c</in>
+          </df>
+          <df name="esp32s2">
+            <in>memory_layout.c</in>
+          </df>
+          <df name="esp32s3">
+            <in>memory_layout.c</in>
+          </df>
+          <df name="esp8684">
+            <in>memory_layout.c</in>
+          </df>
+          <in>memory_layout_utils.c</in>
         </df>
         <df name="test">
           <in>test_aligned_alloc_caps.c</in>
@@ -9212,16 +10144,32 @@
           <df name="esp32c3">
             <in>idf_performance_target.h</in>
           </df>
+          <df name="esp32h2">
+            <in>idf_performance_target.h</in>
+          </df>
           <df name="esp32s2">
             <in>idf_performance_target.h</in>
           </df>
           <df name="esp32s3">
             <in>idf_performance_target.h</in>
           </df>
+          <df name="esp8684">
+            <in>idf_performance_target.h</in>
+          </df>
           <in>idf_performance.h</in>
         </df>
         <df name="integration_test">
           <df name="CIConfigs">
+          </df>
+        </df>
+      </df>
+      <df name="ieee802154">
+        <df name="include">
+          <in>esp_ieee802154.h</in>
+          <in>esp_ieee802154_types.h</in>
+        </df>
+        <df name="lib">
+          <df name="esp32h2">
           </df>
         </df>
       </df>
@@ -9932,6 +10880,7 @@
               <in>onetimeauth.c</in>
               <in>onetimeauth2.c</in>
               <in>onetimeauth7.c</in>
+              <in>pre.js.inc</in>
               <in>pwhash_argon2i.c</in>
               <in>pwhash_argon2id.c</in>
               <in>pwhash_scrypt.c</in>
@@ -9987,6 +10936,13 @@
         </df>
         <df name="test">
           <in>test_sodium.c</in>
+        </df>
+      </df>
+      <df name="linux">
+        <df name="include">
+          <df name="sys">
+            <in>queue.h</in>
+          </df>
         </df>
       </df>
       <df name="log">
@@ -10491,6 +11447,8 @@
                 <in>test_tcp.h</in>
                 <in>test_tcp_oos.c</in>
                 <in>test_tcp_oos.h</in>
+                <in>test_tcp_state.c</in>
+                <in>test_tcp_state.h</in>
               </df>
               <df name="udp">
                 <in>test_udp.c</in>
@@ -10538,6 +11496,9 @@
                 <in>in.h</in>
                 <in>tcp.h</in>
               </df>
+              <df name="sntp">
+                <in>sntp_get_set_time.h</in>
+              </df>
               <df name="sys">
                 <in>socket.h</in>
               </df>
@@ -10554,6 +11515,9 @@
             <in>no_vfs_syscalls.c</in>
             <in>vfs_lwip.c</in>
           </df>
+        </df>
+        <df name="test">
+          <in>test_lwip_apps.c</in>
         </df>
         <df name="test_afl_host">
           <df name="in_dhcp_client">
@@ -10908,6 +11872,9 @@
           <df name="esp32c3">
             <in>bignum.c</in>
           </df>
+          <df name="esp32h2">
+            <in>bignum.c</in>
+          </df>
           <df name="esp32s2">
             <in>bignum.c</in>
           </df>
@@ -10995,6 +11962,7 @@
           <in>test_aes_gcm.c</in>
           <in>test_aes_perf.c</in>
           <in>test_aes_sha_parallel.c</in>
+          <in>test_aes_sha_rsa.c</in>
           <in>test_apb_dport_access.c</in>
           <in>test_apb_dport_access.h</in>
           <in>test_ecp.c</in>
@@ -11003,10 +11971,61 @@
           <in>test_mbedtls_mpi.c</in>
           <in>test_mbedtls_sha.c</in>
           <in>test_rsa.c</in>
+          <in>test_sha.c</in>
           <in>test_sha_perf.c</in>
         </df>
       </df>
       <df name="mdns">
+        <df name="host_test">
+          <df name="components">
+            <df name="esp_event_mock">
+              <df name="include">
+                <in>esp_event.h</in>
+                <in>esp_event_base.h</in>
+              </df>
+              <in>esp_event_mock.c</in>
+            </df>
+            <df name="esp_netif_linux">
+              <df name="include">
+                <in>esp_wifi_types.h</in>
+              </df>
+              <in>esp_netif_linux.c</in>
+            </df>
+            <df name="esp_system_protocols_linux">
+              <df name="include">
+                <df name="machine">
+                  <in>endian.h</in>
+                </df>
+                <in>bsd_strings.h</in>
+              </df>
+              <in>esp_log_impl.c</in>
+              <in>strlcat.c</in>
+            </df>
+            <df name="esp_timer_linux">
+              <df name="include">
+                <in>esp_timer.h</in>
+              </df>
+              <in>esp_timer_linux.c</in>
+              <in>timer_task.cpp</in>
+              <in>timer_task.hpp</in>
+            </df>
+            <df name="freertos_linux">
+              <df name="include">
+                <df name="freertos">
+                  <in>FreeRTOS.h</in>
+                  <in>task.h</in>
+                </df>
+                <in>esp_task.h</in>
+              </df>
+              <in>freertos_linux.c</in>
+              <in>queue_unique_ptr.cpp</in>
+              <in>queue_unique_ptr.hpp</in>
+            </df>
+          </df>
+          <df name="main">
+            <in>main.c</in>
+          </df>
+        </df>
         <df name="include">
           <in>mdns.h</in>
           <in>mdns_console.h</in>
@@ -11021,11 +12040,11 @@
         <df name="test_afl_fuzz_host">
           <df name="in">
           </df>
-          <in>esp32_compat.h</in>
           <in>esp32_mock.c</in>
           <in>esp32_mock.h</in>
           <in>esp_attr.h</in>
           <in>esp_netif_loopback_mock.c</in>
+          <in>esp_netif_mock.c</in>
           <in>esp_netif_objects_mock.c</in>
           <in>mdns_di.h</in>
           <in>mdns_mock.h</in>
@@ -11035,6 +12054,8 @@
         <in>mdns.c</in>
         <in>mdns_console.c</in>
         <in>mdns_networking.c</in>
+        <in>mdns_networking_lwip.c</in>
+        <in>mdns_networking_socket.c</in>
       </df>
       <df name="mqtt">
         <df name="esp-mqtt">
@@ -11061,6 +12082,25 @@
             <in>platform_esp32_idf.c</in>
           </df>
           <in>mqtt_client.c</in>
+        </df>
+        <df name="host_test">
+          <df name="main">
+            <in>test_mqtt_client.cpp</in>
+          </df>
+          <df name="mocks">
+            <df name="include">
+              <df name="freertos">
+                <in>FreeRTOSConfig.h</in>
+                <in>portmacro.h</in>
+              </df>
+              <df name="machine">
+                <in>endian.h</in>
+              </df>
+              <df name="sys">
+                <in>queue.h</in>
+              </df>
+            </df>
+          </df>
         </df>
         <df name="test">
           <in>test_mqtt.c</in>
@@ -11114,6 +12154,7 @@
           </df>
         </df>
         <in>abort.c</in>
+        <in>assert.c</in>
         <in>heap.c</in>
         <in>locks.c</in>
         <in>newlib_init.c</in>
@@ -11850,6 +12891,7 @@
                   <df name="mrblib">
                   </df>
                   <df name="src">
+                    <in>const.cstub</in>
                     <in>socket.c</in>
                   </df>
                   <df name="test">
@@ -12006,7 +13048,6 @@
         <df name="mock">
           <df name="int">
             <in>crc.cpp</in>
-            <in>crc.h</in>
           </df>
         </df>
         <df name="nvs_partition_generator">
@@ -12116,11 +13157,23 @@
         <df name="include">
           <in>esp_openthread.h</in>
           <in>esp_openthread_border_router.h</in>
-          <in>esp_openthread_defaults.h</in>
+          <in>esp_openthread_cli.h</in>
           <in>esp_openthread_lock.h</in>
           <in>esp_openthread_netif_glue.h</in>
+          <in>esp_openthread_rcp_update.h</in>
           <in>esp_openthread_types.h</in>
-          <in>openthread-core-esp32x-config.h</in>
+        </df>
+        <df name="lib">
+          <df name="esp32">
+          </df>
+          <df name="esp32c3">
+          </df>
+          <df name="esp32h2">
+          </df>
+          <df name="esp32s2">
+          </df>
+          <df name="esp32s3">
+          </df>
         </df>
         <df name="openthread">
           <df name=".github">
@@ -12223,9 +13276,11 @@
                   <in>platform-sim.c</in>
                 </df>
                 <in>alarm.c</in>
+                <in>crypto.c</in>
                 <in>diag.c</in>
                 <in>entropy.c</in>
                 <in>flash.c</in>
+                <in>infra_if.c</in>
                 <in>logging.c</in>
                 <in>misc.c</in>
                 <in>openthread-core-simulation-config.h</in>
@@ -12262,6 +13317,7 @@
               <df name="platform">
                 <in>alarm-micro.h</in>
                 <in>alarm-milli.h</in>
+                <in>crypto.h</in>
                 <in>debug_uart.h</in>
                 <in>diag.h</in>
                 <in>entropy.h</in>
@@ -12303,6 +13359,7 @@
               <in>entropy.h</in>
               <in>error.h</in>
               <in>heap.h</in>
+              <in>history_tracker.h</in>
               <in>icmp6.h</in>
               <in>instance.h</in>
               <in>ip6.h</in>
@@ -12316,6 +13373,7 @@
               <in>multi_radio.h</in>
               <in>ncp.h</in>
               <in>netdata.h</in>
+              <in>netdata_publisher.h</in>
               <in>netdiag.h</in>
               <in>network_time.h</in>
               <in>ping_sender.h</in>
@@ -12327,6 +13385,7 @@
               <in>srp_client_buffers.h</in>
               <in>srp_server.h</in>
               <in>tasklet.h</in>
+              <in>tcp.h</in>
               <in>thread.h</in>
               <in>thread_ftd.h</in>
               <in>udp.h</in>
@@ -12348,14 +13407,20 @@
               <in>cli_config.h</in>
               <in>cli_dataset.cpp</in>
               <in>cli_dataset.hpp</in>
+              <in>cli_history.cpp</in>
+              <in>cli_history.hpp</in>
               <in>cli_joiner.cpp</in>
               <in>cli_joiner.hpp</in>
               <in>cli_network_data.cpp</in>
               <in>cli_network_data.hpp</in>
+              <in>cli_output.cpp</in>
+              <in>cli_output.hpp</in>
               <in>cli_srp_client.cpp</in>
               <in>cli_srp_client.hpp</in>
               <in>cli_srp_server.cpp</in>
               <in>cli_srp_server.hpp</in>
+              <in>cli_tcp.cpp</in>
+              <in>cli_tcp.hpp</in>
               <in>cli_udp.cpp</in>
               <in>cli_udp.hpp</in>
               <in>x509_cert_key.hpp</in>
@@ -12382,6 +13447,7 @@
                 <in>entropy_api.cpp</in>
                 <in>error_api.cpp</in>
                 <in>heap_api.cpp</in>
+                <in>history_tracker_api.cpp</in>
                 <in>icmp6_api.cpp</in>
                 <in>instance_api.cpp</in>
                 <in>ip6_api.cpp</in>
@@ -12394,6 +13460,7 @@
                 <in>message_api.cpp</in>
                 <in>multi_radio_api.cpp</in>
                 <in>netdata_api.cpp</in>
+                <in>netdata_publisher_api.cpp</in>
                 <in>netdiag_api.cpp</in>
                 <in>network_time_api.cpp</in>
                 <in>ping_sender_api.cpp</in>
@@ -12405,6 +13472,7 @@
                 <in>srp_client_buffers_api.cpp</in>
                 <in>srp_server_api.cpp</in>
                 <in>tasklet_api.cpp</in>
+                <in>tcp_api.cpp</in>
                 <in>thread_api.cpp</in>
                 <in>thread_ftd_api.cpp</in>
                 <in>udp_api.cpp</in>
@@ -12440,11 +13508,15 @@
               </df>
               <df name="common">
                 <in>arg_macros.hpp</in>
+                <in>array.hpp</in>
+                <in>as_core_type.hpp</in>
                 <in>bit_vector.hpp</in>
                 <in>clearable.hpp</in>
                 <in>code_utils.hpp</in>
+                <in>const_cast.hpp</in>
                 <in>crc16.cpp</in>
                 <in>crc16.hpp</in>
+                <in>data.hpp</in>
                 <in>debug.hpp</in>
                 <in>encoding.hpp</in>
                 <in>equatable.hpp</in>
@@ -12452,6 +13524,8 @@
                 <in>error.hpp</in>
                 <in>extension.hpp</in>
                 <in>extension_example.cpp</in>
+                <in>heap_string.cpp</in>
+                <in>heap_string.hpp</in>
                 <in>instance.cpp</in>
                 <in>instance.hpp</in>
                 <in>iterator_utils.hpp</in>
@@ -12488,6 +13562,8 @@
                 <in>trickle_timer.cpp</in>
                 <in>trickle_timer.hpp</in>
                 <in>type_traits.hpp</in>
+                <in>uptime.cpp</in>
+                <in>uptime.hpp</in>
               </df>
               <df name="config">
                 <in>announce_sender.h</in>
@@ -12498,6 +13574,7 @@
                 <in>child_supervision.h</in>
                 <in>coap.h</in>
                 <in>commissioner.h</in>
+                <in>crypto.h</in>
                 <in>dataset_updater.h</in>
                 <in>dhcp6_client.h</in>
                 <in>dhcp6_server.h</in>
@@ -12505,6 +13582,7 @@
                 <in>dns_client.h</in>
                 <in>dnssd_server.h</in>
                 <in>dtls.h</in>
+                <in>history_tracker.h</in>
                 <in>ip6.h</in>
                 <in>joiner.h</in>
                 <in>link_quality.h</in>
@@ -12512,6 +13590,7 @@
                 <in>logging.h</in>
                 <in>mac.h</in>
                 <in>mle.h</in>
+                <in>netdata_publisher.h</in>
                 <in>openthread-core-config-check.h</in>
                 <in>openthread-core-default-config.h</in>
                 <in>parent_search.h</in>
@@ -12529,6 +13608,8 @@
                 <in>aes_ccm.hpp</in>
                 <in>aes_ecb.cpp</in>
                 <in>aes_ecb.hpp</in>
+                <in>context_size.hpp</in>
+                <in>crypto_platform.cpp</in>
                 <in>ecdsa.cpp</in>
                 <in>ecdsa.hpp</in>
                 <in>hkdf_sha256.cpp</in>
@@ -12541,6 +13622,8 @@
                 <in>pbkdf2_cmac.hpp</in>
                 <in>sha256.cpp</in>
                 <in>sha256.hpp</in>
+                <in>storage.cpp</in>
+                <in>storage.hpp</in>
               </df>
               <df name="diags">
                 <in>factory_diags.cpp</in>
@@ -12644,7 +13727,8 @@
                 <in>srp_client.hpp</in>
                 <in>srp_server.cpp</in>
                 <in>srp_server.hpp</in>
-                <in>tcp.hpp</in>
+                <in>tcp6.cpp</in>
+                <in>tcp6.hpp</in>
                 <in>udp6.cpp</in>
                 <in>udp6.hpp</in>
               </df>
@@ -12668,6 +13752,8 @@
                 <in>announce_begin_server.hpp</in>
                 <in>announce_sender.cpp</in>
                 <in>announce_sender.hpp</in>
+                <in>anycast_locator.cpp</in>
+                <in>anycast_locator.hpp</in>
                 <in>child_mask.hpp</in>
                 <in>child_table.cpp</in>
                 <in>child_table.hpp</in>
@@ -12717,6 +13803,8 @@
                 <in>network_data_local.hpp</in>
                 <in>network_data_notifier.cpp</in>
                 <in>network_data_notifier.hpp</in>
+                <in>network_data_publisher.cpp</in>
+                <in>network_data_publisher.hpp</in>
                 <in>network_data_service.cpp</in>
                 <in>network_data_service.hpp</in>
                 <in>network_data_tlvs.cpp</in>
@@ -12757,6 +13845,8 @@
                 <in>flash.hpp</in>
                 <in>heap.cpp</in>
                 <in>heap.hpp</in>
+                <in>history_tracker.cpp</in>
+                <in>history_tracker.hpp</in>
                 <in>jam_detector.cpp</in>
                 <in>jam_detector.hpp</in>
                 <in>lookup_table.cpp</in>
@@ -12859,8 +13949,10 @@
                 <in>spi_interface.cpp</in>
                 <in>spi_interface.hpp</in>
                 <in>system.cpp</in>
+                <in>system.hpp</in>
                 <in>trel_udp6.cpp</in>
                 <in>udp.cpp</in>
+                <in>udp.hpp</in>
                 <in>virtual_time.cpp</in>
               </df>
               <in>cli_readline.cpp</in>
@@ -12904,15 +13996,18 @@
             <df name="unit">
               <in>test_address_sanitizer.cpp</in>
               <in>test_aes.cpp</in>
+              <in>test_array.cpp</in>
               <in>test_checksum.cpp</in>
               <in>test_child.cpp</in>
               <in>test_child_table.cpp</in>
               <in>test_cmd_line_parser.cpp</in>
+              <in>test_data.cpp</in>
               <in>test_dns.cpp</in>
               <in>test_ecdsa.cpp</in>
               <in>test_flash.cpp</in>
               <in>test_hdlc.cpp</in>
               <in>test_heap.cpp</in>
+              <in>test_heap_string.cpp</in>
               <in>test_hkdf_sha256.cpp</in>
               <in>test_hmac_sha256.cpp</in>
               <in>test_ip_address.cpp</in>
@@ -12923,6 +14018,7 @@
               <in>test_lowpan.hpp</in>
               <in>test_mac_frame.cpp</in>
               <in>test_macros.cpp</in>
+              <in>test_meshcop.cpp</in>
               <in>test_message.cpp</in>
               <in>test_message_queue.cpp</in>
               <in>test_multicast_listeners_table.cpp</in>
@@ -13022,7 +14118,9 @@
                       <in>everest.c</in>
                       <in>x25519.c</in>
                     </df>
+                    <in>Makefile.inc</in>
                   </df>
+                  <in>Makefile.inc</in>
                 </df>
                 <df name="ChangeLog.d">
                 </df>
@@ -13484,6 +14582,18 @@
             </df>
             <df name="openthread-test-driver">
             </df>
+            <df name="tcplp">
+              <df name="lib">
+                <in>bitmap.c</in>
+                <in>bitmap.h</in>
+                <in>cbuf.c</in>
+                <in>cbuf.h</in>
+                <in>lbuf.c</in>
+                <in>lbuf.h</in>
+              </df>
+              <in>tcplp.c</in>
+              <in>tcplp.h</in>
+            </df>
           </df>
           <df name="tools">
             <df name="gerrit">
@@ -13530,14 +14640,8 @@
           <in>esp_uart_spinel_interface.cpp</in>
         </df>
         <df name="private_include">
-          <in>esp_openthread_alarm.h</in>
-          <in>esp_openthread_common_macro.h</in>
-          <in>esp_openthread_netif_glue_priv.h</in>
-          <in>esp_openthread_platform.h</in>
-          <in>esp_openthread_radio_uart.h</in>
-          <in>esp_openthread_task_queue.h</in>
-          <in>esp_openthread_uart.h</in>
-          <in>esp_uart_spinel_interface.hpp</in>
+          <in>openthread-core-esp32x-ftd-config.h</in>
+          <in>openthread-core-esp32x-radio-config.h</in>
         </df>
       </df>
       <df name="partition_table">
@@ -13688,11 +14792,13 @@
           <in>test_pthread_cond_var.c</in>
           <in>test_pthread_cxx.cpp</in>
           <in>test_pthread_local_storage.c</in>
+          <in>test_pthread_rwlock.c</in>
         </df>
         <in>pthread.c</in>
         <in>pthread_cond_var.c</in>
         <in>pthread_internal.h</in>
         <in>pthread_local_storage.c</in>
+        <in>pthread_rwlock.c</in>
       </df>
       <df name="riscv">
         <df name="include">
@@ -13777,6 +14883,7 @@
               <in>pcnt_struct.h</in>
               <in>periph_defs.h</in>
               <in>pid.h</in>
+              <in>reset_reasons.h</in>
               <in>rmt_reg.h</in>
               <in>rmt_struct.h</in>
               <in>rtc.h</in>
@@ -13806,8 +14913,10 @@
               <in>timer_group_reg.h</in>
               <in>timer_group_struct.h</in>
               <in>touch_sensor_channel.h</in>
+              <in>tracemem_config.h</in>
               <in>twai_struct.h</in>
               <in>uart_channel.h</in>
+              <in>uart_pins.h</in>
               <in>uart_reg.h</in>
               <in>uart_struct.h</in>
               <in>uhci_reg.h</in>
@@ -13815,12 +14924,15 @@
               <in>wdev_reg.h</in>
             </df>
           </df>
+          <df name="ld">
+          </df>
           <in>adc_periph.c</in>
           <in>dac_periph.c</in>
           <in>gpio_periph.c</in>
           <in>i2c_periph.c</in>
           <in>i2s_periph.c</in>
           <in>interrupts.c</in>
+          <in>lcd_periph.c</in>
           <in>ledc_periph.c</in>
           <in>mcpwm_periph.c</in>
           <in>pcnt_periph.c</in>
@@ -13875,6 +14987,7 @@
               <in>mmu.h</in>
               <in>nrx_reg.h</in>
               <in>periph_defs.h</in>
+              <in>reset_reasons.h</in>
               <in>rmt_reg.h</in>
               <in>rmt_struct.h</in>
               <in>rtc.h</in>
@@ -13903,6 +15016,7 @@
               <in>timer_group_struct.h</in>
               <in>twai_struct.h</in>
               <in>uart_channel.h</in>
+              <in>uart_pins.h</in>
               <in>uart_reg.h</in>
               <in>uart_struct.h</in>
               <in>uhci_reg.h</in>
@@ -13912,7 +15026,10 @@
               <in>wdev_reg.h</in>
             </df>
           </df>
+          <df name="ld">
+          </df>
           <in>adc_periph.c</in>
+          <in>dedic_gpio_periph.c</in>
           <in>gdma_periph.c</in>
           <in>gpio_periph.c</in>
           <in>i2c_bbpll.h</in>
@@ -13923,6 +15040,107 @@
           <in>rmt_periph.c</in>
           <in>sigmadelta_periph.c</in>
           <in>soc_memory_layout.c</in>
+          <in>spi_periph.c</in>
+          <in>timer_periph.c</in>
+          <in>uart_periph.c</in>
+        </df>
+        <df name="esp32h2">
+          <df name="include">
+            <df name="soc">
+              <in>adc_channel.h</in>
+              <in>apb_saradc_reg.h</in>
+              <in>apb_saradc_struct.h</in>
+              <in>assist_debug_reg.h</in>
+              <in>bb_reg.h</in>
+              <in>boot_mode.h</in>
+              <in>cache_memory.h</in>
+              <in>clkout_channel.h</in>
+              <in>clkrst_reg.h</in>
+              <in>dport_access.h</in>
+              <in>efuse_reg.h</in>
+              <in>efuse_struct.h</in>
+              <in>extmem_reg.h</in>
+              <in>fe_reg.h</in>
+              <in>gdma_channel.h</in>
+              <in>gdma_reg.h</in>
+              <in>gdma_struct.h</in>
+              <in>gpio_pins.h</in>
+              <in>gpio_reg.h</in>
+              <in>gpio_sd_reg.h</in>
+              <in>gpio_sd_struct.h</in>
+              <in>gpio_sig_map.h</in>
+              <in>gpio_struct.h</in>
+              <in>hwcrypto_reg.h</in>
+              <in>i2c_reg.h</in>
+              <in>i2c_struct.h</in>
+              <in>i2s_reg.h</in>
+              <in>i2s_struct.h</in>
+              <in>interrupt_core0_reg.h</in>
+              <in>interrupt_reg.h</in>
+              <in>io_mux_reg.h</in>
+              <in>ledc_reg.h</in>
+              <in>ledc_struct.h</in>
+              <in>mmu.h</in>
+              <in>nrx_reg.h</in>
+              <in>periph_defs.h</in>
+              <in>reset_reasons.h</in>
+              <in>rmt_reg.h</in>
+              <in>rmt_struct.h</in>
+              <in>rtc.h</in>
+              <in>rtc_caps.h</in>
+              <in>rtc_cntl_reg.h</in>
+              <in>rtc_cntl_struct.h</in>
+              <in>rtc_i2c_reg.h</in>
+              <in>rtc_i2c_struct.h</in>
+              <in>rtc_io_caps.h</in>
+              <in>sensitive_reg.h</in>
+              <in>sensitive_struct.h</in>
+              <in>soc.h</in>
+              <in>soc_caps.h</in>
+              <in>soc_pins.h</in>
+              <in>soc_ulp.h</in>
+              <in>spi_caps.h</in>
+              <in>spi_mem_reg.h</in>
+              <in>spi_mem_struct.h</in>
+              <in>spi_pins.h</in>
+              <in>spi_reg.h</in>
+              <in>spi_struct.h</in>
+              <in>syscon_reg.h</in>
+              <in>syscon_struct.h</in>
+              <in>system_reg.h</in>
+              <in>system_struct.h</in>
+              <in>systimer_reg.h</in>
+              <in>systimer_struct.h</in>
+              <in>timer_group_reg.h</in>
+              <in>timer_group_struct.h</in>
+              <in>twai_struct.h</in>
+              <in>uart_channel.h</in>
+              <in>uart_pins.h</in>
+              <in>uart_reg.h</in>
+              <in>uart_struct.h</in>
+              <in>uhci_reg.h</in>
+              <in>uhci_struct.h</in>
+              <in>usb_serial_jtag_reg.h</in>
+              <in>usb_serial_jtag_struct.h</in>
+              <in>wdev_reg.h</in>
+            </df>
+          </df>
+          <df name="ld">
+          </df>
+          <in>adc_periph.c</in>
+          <in>dedic_gpio_periph.c</in>
+          <in>gdma_periph.c</in>
+          <in>gpio_periph.c</in>
+          <in>i2c_bbpll.h</in>
+          <in>i2c_bias.h</in>
+          <in>i2c_periph.c</in>
+          <in>i2c_pmu.h</in>
+          <in>i2c_ulp.h</in>
+          <in>i2s_periph.c</in>
+          <in>interrupts.c</in>
+          <in>ledc_periph.c</in>
+          <in>rmt_periph.c</in>
+          <in>sigmadelta_periph.c</in>
           <in>spi_periph.c</in>
           <in>timer_periph.c</in>
           <in>uart_periph.c</in>
@@ -13969,11 +15187,13 @@
               <in>io_mux_reg.h</in>
               <in>ledc_reg.h</in>
               <in>ledc_struct.h</in>
+              <in>memprot_defs.h</in>
               <in>mmu.h</in>
               <in>nrx_reg.h</in>
               <in>pcnt_reg.h</in>
               <in>pcnt_struct.h</in>
               <in>periph_defs.h</in>
+              <in>reset_reasons.h</in>
               <in>rmt_reg.h</in>
               <in>rmt_struct.h</in>
               <in>rtc.h</in>
@@ -14007,8 +15227,10 @@
               <in>timer_group_struct.h</in>
               <in>touch_sensor_channel.h</in>
               <in>touch_sensor_pins.h</in>
+              <in>tracemem_config.h</in>
               <in>twai_struct.h</in>
               <in>uart_channel.h</in>
+              <in>uart_pins.h</in>
               <in>uart_reg.h</in>
               <in>uart_struct.h</in>
               <in>uhci_reg.h</in>
@@ -14023,6 +15245,8 @@
               <in>wdev_reg.h</in>
             </df>
           </df>
+          <df name="ld">
+          </df>
           <in>adc_periph.c</in>
           <in>dac_periph.c</in>
           <in>dedic_gpio_periph.c</in>
@@ -14030,6 +15254,7 @@
           <in>i2c_periph.c</in>
           <in>i2s_periph.c</in>
           <in>interrupts.c</in>
+          <in>lcd_periph.c</in>
           <in>ledc_periph.c</in>
           <in>pcnt_periph.c</in>
           <in>rmt_periph.c</in>
@@ -14041,11 +15266,11 @@
           <in>touch_sensor_periph.c</in>
           <in>uart_periph.c</in>
           <in>usb_periph.c</in>
+          <in>usb_phy_periph.c</in>
         </df>
         <df name="esp32s3">
           <df name="include">
             <df name="soc">
-              <in>adc_caps.h</in>
               <in>adc_channel.h</in>
               <in>apb_ctrl_reg.h</in>
               <in>apb_ctrl_struct.h</in>
@@ -14085,7 +15310,6 @@
               <in>i2c_caps.h</in>
               <in>i2c_reg.h</in>
               <in>i2c_struct.h</in>
-              <in>i2s_caps.h</in>
               <in>i2s_reg.h</in>
               <in>i2s_struct.h</in>
               <in>interrupt_core0_reg.h</in>
@@ -14111,7 +15335,7 @@
               <in>peri_backup_reg.h</in>
               <in>peri_backup_struct.h</in>
               <in>periph_defs.h</in>
-              <in>rmt_caps.h</in>
+              <in>reset_reasons.h</in>
               <in>rmt_reg.h</in>
               <in>rmt_struct.h</in>
               <in>rtc.h</in>
@@ -14133,13 +15357,10 @@
               <in>sensitive_reg.h</in>
               <in>sensitive_struct.h</in>
               <in>sigmadelta_caps.h</in>
-              <in>slc_reg.h</in>
-              <in>slc_struct.h</in>
               <in>soc.h</in>
               <in>soc_caps.h</in>
               <in>soc_pins.h</in>
               <in>soc_ulp.h</in>
-              <in>spi_caps.h</in>
               <in>spi_mem_reg.h</in>
               <in>spi_mem_struct.h</in>
               <in>spi_pins.h</in>
@@ -14154,12 +15375,14 @@
               <in>timer_group_reg.h</in>
               <in>timer_group_struct.h</in>
               <in>touch_channel.h</in>
-              <in>touch_sensor_caps.h</in>
               <in>touch_sensor_channel.h</in>
+              <in>touch_sensor_pins.h</in>
+              <in>tracemem_config.h</in>
               <in>twai_caps.h</in>
               <in>twai_struct.h</in>
               <in>uart_caps.h</in>
               <in>uart_channel.h</in>
+              <in>uart_pins.h</in>
               <in>uart_reg.h</in>
               <in>uart_struct.h</in>
               <in>uhci_reg.h</in>
@@ -14179,6 +15402,8 @@
               <in>world_controller_reg.h</in>
               <in>world_controller_struct.h</in>
             </df>
+          </df>
+          <df name="ld">
           </df>
           <in>adc_periph.c</in>
           <in>dedic_gpio_periph.c</in>
@@ -14203,6 +15428,88 @@
           <in>uart_periph.c</in>
           <in>usb_periph.c</in>
           <in>usb_periph.h</in>
+          <in>usb_phy_periph.c</in>
+        </df>
+        <df name="esp8684">
+          <df name="include">
+            <df name="soc">
+              <in>adc_channel.h</in>
+              <in>apb_ctrl_reg.h</in>
+              <in>apb_ctrl_struct.h</in>
+              <in>apb_saradc_reg.h</in>
+              <in>apb_saradc_struct.h</in>
+              <in>assist_debug_reg.h</in>
+              <in>bb_reg.h</in>
+              <in>boot_mode.h</in>
+              <in>cache_memory.h</in>
+              <in>clkout_channel.h</in>
+              <in>dport_access.h</in>
+              <in>efuse_reg.h</in>
+              <in>efuse_struct.h</in>
+              <in>extmem_reg.h</in>
+              <in>fe_reg.h</in>
+              <in>gdma_channel.h</in>
+              <in>gdma_reg.h</in>
+              <in>gdma_struct.h</in>
+              <in>gpio_pins.h</in>
+              <in>gpio_reg.h</in>
+              <in>gpio_sig_map.h</in>
+              <in>gpio_struct.h</in>
+              <in>hwcrypto_reg.h</in>
+              <in>i2c_reg.h</in>
+              <in>i2c_struct.h</in>
+              <in>interrupt_core0_reg.h</in>
+              <in>interrupt_reg.h</in>
+              <in>io_mux_reg.h</in>
+              <in>ledc_reg.h</in>
+              <in>ledc_struct.h</in>
+              <in>mmu.h</in>
+              <in>nrx_reg.h</in>
+              <in>periph_defs.h</in>
+              <in>reset_reasons.h</in>
+              <in>rtc.h</in>
+              <in>rtc_cntl_reg.h</in>
+              <in>rtc_cntl_struct.h</in>
+              <in>rtc_i2c_reg.h</in>
+              <in>rtc_i2c_struct.h</in>
+              <in>sensitive_reg.h</in>
+              <in>sensitive_struct.h</in>
+              <in>soc.h</in>
+              <in>soc_caps.h</in>
+              <in>soc_pins.h</in>
+              <in>spi_mem_reg.h</in>
+              <in>spi_mem_struct.h</in>
+              <in>spi_pins.h</in>
+              <in>spi_reg.h</in>
+              <in>spi_struct.h</in>
+              <in>syscon_reg.h</in>
+              <in>syscon_struct.h</in>
+              <in>system_reg.h</in>
+              <in>system_struct.h</in>
+              <in>systimer_reg.h</in>
+              <in>systimer_struct.h</in>
+              <in>timer_group_reg.h</in>
+              <in>timer_group_struct.h</in>
+              <in>uart_channel.h</in>
+              <in>uart_pins.h</in>
+              <in>uart_reg.h</in>
+              <in>uart_struct.h</in>
+              <in>wdev_reg.h</in>
+            </df>
+          </df>
+          <df name="ld">
+          </df>
+          <in>adc_periph.c</in>
+          <in>gdma_periph.c</in>
+          <in>gpio_periph.c</in>
+          <in>i2c_bbpll.h</in>
+          <in>i2c_periph.c</in>
+          <in>interrupts.c</in>
+          <in>ledc_periph.c</in>
+          <in>rmt_periph.c</in>
+          <in>spi_periph.c</in>
+          <in>timer_periph.c</in>
+          <in>uart_periph.c</in>
         </df>
         <df name="include">
           <df name="soc">
@@ -14230,7 +15537,7 @@
             <in>sdmmc_periph.h</in>
             <in>sens_periph.h</in>
             <in>sigmadelta_periph.h</in>
-            <in>soc_memory_layout.h</in>
+            <in>soc_memory_types.h</in>
             <in>spi_periph.h</in>
             <in>syscon_periph.h</in>
             <in>timer_periph.h</in>
@@ -14239,6 +15546,7 @@
             <in>uart_periph.h</in>
             <in>uhci_periph.h</in>
             <in>usb_periph.h</in>
+            <in>usb_phy_periph.h</in>
           </df>
         </df>
         <in>lldesc.c</in>
@@ -14254,15 +15562,32 @@
           <in>flash_ops_esp32c3.c</in>
           <in>spi_flash_rom_patch.c</in>
         </df>
+        <df name="esp32h2">
+          <in>flash_ops_esp32h2.c</in>
+          <in>spi_flash_rom_patch.c</in>
+        </df>
         <df name="esp32s2">
           <in>flash_ops_esp32s2.c</in>
           <in>spi_flash_rom_patch.c</in>
         </df>
         <df name="esp32s3">
           <in>flash_ops_esp32s3.c</in>
+          <in>mspi_timing_tuning_configs.h</in>
+          <in>opi_flash_cmd_format_mxic.h</in>
+          <in>opi_flash_private.h</in>
+          <in>spi_flash_oct_flash_init.c</in>
+          <in>spi_flash_rom_patch.c</in>
+          <in>spi_timing_config.c</in>
+          <in>spi_timing_config.h</in>
+        </df>
+        <df name="esp8684">
+          <in>flash_ops_esp8684.c</in>
           <in>spi_flash_rom_patch.c</in>
         </df>
         <df name="include">
+          <df name="esp_private">
+            <in>spi_flash_os.h</in>
+          </df>
           <df name="spi_flash">
             <in>spi_flash_defs.h</in>
           </df>
@@ -14310,9 +15635,6 @@
             <df name="esp32">
               <in>crc.cpp</in>
               <in>esp_random.c</in>
-            </df>
-            <df name="esp_common">
-              <in>esp_err.h</in>
             </df>
             <df name="esp_timer">
               <df name="include">
@@ -14369,9 +15691,6 @@
                 <in>esp_vfs.h</in>
               </df>
             </df>
-            <df name="xtensa">
-              <in>esp_attr.h</in>
-            </df>
           </df>
           <in>SpiFlash.cpp</in>
           <in>SpiFlash.h</in>
@@ -14404,9 +15723,11 @@
         <in>spi_flash_chip_generic.c</in>
         <in>spi_flash_chip_issi.c</in>
         <in>spi_flash_chip_mxic.c</in>
+        <in>spi_flash_chip_mxic_opi.c</in>
         <in>spi_flash_chip_winbond.c</in>
         <in>spi_flash_os_func_app.c</in>
         <in>spi_flash_os_func_noos.c</in>
+        <in>spi_flash_timing_tuning.c</in>
       </df>
       <df name="spiffs">
         <df name="include">
@@ -14527,6 +15848,14 @@
             </df>
           </df>
           <df name="docs">
+            <df name="assets">
+            </df>
+            <df name="contributing">
+            </df>
+            <df name="info">
+            </df>
+            <df name="reference">
+            </df>
           </df>
           <df name="examples">
             <df name="device">
@@ -14567,10 +15896,19 @@
               </df>
               <df name="cdc_msc_freertos">
                 <df name="src">
-                  <in>FreeRTOSConfig.h</in>
+                  <df name="FreeRTOSConfig">
+                    <in>FreeRTOSConfig.h</in>
+                  </df>
                   <in>freertos_hook.c</in>
                   <in>main.c</in>
                   <in>msc_disk.c</in>
+                  <in>tusb_config.h</in>
+                  <in>usb_descriptors.c</in>
+                </df>
+              </df>
+              <df name="dfu">
+                <df name="src">
+                  <in>main.c</in>
                   <in>tusb_config.h</in>
                   <in>usb_descriptors.c</in>
                 </df>
@@ -14590,6 +15928,14 @@
                   <in>usb_descriptors.c</in>
                 </df>
               </df>
+              <df name="hid_boot_interface">
+                <df name="src">
+                  <in>main.c</in>
+                  <in>tusb_config.h</in>
+                  <in>usb_descriptors.c</in>
+                  <in>usb_descriptors.h</in>
+                </df>
+              </df>
               <df name="hid_composite">
                 <df name="src">
                   <in>main.c</in>
@@ -14600,7 +15946,9 @@
               </df>
               <df name="hid_composite_freertos">
                 <df name="src">
-                  <in>FreeRTOSConfig.h</in>
+                  <df name="FreeRTOSConfig">
+                    <in>FreeRTOSConfig.h</in>
+                  </df>
                   <in>freertos_hook.c</in>
                   <in>main.c</in>
                   <in>tusb_config.h</in>
@@ -14666,6 +16014,15 @@
                   <in>usbtmc_app.h</in>
                 </df>
               </df>
+              <df name="video_capture">
+                <df name="src">
+                  <in>images.h</in>
+                  <in>main.c</in>
+                  <in>tusb_config.h</in>
+                  <in>usb_descriptors.c</in>
+                  <in>usb_descriptors.h</in>
+                </df>
+              </df>
               <df name="webusb_serial">
                 <df name="src">
                   <in>main.c</in>
@@ -14678,9 +16035,16 @@
             <df name="host">
               <df name="cdc_msc_hid">
                 <df name="src">
-                  <in>keyboard_helper.h</in>
+                  <in>hid_app.c</in>
                   <in>main.c</in>
                   <in>msc_app.c</in>
+                  <in>tusb_config.h</in>
+                </df>
+              </df>
+              <df name="hid_controller">
+                <df name="src">
+                  <in>hid_app.c</in>
+                  <in>main.c</in>
                   <in>tusb_config.h</in>
                 </df>
               </df>
@@ -14777,8 +16141,21 @@
                 <in>crt0-vexriscv.S</in>
                 <in>fomu.c</in>
               </df>
+              <df name="frdm_k32l2b">
+                <in>board.h</in>
+                <in>frdm_k32l2b.c</in>
+              </df>
               <df name="frdm_kl25z">
                 <in>frdm_kl25z.c</in>
+              </df>
+              <df name="gd32vf103">
+                <df name="boards">
+                  <df name="sipeed_longan_nano">
+                    <in>board.h</in>
+                  </df>
+                </df>
+                <in>family.c</in>
+                <in>system_gd32vf103.c</in>
               </df>
               <df name="imxrt">
                 <df name="boards">
@@ -14820,12 +16197,31 @@
                 </df>
                 <in>family.c</in>
               </df>
+              <df name="lpc15">
+                <df name="boards">
+                  <df name="lpcxpresso1549">
+                    <in>board.h</in>
+                  </df>
+                </df>
+                <in>family.c</in>
+              </df>
               <df name="lpc18">
                 <df name="boards">
                   <df name="lpcxpresso18s37">
                     <in>board.h</in>
                   </df>
                   <df name="mcb1800">
+                    <in>board.h</in>
+                  </df>
+                </df>
+                <in>family.c</in>
+              </df>
+              <df name="lpc54">
+                <df name="boards">
+                  <df name="lpcxpresso54114">
+                    <in>board.h</in>
+                  </df>
+                  <df name="lpcxpresso54628">
                     <in>board.h</in>
                   </df>
                 </df>
@@ -14840,6 +16236,9 @@
                     <in>board.h</in>
                   </df>
                   <df name="lpcxpresso55s69">
+                    <in>board.h</in>
+                  </df>
+                  <df name="mcu_link">
                     <in>board.h</in>
                   </df>
                 </df>
@@ -14868,6 +16267,13 @@
               </df>
               <df name="mbed1768">
                 <in>mbed1768.c</in>
+              </df>
+              <df name="mm32">
+                <df name="boards">
+                  <df name="mm32f327x_mb39">
+                    <in>mm32f327x_mb39.c</in>
+                  </df>
+                </df>
               </df>
               <df name="msp430">
                 <df name="boards">
@@ -14936,19 +16342,29 @@
               <df name="rp2040">
                 <df name="boards">
                   <df name="adafruit_feather_rp2040">
-                    <in>board.h</in>
                   </df>
                   <df name="adafruit_itsybitsy_rp2040">
-                    <in>board.h</in>
                   </df>
-                  <df name="adafruit_qt_rp2040">
-                    <in>board.h</in>
+                  <df name="adafruit_qtpy_rp2040">
+                  </df>
+                  <df name="pico_sdk">
                   </df>
                   <df name="raspberry_pi_pico">
-                    <in>board.h</in>
                   </df>
                 </df>
+                <in>board.h</in>
                 <in>family.c</in>
+              </df>
+              <df name="rx">
+                <df name="boards">
+                  <df name="gr_citrus">
+                    <in>gr_citrus.c</in>
+                    <in>hwinit.c</in>
+                  </df>
+                  <df name="rx65n_target">
+                    <in>rx65n_target.c</in>
+                  </df>
+                </df>
               </df>
               <df name="rx63n">
                 <df name="boards">
@@ -14977,6 +16393,9 @@
                   <df name="circuitplayground_express">
                     <in>board.h</in>
                   </df>
+                  <df name="curiosity_nano">
+                    <in>board.h</in>
+                  </df>
                   <df name="feather_m0_express">
                     <in>board.h</in>
                   </df>
@@ -14989,7 +16408,13 @@
                   <df name="metro_m0_express">
                     <in>board.h</in>
                   </df>
+                  <df name="qtpy">
+                    <in>board.h</in>
+                  </df>
                   <df name="seeeduino_xiao">
+                    <in>board.h</in>
+                  </df>
+                  <df name="trinket_m0">
                     <in>board.h</in>
                   </df>
                 </df>
@@ -15018,6 +16443,13 @@
               <df name="same54xplainedpro">
                 <in>same54xplainedpro.c</in>
               </df>
+              <df name="same70_qmtech">
+                <in>hpl_pmc_config.h</in>
+                <in>hpl_usart_config.h</in>
+                <in>hpl_xdmac_config.h</in>
+                <in>peripheral_clk_config.h</in>
+                <in>same70_qmtech.c</in>
+              </df>
               <df name="same70_xplained">
                 <in>hpl_pmc_config.h</in>
                 <in>hpl_usart_config.h</in>
@@ -15031,7 +16463,13 @@
                 <in>samg55xplained.c</in>
               </df>
               <df name="saml22">
+                <in>family.c</in>
+              </df>
+              <df name="saml2x">
                 <df name="boards">
+                  <df name="atsaml21_xpro">
+                    <in>board.h</in>
+                  </df>
                   <df name="saml22_feather">
                     <in>board.h</in>
                   </df>
@@ -15062,9 +16500,20 @@
                 <in>family.c</in>
                 <in>stm32f0xx_hal_conf.h</in>
               </df>
+              <df name="stm32f1">
+                <df name="boards">
+                  <df name="stm32f103_bluepill">
+                    <in>board.h</in>
+                  </df>
+                  <df name="stm32f103_mini_2">
+                    <in>board.h</in>
+                  </df>
+                </df>
+                <in>family.c</in>
+                <in>stm32f1xx_hal_conf.h</in>
+              </df>
               <df name="stm32f103bluepill">
                 <in>stm32f103bluepill.c</in>
-                <in>stm32f1xx_hal_conf.h</in>
               </df>
               <df name="stm32f207nucleo">
                 <in>stm32f207nucleo.c</in>
@@ -15101,6 +16550,10 @@
                     <in>stm32f4xx_hal_conf.h</in>
                   </df>
                   <df name="stm32f412disco">
+                    <in>board.h</in>
+                    <in>stm32f4xx_hal_conf.h</in>
+                  </df>
+                  <df name="stm32f412nucleo">
                     <in>board.h</in>
                     <in>stm32f4xx_hal_conf.h</in>
                   </df>
@@ -15145,6 +16598,9 @@
                     <in>board.h</in>
                   </df>
                   <df name="stm32h745disco">
+                    <in>board.h</in>
+                  </df>
+                  <df name="waveshare_openh743i">
                     <in>board.h</in>
                   </df>
                 </df>
@@ -15312,6 +16768,9 @@
                 <in>cdc_rndis_host.h</in>
               </df>
               <df name="dfu">
+                <in>dfu.h</in>
+                <in>dfu_device.c</in>
+                <in>dfu_device.h</in>
                 <in>dfu_rt_device.c</in>
                 <in>dfu_rt_device.h</in>
               </df>
@@ -15335,6 +16794,9 @@
                 <in>msc_host.h</in>
               </df>
               <df name="net">
+                <in>ecm_rndis_device.c</in>
+                <in>ncm.h</in>
+                <in>ncm_device.c</in>
                 <in>net_device.c</in>
                 <in>net_device.h</in>
               </df>
@@ -15349,6 +16811,11 @@
                 <in>vendor_host.c</in>
                 <in>vendor_host.h</in>
               </df>
+              <df name="video">
+                <in>video.h</in>
+                <in>video_device.c</in>
+                <in>video_device.h</in>
+              </df>
             </df>
             <df name="common">
               <in>tusb_common.h</in>
@@ -15362,6 +16829,7 @@
             </df>
             <df name="device">
               <in>dcd.h</in>
+              <in>dcd_attr.h</in>
               <in>usbd.c</in>
               <in>usbd.h</in>
               <in>usbd_control.c</in>
@@ -15369,12 +16837,13 @@
             </df>
             <df name="host">
               <in>hcd.h</in>
+              <in>hcd_attr.h</in>
               <in>hub.c</in>
               <in>hub.h</in>
               <in>usbh.c</in>
               <in>usbh.h</in>
+              <in>usbh_classdriver.h</in>
               <in>usbh_control.c</in>
-              <in>usbh_hcd.h</in>
             </df>
             <df name="osal">
               <in>osal.h</in>
@@ -15393,6 +16862,7 @@
               <df name="ehci">
                 <in>ehci.c</in>
                 <in>ehci.h</in>
+                <in>ehci_api.h</in>
               </df>
               <df name="espressif">
                 <df name="esp32sx">
@@ -15405,6 +16875,15 @@
                 </df>
                 <df name="samg">
                   <in>dcd_samg.c</in>
+                </df>
+                <df name="samx7x">
+                  <in>common_usb_regs.h</in>
+                  <in>dcd_samx7x.c</in>
+                </df>
+              </df>
+              <df name="mindmotion">
+                <df name="mm32">
+                  <in>dcd_mm32f327x_otg.c</in>
                 </df>
               </df>
               <df name="nordic">
@@ -15475,6 +16954,7 @@
                 </df>
                 <df name="synopsys">
                   <in>dcd_synopsys.c</in>
+                  <in>synopsys_common.h</in>
                 </df>
               </df>
               <df name="template">
@@ -15702,6 +17182,12 @@
             <in>touch_slider.h</in>
           </df>
         </df>
+        <df name="test">
+          <in>test_touch_button.c</in>
+          <in>test_touch_element.c</in>
+          <in>test_touch_matrix.c</in>
+          <in>test_touch_slider.c</in>
+        </df>
         <in>touch_button.c</in>
         <in>touch_element.c</in>
         <in>touch_matrix.c</in>
@@ -15744,6 +17230,7 @@
           <df name="include">
             <df name="ulp_riscv">
               <in>ulp_riscv.h</in>
+              <in>ulp_riscv_gpio.h</in>
               <in>ulp_riscv_register_ops.h</in>
               <in>ulp_riscv_utils.h</in>
             </df>
@@ -15897,12 +17384,30 @@
         <in>unity_runner.c</in>
       </df>
       <df name="usb">
+        <df name="include">
+          <df name="esp_private">
+            <in>usb_phy.h</in>
+          </df>
+          <df name="usb">
+            <in>usb_helpers.h</in>
+            <in>usb_host.h</in>
+            <in>usb_types_ch9.h</in>
+            <in>usb_types_stack.h</in>
+          </df>
+        </df>
         <df name="private_include">
           <in>hcd.h</in>
-          <in>usb.h</in>
+          <in>hub.h</in>
           <in>usb_private.h</in>
+          <in>usbh.h</in>
         </df>
         <df name="test">
+          <df name="common">
+            <in>test_usb_common.c</in>
+            <in>test_usb_common.h</in>
+            <in>test_usb_mock_classes.c</in>
+            <in>test_usb_mock_classes.h</in>
+          </df>
           <df name="hcd">
             <in>test_hcd_bulk.c</in>
             <in>test_hcd_common.c</in>
@@ -15912,30 +17417,52 @@
             <in>test_hcd_isoc.c</in>
             <in>test_hcd_port.c</in>
           </df>
+          <df name="usb_host">
+            <in>ctrl_client.h</in>
+            <in>ctrl_client_async_seq.c</in>
+            <in>msc_client.h</in>
+            <in>msc_client_async_dconn.c</in>
+            <in>msc_client_async_seq.c</in>
+            <in>test_usb_helpers.c</in>
+            <in>test_usb_host_async.c</in>
+            <in>test_usb_host_plugging.c</in>
+          </df>
         </df>
         <in>hcd.c</in>
+        <in>hub.c</in>
+        <in>usb_helpers.c</in>
+        <in>usb_host.c</in>
+        <in>usb_phy.c</in>
+        <in>usb_private.c</in>
+        <in>usbh.c</in>
       </df>
       <df name="vfs">
         <df name="include">
           <in>esp_vfs.h</in>
           <in>esp_vfs_cdcacm.h</in>
           <in>esp_vfs_common.h</in>
+          <in>esp_vfs_console.h</in>
           <in>esp_vfs_dev.h</in>
           <in>esp_vfs_eventfd.h</in>
           <in>esp_vfs_semihost.h</in>
           <in>esp_vfs_usb_serial_jtag.h</in>
+        </df>
+        <df name="private_include">
+          <in>esp_vfs_private.h</in>
         </df>
         <df name="test">
           <in>test_vfs_access.c</in>
           <in>test_vfs_append.c</in>
           <in>test_vfs_eventfd.c</in>
           <in>test_vfs_fd.c</in>
+          <in>test_vfs_lwip.c</in>
           <in>test_vfs_paths.c</in>
           <in>test_vfs_select.c</in>
           <in>test_vfs_uart.c</in>
         </df>
         <in>vfs.c</in>
         <in>vfs_cdcacm.c</in>
+        <in>vfs_console.c</in>
         <in>vfs_eventfd.c</in>
         <in>vfs_semihost.c</in>
         <in>vfs_uart.c</in>
@@ -15960,6 +17487,11 @@
         </df>
         <df name="test">
           <in>test_wl.c</in>
+        </df>
+        <df name="test_apps">
+          <df name="main">
+            <in>test_wl.c</in>
+          </df>
         </df>
         <df name="test_wl_host">
           <df name="sdkconfig">
@@ -16013,15 +17545,37 @@
         </df>
       </df>
       <df name="wpa_supplicant">
-        <df name="include">
-          <df name="esp_supplicant">
+        <df name="esp_supplicant">
+          <df name="include">
             <in>esp_dpp.h</in>
+            <in>esp_mbo.h</in>
             <in>esp_rrm.h</in>
             <in>esp_wnm.h</in>
             <in>esp_wpa.h</in>
             <in>esp_wpa2.h</in>
             <in>esp_wps.h</in>
           </df>
+          <df name="src">
+            <in>esp_common.c</in>
+            <in>esp_common_i.h</in>
+            <in>esp_dpp.c</in>
+            <in>esp_dpp_i.h</in>
+            <in>esp_hostap.c</in>
+            <in>esp_hostap.h</in>
+            <in>esp_scan.c</in>
+            <in>esp_scan_i.h</in>
+            <in>esp_wifi_driver.h</in>
+            <in>esp_wpa2.c</in>
+            <in>esp_wpa3.c</in>
+            <in>esp_wpa3_i.h</in>
+            <in>esp_wpa_err.h</in>
+            <in>esp_wpa_main.c</in>
+            <in>esp_wpas_glue.c</in>
+            <in>esp_wpas_glue.h</in>
+            <in>esp_wps.c</in>
+          </df>
+        </df>
+        <df name="include">
           <df name="utils">
             <in>wpa_debug.h</in>
             <in>wpabuf.h</in>
@@ -16060,6 +17614,7 @@
             <in>ieee802_11_common.c</in>
             <in>ieee802_11_common.h</in>
             <in>ieee802_11_defs.h</in>
+            <in>mbo.c</in>
             <in>rrm.c</in>
             <in>rrm.h</in>
             <in>sae.c</in>
@@ -16077,6 +17632,7 @@
             <in>aes-cbc.c</in>
             <in>aes-ccm.c</in>
             <in>aes-ctr.c</in>
+            <in>aes-gcm.c</in>
             <in>aes-internal-dec.c</in>
             <in>aes-internal-enc.c</in>
             <in>aes-internal.c</in>
@@ -16130,8 +17686,13 @@
             <in>sha256.c</in>
             <in>sha256.h</in>
             <in>sha256_i.h</in>
+            <in>sha384-internal.c</in>
+            <in>sha384-prf.c</in>
             <in>sha384-tlsprf.c</in>
             <in>sha384.h</in>
+            <in>sha384_i.h</in>
+            <in>sha512-internal.c</in>
+            <in>sha512_i.h</in>
             <in>tls_mbedtls.c</in>
           </df>
           <df name="drivers">
@@ -16164,21 +17725,13 @@
           </df>
           <df name="esp_supplicant">
             <in>esp_common.c</in>
-            <in>esp_common_i.h</in>
             <in>esp_dpp.c</in>
-            <in>esp_dpp_i.h</in>
             <in>esp_hostap.c</in>
-            <in>esp_hostap.h</in>
             <in>esp_scan.c</in>
-            <in>esp_scan_i.h</in>
-            <in>esp_wifi_driver.h</in>
             <in>esp_wpa2.c</in>
             <in>esp_wpa3.c</in>
-            <in>esp_wpa3_i.h</in>
-            <in>esp_wpa_err.h</in>
             <in>esp_wpa_main.c</in>
             <in>esp_wpas_glue.c</in>
-            <in>esp_wpas_glue.h</in>
             <in>esp_wps.c</in>
           </df>
           <df name="rsn_supp">
@@ -16384,8 +17937,6 @@
       <df name="audio_board">
         <df name="custom">
           <in>board.c</in>
-          <in>board.h</in>
-          <in>board_def.h</in>
           <in>board_pins_config.c</in>
         </df>
         <df name="esp32_korvo_du1906">
@@ -16531,6 +18082,7 @@
           <in>audio_sys.h</in>
           <in>audio_thread.h</in>
           <in>audio_url.h</in>
+          <in>media_os_ctype.h</in>
         </df>
         <df name="test">
           <in>audio_mem_test.c</in>
@@ -16541,6 +18093,7 @@
         <in>audio_sys.c</in>
         <in>audio_thread.c</in>
         <in>audio_url.c</in>
+        <in>media_os_ctype.c</in>
       </df>
       <df name="audio_stream">
         <df name="include">
@@ -17215,8 +18768,11 @@
         <gdb_interceptlist>
           <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
         </gdb_interceptlist>
+        <gdb_signals>
+        </gdb_signals>
         <gdb_options>
           <DebugOptions>
+            <option name="gdb_init_file" value="gdbinit"/>
           </DebugOptions>
         </gdb_options>
         <gdb_buildfirst gdb_buildfirst_overriden="false" gdb_buildfirst_old="false"/>
@@ -17228,8 +18784,9 @@
         <runcommandpicklist>
           <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
           <runcommandpicklistitem>make flash</runcommandpicklistitem>
+          <runcommandpicklistitem>make app-flash</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>make flash</runcommand>
+        <runcommand>make app-flash</runcommand>
         <rundir>.</rundir>
         <buildfirst>false</buildfirst>
         <terminal-type>0</terminal-type>
@@ -17242,6 +18799,7 @@
           <variable name="IDF_TOOLS_EXPORT_CMD" value="/home/chris/esp/esp-idf/export.sh"/>
           <variable name="IDF_TOOLS_INSTALL_CMD"
                     value="/home/chris/esp/esp-idf/install.sh"/>
+          <variable name="ESPPORT" value="/dev/ttyUSB0"/>
         </environment>
       </runprofile>
     </conf>

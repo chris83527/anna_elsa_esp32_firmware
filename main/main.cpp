@@ -34,21 +34,8 @@
  *
  * BSD Licensed as described in the file LICENSE
  */
-#include <stdio.h>
-#include <string.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include <sys/unistd.h>
-#include <sys/stat.h>
-#include <driver/gpio.h>
-#include <driver/i2c.h>
-#include <driver/uart.h>
-
-#include <esp_err.h>
-#include <esp_log.h>
-#include <esp_spiffs.h>
-#include <esp_http_server.h>
-#include <esp_spiffs.h>
+#include "esp_err.h"
+#include "esp_log.h"
 
 #include "maincontroller.h"
 
@@ -56,17 +43,23 @@
 
 using namespace std;
 
-#define CONFIG_FIRMWARE_SERVICE
+//#define CONFIG_FIRMWARE_SERVICE
 
 static const char *TAG = "main";
-
-MainController mainController = MainController();
 
 extern "C" {
     void app_main();
 }
 
 void app_main() {
+    ESP_LOGI(TAG, "app_main() called");
 
+    esp_log_level_set("ESP_AUDIO_CTRL", ESP_LOG_WARN);
+    esp_log_level_set("ESP_AUDIO_TASK", ESP_LOG_WARN);
+    esp_log_level_set("AUDIO_ELEMENT", ESP_LOG_WARN);
+    esp_log_level_set("VORBIS_DECODER", ESP_LOG_WARN);
+    esp_log_level_set("I2S_STREAM", ESP_LOG_WARN);
+
+    MainController mainController;
     mainController.start();
 }

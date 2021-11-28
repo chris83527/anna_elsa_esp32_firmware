@@ -42,10 +42,6 @@
 
 #include "maincontroller.h"
 
-#define I2C_FREQ_HZ 100000
-
-#define GPIO_MOTOR_PWM_EN GPIO_NUM_23
-
 #define REEL_LEFT (1 << 0)
 #define REEL_CENTRE (1 << 1)
 #define REEL_RIGHT (1 << 2)
@@ -58,6 +54,7 @@
 
 #define STATUS_OK 0
 #define STATUS_ERR_REEL_OPTIC 1
+#define STATUS_INITIAL 255
 
 class ReelController {
 public:
@@ -92,7 +89,7 @@ public:
     reel_status_data_t getReelStatus(uint8_t reel);
 
     bool isCommandInProgress(void);
-    uint8_t getStatus(void);
+    
 
 private:
     bool _isHeld = false;
