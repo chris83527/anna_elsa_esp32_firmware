@@ -17,6 +17,8 @@
 #include <stdint.h>
 
 #include "cctalk.h"
+#include "CctalkResponse.h"
+#include "CctalkRequest.h"
 
 class CCTalkController {
 public:
@@ -26,43 +28,40 @@ public:
     
     esp_err_t initialise(void);
     
-    cctalk_response_t* resetDevice(const uint8_t address);
-    std::string requestManufacturerId(const uint8_t address);
-    std::string requestProductCode(const uint8_t address);
-    std::string requestBuildCode(const uint8_t address);
-    std::string requestSerialNumber(const uint8_t addres);
-    std::string requestSoftwareRevision(const uint8_t address);
-    std::string requestCommsRevision(const uint8_t address);
-    cctalk_response_t* pollCredit(const uint8_t address);
-    cctalk_response_t* pollHopperStatus(const uint8_t address);
-    cctalk_response_t* modifyInhibitStatus(const uint8_t address, const uint8_t enable1, const uint8_t enable2);
-    cctalk_response_t* modifyMasterInhibitStatus(const uint8_t address, const uint8_t enable);
-    cctalk_response_t* modifyDefaultSorterPath(const uint8_t address, const uint8_t defaultChute);
-    cctalk_response_t* modifySorterPath(const uint8_t address, const uint8_t path, const uint8_t chute);
-    cctalk_response_t* enableHopper(const uint8_t address);
-    cctalk_response_t* readOptoStates(const uint8_t address);
-    cctalk_response_t* dispenseCoins(const uint8_t address, uint8_t numCoins);
-    cctalk_response_t* requestCipherKey(const uint8_t address);
-    cctalk_response_t* testHopper(const uint8_t address);
-    cctalk_response_t* testSolenoids(const uint8_t address); 
-    cctalk_response_t* requestPayoutHighLowStatus(const uint8_t address);
+    void resetDevice(const uint8_t address, CctalkResponse &response);
+    void requestManufacturerId(const uint8_t address, CctalkResponse &response);
+    void requestProductCode(const uint8_t address, CctalkResponse &response);
+    void requestBuildCode(const uint8_t address, CctalkResponse &response);
+    void requestSerialNumber(const uint8_t address, CctalkResponse &response);
+    void requestSoftwareRevision(const uint8_t address, CctalkResponse &response);
+    void requestCommsRevision(const uint8_t address, CctalkResponse &response);
+    void pollCredit(const uint8_t address, CctalkResponse &response);
+    void pollHopperStatus(const uint8_t address, CctalkResponse &response);
+    void modifyInhibitStatus(const uint8_t address, const uint8_t enable1, const uint8_t enable2, CctalkResponse &response);
+    void modifyMasterInhibitStatus(const uint8_t address, const uint8_t enable, CctalkResponse &response);
+    void modifyDefaultSorterPath(const uint8_t address, const uint8_t defaultChute, CctalkResponse &response);
+    void modifySorterPath(const uint8_t address, const uint8_t path, const uint8_t chute, CctalkResponse &response);
+    void enableHopper(const uint8_t address, CctalkResponse &response);
+    void readOptoStates(const uint8_t address, CctalkResponse &response);
+    void dispenseCoins(const uint8_t address, uint8_t numCoins, CctalkResponse &response);
+    void requestCipherKey(const uint8_t address, CctalkResponse &response);
+    void testHopper(const uint8_t address, CctalkResponse &response);
+    void testSolenoids(const uint8_t address, CctalkResponse &response); 
+    void requestPayoutHighLowStatus(const uint8_t address, CctalkResponse &response);
     
     const static uint8_t COIN_VALUES[];
           
     const static unsigned long VALIDATOR_POLL_INTERVAL = 100;    
-    const static unsigned long HOPPER_STATUS_POLL_INTERVAL = 200;   
+    const static unsigned long HOPPER_STATUS_POLL_INTERVAL = 400;   
     
-    cctalk_response_t* sendRequest(cctalk_header_e header, const uint8_t address, uint8_t *data, uint8_t length);
+    void sendRequest(Cctalk::Headers header, uint8_t destination, std::vector<uint8_t>& data, CctalkResponse &response);       
     
-    std::string getStringResponse(cctalk_response_t *response);
+private:    
     
-private:
-    cctalk_device_t *cctalkDevice;
     MainController * mainController;
     
     int getState();
-      
-    
+        
 };
 
 
