@@ -57,13 +57,13 @@
 
 // LEDs
 #define LED_GPIO GPIO_NUM_18
-#define LED_COUNT 45
+#define LED_COUNT 61
 
 // VFD Display
 #define MD_OE GPIO_NUM_4
-#define MD_DATA GPIO_NUM_0
+#define MD_DATA GPIO_NUM_33
 #define MD_CLK GPIO_NUM_5
-#define MD_STROBE GPIO_NUM_2
+#define MD_STROBE GPIO_NUM_32
 
 // I2S Audio
 #define AUDIO_LRCLK GPIO_NUM_25
@@ -75,13 +75,13 @@
 
 
 // Buttons and button lamps (interfaced via MCP23017)
-#define BTN_DOOR        (1<<7)
-#define BTN_START       (1<<5)
-#define BTN_COLLECT     (1<<4)
-#define BTN_HOLD_HI     (1<<3)
-#define BTN_HOLD        (1<<2)
-#define BTN_HOLD_LO     (1<<1)
-#define BTN_TRANSFER    (1<<0)
+#define BTN_DOOR        (7)
+#define BTN_START       (5)
+#define BTN_COLLECT     (4)
+#define BTN_HOLD_HI     (3)
+#define BTN_HOLD        (2)
+#define BTN_HOLD_LO     (1)
+#define BTN_TRANSFER    (0)
 
 #define LMP_START       (LED_COUNT + 0)
 #define LMP_COLLECT     (LED_COUNT + 1)
@@ -100,42 +100,58 @@
 #define REEL_LAMP_R1                            6
 #define REEL_LAMP_R2                            7
 #define REEL_LAMP_R3                            8
-#define LAMP_HI                                 9
-#define LAMP_lO                                 10
-#define LAMP_MATRIX_SHUFFLE_1_1                 11
-#define LAMP_MATRIX_FREE_SPIN_1_2               12
-#define LAMP_MATRIX_DOUBLE_MONEY_1_3            13
-#define LAMP_MATRIX_PALACE_2_3                  14
-#define LAMP_MATRIX_LOSE_2_2             15
-#define LAMP_MATRIX_PALACE_2_1              16
-#define LAMP_MATRIX_FREE_SPIN_3_1               17
-#define LAMP_MATRIX_SHUFFLE_3_2                 18
-#define LAMP_MATRIX_LOSE_3_3                    19
-#define LAMP_MATRIX_FREE_SPIN_4_3               20
-#define LAMP_MATRIX_HI_LO_4_2                   21
-#define LAMP_MATRIX_PALACE_4_1                  22
-#define LAMP_TRAIL_20_CENT        23
-#define LAMP_TRAIL_40_CENT        24
-#define LAMP_TRAIL_60_CENT        25
-#define LAMP_TRAIL_80_CENT        26
-#define LAMP_TRAIL_ONE_EURO       27
-#define LAMP_TRAIL_ONE_TWENTY     28
-#define LAMP_TRAIL_ONE_FOURTY     29
-#define LAMP_TRAIL_ONE_SIXTY      30
-#define LAMP_TRAIL_ONE_EIGHTY     31
-#define LAMP_TRAIL_TWO_EURO       32
-#define LAMP_TRAIL_TWO_FOURTY     33
-#define LAMP_TRAIL_TWO_EIGHTY     34
-#define LAMP_TRAIL_THREE_FOURTY   35
-#define LAMP_TRAIL_THREE_EIGHTY   36
-#define LAMP_TRAIL_FOUR_TWENTY    37
-#define LAMP_TRAIL_FOUR_SIXTY     38
-#define LAMP_TRAIL_FIVE_EURO      39
-#define LAMP_NUDGE_5        40
-#define LAMP_NUDGE_4        41
-#define LAMP_NUDGE_3        42
-#define LAMP_NUDGE_2        43
-#define LAMP_NUDGE_1        44
+#define LAMP_NUDGE_5        9
+#define LAMP_NUDGE_4        10
+#define LAMP_NUDGE_3        11
+#define LAMP_NUDGE_2        12
+#define LAMP_NUDGE_1        13
+#define LAMP_PRIZE_PALACE   14
+#define LAMP_PRIZE_ANNA     15
+#define LAMP_PRIZE_ELSA     16
+#define LAMP_PRIZE_CHRISTOPH    17
+#define LAMP_PRIZE_SVEN     18
+#define LAMP_PRIZE_OLAF_3   19
+#define LAMP_PRIZE_OLAF_ANY 20
+#define LAMP_PRIZE_HANS     21
+#define LAMP_PRIZE_20_CENT  22
+#define LAMP_PRIZE_40_CENT  23
+#define LAMP_PRIZE_80_CENT  24
+#define LAMP_PRIZE_120_CENT 25
+#define LAMP_PRIZE_160_CENT 26
+#define LAMP_PRIZE_200_CENT 27
+#define LAMP_PRIZE_300_CENT 28
+#define LAMP_PRIZE_400_CENT 29
+#define LAMP_HI                                 30
+#define LAMP_lO                                 31
+#define LAMP_MATRIX_SHUFFLE_1_1                 32
+#define LAMP_MATRIX_FREE_SPIN_1_2               33
+#define LAMP_MATRIX_DOUBLE_MONEY_1_3            34
+#define LAMP_MATRIX_PALACE_2_3                  35
+#define LAMP_MATRIX_LOSE_2_2             36
+#define LAMP_MATRIX_PALACE_2_1              37
+#define LAMP_MATRIX_FREE_SPIN_3_1               38
+#define LAMP_MATRIX_SHUFFLE_3_2                 39
+#define LAMP_MATRIX_LOSE_3_3                    40
+#define LAMP_MATRIX_FREE_SPIN_4_3               41
+#define LAMP_MATRIX_HI_LO_4_2                   42
+#define LAMP_MATRIX_PALACE_4_1                  43
+#define LAMP_TRAIL_20_CENT        44
+#define LAMP_TRAIL_40_CENT        45
+#define LAMP_TRAIL_60_CENT        46
+#define LAMP_TRAIL_80_CENT        47
+#define LAMP_TRAIL_ONE_EURO       48
+#define LAMP_TRAIL_ONE_TWENTY     49
+#define LAMP_TRAIL_ONE_FOURTY     50
+#define LAMP_TRAIL_ONE_SIXTY      51
+#define LAMP_TRAIL_ONE_EIGHTY     52
+#define LAMP_TRAIL_TWO_EURO       53
+#define LAMP_TRAIL_TWO_FOURTY     54
+#define LAMP_TRAIL_TWO_EIGHTY     55
+#define LAMP_TRAIL_THREE_FOURTY   56
+#define LAMP_TRAIL_THREE_EIGHTY   57
+#define LAMP_TRAIL_FOUR_TWENTY    58
+#define LAMP_TRAIL_FOUR_SIXTY     59
+#define LAMP_TRAIL_FIVE_EURO      60
 
 
 

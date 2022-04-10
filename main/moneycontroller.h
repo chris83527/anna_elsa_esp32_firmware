@@ -55,6 +55,7 @@ public:
     uint16_t getFiftyCent(void);
     uint16_t getOneEuro(void);
     uint16_t getTwoEuro(void);
+    void clear(void);
 private:
     uint16_t tenCentIn;
     uint16_t twentyCentIn;
@@ -70,7 +71,7 @@ public:
 
     void initialise(void);
 
-    void addToCredit(Payment payment);
+    void addToCredit(Payment &payment);
     void addToCredit(uint16_t value);
     void addToBank(const uint16_t value);
     void setTransfer(const uint16_t value);
@@ -102,7 +103,7 @@ private:
     uint16_t gamecount;
     uint16_t payoutTotal;
     uint16_t incomeTotal;
-    uint16_t tencentin;
+    uint16_t tenCentIn;
     uint16_t twentyCentIn;
     uint16_t fiftyCentIn;
     uint16_t oneEuroIn;

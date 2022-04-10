@@ -242,6 +242,8 @@ void CCTalkController::sendRequest(Cctalk::Headers header, uint8_t destination, 
     request.setDestination(destination);
     request.setHeader(header);
     request.setAdditionalData(data);
+    
+    response.initialise();
 
     ESP_LOGD(TAG, "sendRequest called with header %d to destination %d", request.getHeader(), request.getDestination());
 

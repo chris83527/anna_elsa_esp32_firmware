@@ -38,6 +38,7 @@
 #include "esp_log.h"
 
 #include "maincontroller.h"
+#include "m20ly02z.h"
 
 #include "config.h"
 
@@ -57,9 +58,19 @@ void app_main() {
     esp_log_level_set("ESP_AUDIO_CTRL", ESP_LOG_WARN);
     esp_log_level_set("ESP_AUDIO_TASK", ESP_LOG_WARN);
     esp_log_level_set("AUDIO_ELEMENT", ESP_LOG_WARN);
+    esp_log_level_set("AUDIO_PIPELINE", ESP_LOG_WARN);
     esp_log_level_set("VORBIS_DECODER", ESP_LOG_WARN);
-    esp_log_level_set("I2S_STREAM", ESP_LOG_WARN);
+    esp_log_level_set("I2S_STREAM", ESP_LOG_WARN);    
+    esp_log_level_set("CCTALK_CONTROLLER", ESP_LOG_DEBUG);
+    esp_log_level_set("CCTALK_REQUEST", ESP_LOG_DEBUG);
+    esp_log_level_set("CCTALK_RESPONSE", ESP_LOG_DEBUG);
+    esp_log_level_set("CCTALK", ESP_LOG_WARN);  
+    esp_log_level_set("ReelController", ESP_LOG_WARN);
+    esp_log_level_set("m20ly02z", ESP_LOG_WARN);
+    esp_log_level_set("i2cdev", ESP_LOG_WARN);      
 
     MainController mainController;
     mainController.start();
+    
+    
 }

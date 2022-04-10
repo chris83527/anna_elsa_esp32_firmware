@@ -58,6 +58,8 @@ public:
     CCTalkController* getCCTalkController();
     Game* getGame();
     MoneyController* getMoneyController();
+    
+    static void cctalkStatusCheckTask(void *pvParameter);
 
 private:
 
@@ -88,7 +90,7 @@ private:
     AudioController * audioController;
     MoneyController * moneyController;
 
-    std::shared_ptr<nvs::NVSHandle> nvs_handle;
+    std::unique_ptr<nvs::NVSHandle> nvs_handle;
 
     const char* NVS_PARTITION_SETTINGS = "settings";
 
@@ -99,6 +101,9 @@ private:
         IN_GAME,
         PAYING_OUT
     };
+    
+    int hopperEventCounter = 0;
+        
 };
 
 

@@ -36,6 +36,9 @@
  */
 #include <string.h>
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
 #include "mcp23008.h"
 #include "esp_log.h"
 #include "driver/ledc.h"
@@ -58,6 +61,10 @@ static const char *TAG = "ReelController";
 i2c_dev_t reel_left;
 i2c_dev_t reel_centre;
 i2c_dev_t reel_right;
+
+bool reelLeftInitOk;
+bool reelCentreInitOk;
+bool reelRightInitOk;
 
 /*
  * 
@@ -101,6 +108,10 @@ void ReelController::getReelPositions(uint8_t &leftPos, uint8_t &centrePos, uint
 esp_err_t ReelController::initialise() {
     ESP_LOGD(TAG, "initialise() called");
 
+    reelLeftInitOk = false;
+    reelCentreInitOk = false;
+    reelRightInitOk = false;
+
 
     memset(&reel_left, 0, sizeof (i2c_dev_t));
     memset(&reel_centre, 0, sizeof (i2c_dev_t));
@@ -138,9 +149,8 @@ esp_err_t ReelController::initialise() {
         return ESP_FAIL;
     }
 
-    if (mcp23008_init_desc(&reel_left, 0, MCP23008_I2C_ADDR_BASE, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
+    if (mcp23008_init_desc(&reel_left, MCP23008_I2C_ADDR_BASE, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "An error occurred initialising left reel");
-        return ESP_FAIL;
     } else {
         // motor outputs to our H-bridge
         if (mcp23008_set_mode(&reel_left, GPIO_MOTOR_1, MCP23008_GPIO_OUTPUT) != ESP_OK) {
@@ -158,12 +168,13 @@ esp_err_t ReelController::initialise() {
         mcp23008_set_mode(&reel_left, 6, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_left, 7, MCP23008_GPIO_OUTPUT);
 
+        reelLeftInitOk = true;
         ESP_LOGD(TAG, "Left reel initialised ok.");
     }
 
-    if (mcp23008_init_desc(&reel_centre, 0, MCP23008_I2C_ADDR_BASE + 1, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
+    if (mcp23008_init_desc(&reel_centre, MCP23008_I2C_ADDR_BASE + 1, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "An error occurred initialising centre reel");
-        return ESP_FAIL;
+        //return ESP_FAIL;
     } else {
         // motor outputs to our H-bridge
         if (mcp23008_set_mode(&reel_centre, GPIO_MOTOR_1, MCP23008_GPIO_OUTPUT) != ESP_OK) {
@@ -181,12 +192,13 @@ esp_err_t ReelController::initialise() {
         mcp23008_set_mode(&reel_centre, 6, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_centre, 7, MCP23008_GPIO_OUTPUT);
 
+        reelCentreInitOk = true;
         ESP_LOGD(TAG, "Centre reel initialised ok.");
     }
 
-    if (mcp23008_init_desc(&reel_right, 0, MCP23008_I2C_ADDR_BASE + 2, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
+    if (mcp23008_init_desc(&reel_right, MCP23008_I2C_ADDR_BASE + 2, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "An error occurred initialising right reel");
-        return ESP_FAIL;
+        //return ESP_FAIL;
     } else {
         if (mcp23008_set_mode(&reel_right, GPIO_MOTOR_1, MCP23008_GPIO_OUTPUT) != ESP_OK) {
             ESP_LOGE(TAG, "An error occurred initialising right reel");
@@ -202,7 +214,20 @@ esp_err_t ReelController::initialise() {
         mcp23008_set_mode(&reel_right, 6, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_right, 7, MCP23008_GPIO_OUTPUT);
 
+        reelRightInitOk = true;
         ESP_LOGD(TAG, "Right reel initialised ok.");
+    }
+
+    xStepperQueue = xQueueCreate(10, sizeof (reel_event_t));
+
+    // Create a task to handle UART events
+    BaseType_t xStatus = xTaskCreatePinnedToCore(stepMotorTask, "stepper_queue_task",
+            2048,
+            this, 15,
+            &xStepperTaskHandle, 0);
+
+    if (xStatus != pdPASS) {
+        vTaskDelete(xStepperTaskHandle);
     }
 
     spinToZero();
@@ -210,56 +235,64 @@ esp_err_t ReelController::initialise() {
     return ESP_OK;
 }
 
-void ReelController::move(int reels, direction_t dir_left, direction_t dir_centre, direction_t dir_right) {
+//void ReelController::stepMotor(int reels, direction_t dir_left, direction_t dir_centre, direction_t dir_right) {
 
-    if (reels & REEL_LEFT) {
-        if (dir_left == Clockwise) {
-            reel_status_data_left.step_data = (cw_steps[reel_status_data_left.step]);
-        } else {
-            reel_status_data_left.step_data = (ccw_steps[reel_status_data_left.step]);
+void ReelController::stepMotorTask(void* pvParameters) {
+    reel_event_t xEvent;
+    ReelController *reelController = reinterpret_cast<ReelController *> (pvParameters);
+
+    for (;;) {
+        if (xQueueReceive(reelController->xStepperQueue, (void*) &xEvent, (portTickType) portMAX_DELAY) == pdPASS) {
+            ESP_LOGD(TAG, "Step event: reels=%d, direction (left)=%d, direction (centre)=%d, direction (Right)=%d", xEvent.reels, xEvent.dir_left, xEvent.dir_centre, xEvent.dir_right);
+
+
+            if (xEvent.reels & REEL_LEFT) {
+                if (xEvent.dir_left == Clockwise) {
+                    reelController->reel_status_data_left.step_data = (cw_steps[reelController->reel_status_data_left.step_number]);
+                } else {
+                    reelController->reel_status_data_left.step_data = (ccw_steps[reelController->reel_status_data_left.step_number]);
+                }
+                reelController->reel_status_data_left.step_number++;
+            }
+
+            if (xEvent.reels & REEL_CENTRE) {
+                if (xEvent.dir_centre == Clockwise) {
+                    reelController->reel_status_data_centre.step_data = (cw_steps[reelController->reel_status_data_centre.step_number]);
+                } else {
+                    reelController->reel_status_data_centre.step_data = (ccw_steps[reelController->reel_status_data_centre.step_number]);
+                }
+                reelController->reel_status_data_centre.step_number++;
+            }
+
+            if (xEvent.reels & REEL_RIGHT) {
+                if (xEvent.dir_right == Clockwise) {
+                    reelController->reel_status_data_right.step_data = (cw_steps[reelController->reel_status_data_right.step_number]);
+                } else {
+                    reelController->reel_status_data_right.step_data = (ccw_steps[reelController->reel_status_data_right.step_number]);
+                }
+                reelController->reel_status_data_right.step_number++;
+            }
+
+            if (reelController->reelRightInitOk) {
+                ESP_LOGD(TAG, "Right reel Step data: %d", reelController->reel_status_data_right.step_data);
+                mcp23008_port_write(&reel_right, reelController->reel_status_data_right.step_data);
+            }
+            if (reelController->reelCentreInitOk) {
+                ESP_LOGD(TAG, "Centre reel Step data: %d", reelController->reel_status_data_centre.step_data);
+                mcp23008_port_write(&reel_centre, reelController->reel_status_data_centre.step_data);
+            }
+            if (reelController->reelLeftInitOk) {
+                ESP_LOGD(TAG, "Left reel Step data: %d", reelController->reel_status_data_left.step_data);
+                mcp23008_port_write(&reel_left, reelController->reel_status_data_left.step_data);
+            }
+
+
+            if (reelController->reel_status_data_left.step_number > 3) reelController->reel_status_data_left.step_number = 0;
+            if (reelController->reel_status_data_centre.step_number > 3) reelController->reel_status_data_centre.step_number = 0;
+            if (reelController->reel_status_data_right.step_number > 3) reelController->reel_status_data_right.step_number = 0;
         }
-        reel_status_data_left.step++;
+//        vTaskDelay(pdMS_TO_TICKS(5));
     }
-
-    if (reels & REEL_CENTRE) {
-        if (dir_centre == Clockwise) {
-            reel_status_data_centre.step_data = (cw_steps[reel_status_data_centre.step]);
-        } else {
-            reel_status_data_centre.step_data = (ccw_steps[reel_status_data_centre.step]);
-        }
-        reel_status_data_centre.step++;
-    }
-
-    if (reels & REEL_RIGHT) {
-        if (dir_right == Clockwise) {
-            reel_status_data_right.step_data = (cw_steps[reel_status_data_right.step]);
-        } else {
-            reel_status_data_right.step_data = (ccw_steps[reel_status_data_right.step]);
-        }
-        reel_status_data_right.step++;
-    }
-
-    ESP_LOGD(TAG, "Right reel Step data: %d", reel_status_data_right.step_data);
-    mcp23008_port_write(&reel_right, reel_status_data_right.step_data);
-    ESP_LOGD(TAG, "Centre reel Step data: %d", reel_status_data_centre.step_data);
-    mcp23008_port_write(&reel_centre, reel_status_data_centre.step_data);
-    ESP_LOGD(TAG, "Left reel Step data: %d", reel_status_data_left.step_data);
-    mcp23008_port_write(&reel_left, reel_status_data_left.step_data);
-
-    if (reel_status_data_left.step < 0)
-        reel_status_data_left.step = 3;
-    if (reel_status_data_left.step > 3)
-        reel_status_data_left.step = 0;
-
-    if (reel_status_data_centre.step < 0)
-        reel_status_data_centre.step = 3;
-    if (reel_status_data_centre.step > 3)
-        reel_status_data_centre.step = 0;
-
-    if (reel_status_data_right.step < 0)
-        reel_status_data_right.step = 3;
-    if (reel_status_data_right.step > 3)
-        reel_status_data_right.step = 0;
 }
 
 /*
@@ -272,6 +305,8 @@ void ReelController::move(int reels, direction_t dir_left, direction_t dir_centr
  */
 void ReelController::spinToZero() {
     ESP_LOGD(TAG, "spinToZero begin");
+
+    xQueueReset(xStepperQueue);
 
     int reels = REEL_LEFT | REEL_CENTRE | REEL_RIGHT;
 
@@ -286,42 +321,61 @@ void ReelController::spinToZero() {
 
     int counter = 0;
 
-    uint32_t mcp23008_state;
+    uint32_t mcp23008_left_state;
+    uint32_t mcp23008_centre_state;
+    uint32_t mcp23008_right_state;
 
-    for (counter = 0; counter < ((MAX_STEPS * 2) * 4); counter++) // two spins, multiply by 4 steps
+    for (counter = 0; counter < ((MAX_STOPS * 2) * STEPS_PER_STOP); counter++) // two spins, multiply by 4 steps
     {
         ESP_LOGD(TAG, "Calling move...");
-        
-        move(reels, Clockwise, Clockwise, Clockwise); // all reels forwards
-        
+
+        reel_event_t event;
+        event.reels = reels;
+        event.dir_left = Clockwise;
+        event.dir_centre = Clockwise;
+        event.dir_right = Clockwise;
+        if (xQueueSend(xStepperQueue, &event, portMAX_DELAY)) {
+            ESP_LOGD(TAG, "Successfully sent step event to queue");
+        } else {
+            ESP_LOGE(TAG, "Could not send step event to queue");
+        }        
+
         vTaskDelay(pdMS_TO_TICKS(25));
-        
-        mcp23008_get_level(&reel_left, GPIO_PHOTO_INTERRUPTER, &mcp23008_state); // read bit 4 (Photointerrupter)
-        ESP_LOGD(TAG, "Left reel photointerrupter returned %d", mcp23008_state);
-        if ((counter > 4) && ((mcp23008_state & (1 << GPIO_PHOTO_INTERRUPTER)) == 0)) // 4 means we made at least one whole step and triggered photointerrupter
-        {
-            reels &= ~REEL_LEFT;
-            leftOk = true;
-        }
-        
-        mcp23008_get_level(&reel_centre, GPIO_PHOTO_INTERRUPTER, &mcp23008_state);
-        ESP_LOGD(TAG, "Centre reel photointerrupter returned %d", mcp23008_state);
-        if ((counter > 4) && ((mcp23008_state & (1 << GPIO_PHOTO_INTERRUPTER)) == 0)) {
-            reels &= ~REEL_CENTRE;
-            centreOk = true;
-        }
-        
-        mcp23008_get_level(&reel_right, GPIO_PHOTO_INTERRUPTER, &mcp23008_state);
-        ESP_LOGD(TAG, "Right reel photointerrupter returned %d", mcp23008_state);
-        if ((counter > 4) && ((mcp23008_state & (1 << GPIO_PHOTO_INTERRUPTER)) == 0)) {
-            reels &= ~REEL_RIGHT;
-            rightOk = true;
+
+        if (reelLeftInitOk) {
+            mcp23008_get_level(&reel_left, GPIO_PHOTO_INTERRUPTER, &mcp23008_left_state); // read bit 4 (Photointerrupter)
+            ESP_LOGD(TAG, "Left reel photointerrupter returned %d", mcp23008_left_state);
+            if ((counter > (MAX_STOPS * 4)) && (mcp23008_left_state == 0)) // 4 means we made at least one whole step and triggered photointerrupter
+            {
+                ESP_LOGD(TAG, "Disabling left reel");
+                reels &= ~REEL_LEFT;
+                leftOk = true;
+            }
         }
 
-        if (leftOk && centreOk && rightOk) {
-
-            break;
+        if (reelCentreInitOk) {
+            mcp23008_get_level(&reel_centre, GPIO_PHOTO_INTERRUPTER, &mcp23008_centre_state);
+            ESP_LOGD(TAG, "Centre reel photointerrupter returned %d", mcp23008_centre_state);
+            if ((counter > (MAX_STOPS * 4)) && (mcp23008_centre_state == 0)) {
+                ESP_LOGD(TAG, "Disabling centre reel");
+                reels &= ~REEL_CENTRE;
+                centreOk = true;
+            }
         }
+
+        if (reelRightInitOk) {
+            mcp23008_get_level(&reel_right, GPIO_PHOTO_INTERRUPTER, &mcp23008_right_state);
+            ESP_LOGD(TAG, "Right reel photointerrupter returned %d", mcp23008_right_state);
+            if ((counter > (MAX_STOPS * 4)) && (mcp23008_right_state == 0)) {
+                ESP_LOGD(TAG, "Disabling right reel");
+                reels &= ~REEL_RIGHT;
+                rightOk = true;
+            }
+        }
+
+        //if (leftOk && centreOk && rightOk) {
+        //    break;
+        //}
     }
 
     if (leftOk) {
@@ -354,15 +408,19 @@ void ReelController::spinToZero() {
 
 void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uint8_t rightPos) {
 
+    this->commandInProgress = true;
+
     reel_status_data_left.stop = leftPos;
     reel_status_data_centre.stop = midPos;
     reel_status_data_right.stop = rightPos;
 
     spinToZero(); // get us back to a known position
 
-    int leftSteps = ((reel_status_data_left.stop + 75) * 4);
-    int midSteps = ((reel_status_data_centre.stop + 50) * 4);
-    int rightSteps = ((reel_status_data_right.stop + 25) * 4);
+
+    // Use different values (75, 50, 25) to get the effect of one reel stopping after another
+    int leftSteps = ((reel_status_data_left.stop + 75) * STEPS_PER_STOP);
+    int midSteps = ((reel_status_data_centre.stop + 50) * STEPS_PER_STOP);
+    int rightSteps = ((reel_status_data_right.stop + 25) * STEPS_PER_STOP);
 
     int maxSteps = leftSteps;
     if (midSteps > maxSteps) {
@@ -415,22 +473,34 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
             }
         }
 
-        move(reels, Clockwise, Clockwise, Clockwise); // 7 = all reels forward direction
+        //stepMotor(reels, Clockwise, Clockwise, Clockwise); // 7 = all reels forward direction
+        reel_event_t event;
+        event.reels = reels;
+        event.dir_left= Clockwise;
+        event.dir_centre = Clockwise;
+        event.dir_right = Clockwise;
+        if (xQueueSend(xStepperQueue, &event, portMAX_DELAY)) {
+            ESP_LOGD(TAG, "Successfully sent step event to queue");
+        } else {
+            ESP_LOGE(TAG, "Could not send step event to queue");
+        }
 
         if (dly > 15) {
             dly -= 10;
         }
 
-        vTaskDelay(pdMS_TO_TICKS(dly));
+        //vTaskDelay(pdMS_TO_TICKS(dly));
     }
 
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-
+    this->commandInProgress = false;
 }
 
 void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const uint8_t rightPos) {
+
+    this->commandInProgress = true;
 
     reel_status_data_left.stop = leftPos;
     reel_status_data_centre.stop = midPos;
@@ -438,9 +508,9 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
 
     spinToZero(); // get us back to a known position
 
-    int leftSteps = ((reel_status_data_left.stop + 75) * 4);
-    int midSteps = ((reel_status_data_centre.stop + 50) * 4);
-    int rightSteps = ((reel_status_data_right.stop + 25) * 4);
+    int leftSteps = ((reel_status_data_left.stop + 75) * STEPS_PER_STOP);
+    int midSteps = ((reel_status_data_centre.stop + 50) * STEPS_PER_STOP);
+    int rightSteps = ((reel_status_data_right.stop + 25) * STEPS_PER_STOP);
 
     int maxSteps = leftSteps;
     if (midSteps > maxSteps) {
@@ -453,7 +523,10 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
     int reels = 0;
     int dly = 75;
 
-    reel_status_data_left.status = 0; // reset status
+    reel_status_data_left.status = STATUS_INITIAL; // reset status
+    reel_status_data_centre.status = STATUS_INITIAL; // reset status
+    reel_status_data_right.status = STATUS_INITIAL; // reset status
+    
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
@@ -480,21 +553,36 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
             reel_status_data_right.status = STATUS_OK;
         }
 
-        move(reels, Clockwise, CounterClockwise, Clockwise); // 5= left, right forwards; centre reverse
+        reel_event_t event;
+        event.reels = reels;
+        event.dir_left = Clockwise;
+        event.dir_centre = CounterClockwise;
+        event.dir_right = Clockwise;
+        
+        if (xQueueSend(xStepperQueue, &event, portMAX_DELAY)) {
+            ESP_LOGD(TAG, "Successfully sent step event to queue");
+        } else {
+            ESP_LOGE(TAG, "Could not send step event to queue");
+        }
+        //stepMotor(reels, Clockwise, CounterClockwise, Clockwise); // 5= left, right forwards; centre reverse
 
         if (dly > 15) {
             dly -= 10;
         }
 
-        vTaskDelay(pdMS_TO_TICKS(dly));
+        //vTaskDelay(pdMS_TO_TICKS(dly));
     }
 
     //delay(100);
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+
+    this->commandInProgress = false;
 }
 
 void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, const uint8_t rightStops) {
+
+    this->commandInProgress = true;
 
     reel_status_data_left.stop += leftStops;
     reel_status_data_centre.stop += midStops;
@@ -517,6 +605,9 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, cons
     }
 
     reel_status_data_left.status = STATUS_INITIAL; // reset status
+    reel_status_data_centre.status = STATUS_INITIAL; // reset status
+    reel_status_data_right.status = STATUS_INITIAL; // reset status
+    
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
@@ -539,15 +630,39 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, cons
             reels &= ~REEL_RIGHT;
             reel_status_data_right.status = STATUS_OK;
         }
-        move(reels, Clockwise, Clockwise, Clockwise);
-        vTaskDelay(pdMS_TO_TICKS(25));
-        move(reels, Clockwise, Clockwise, Clockwise);
-        vTaskDelay(pdMS_TO_TICKS(25));
-        move(reels, Clockwise, Clockwise, Clockwise);
-        vTaskDelay(pdMS_TO_TICKS(25));
-        move(reels, Clockwise, Clockwise, Clockwise);        
+        reel_event_t event;
+        event.reels = reels;
+        event.dir_left = Clockwise;
+        event.dir_centre = Clockwise;
+        event.dir_right = Clockwise;
+         
+        if (xQueueSend(xStepperQueue, &event, portMAX_DELAY)) {
+            ESP_LOGD(TAG, "Successfully sent step event to queue");
+        } else {
+            ESP_LOGE(TAG, "Could not send step event to queue");
+        }
+         
+        if (xQueueSend(xStepperQueue, &event, portMAX_DELAY)) {
+            ESP_LOGD(TAG, "Successfully sent step event to queue");
+        } else {
+            ESP_LOGE(TAG, "Could not send step event to queue");
+        }
+         
+        if (xQueueSend(xStepperQueue, &event, portMAX_DELAY)) {
+            ESP_LOGD(TAG, "Successfully sent step event to queue");
+        } else {
+            ESP_LOGE(TAG, "Could not send step event to queue");
+        }
+         
+        if (xQueueSend(xStepperQueue, &event, portMAX_DELAY)) {
+            ESP_LOGD(TAG, "Successfully sent step event to queue");
+        } else {
+            ESP_LOGE(TAG, "Could not send step event to queue");
+        }
     }
 
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+
+    this->commandInProgress = false;
 }

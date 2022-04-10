@@ -37,8 +37,11 @@
 #ifndef __REELS_H__
 #define __REELS_H__
 
-#include <driver/gpio.h>
-#include <driver/ledc.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
+#include "driver/gpio.h"
+#include "driver/ledc.h"
 
 #include "maincontroller.h"
 
@@ -56,6 +59,8 @@
 #define STATUS_ERR_REEL_OPTIC 1
 #define STATUS_INITIAL 255
 
+#define STEPS_PER_STOP 4
+
 class ReelController {
 public:
     ReelController(MainController *mainController);
@@ -65,7 +70,7 @@ public:
         int stop; // 1 - 25
         int status;
         uint8_t step_data;
-        int step; // 0 - 3 - index into stepper output configuration
+        int step_number; // 0 - 3 - index into stepper output configuration
         bool photo_interrupter_set;
     } reel_status_data_t;
 
@@ -74,9 +79,18 @@ public:
         CounterClockwise,
     } direction_t;
 
-    esp_err_t initialise(void);
+    typedef struct {
+        int reels;
+        direction_t dir_left;
+        direction_t dir_centre;
+        direction_t dir_right;
+    } reel_event_t;
 
-    void move(int reels, direction_t dir_left, direction_t dir_centre, direction_t dir_right);
+    bool reelLeftInitOk;
+    bool reelCentreInitOk;
+    bool reelRightInitOk;
+
+    esp_err_t initialise(void);
 
     void spin(const uint8_t leftStops, const uint8_t midStops, const uint8_t rightStops);
     void nudge(const uint8_t leftStops, const uint8_t midStops, const uint8_t rightStops);
@@ -89,7 +103,7 @@ public:
     reel_status_data_t getReelStatus(uint8_t reel);
 
     bool isCommandInProgress(void);
-    
+
 
 private:
     bool _isHeld = false;
@@ -104,7 +118,7 @@ private:
     int _rightState = 0;
 
     const int MAX_STATES = 4;
-    const int MAX_STEPS = 25;
+    const int MAX_STOPS = 25; // total number of stops (i.e. symbols)
 
     // Prepare and then apply the LEDC PWM timer configuration
     ledc_timer_config_t ledc_timer;
@@ -117,7 +131,12 @@ private:
     uint8_t status;
     bool commandInProgress;
 
+    QueueHandle_t xStepperQueue;
+    TaskHandle_t xStepperTaskHandle;
+
     MainController* mainController;
+
+    static void stepMotorTask(void* pvParameters);
 
     void spinToZero(void);
 };

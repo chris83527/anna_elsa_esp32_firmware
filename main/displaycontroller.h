@@ -40,6 +40,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string>
+#include <cstddef>
+#include <bitset>
 
 #include "led_strip.h"
 #include "driver/rmt.h"
@@ -76,7 +78,7 @@ public:
 
     void setMoves(uint8_t value);
 
-    void resetLampData(bool performUpdate);
+    void resetLampData();
 
     LampData* getLampData(void);
     
@@ -84,7 +86,7 @@ public:
     void clearText(void);
     void displayText(void);
 
-    uint8_t getButtonStatus(void);
+    std::bitset<8> getButtonStatus(void);
 
     void test();
     void test2(bool pauseBetweenLamps);
@@ -126,7 +128,7 @@ Row/Column	0               1               2               3                   4
 
 protected:
 private:
-    led_strip_t *led_strip;
+    led_strip_t ledStrip;
 
     ht16k33_t movesDisplay;
     ht16k33_t creditDisplay;
@@ -134,10 +136,7 @@ private:
 
     mcp23x17_t buttonIO;
 
-    LampData lampData[LED_COUNT + 6];    
-
-    uint8_t hue;
-    uint8_t start_rgb;
+    LampData lampData[LED_COUNT + 6];       
 
     MainController *mainController;
 

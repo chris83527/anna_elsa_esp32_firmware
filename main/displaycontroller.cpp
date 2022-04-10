@@ -37,6 +37,8 @@
 
 #include <stdlib.h>
 #include <string>
+#include <cstddef>
+#include <bitset>
 
 #include "../config/sdkconfig.h"
 
@@ -48,6 +50,7 @@
 #include "driver/gpio.h"
 
 #include "rgb.h"
+#include "color.h"
 #include "led_strip.h"
 
 #include "config.h"
@@ -108,22 +111,32 @@ esp_err_t DisplayController::initialise() {
     memset(&creditDisplay, 0, sizeof (ht16k33_t));
     memset(&bankDisplay, 0, sizeof (ht16k33_t));
     memset(&buttonIO, 0, sizeof (mcp23x17_t));
+    memset(&ledStrip, 0, sizeof (led_strip_t));
 
-    rmt_config_t config = RMT_DEFAULT_CONFIG_TX(LED_GPIO, RMT_TX_CHANNEL);
-    config.clk_div = 2;
-    if (rmt_config(&config) != ESP_OK) {
-        ESP_LOGE(TAG, "Could not initialise RMT");
-    } else {
-        ESP_LOGD(TAG, "RMT initialised");
-        rmt_driver_install(config.channel, 0, 0);
-    }
+    ledStrip.brightness = 255;
+    ledStrip.channel = RMT_TX_CHANNEL;
+    ledStrip.gpio = LED_GPIO;
+    ledStrip.buf = NULL;
+    ledStrip.type = LED_STRIP_WS2812;
+    ledStrip.length = LED_COUNT;
 
-    led_strip_config_t strip_config = LED_STRIP_DEFAULT_CONFIG(LED_COUNT, (led_strip_dev_t) config.channel);
-    led_strip = led_strip_new_rmt_ws2812(&strip_config);
-    if (!led_strip) {
+    led_strip_install();
+
+    if (led_strip_init(&ledStrip) != ESP_OK) {
         ESP_LOGE(TAG, "WS2812 driver installation failed!");
     } else {
         ESP_LOGD(TAG, "WS2812 driver installation succeeded");
+    }
+
+    
+
+
+    if (ht16k33_init_desc(&creditDisplay, 0, HT16K33_ADDR_BASE, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
+        ESP_LOGE(TAG, "Could not initialise credit display");
+    } else {
+        ht16k33_display_on(&creditDisplay);
+        ht16k33_write_value(&creditDisplay, "%05d", 88888);
+        ESP_LOGD(TAG, "Credit display initialisation succeeded");
     }
 
     if (ht16k33_init_desc(&bankDisplay, 0, HT16K33_ADDR_BASE + 1, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
@@ -132,14 +145,6 @@ esp_err_t DisplayController::initialise() {
         ht16k33_display_on(&bankDisplay);
         ht16k33_write_value(&bankDisplay, "%05d", 88888);
         ESP_LOGD(TAG, "Bank display initialisation succeeded");
-    }
-
-    if (ht16k33_init_desc(&creditDisplay, 0, HT16K33_ADDR_BASE, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
-        ESP_LOGE(TAG, "Could not initialise credit display");
-    } else {
-        ht16k33_display_on(&creditDisplay);
-        ht16k33_write_value(&creditDisplay, "%05d", 88888);
-        ESP_LOGD(TAG, "Credit display initialisation succeeded");
     }
 
     if (ht16k33_init_desc(&movesDisplay, 0, HT16K33_ADDR_BASE + 2, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
@@ -152,13 +157,15 @@ esp_err_t DisplayController::initialise() {
 
     buttonIO.cfg.master.clk_speed = I2C_FREQ_HZ;
     buttonIO.cfg.mode = I2C_MODE_MASTER;
+    buttonIO.cfg.scl_pullup_en = false;
+    buttonIO.cfg.sda_pullup_en = false;
 
-    if (mcp23x17_init_desc(&buttonIO, 0, MCP23X17_ADDR_BASE + 7, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
+    if (mcp23x17_init_desc(&buttonIO, MCP23X17_ADDR_BASE + 7, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "Could not initialise button interface");
     } else {
 
         uint16_t portMode = 0x00ff; // PortA input, portB output (0 = output, 1 = input)
-        uint16_t pullup = 0x00ff; // internal pullup resistors.
+        uint16_t pullup = 0x00ff; // internal pullup resistors on button pins.
 
         mcp23x17_port_set_mode(&buttonIO, portMode);
         mcp23x17_port_set_pullup(&buttonIO, pullup);
@@ -166,31 +173,30 @@ esp_err_t DisplayController::initialise() {
         ESP_LOGI(TAG, "Button interface initialisation succeeded");
     }
 
+
+    this->resetLampData();
+    xTaskCreate(&updateLampsTask, "update lamps", 3084, this, 5, NULL);
+
     if (m20ly02z_init(MD_STROBE, MD_OE, MD_CLK, MD_DATA) != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise VFD display");
+    } else {
+        this->setText("INITIALISING");
     }
 
-    DisplayController::clearText();
+    xTaskCreate(&updateSevenSegDisplaysTask, "update_7seg_displays", 3084, mainController, 5, NULL);
 
-    hue = 0;
-    start_rgb = 0;    
+    this->testLamps();
 
-    DisplayController::resetLampData(true);
-
-    xTaskCreate(&updateLampsTask, "update lamps", 2048, this, 5, NULL);
-    xTaskCreate(&updateSevenSegDisplaysTask, "update_7seg_displays", 2048, mainController, 5, NULL);    
-
-    DisplayController::testLamps();    
 
     ESP_LOGD(TAG, "Exiting DisplayController::initialise()");
     return ESP_OK;
 }
 
 void DisplayController::beginAnimation() {
-    xTaskCreate(&rainbowChaseTask, "animation", 2048, mainController, 5, NULL);
+    xTaskCreate(&rainbowChaseTask, "animation", 4096, mainController, 5, NULL);
 }
 
-void DisplayController::resetLampData(bool performUpdate) {
+void DisplayController::resetLampData() {
     ESP_LOGI(TAG, "Entering resetLampData()");
     // initialise lamps
     for (int i = 0; i < (LED_COUNT + 6); i++) {
@@ -206,13 +212,11 @@ void DisplayController::resetLampData(bool performUpdate) {
 void DisplayController::testLamps() {
     ESP_LOGI(TAG, "Entering testLamps()");
     // initialise lamps
+    // switch all LEDs on;
+    resetLampData();
     for (int i = 0; i < (LED_COUNT + 6); i++) {
         lampData[i].lampState = LampState::on;
-        // set lamp colour to white
-        lampData[i].rgb.b = 255;
-        lampData[i].rgb.g = 255;
-        lampData[i].rgb.r = 255;
-        vTaskDelay(pdMS_TO_TICKS(500));
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
     ESP_LOGI(TAG, "Exiting testLamps()");
 }
@@ -221,17 +225,21 @@ LampData* DisplayController::getLampData() {
     return lampData;
 }
 
-uint8_t DisplayController::getButtonStatus() {
+std::bitset<8> DisplayController::getButtonStatus() {
     ESP_LOGD(TAG, "Entering getButtonStatus()");
 
     uint16_t val;
     uint8_t result;
-    
-    if (mcp23x17_port_read(&buttonIO, &val) == ESP_OK) {
-        result = (uint8_t) ~(val & 0xff);
+    esp_err_t err;
+
+    err = mcp23x17_port_read(&buttonIO, &val);
+
+    if (err == ESP_OK) {
+        result = (uint8_t) ~(val & 0xff); // Invert because we are pulling low in hardware.
     } else {
+        ESP_LOGE(TAG, "An error occurred getting button status");
         result = 0; // Failsafe
-    }    
+    }
 
     ESP_LOGD(TAG, "Exiting getButtonStatus() with value %u", result);
     return result;
@@ -255,22 +263,22 @@ void DisplayController::displayText() {
 }
 
 led_strip_t* DisplayController::getLedStrip() {
-    return this->led_strip;
+    return &this->ledStrip;
 }
 
 mcp23x17_t* DisplayController::getButtonIO() {
     return &this->buttonIO;
 }
 
-ht16k33_t* DisplayController::getBankDisplay(void) {
+ht16k33_t* DisplayController::getBankDisplay() {
     return &this->bankDisplay;
 }
 
-ht16k33_t* DisplayController::getCreditDisplay(void) {
+ht16k33_t* DisplayController::getCreditDisplay() {
     return &this->creditDisplay;
 }
 
-ht16k33_t* DisplayController::getMovesDisplay(void) {
+ht16k33_t* DisplayController::getMovesDisplay() {
     return &this->movesDisplay;
 }
 
@@ -281,65 +289,65 @@ void DisplayController::rainbowChaseTask(void *pvParameters) {
 
     DisplayController *displayController = mainController->getDisplayController();
     LampData *lampData = displayController->getLampData();
-    displayController->resetLampData(true);
+    //AudioController *audioController = mainController->getAudioController();
+    displayController->resetLampData();
 
     rgb_t rgb_data;
-    uint8_t hue;
+    hsv_t hsv_data;
     uint8_t start_rgb = 0;
+    int state = 0;
 
     // switch all led's on;
     for (int i = 0; i < LED_COUNT; i++) {
         lampData[i].lampState = LampState::on;
     }
+
    
-    while (!mainController->getGame()->isGameInProgress()) {
+    for (;;) {
 
         for (int i = 0; i < 3; i++) {
             for (int j = i; j < LED_COUNT; j += 3) {
 
                 // Build RGB values
-                hue = j * 360 / LED_COUNT + start_rgb;
-                mainController->getDisplayController()->ledStripHsv2rgb(hue, 100, 100, &rgb_data.b, &rgb_data.g, &rgb_data.r);
+                hsv_data.hue = j * 360 / LED_COUNT + start_rgb;
+                hsv_data.sat = 255;
+                hsv_data.val = 255;
+                rgb_data = hsv2rgb_rainbow(hsv_data);
+
                 // Write RGB values to strip driver
-                lampData[j].rgb = rgb_data;            
+                lampData[j].rgb = rgb_data;
             }
-            
+
             vTaskDelay(pdMS_TO_TICKS(CHASE_SPEED_MS));
         }
         start_rgb += 60;
 
+         switch (state) {
+                case 0:
+                    displayController->setText("       FROZEN       ");
+                    break;
+                case 1:
+                    displayController->setText("      PLAY ME       ");
+                    break;
+                case 2:
+                    displayController->setText("     20CT GAME      ");
+                    break;
+                case 3:
+                    displayController->setText("    INSERT COINS    ");
+                    break;
+            }
+    
+            // reset state
+            if (state >= 3) {
+                state = 0;
+            } else {
+                state++;
+            }
+        
     }
-
-    // TODO: rename this method and add following
-    //    if ((!game->isGameInProgress()) && ((unsigned long) (currentMillis - msgUpdatePreviousMillis) >= msgUpdateRefreshInterval)) {
-    //        switch (state) {
-    //            case 0:
-    //                getDisplayController()->setText("       FROZEN       ");
-    //                break;
-    //            case 1:
-    //                getDisplayController()->setText("      PLAY ME       ");
-    //                break;
-    //            case 2:
-    //                getDisplayController()->setText("     20CT GAME      ");
-    //                break;
-    //            case 3:
-    //                getDisplayController()->setText("    INSERT COINS    ");
-    //                break;
-    //        }
-    //
-    //        // reset state
-    //        if (state >= 3) {
-    //            state = 0;
-    //        } else {
-    //            state++;
-    //        }
-    //
-    //
-    //        msgUpdatePreviousMillis = millis();
-    //    }
+    
     vTaskDelete(NULL);
 }
-
 
 void DisplayController::updateLampsTask(void *pvParameters) {
     ESP_LOGI(TAG, "Update Lamps task started");
@@ -351,43 +359,53 @@ void DisplayController::updateLampsTask(void *pvParameters) {
     LampData *tmpLampData = displayController->getLampData();
     led_strip_t *ledStrip = displayController->getLedStrip();
 
+
     for (;;) {
 
+        rgb_t rgb;
+
         // set leds
-        for (int i = 0; i < LED_COUNT; i++) {            
-            if (tmpLampData[i].lampState == LampState::on || tmpLampData[i].lampState == LampState::blinkfast || tmpLampData[i].lampState == LampState::blinkslow) {            
-                ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);
-                ledStrip->set_pixel(ledStrip, i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);                
+        for (int i = 0; i < LED_COUNT; i++) {
+            if (tmpLampData[i].lampState == LampState::on || tmpLampData[i].lampState == LampState::blinkfast || tmpLampData[i].lampState == LampState::blinkslow) {
+                //ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);                
+                led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
             } else {
-                ESP_LOGD(TAG, "Switching off pixel %d", i);
-                ledStrip->clear(ledStrip, i);
+                //ESP_LOGD(TAG, "Switching off pixel %d", i);
+                rgb.r = 0;
+                rgb.g = 0;
+                rgb.b = 0;
+                led_strip_set_pixel(ledStrip, i, rgb);
             }
         }
-        ledStrip->refresh(ledStrip, 100);
-        
+        led_strip_flush(ledStrip);
+
         btnLamps = 0;
         // set button lamps
         for (int i = 0; i < 6; i++) {
             if (tmpLampData[i + LED_COUNT].lampState == LampState::on || tmpLampData[i + LED_COUNT].lampState == LampState::blinkfast || tmpLampData[i + LED_COUNT].lampState == LampState::blinkslow) {
                 btnLamps |= (1 << (i + 8));
             }
-        }        
+        }
         mcp23x17_port_write(displayController->getButtonIO(), btnLamps);
 
 
-        vTaskDelay(pdMS_TO_TICKS(50));
+        vTaskDelay(pdMS_TO_TICKS(100));
 
         // set leds
-        for (int i = 0; i < LED_COUNT; i++) {            
+        for (int i = 0; i < LED_COUNT; i++) {
             if (tmpLampData[i].lampState == LampState::on || tmpLampData[i].lampState == LampState::blinkslow) {
-                ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);
-                ledStrip->set_pixel(ledStrip, i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);               
+                //ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);
+                led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
             } else {
-                ESP_LOGD(TAG, "Switching off pixel %d", i);
-                ledStrip->clear(ledStrip, i);
+                //ESP_LOGD(TAG, "Switching off pixel %d", i);
+                rgb.r = 0;
+                rgb.g = 0;
+                rgb.b = 0;
+                led_strip_set_pixel(ledStrip, i, rgb);
             }
         }
-        ledStrip->refresh(ledStrip, 100);
+
+        led_strip_flush(ledStrip);
 
         btnLamps = 0;
         // set button lamps
@@ -396,47 +414,56 @@ void DisplayController::updateLampsTask(void *pvParameters) {
                 btnLamps |= (1 << (i + 8));
             }
         }
-        
+
         mcp23x17_port_write(displayController->getButtonIO(), btnLamps);
 
 
-        vTaskDelay(pdMS_TO_TICKS(50));
+        vTaskDelay(pdMS_TO_TICKS(100));
 
         // set leds
-        for (int i = 0; i < LED_COUNT; i++) {            
+        for (int i = 0; i < LED_COUNT; i++) {
             if (tmpLampData[i].lampState == LampState::on) {
-                ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);
-                ledStrip->set_pixel(ledStrip, i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);                
+                //ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);
+                rgb.r = tmpLampData[i].rgb.r;
+                led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
             } else {
-                ESP_LOGD(TAG, "Switching off pixel %d", i);
-                ledStrip->clear(ledStrip, i);
+                //ESP_LOGD(TAG, "Switching off pixel %d", i);
+                rgb.r = 0;
+                rgb.g = 0;
+                rgb.b = 0;
+                led_strip_set_pixel(ledStrip, i, rgb);
             }
         }
-        ledStrip->refresh(ledStrip, 100);
-        
+
+        led_strip_flush(ledStrip);
+
         btnLamps = 0;
         // set button lamps
         for (int i = 0; i < 6; i++) {
             if (tmpLampData[i + LED_COUNT].lampState == LampState::on) {
                 btnLamps |= (1 << (i + 8));
             }
-        }      
+        }
         mcp23x17_port_write(displayController->getButtonIO(), btnLamps);
 
 
-        vTaskDelay(pdMS_TO_TICKS(50));
+        vTaskDelay(pdMS_TO_TICKS(100));
 
         // set leds
-        for (int i = 0; i < LED_COUNT; i++) {            
+        for (int i = 0; i < LED_COUNT; i++) {
             if (tmpLampData[i].lampState == LampState::on || tmpLampData[i].lampState == LampState::blinkfast) {
-                ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);
-                ledStrip->set_pixel(ledStrip, i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);                
+                //                ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);
+                led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
             } else {
-                ESP_LOGD(TAG, "Switching off pixel %d", i);
-                ledStrip->clear(ledStrip, i);
+                //              ESP_LOGD(TAG, "Switching off pixel %d", i);
+                rgb.r = 0;
+                rgb.g = 0;
+                rgb.b = 0;
+                led_strip_set_pixel(ledStrip, i, rgb);
             }
         }
-        ledStrip->refresh(ledStrip, 100);
+
+        led_strip_flush(ledStrip);
 
         btnLamps = 0;
         // set button lamps
@@ -444,13 +471,13 @@ void DisplayController::updateLampsTask(void *pvParameters) {
             if (tmpLampData[i + LED_COUNT].lampState == LampState::on || tmpLampData[i + LED_COUNT].lampState == LampState::blinkfast) {
                 btnLamps |= (1 << (i + 8));
             }
-        }        
+        }
         mcp23x17_port_write(displayController->getButtonIO(), (btnLamps & 0xff00));
 
-        vTaskDelay(pdMS_TO_TICKS(50));
+        vTaskDelay(pdMS_TO_TICKS(100));
 
     }
-
+    vTaskDelete(NULL);
 }
 
 /**
@@ -461,16 +488,29 @@ void DisplayController::updateLampsTask(void *pvParameters) {
 void DisplayController::updateSevenSegDisplaysTask(void *pvParameters) {
     ESP_LOGI(TAG, "Update 7-segment display task started");
     MainController *mainController = reinterpret_cast<MainController *> (pvParameters);
+
+    // 
+    uint16_t bank = 0;
+    uint16_t credit = 0;
+    bool initialRun = true;
+
     for (;;) {
 
-        uint16_t bank = mainController->getMoneyController()->getBank();
-        uint16_t credit = mainController->getMoneyController()->getCredit();
+        if (initialRun || (bank != mainController->getMoneyController()->getBank())) {
+            bank = mainController->getMoneyController()->getBank();
+            ht16k33_write_value(mainController->getDisplayController()->getBankDisplay(), "%05d", bank);
+        }
 
-        ht16k33_write_value(mainController->getDisplayController()->getBankDisplay(), "%05d", bank);
-        ht16k33_write_value(mainController->getDisplayController()->getCreditDisplay(), "%05d", credit);
+        if (initialRun || (credit != mainController->getMoneyController()->getCredit())) {
+            credit = mainController->getMoneyController()->getCredit();
+            ht16k33_write_value(mainController->getDisplayController()->getCreditDisplay(), "%05d", credit);
+        }
+
+        initialRun = false;
 
         vTaskDelay(pdMS_TO_TICKS(500));
     }
+    vTaskDelete(NULL);
 }
 
 /**
@@ -479,7 +519,7 @@ void DisplayController::updateSevenSegDisplaysTask(void *pvParameters) {
  * Wiki: https://en.wikipedia.org/wiki/HSL_and_HSV
  *
  */
-void DisplayController::ledStripHsv2rgb(uint8_t h, uint8_t s, uint8_t v, uint8_t* r, uint8_t* g, uint8_t* b) {
+void DisplayController::ledStripHsv2rgb(uint8_t h, uint8_t s, uint8_t v, uint8_t* r, uint8_t* g, uint8_t * b) {
     h %= 360; // h -> [0,360]
     uint8_t rgb_max = v * 2.55f;
     uint8_t rgb_min = rgb_max * (100 - s) / 100.0f;

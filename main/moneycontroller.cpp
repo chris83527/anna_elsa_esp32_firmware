@@ -49,6 +49,7 @@ MoneyController::MoneyController(MainController* mainController) {
     ESP_LOGI(TAG, "Entering constructor");
     ESP_LOGI(TAG, "Leaving constructor");
     this->mainController = mainController;
+    this->payoutInProgress = false;    
 }
 
 void MoneyController::initialise() {
@@ -61,10 +62,15 @@ void MoneyController::initialise() {
  * 
  */
 void MoneyController::loadValuesFromStorage() {
-    credit = this->mainController->readValueFromNVS(NVS_KEY_CREDIT);
-    bank = this->mainController->readValueFromNVS(NVS_KEY_BANK);
-    gamecount = this->mainController->readValueFromNVS(NVS_KEY_GAME_COUNT);
-    transfer = this->mainController->readValueFromNVS(NVS_KEY_TRANSFER);
+    this->credit = this->mainController->readValueFromNVS(NVS_KEY_CREDIT);
+    this->bank = this->mainController->readValueFromNVS(NVS_KEY_BANK);
+    this->gamecount = this->mainController->readValueFromNVS(NVS_KEY_GAME_COUNT);
+    this->transfer = this->mainController->readValueFromNVS(NVS_KEY_TRANSFER);
+    this->tenCentIn = this->mainController->readValueFromNVS(NVS_KEY_TEN_CENT_IN);
+    this->twentyCentIn = this->mainController->readValueFromNVS(NVS_KEY_TWENTY_CENT_IN);
+    this->fiftyCentIn = this->mainController->readValueFromNVS(NVS_KEY_FIFTY_CENT_IN);
+    this->oneEuroIn = this->mainController->readValueFromNVS(NVS_KEY_ONE_EURO_IN);
+    this->twoEuroIn = this->mainController->readValueFromNVS(NVS_KEY_TWO_EURO_IN);
 }
 
 /**
@@ -72,17 +78,17 @@ void MoneyController::loadValuesFromStorage() {
  * 
  * @param value The amount to be added to the player's total credit
  */
-void MoneyController::addToCredit(Payment payment) {
+void MoneyController::addToCredit(Payment &payment) {
     addToCredit(payment.getTenCent() * 10);
-    this->mainController->writeValueToNVS(NVS_KEY_TEN_CENT_IN, payment.getTenCent());
+    this->mainController->writeValueToNVS(NVS_KEY_TEN_CENT_IN, this->tenCentIn + payment.getTenCent());
     addToCredit(payment.getTwentyCent() * 20);
-    this->mainController->writeValueToNVS(NVS_KEY_TWENTY_CENT_IN, payment.getTwentyCent());
+    this->mainController->writeValueToNVS(NVS_KEY_TWENTY_CENT_IN, this->twentyCentIn + payment.getTwentyCent());
     addToCredit(payment.getFiftyCent() * 50);
-    this->mainController->writeValueToNVS(NVS_KEY_FIFTY_CENT_IN, payment.getFiftyCent());
+    this->mainController->writeValueToNVS(NVS_KEY_FIFTY_CENT_IN, this->fiftyCentIn + payment.getFiftyCent());
     addToCredit(payment.getOneEuro() * 100);
-    this->mainController->writeValueToNVS(NVS_KEY_ONE_EURO_IN, payment.getOneEuro());
+    this->mainController->writeValueToNVS(NVS_KEY_ONE_EURO_IN, this->oneEuroIn + payment.getOneEuro());
     addToCredit(payment.getTwoEuro() * 200);
-    this->mainController->writeValueToNVS(NVS_KEY_TWO_EURO_IN, payment.getTwoEuro());
+    this->mainController->writeValueToNVS(NVS_KEY_TWO_EURO_IN, this->twoEuroIn + payment.getTwoEuro());
     
     this->mainController->writeValueToNVS(NVS_KEY_CREDIT, credit);
 }
@@ -178,6 +184,13 @@ uint16_t MoneyController::getTransfer() {
     return transfer;
 }
 
+void Payment::clear() {
+    Payment::tenCentIn = 0;
+    Payment::twentyCentIn = 0;
+    Payment::fiftyCentIn = 0;
+    Payment::oneEuroIn = 0;
+    Payment::twoEuroIn = 0;
+}
 
 void Payment::addTenCent() {
     Payment::tenCentIn++;
