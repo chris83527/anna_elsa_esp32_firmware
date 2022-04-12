@@ -188,13 +188,12 @@ void MainController::start() {
     //audioController->playAudioFile(Sounds::SND_LET_IT_GO);
 
     game->initialise();
-    this->displayController->beginAnimation();
+    this->displayController->beginAttractMode();
 
     for (;;) {
         if (!(game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
             ESP_LOGD(TAG, "Starting game...");
-            this->game->start();
-            this->displayController->beginAnimation();
+            this->game->start();            
         }
 
         vTaskDelay(pdMS_TO_TICKS(200));
@@ -216,12 +215,13 @@ void MainController::payout() {
 
     while (moneyController->isPayoutInProgress()) {
         cctalkController->pollHopperStatus(CCTALK_HOPPER, response);
-        if (response.isValidResponse() && response.getAdditionalData().size() >= 4) {
-
+        ESP_LOGI(TAG, "Polling hopper status");
+        if (response.isValidResponse() && response.getAdditionalData().size() >= 4) {            
             uint8_t tmpHopperEventCounter = response.getAdditionalData().at(0);
             uint8_t coinsRemaining = response.getAdditionalData().at(1);
-            uint8_t coinsPaid = response.getAdditionalData().at(2);
+            uint8_t coinsPaid = response.getAdditionalData().at(2);            
             uint8_t coinsUnpaid = response.getAdditionalData().at(3);
+            ESP_LOGI(TAG, "Event counter: %d, Coins remaining: %d, Coins paid: %d, Coins unpaid: %d", tmpHopperEventCounter, coinsRemaining, coinsPaid, coinsUnpaid);
 
             if (tmpHopperEventCounter > hopperEventCounter) {
                 // all coins have been paid, or some could not be paid
@@ -240,6 +240,8 @@ void MainController::payout() {
 
             }
             hopperEventCounter = tmpHopperEventCounter;
+        } else {
+            ESP_LOGE(TAG, "Invalid response received when polling hopper status");
         }
         vTaskDelay(100);
     }
