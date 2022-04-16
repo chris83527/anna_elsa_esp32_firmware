@@ -128,7 +128,7 @@ esp_err_t DisplayController::initialise() {
         ESP_LOGD(TAG, "WS2812 driver installation succeeded");
     }
 
-    
+
 
 
     if (ht16k33_init_desc(&creditDisplay, 0, HT16K33_ADDR_BASE, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
@@ -187,13 +187,21 @@ esp_err_t DisplayController::initialise() {
 
     this->testLamps();
 
-
     ESP_LOGD(TAG, "Exiting DisplayController::initialise()");
     return ESP_OK;
 }
 
-void DisplayController::beginAnimation() {
-    xTaskCreate(&rainbowChaseTask, "animation", 4096, mainController, 5, NULL);
+void DisplayController::beginAttractMode() {
+    attractMode = true;
+    BaseType_t xStatus = xTaskCreate(&attractModeTask, "attract_mode", 4096, mainController, 5, &this->attractModeTaskHandle);
+    if (xStatus != pdPASS) {
+        vTaskDelete(this->attractModeTaskHandle);
+    }
+}
+
+void DisplayController::stopAttractMode() {
+    attractMode = false;
+    vTaskDelete(this->attractModeTaskHandle);
 }
 
 void DisplayController::resetLampData() {
@@ -209,6 +217,10 @@ void DisplayController::resetLampData() {
     ESP_LOGI(TAG, "Exiting resetLampData()");
 }
 
+bool DisplayController::isAttractMode() {
+    return attractMode;
+}
+
 void DisplayController::testLamps() {
     ESP_LOGI(TAG, "Entering testLamps()");
     // initialise lamps
@@ -221,11 +233,15 @@ void DisplayController::testLamps() {
     ESP_LOGI(TAG, "Exiting testLamps()");
 }
 
+void DisplayController::setMoves(uint8_t value) {
+    //ht16k33_write_value(getMovesDisplay(), "%02d", value);    
+}
+
 LampData* DisplayController::getLampData() {
     return lampData;
 }
 
-std::bitset<8> DisplayController::getButtonStatus() {
+uint8_t DisplayController::getButtonStatus() {
     ESP_LOGD(TAG, "Entering getButtonStatus()");
 
     uint16_t val;
@@ -282,7 +298,7 @@ ht16k33_t* DisplayController::getMovesDisplay() {
     return &this->movesDisplay;
 }
 
-void DisplayController::rainbowChaseTask(void *pvParameters) {
+void DisplayController::attractModeTask(void *pvParameters) {
     MainController *mainController = reinterpret_cast<MainController *> (pvParameters);
     // Show simple rainbow chasing pattern
     ESP_LOGI(TAG, "Animation task started");
@@ -302,7 +318,7 @@ void DisplayController::rainbowChaseTask(void *pvParameters) {
         lampData[i].lampState = LampState::on;
     }
 
-   
+
     for (;;) {
 
         for (int i = 0; i < 3; i++) {
@@ -322,30 +338,32 @@ void DisplayController::rainbowChaseTask(void *pvParameters) {
         }
         start_rgb += 60;
 
-         switch (state) {
-                case 0:
-                    displayController->setText("       FROZEN       ");
-                    break;
-                case 1:
-                    displayController->setText("      PLAY ME       ");
-                    break;
-                case 2:
-                    displayController->setText("     20CT GAME      ");
-                    break;
-                case 3:
-                    displayController->setText("    INSERT COINS    ");
-                    break;
-            }
-    
-            // reset state
-            if (state >= 3) {
-                state = 0;
-            } else {
+        switch (state) {
+            case 0:
+                displayController->setText("       FROZEN       ");
+                break;
+            case 1:
+                displayController->setText("      PLAY ME       ");
+                break;
+            case 2:
+                displayController->setText("     20CT GAME      ");
+                break;
+            case 3:
+                displayController->setText("    INSERT COINS    ");
+                break;
+        }
+
+        // reset state
+        if (state >= 3) {
+            state = 0;
+        } else {
+            if ((start_rgb % 240) == 0) { // only advance every 4 calls
                 state++;
             }
-        
+        }
+
     }
-    
+
     vTaskDelete(NULL);
 }
 
