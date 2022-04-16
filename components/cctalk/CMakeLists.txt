@@ -1,2 +1,4 @@
-idf_component_register(SRCS "cctalk.c" INCLUDE_DIRS . REQUIRES freertos)
+
+
+idf_component_register(SRCS ./CctalkException.cpp ./CctalkRequest.cpp ./CctalkResponse.cpp ./cctalk.cpp INCLUDE_DIRS . REQUIRES freertos)
 
