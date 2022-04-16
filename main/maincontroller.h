@@ -20,6 +20,7 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 #include "nvs_handle.hpp"
+#include "esp_wifi.h"
 
 class CCTalkController;
 class ReelController;
@@ -28,6 +29,7 @@ class AudioController;
 class MoneyController;
 class Game;
 class DisplayController;
+class WifiController;
 
 class MainController {
 public:
@@ -67,6 +69,7 @@ private:
     
     //EEProm_Data eeprom_data;
 
+    
     int reels = 0;
 
     unsigned int state = 0;
@@ -89,6 +92,7 @@ private:
     CCTalkController * cctalkController;
     AudioController * audioController;
     MoneyController * moneyController;
+    WifiController * wifiController;
 
     std::unique_ptr<nvs::NVSHandle> nvs_handle;
 

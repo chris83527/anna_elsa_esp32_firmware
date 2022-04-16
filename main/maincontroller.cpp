@@ -19,6 +19,7 @@
 #include "esp_log.h"
 #include "esp_system.h"
 #include "ds3231.h"
+#include "esp_wifi.h"
 
 
 #include "config.h"
@@ -31,6 +32,7 @@
 #include "maincontroller.h"
 #include "webserver.h"
 #include "spiffs.h"
+#include "wificontroller.h"
 //#include "errors.h"
 
 static const char *TAG = "MainController";
@@ -120,10 +122,12 @@ void MainController::start() {
     this->reelController = new ReelController(this);
     this->moneyController = new MoneyController(this);
     this->game = new Game(this);
+    this->wifiController = new WifiController();
 
     esp_err_t err;
 
-
+    wifiController->initialiseWifi();
+    
     ESP_LOGD(TAG, "Calling i2cdev_init()");
     ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());
 
@@ -194,7 +198,13 @@ void MainController::start() {
         if (!(game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
             ESP_LOGD(TAG, "Starting game...");
             this->game->start();            
+        } else {
+            if (!getDisplayController()->isAttractMode()) {
+                getDisplayController()->beginAttractMode();
+            }
         }
+        
+        
 
         vTaskDelay(pdMS_TO_TICKS(200));
     }
@@ -223,27 +233,32 @@ void MainController::payout() {
             uint8_t coinsUnpaid = response.getAdditionalData().at(3);
             ESP_LOGI(TAG, "Event counter: %d, Coins remaining: %d, Coins paid: %d, Coins unpaid: %d", tmpHopperEventCounter, coinsRemaining, coinsPaid, coinsUnpaid);
 
-            if (tmpHopperEventCounter > hopperEventCounter) {
+            if (tmpHopperEventCounter > hopperEventCounter) { 
                 // all coins have been paid, or some could not be paid
                 if (coinsRemaining == 0) {
                     ESP_LOGI(TAG, "Coins paid: %d", coinsPaid);
+                    hopperEventCounter = tmpHopperEventCounter;
                     moneyController->setPayoutInProgress(false);
                     moneyController->removeFromBank(coinsPaid * 20);
-                } else {
-                    ESP_LOGE(TAG, "Coins remaining: %d", coinsRemaining);
+                } else if (coinsUnpaid > 0) {
+                    ESP_LOGE(TAG, "Coins unpaid: %d", coinsUnpaid);
+                    moneyController->setPayoutInProgress(false);
+                    // TODO: Error here (probably hopper was empty)
                     //processHopperErrors();
+                } else {
+                    ESP_LOGI(TAG, "Coins remaining: %d", coinsRemaining);                    
                 }
-            } else {
-                moneyController->setPayoutInProgress(false);
-                // TODO: We got a negative response polling hopper status. This means we should find out what went wrong
-                cctalkController->testHopper(CCTALK_HOPPER, response);
-
-            }
-            hopperEventCounter = tmpHopperEventCounter;
+            } 
+            
         } else {
             ESP_LOGE(TAG, "Invalid response received when polling hopper status");
+            moneyController->setPayoutInProgress(false);
+                // TODO: We got a negative response polling hopper status. This means we should find out what went wrong
+            cctalkController->testHopper(CCTALK_HOPPER, response);
+
         }
-        vTaskDelay(100);
+        //TODO: Unpaid coins
+        vTaskDelay(75);
     }
 
     ESP_LOGI(TAG, "Exiting %s", __func__);
