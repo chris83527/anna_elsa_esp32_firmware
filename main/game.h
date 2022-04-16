@@ -88,7 +88,7 @@ private:
     void playShuffle();
     void playFreeSpin();
     bool isWinningLine();
-    void spinReels();
+    void spinReels(bool holdLeft, bool holdCentre, bool holdRight);
     void shuffleReels();
 
     bool holdEnabled;
