@@ -43,6 +43,8 @@
 #include <cstddef>
 #include <bitset>
 
+#include "freertos/task.h"
+
 #include "led_strip.h"
 #include "driver/rmt.h"
 #include "mcp23x17.h"
@@ -85,15 +87,18 @@ public:
     void setText(const std::string &text);
     void clearText(void);
     void displayText(void);
+    
+    bool isAttractMode();           
 
-    std::bitset<8> getButtonStatus(void);
+    uint8_t getButtonStatus(void);
 
     void test();
     void test2(bool pauseBetweenLamps);
 
     void ledStripHsv2rgb(uint8_t h, uint8_t s, uint8_t v, uint8_t *r, uint8_t *g, uint8_t *b);
     
-    void beginAnimation(void);
+    void beginAttractMode(void);
+    void stopAttractMode(void);
 
     ht16k33_t* getBankDisplay(void);
     ht16k33_t* getCreditDisplay(void);
@@ -101,6 +106,8 @@ public:
 
     led_strip_t* getLedStrip(void);
     mcp23x17_t* getButtonIO(void);
+    
+    TaskHandle_t attractModeTaskHandle;
 
     const static uint8_t NUDGE_LAMPS_LENGTH = 6;
     const static uint8_t FEATURE_LAMPS_LENGTH = 12;
@@ -111,6 +118,7 @@ public:
     const static uint8_t FEATURE_LAMPS[FEATURE_LAMPS_LENGTH];
     const static uint8_t TRAIL_LAMPS[TRAIL_LAMPS_LENGTH];
 
+    
 
     /*
 
@@ -145,6 +153,8 @@ private:
 
     uint32_t lampDataNew[LED_COUNT + 6];
 
+    bool attractMode;
+    
     // Arrangement for display
     // )
     //               a = A6
@@ -159,7 +169,7 @@ private:
 
 
 
-    static void rainbowChaseTask(void *pvParameters);
+    static void attractModeTask(void *pvParameters);
     static void updateSevenSegDisplaysTask(void *pvParameters);
     static void updateLampsTask(void *pvParameters);
 };
