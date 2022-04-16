@@ -78,16 +78,16 @@
 #define BTN_DOOR        (7)
 #define BTN_START       (5)
 #define BTN_COLLECT     (4)
-#define BTN_HOLD_HI     (3)
+#define BTN_HOLD_LO     (3)
 #define BTN_HOLD        (2)
-#define BTN_HOLD_LO     (1)
+#define BTN_HOLD_HI     (1)
 #define BTN_TRANSFER    (0)
 
 #define LMP_START       (LED_COUNT + 0)
 #define LMP_COLLECT     (LED_COUNT + 1)
-#define LMP_HOLD_HI     (LED_COUNT + 2)
+#define LMP_HOLD_LO     (LED_COUNT + 2)
 #define LMP_HOLD        (LED_COUNT + 3)
-#define LMP_HOLD_LO     (LED_COUNT + 4)
+#define LMP_HOLD_HI     (LED_COUNT + 4)
 #define LMP_TRANSFER    (LED_COUNT + 5)
 
 // WS2128B LEDs
