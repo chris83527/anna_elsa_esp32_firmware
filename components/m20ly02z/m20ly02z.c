@@ -85,10 +85,15 @@ esp_err_t m20ly02z_init(gpio_num_t latchPin, gpio_num_t oePin, gpio_num_t clockP
     gpio_set_direction(_oePin, GPIO_MODE_OUTPUT);
     gpio_set_direction(_clockPin, GPIO_MODE_OUTPUT);
     gpio_set_direction(_doutPin, GPIO_MODE_OUTPUT);
+       
 
-    // pull OE down for 200msec
-    gpio_set_level(_oePin, 0);
-    ets_delay_us(2000);
+    gpio_set_level(_latchPin, 0);
+    gpio_set_level(_clockPin, 0);
+    gpio_set_level(_doutPin, 0);
+    
+    // pull OE down for 200msec and then high again
+    gpio_set_level(_oePin, 0);        
+    vTaskDelay(pdMS_TO_TICKS(20));
     gpio_set_level(_oePin, 1);
     
     // initialise brightness, duty cycle etc.
@@ -98,12 +103,14 @@ esp_err_t m20ly02z_init(gpio_num_t latchPin, gpio_num_t oePin, gpio_num_t clockP
     m20ly02z_send_command(0x0e); // initialisation complete
     m20ly02z_send_command(0xc0); // move cursor to pos 1
     
+    ESP_LOGI(TAG, "VFD Display initialised");
     return ESP_OK;
 }
 
 void m20ly02z_clear() 
 {
     m20ly02z_send_command(0xc0);  // move cursor to pos 1
+    
     for (int i = 0 ; i < 20 ; i++)
     {
         m20ly02z_send_byte(' ');
@@ -112,18 +119,22 @@ void m20ly02z_clear()
 
 void m20ly02z_send_byte(const uint8_t data) 
 {
+    gpio_set_level(_clockPin, 0);
+    gpio_set_level(_oePin, 1);
+    gpio_set_level(_doutPin, 0);
     gpio_set_level(_latchPin, 0);
-    for (int i = 0 ; i < 8 ; i++)
-    {
-        //gpio_set_level(_doutPin, !!(data & (1 << (7 - i))));
-        gpio_set_level(_doutPin, (data & (1 << (7 - i))));
+    
+    for (int i = 7 ; i >= 0 ; i--)
+    {        
+        ESP_LOGD(TAG, "Bit #%d, value: %d", i, !!(data & (1 << i)));
+        gpio_set_level(_doutPin, !!(data & (1 << i)));
         gpio_set_level(_clockPin, 1);
-        ets_delay_us(10);
+        vTaskDelay(pdMS_TO_TICKS(1));
         gpio_set_level(_clockPin, 0);
-        ets_delay_us(10);
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
     gpio_set_level(_latchPin, 1);
-    ets_delay_us(50);
+    vTaskDelay(pdMS_TO_TICKS(1));
     gpio_set_level(_latchPin, 0);
 }
 
