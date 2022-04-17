@@ -38,7 +38,7 @@ using namespace std;
 
 #include "CctalkException.h"
 
-#define MAX_BUFFER_SIZE 2048
+#define MAX_BUFFER_SIZE 4096
 
 #define CCTALK_HOST (1)
 #define CCTALK_HOPPER (3)

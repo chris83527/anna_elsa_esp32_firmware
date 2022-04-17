@@ -88,6 +88,7 @@ void CctalkRequest::setDestination(const uint8_t destination) {
 }
 
 uint8_t CctalkRequest::getChecksum() {
+    ESP_LOGD(TAG, "getChecksum() called");
     uint8_t checksum = 0;
     
     checksum -= this->destination;
