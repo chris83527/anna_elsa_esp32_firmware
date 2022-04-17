@@ -94,10 +94,7 @@ public:
 
     void spin(const uint8_t leftStops, const uint8_t midStops, const uint8_t rightStops);
     void nudge(const uint8_t leftStops, const uint8_t midStops, const uint8_t rightStops);
-    void shuffle(const uint8_t leftStops, const uint8_t midStops, const uint8_t rightStops);
-
-    void hold(void);
-    bool isHeld(void);
+    void shuffle(const uint8_t leftStops, const uint8_t midStops, const uint8_t rightStops);   
 
     void getReelPositions(uint8_t & lefPos, uint8_t & centrePos, uint8_t & rightPos);
     reel_status_data_t getReelStatus(uint8_t reel);
@@ -106,7 +103,7 @@ public:
 
 
 private:
-    bool _isHeld = false;
+    
     int _position;
 
     uint8_t _reelPosLeft = 0;

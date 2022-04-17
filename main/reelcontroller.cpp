@@ -48,9 +48,9 @@
 #include "reelcontroller.h"
 #include "audiocontroller.h"
 
-#define LEDC_TIMER LEDC_TIMER_0
+#define LEDC_TIMER LEDC_TIMER_1
 #define LEDC_MODE LEDC_LOW_SPEED_MODE
-#define LEDC_CHANNEL LEDC_CHANNEL_1
+#define LEDC_CHANNEL LEDC_CHANNEL_0
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
 #define LEDC_DUTY_QUARTER (4095)        // Set duty to 12,5%
 #define LEDC_DUTY_FULL (8190)           // Set duty to 50%.((2 ** 13) - 1) * 50% = 4095
@@ -85,14 +85,6 @@ ReelController::ReelController(MainController *mainController) {
 }
 
 ReelController::ReelController(const ReelController &orig) {
-}
-
-void ReelController::hold() {
-    _isHeld = true;
-}
-
-bool ReelController::isHeld() {
-    return _isHeld;
 }
 
 bool ReelController::isCommandInProgress() {
@@ -131,6 +123,7 @@ esp_err_t ReelController::initialise() {
     ledc_timer.duty_resolution = LEDC_DUTY_RES;
     ledc_timer.freq_hz = LEDC_FREQUENCY; // Set output frequency at 100Hz
     ledc_timer.clk_cfg = LEDC_AUTO_CLK;
+    ledc_timer.timer_num = LEDC_TIMER_1;
 
 
     // Prepare and then apply the LEDC PWM channel configuration
@@ -291,7 +284,7 @@ void ReelController::stepMotorTask(void* pvParameters) {
             if (reelController->reel_status_data_centre.step_number > 3) reelController->reel_status_data_centre.step_number = 0;
             if (reelController->reel_status_data_right.step_number > 3) reelController->reel_status_data_right.step_number = 0;
         }
-//        vTaskDelay(pdMS_TO_TICKS(5));
+        //vTaskDelay(pdMS_TO_TICKS(5));
     }
 }
 
@@ -583,14 +576,15 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
 void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, const uint8_t rightStops) {
 
     this->commandInProgress = true;
+    ESP_LOGD(TAG, "nudge() called: leftStops: %d, midStops: %d, rightStops: %d", leftStops, midStops, rightStops);
 
     reel_status_data_left.stop += leftStops;
     reel_status_data_centre.stop += midStops;
     reel_status_data_right.stop += rightStops;
 
-    int leftSteps = reel_status_data_left.stop;
-    int midSteps = reel_status_data_centre.stop;
-    int rightSteps = reel_status_data_right.stop;
+    int leftSteps = leftStops * STEPS_PER_STOP;
+    int midSteps = midStops  * STEPS_PER_STOP;
+    int rightSteps = rightStops  * STEPS_PER_STOP;
 
     int reels = 0;
 
@@ -609,26 +603,29 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, cons
     reel_status_data_right.status = STATUS_INITIAL; // reset status
     
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-
+    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);    
+    
     for (int i = 0; i < maxSteps; i++) {
         if (i < leftSteps) {
             reels |= REEL_LEFT;
         } else {
             reels &= ~REEL_LEFT;
             reel_status_data_left.status = STATUS_OK;
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
         }
         if (i < midSteps) {
             reels |= REEL_CENTRE;
         } else {
             reels &= ~REEL_CENTRE;
             reel_status_data_centre.status = STATUS_OK;
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
         }
         if (i < rightSteps) {
             reels |= REEL_RIGHT;
         } else {
             reels &= ~REEL_RIGHT;
             reel_status_data_right.status = STATUS_OK;
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
         }
         reel_event_t event;
         event.reels = reels;
@@ -640,25 +637,9 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, cons
             ESP_LOGD(TAG, "Successfully sent step event to queue");
         } else {
             ESP_LOGE(TAG, "Could not send step event to queue");
-        }
-         
-        if (xQueueSend(xStepperQueue, &event, portMAX_DELAY)) {
-            ESP_LOGD(TAG, "Successfully sent step event to queue");
-        } else {
-            ESP_LOGE(TAG, "Could not send step event to queue");
-        }
-         
-        if (xQueueSend(xStepperQueue, &event, portMAX_DELAY)) {
-            ESP_LOGD(TAG, "Successfully sent step event to queue");
-        } else {
-            ESP_LOGE(TAG, "Could not send step event to queue");
-        }
-         
-        if (xQueueSend(xStepperQueue, &event, portMAX_DELAY)) {
-            ESP_LOGD(TAG, "Successfully sent step event to queue");
-        } else {
-            ESP_LOGE(TAG, "Could not send step event to queue");
-        }
+        }     
+        vTaskDelay(pdMS_TO_TICKS(5));
+                
     }
 
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
