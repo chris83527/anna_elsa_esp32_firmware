@@ -205,7 +205,7 @@ void DisplayController::stopAttractMode() {
 }
 
 void DisplayController::resetLampData() {
-    ESP_LOGI(TAG, "Entering resetLampData()");
+    ESP_LOGD(TAG, "Entering resetLampData()");
     // initialise lamps
     for (int i = 0; i < (LED_COUNT + 6); i++) {
         lampData[i].lampState = LampState::off;
@@ -214,7 +214,7 @@ void DisplayController::resetLampData() {
         lampData[i].rgb.g = 255;
         lampData[i].rgb.r = 255;
     }
-    ESP_LOGI(TAG, "Exiting resetLampData()");
+    ESP_LOGD(TAG, "Exiting resetLampData()");
 }
 
 bool DisplayController::isAttractMode() {
@@ -222,7 +222,7 @@ bool DisplayController::isAttractMode() {
 }
 
 void DisplayController::testLamps() {
-    ESP_LOGI(TAG, "Entering testLamps()");
+    ESP_LOGD(TAG, "Entering testLamps()");
     // initialise lamps
     // switch all LEDs on;
     resetLampData();
@@ -230,11 +230,13 @@ void DisplayController::testLamps() {
         lampData[i].lampState = LampState::on;
         vTaskDelay(pdMS_TO_TICKS(100));
     }
-    ESP_LOGI(TAG, "Exiting testLamps()");
+    ESP_LOGD(TAG, "Exiting testLamps()");
 }
 
 void DisplayController::setMoves(uint8_t value) {
-    //ht16k33_write_value(getMovesDisplay(), "%02d", value);    
+    ESP_LOGD(TAG, "Entering setMoves(%d)", value);
+    ht16k33_write_value(getMovesDisplay(), "%02d", value);    
+    ESP_LOGD(TAG, "Exiting setMoves");
 }
 
 LampData* DisplayController::getLampData() {
