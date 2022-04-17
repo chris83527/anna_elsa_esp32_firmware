@@ -81,7 +81,9 @@ void Game::start() {
     random16_add_entropy(esp_random() >> 16);
     
     mainController->getDisplayController()->resetLampData();
-    mainController->getDisplayController()->stopAttractMode();
+    if (mainController->getDisplayController()->isAttractMode()) {
+        mainController->getDisplayController()->stopAttractMode();
+    }
     mainController->getAudioController()->stopPlaying();
 
     this->isInProgress = true;
@@ -185,10 +187,16 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
 
     ESP_LOGI(TAG, "Entering spinReels()");
 
-    uint8_t reelStopLeft = random8_to(26);
-    uint8_t reelStopCentre = random8_to(26);
-    uint8_t reelStopRight = random8_to(26);
-
+    uint8_t reelStopLeft;
+    uint8_t reelStopCentre;
+    uint8_t reelStopRight;
+    
+    mainController->getReelController()->getReelPositions(reelStopLeft, reelStopCentre, reelStopRight);
+    
+    if (!holdLeft) reelStopLeft = random8_to(26);
+    if (!holdCentre) reelStopCentre = random8_to(26);
+    if (!holdRight) reelStopRight = random8_to(26);
+    
     lampData[LMP_START].lampState = LampState::off;
 
     this->mainController->getDisplayController()->setText("    LET IT GO!!     ");
@@ -286,6 +294,8 @@ void Game::playNudges(int nudges) {
         if (win) {
             transferOrGamble();
             return;
+        } else {
+            vTaskDelay(pdMS_TO_TICKS(20));
         }
 
         nudges--;
@@ -300,11 +310,11 @@ void Game::playNudges(int nudges) {
         mainController->getAudioController()->playAudioFileSync(Sounds::SND_LOSE);
     }
 
-    ESP_LOGI(TAG, "Exiting nudges()");
+    ESP_LOGD(TAG, "Exiting nudges()");
 }
 
 bool Game::offerHold() {
-    ESP_LOGI(TAG, "Entering offerHold()");
+    ESP_LOGD(TAG, "Entering offerHold()");
 
     uint8_t leftPos;
     uint8_t centrePos;
@@ -320,13 +330,13 @@ bool Game::offerHold() {
 
     bool result = (((leftSymbolId == centreSymbolId) || (leftSymbolId == rightSymbolId) || (centreSymbolId == rightSymbolId)) && hold > 0);
 
-    ESP_LOGI(TAG, "Exiting offerHold(). Returning %s", result ? "true" : "false");
+    ESP_LOGD(TAG, "Exiting offerHold(). Returning %s", result ? "true" : "false");
 
     return result;
 }
 
 void Game::transferOrGamble() {
-    ESP_LOGI(TAG, "Entering transferOrGamble()");
+    ESP_LOGD(TAG, "Entering transferOrGamble()");
 
     lampData[LMP_TRANSFER].lampState = LampState::blinkfast;
     lampData[LMP_START].lampState = LampState::blinkslow;
@@ -336,7 +346,7 @@ void Game::transferOrGamble() {
     // loop waiting for button press.
     while (!btnStatus.test(BTN_TRANSFER) && !btnStatus.test(BTN_START)) {
         btnStatus = mainController->getDisplayController()->getButtonStatus();
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(75));
     }
 
     lampData[LMP_START].lampState = LampState::off;
@@ -354,12 +364,12 @@ void Game::transferOrGamble() {
         playFeatureMatrix();
     }
 
-    ESP_LOGI(TAG, "Exiting transferOrGamble()");
+    ESP_LOGD(TAG, "Exiting transferOrGamble()");
 }
 
 void Game::collectOrContinue() {
 
-    ESP_LOGI(TAG, "Entering collectOrContinue()");
+    ESP_LOGD(TAG, "Entering collectOrContinue()");
 
     lampData[LMP_START].lampState = LampState::blinkfast;
     lampData[LMP_COLLECT].lampState = LampState::blinkslow;
@@ -369,7 +379,7 @@ void Game::collectOrContinue() {
     // loop waiting for button press.
     while (!btnStatus.test(BTN_COLLECT) && !btnStatus.test(BTN_START)) {
         btnStatus = mainController->getDisplayController()->getButtonStatus();
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(75));
     }
 
     lampData[LMP_START].lampState = LampState::off;
@@ -381,7 +391,7 @@ void Game::collectOrContinue() {
         mainController->getMoneyController()->moveBankToCredit();
     }
 
-    ESP_LOGI(TAG, "Exiting collectOrContinue()");
+    ESP_LOGD(TAG, "Exiting collectOrContinue()");
 }
 
 bool Game::isWinningLine() {
