@@ -122,15 +122,20 @@ void MainController::start() {
     this->reelController = new ReelController(this);
     this->moneyController = new MoneyController(this);
     this->game = new Game(this);
-    this->wifiController = new WifiController();
+    this->wifiController = new Wifi::WifiController();
 
     esp_err_t err;
 
-    wifiController->initialiseWifi();
+    esp_event_loop_create_default();
+        
+    wifiController->setCredentials("INNUENDO", "woodsamusements");
+    wifiController->initialise();
+    wifiController->begin();
+    
     
     ESP_LOGD(TAG, "Calling i2cdev_init()");
     ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());
-
+    i2c_set_timeout(I2C_NUM_0, 400000);   
     
     // Initialize NVS
     ESP_LOGD(TAG, "Setting up NVS");
@@ -225,13 +230,13 @@ void MainController::payout() {
 
     while (moneyController->isPayoutInProgress()) {
         cctalkController->pollHopperStatus(CCTALK_HOPPER, response);
-        ESP_LOGI(TAG, "Polling hopper status");
+        ESP_LOGD(TAG, "Polling hopper status");
         if (response.isValidResponse() && response.getAdditionalData().size() >= 4) {            
             uint8_t tmpHopperEventCounter = response.getAdditionalData().at(0);
             uint8_t coinsRemaining = response.getAdditionalData().at(1);
             uint8_t coinsPaid = response.getAdditionalData().at(2);            
             uint8_t coinsUnpaid = response.getAdditionalData().at(3);
-            ESP_LOGI(TAG, "Event counter: %d, Coins remaining: %d, Coins paid: %d, Coins unpaid: %d", tmpHopperEventCounter, coinsRemaining, coinsPaid, coinsUnpaid);
+            ESP_LOGD(TAG, "Event counter: %d, Coins remaining: %d, Coins paid: %d, Coins unpaid: %d", tmpHopperEventCounter, coinsRemaining, coinsPaid, coinsUnpaid);
 
             if (tmpHopperEventCounter > hopperEventCounter) { 
                 // all coins have been paid, or some could not be paid
@@ -412,12 +417,12 @@ void MainController::writeValueToNVS(const char * key, uint16_t value) {
     esp_err_t err;
 
     // Write
-    ESP_LOGI(TAG, "Updating %s in NVS ... ", key);
+    ESP_LOGD(TAG, "Updating %s in NVS ... ", key);
 
     err = nvs_handle->set_item<uint16_t>(key, value);
     switch (err) {
         case ESP_OK:
-            ESP_LOGI(TAG, "Done");
+            ESP_LOGD(TAG, "Done");
             break;
         default:
             ESP_LOGE(TAG, "Failed!");
@@ -432,7 +437,7 @@ void MainController::writeValueToNVS(const char * key, uint16_t value) {
 
     switch (err) {
         case ESP_OK:
-            ESP_LOGI(TAG, "Commit Done");
+            ESP_LOGD(TAG, "Commit Done");
             break;
         default:
             ESP_LOGE(TAG, "Coimmit Failed!");
@@ -448,14 +453,14 @@ uint16_t MainController::readValueFromNVS(const char * key) {
     esp_err_t err;
 
     // Read
-    ESP_LOGI(TAG, "Reading %s from NVS ... ", key);
+    ESP_LOGD(TAG, "Reading %s from NVS ... ", key);
 
     uint16_t value = 0; // value will default to 0, if not set yet in NVS
     err = nvs_handle->get_item<uint16_t>(key, value);
     switch (err) {
         case ESP_OK:
-            ESP_LOGI(TAG, "Done");
-            ESP_LOGI(TAG, "%s = %d", key, value);
+            ESP_LOGD(TAG, "Done");
+            ESP_LOGD(TAG, "%s = %d", key, value);
             break;
         case ESP_ERR_NVS_NOT_FOUND:
             ESP_LOGE(TAG, "The value for %s is not initialized yet! Initialising now to 0", key);
