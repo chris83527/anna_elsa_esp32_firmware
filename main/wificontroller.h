@@ -32,16 +32,62 @@
 #ifndef WIFICONTROLLER_H
 #define WIFICONTROLLER_H
 
-class WifiController {
-public:
-    WifiController();
-    WifiController(const WifiController& orig);
-    virtual ~WifiController();
-    
-    void initialiseWifi(void);
-private:
-    
-};
+#pragma once
+
+#include <cstring>
+#include <mutex>
+
+#include "esp_wifi.h"
+#include "esp_event.h"
+
+
+namespace Wifi
+{
+
+    class WifiController {
+    public:
+
+        enum class state_e {
+            NOT_INITIALIZED,
+            INITIALIZED,
+            READY_TO_CONNECT,
+            CONNECTING,
+            WAITING_FOR_IP,
+            CONNECTED,
+            DISCONNECTED,
+            ERROR
+        };
+
+    private:
+        static esp_err_t _init();
+        static wifi_init_config_t _wifi_init_cfg;
+        static wifi_config_t _wifi_cfg;
+
+        static void wifiEventHandler(void *arg, esp_event_base_t eventBase, int32_t eventId, void *eventData);
+        static void ipEventHandler(void *arg, esp_event_base_t eventBase, int32_t eventId, void *eventData);
+
+        static state_e _state;
+        static esp_err_t _getMac(void);
+        static char _macAddrCstr[13];
+        static std::mutex _mutex;
+
+    public:
+        WifiController(void);
+
+        void setCredentials(const char *ssid, const char *password);
+        esp_err_t initialise();
+        esp_err_t begin(void);
+
+        constexpr static const state_e &getState(void) {
+            return _state;
+        }
+
+        constexpr static const char *getMac(void) {
+            return _macAddrCstr;
+        }
+    }; // WifiController class
+
+}
 
 #endif /* WIFICONTROLLER_H */
 
