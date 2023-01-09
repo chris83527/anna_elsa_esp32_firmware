@@ -6,3 +6,9 @@
 /bootloader/
 /bootloader-prefix/
 /CMakeFiles/
+/CMakeCache.txt
+/.vscode/
+/test/
+*.bin
+*.elf
+*.map

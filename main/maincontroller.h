@@ -21,7 +21,7 @@
 #include "nvs.h"
 #include "nvs_handle.hpp"
 #include "esp_wifi.h"
-#include "wificontroller.h"
+//#include "wificontroller.h"
 
 class CCTalkController;
 class ReelController;
@@ -92,7 +92,7 @@ private:
     CCTalkController * cctalkController;
     AudioController * audioController;
     MoneyController * moneyController;
-    Wifi::WifiController * wifiController;
+//    Wifi::WifiController * wifiController;
 
     std::unique_ptr<nvs::NVSHandle> nvs_handle;
 

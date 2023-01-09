@@ -69,6 +69,7 @@
 using namespace std;
 
 static const char *TAG = "DisplayController";
+static string vfdText;
 
 const uint8_t DisplayController::NUDGE_LAMPS[] = {
     LAMP_NUDGE_1,
@@ -180,7 +181,7 @@ esp_err_t DisplayController::initialise() {
     if (m20ly02z_init(MD_STROBE, MD_OE, MD_CLK, MD_DATA) != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise VFD display");
     } else {
-        this->setText("INITIALISING");
+        this->displayText("INITIALISING");
     }
 
     xTaskCreate(&updateSevenSegDisplaysTask, "update_7seg_displays", 3084, mainController, 5, NULL);
@@ -263,21 +264,23 @@ uint8_t DisplayController::getButtonStatus() {
     return result;
 }
 
-void DisplayController::setText(const string& text) {
-    m20ly02z_clear();
+void DisplayController::displayText(const string& text) {
+    
+    // Only update if we need to 
+    if (vfdText.compare(text) != 0) {            
+        m20ly02z_clear();
 
-    for (char str_char : text) {
-        m20ly02z_send_byte(str_char);
+        for (char str_char : text) {
+            m20ly02z_send_byte(str_char);
+        }
+        
+        vfdText = text;
     }
 
 }
 
 void DisplayController::clearText() {
     m20ly02z_clear();
-}
-
-void DisplayController::displayText() {
-
 }
 
 led_strip_t* DisplayController::getLedStrip() {
@@ -342,16 +345,16 @@ void DisplayController::attractModeTask(void *pvParameters) {
 
         switch (state) {
             case 0:
-                displayController->setText("       FROZEN       ");
+                displayController->displayText("       FROZEN       ");
                 break;
             case 1:
-                displayController->setText("      PLAY ME       ");
+                displayController->displayText("      PLAY ME       ");
                 break;
             case 2:
-                displayController->setText("     20CT GAME      ");
+                displayController->displayText("     20CT GAME      ");
                 break;
             case 3:
-                displayController->setText("    INSERT COINS    ");
+                displayController->displayText("    INSERT COINS    ");
                 break;
         }
 

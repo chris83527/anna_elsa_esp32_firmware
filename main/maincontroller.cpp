@@ -32,7 +32,7 @@
 #include "maincontroller.h"
 #include "webserver.h"
 #include "spiffs.h"
-#include "wificontroller.h"
+//#include "wificontroller.h"
 //#include "errors.h"
 
 static const char *TAG = "MainController";
@@ -122,15 +122,15 @@ void MainController::start() {
     this->reelController = new ReelController(this);
     this->moneyController = new MoneyController(this);
     this->game = new Game(this);
-    this->wifiController = new Wifi::WifiController();
+    //this->wifiController = new Wifi::WifiController();
 
     esp_err_t err;
 
     esp_event_loop_create_default();
         
-    wifiController->setCredentials("INNUENDO", "woodsamusements");
-    wifiController->initialise();
-    wifiController->begin();
+//    wifiController->setCredentials("INNUENDO", "woodsamusements");
+//    wifiController->initialise();
+//    wifiController->begin();
     
     
     ESP_LOGD(TAG, "Calling i2cdev_init()");
@@ -402,7 +402,7 @@ void MainController::processHopperErrors() {
 
 void MainController::error(int errorCode) {
     //    displayController->clearText();
-    //    //displayController->setText(errors[errorCode].errorMsg);
+    //    //displayController->displayText(errors[errorCode].errorMsg);
     //
     //    if (errors[errorCode].attendantRequired) {
     //        // loop with blinking lights

@@ -83,10 +83,9 @@ public:
     void resetLampData();
 
     LampData* getLampData(void);
-    
-    void setText(const std::string &text);
+        
     void clearText(void);
-    void displayText(void);
+    void displayText(const std::string &text);
     
     bool isAttractMode();           
 

@@ -104,7 +104,7 @@ void Game::start() {
         lampData[LMP_START].lampState = LampState::blinkslow;
     }
 
-    mainController->getDisplayController()->setText("PRESS START TO BEGIN");
+    mainController->getDisplayController()->displayText("PRESS START TO BEGIN");
 
     // loop waiting for button press.
     std::bitset<8> btnStatus = mainController->getDisplayController()->getButtonStatus();
@@ -199,7 +199,7 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
     
     lampData[LMP_START].lampState = LampState::off;
 
-    this->mainController->getDisplayController()->setText("    LET IT GO!!     ");
+    this->mainController->getDisplayController()->displayText("    LET IT GO!!     ");
 
     mainController->getReelController()->spin(reelStopLeft, reelStopCentre, reelStopRight);
 
@@ -220,7 +220,7 @@ void Game::shuffleReels() {
     mainController->getMoneyController()->removeFromCredit(20);
     lampData[LMP_START].lampState = LampState::off;
 
-    this->mainController->getDisplayController()->setText("    LET IT GO!!     ");
+    this->mainController->getDisplayController()->displayText("    LET IT GO!!     ");
 
     mainController->getReelController()->shuffle(reelStopLeft, reelStopCentre, reelStopRight);
 
@@ -236,7 +236,7 @@ void Game::playNudges(int nudges) {
 
     std::string nudgeText = "        NUDGE        ";
 
-    mainController->getDisplayController()->setText(nudgeText);
+    mainController->getDisplayController()->displayText(nudgeText);
 
     bool win = false;
 
@@ -495,7 +495,7 @@ void Game::playHiLo() {
 void Game::playShuffle() {
     std::bitset<8> btnStatus = mainController->getDisplayController()->getButtonStatus();
 
-    mainController->getDisplayController()->setText("      SHUFFLE!      ");
+    mainController->getDisplayController()->displayText("      SHUFFLE!      ");
 
     // loop waiting for button press.
     while (!btnStatus.test(BTN_START)) {
@@ -524,7 +524,7 @@ void Game::playShuffle() {
 void Game::playFreeSpin() {
     std::bitset<8> btnStatus = mainController->getDisplayController()->getButtonStatus();
 
-    mainController->getDisplayController()->setText("     FREE SPIN!     ");
+    mainController->getDisplayController()->displayText("     FREE SPIN!     ");
 
     // loop waiting for button press.
     while (!btnStatus.test(BTN_START)) {

@@ -35,7 +35,12 @@
           <in>new_codec.c</in>
         </df>
         <df name="cctalk">
-          <in>cctalk.c</in>
+          <in>CctalkException.cpp</in>
+          <in>CctalkException.h</in>
+          <in>CctalkRequest.cpp</in>
+          <in>CctalkRequest.h</in>
+          <in>CctalkResponse.cpp</in>
+          <in>CctalkResponse.h</in>
         </df>
         <df name="ht16k33">
           <in>ht16k33.c</in>
@@ -54,6 +59,8 @@
         <in>reelcontroller.cpp</in>
         <in>spiffs.c</in>
         <in>webserver.c</in>
+        <in>wificontroller.cpp</in>
+        <in>wificontroller.h</in>
       </df>
     </df>
     <df root="../esp/esp-idf-lib/components" name="1">
@@ -7103,9 +7110,25 @@
           <executablePath></executablePath>
           <cTool>
             <standard>10</standard>
+            <incDir>
+              <pElem>components/anna_elsa_audio_board</pElem>
+              <pElem>components/cctalk</pElem>
+              <pElem>components/ht16k33</pElem>
+              <pElem>components/m20ly02z</pElem>
+              <pElem>include</pElem>
+              <pElem>main</pElem>
+            </incDir>
           </cTool>
           <ccTool>
             <standard>11</standard>
+            <incDir>
+              <pElem>components/anna_elsa_audio_board</pElem>
+              <pElem>components/cctalk</pElem>
+              <pElem>components/ht16k33</pElem>
+              <pElem>components/m20ly02z</pElem>
+              <pElem>include</pElem>
+              <pElem>main</pElem>
+            </incDir>
           </ccTool>
         </makeTool>
         <preBuild>
@@ -35805,9 +35828,29 @@
         <cTool flags="1">
         </cTool>
       </item>
-      <item path="components/cctalk/cctalk.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="1">
-        </cTool>
+      <item path="components/cctalk/CctalkException.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="components/cctalk/CctalkException.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="components/cctalk/CctalkRequest.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="components/cctalk/CctalkRequest.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="components/cctalk/CctalkResponse.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="components/cctalk/CctalkResponse.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="components/ht16k33/ht16k33.c" ex="false" tool="0" flavor2="10">
         <cTool flags="1">
@@ -35852,6 +35895,10 @@
       <item path="main/webserver.c" ex="false" tool="0" flavor2="10">
         <cTool flags="1">
         </cTool>
+      </item>
+      <item path="main/wificontroller.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="main/wificontroller.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>
