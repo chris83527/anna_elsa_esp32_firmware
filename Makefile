@@ -2016,32 +2016,6 @@ __idf_playlist/fast:
 .PHONY : __idf_playlist/fast
 
 #=============================================================================
-# Target rules for targets named encrypted-storage-flash
-
-# Build rule for target.
-encrypted-storage-flash: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 encrypted-storage-flash
-.PHONY : encrypted-storage-flash
-
-# fast build rule for target.
-encrypted-storage-flash/fast:
-	$(MAKE) -f esp-idf/main/CMakeFiles/encrypted-storage-flash.dir/build.make esp-idf/main/CMakeFiles/encrypted-storage-flash.dir/build
-.PHONY : encrypted-storage-flash/fast
-
-#=============================================================================
-# Target rules for targets named storage-flash
-
-# Build rule for target.
-storage-flash: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 storage-flash
-.PHONY : storage-flash
-
-# fast build rule for target.
-storage-flash/fast:
-	$(MAKE) -f esp-idf/main/CMakeFiles/storage-flash.dir/build.make esp-idf/main/CMakeFiles/storage-flash.dir/build
-.PHONY : storage-flash/fast
-
-#=============================================================================
 # Target rules for targets named spiffs_storage_bin
 
 # Build rule for target.
@@ -2249,8 +2223,6 @@ help:
 	@echo "... __idf_input_key_service"
 	@echo "... __idf_ota_service"
 	@echo "... __idf_playlist"
-	@echo "... encrypted-storage-flash"
-	@echo "... storage-flash"
 	@echo "... spiffs_storage_bin"
 	@echo "... __idf_main"
 	@echo "... project_elf_src_esp32.obj"
