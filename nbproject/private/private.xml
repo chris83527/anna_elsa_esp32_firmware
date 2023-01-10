@@ -17,6 +17,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/config.env</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/CMakeLists.txt</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/.bin_timestamp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/.gitignore</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.h</file>
@@ -31,6 +32,7 @@
             <file>file:/home/chris/esp/esp-idf-lib/components/mcp23x17/mcp23x17.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/cmake_install.cmake</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/bootloader/project_elf_src_esp32.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/ht16k33/CMakeLists.txt</file>
             <file>file:/home/chris/esp/esp-idf-lib/components/color/rgb.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/ht16k33/component.mk</file>
