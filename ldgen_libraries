@@ -88,6 +88,7 @@
 /home/chris/anna_elsa_esp32_firmware/esp-idf/mcp23008/libmcp23008.a
 /home/chris/anna_elsa_esp32_firmware/esp-idf/mcp23x17/libmcp23x17.a
 /home/chris/anna_elsa_esp32_firmware/esp-idf/led_strip/libled_strip.a
+/home/chris/anna_elsa_esp32_firmware/esp-idf/ssd1306/libssd1306.a
 /home/chris/anna_elsa_esp32_firmware/esp-idf/adf_utils/libadf_utils.a
 /home/chris/anna_elsa_esp32_firmware/esp-idf/audio_recorder/libaudio_recorder.a
 /home/chris/anna_elsa_esp32_firmware/esp-idf/wifi_service/libwifi_service.a

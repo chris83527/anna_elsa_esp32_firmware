@@ -32,19 +32,23 @@
 #include "maincontroller.h"
 #include "webserver.h"
 #include "spiffs.h"
+#include "oledcontroller.h"
 //#include "wificontroller.h"
 //#include "errors.h"
 
 static const char *TAG = "MainController";
+static int blinkDelay = 250;
 
 void blinkCPUStatusLEDTask(void *pvParameter) {
     while (1) {
-        /* Blink off (output low) */
+        /* Blink off (output low) */        
         gpio_set_level(CPU_LED_GPIO, 0);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        ESP_LOGI(TAG, "cpu led off");
+        vTaskDelay(pdMS_TO_TICKS(blinkDelay));
         /* Blink on (output high) */
         gpio_set_level(CPU_LED_GPIO, 1);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        ESP_LOGI(TAG, "cpu led on");
+        vTaskDelay(pdMS_TO_TICKS(blinkDelay));
     }
 }
 
@@ -115,15 +119,23 @@ MainController::MainController(const MainController& orig) {
 
 void MainController::start() {
     ESP_LOGD(TAG, "start() called");
+    
 
     this->cctalkController = new CCTalkController(this);
     this->audioController = new AudioController();
     this->displayController = new DisplayController(this);
     this->reelController = new ReelController(this);
     this->moneyController = new MoneyController(this);
-    this->game = new Game(this);
+    this->game = new Game(this);    
     //this->wifiController = new Wifi::WifiController();
 
+    // CPU LED is on a GPIO
+    gpio_pad_select_gpio(CPU_LED_GPIO);          
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(CPU_LED_GPIO, GPIO_MODE_OUTPUT);     
+    /* Switch off to start */
+    gpio_set_level(CPU_LED_GPIO, 0);
+    
     esp_err_t err;
 
     esp_event_loop_create_default();
@@ -132,10 +144,14 @@ void MainController::start() {
 //    wifiController->initialise();
 //    wifiController->begin();
     
+    xTaskCreate(&blinkCPUStatusLEDTask, "cpu_status_led_blink", 2048, this, 1, NULL);
     
     ESP_LOGD(TAG, "Calling i2cdev_init()");
     ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());
     i2c_set_timeout(I2C_NUM_0, 400000);   
+    
+    // start outputting to status oled
+    oledController.initialise();
     
     // Initialize NVS
     ESP_LOGD(TAG, "Setting up NVS");
@@ -183,9 +199,7 @@ void MainController::start() {
         ESP_LOGE(TAG, "Failed to initialise reel controller subsystem");
     } else {
         ESP_LOGD(TAG, "Reel controller initialisation ok.");
-    }     
-    
-    xTaskCreate(&blinkCPUStatusLEDTask, "cpu_status_led_blink", 2048, this, 1, NULL);
+    }            
 
     if (cctalkController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
@@ -196,6 +210,8 @@ void MainController::start() {
     
     //audioController->playAudioFile(Sounds::SND_LET_IT_GO);
 
+    blinkDelay = 1000;
+    
     game->initialise();
     this->displayController->beginAttractMode();
 

@@ -22,6 +22,7 @@ set(EXTRA_COMPONENT_DIRS "components/cctalk"
 "/home/chris/esp/esp-idf-lib/components/lib8tion" 
 "/home/chris/esp/esp-idf-lib/components/esp_idf_lib_helpers" 
 "/home/chris/esp/esp-idf-lib/components/led_strip" 
+"/home/chris/esp/esp-idf/components/esp-idf-ssd1306/components/ssd1306"
 "/home/chris/esp/esp-adf/components")
 
 

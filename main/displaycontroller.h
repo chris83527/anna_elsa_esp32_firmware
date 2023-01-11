@@ -152,8 +152,8 @@ private:
 
     uint32_t lampDataNew[LED_COUNT + 6];
 
-    bool attractMode;
-    
+    bool attractMode;             
+ 
     // Arrangement for display
     // )
     //               a = A6

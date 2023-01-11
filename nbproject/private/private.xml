@@ -17,9 +17,9 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/config.env</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/CMakeLists.txt</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/.bin_timestamp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/.gitignore</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/config.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/CctalkResponse.cpp</file>
             <file>file:/home/chris/esp/esp-idf/components/spi_flash/include/esp_partition.h</file>
@@ -27,6 +27,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/moneycontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/CMakeLists.txt</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk.h</file>
+            <file>file:/home/chris/esp/esp-idf-lib/components/mcp23x17/mcp23x17.h</file>
             <file>file:/home/chris/esp/esp-idf/components/hal/uart_hal.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/CctalkRequest.cpp</file>
             <file>file:/home/chris/esp/esp-idf-lib/components/mcp23x17/mcp23x17.c</file>
@@ -51,6 +52,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/ht16k33/ht16k33.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/spiffs_image/dashboard.css</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/ht16k33/include/ht16k33.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/spiffs.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/component.mk</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/spiffs_image/index.html</file>
@@ -80,7 +82,6 @@
             <file>file:/home/chris/esp/esp-idf/components/nvs_flash/src/nvs_api.cpp</file>
             <file>file:/home/chris/esp/esp-idf-lib/components/color/color.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/displaycontroller.cpp</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/partitions.csv</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/audiocontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/kconfigs.in</file>
         </group>

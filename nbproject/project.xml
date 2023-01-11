@@ -14,6 +14,7 @@
                 <sourceRootElem>../esp/esp-idf-lib/components</sourceRootElem>
                 <sourceRootElem>../esp/esp-idf/components</sourceRootElem>
                 <sourceRootElem>../esp/esp-adf/components</sourceRootElem>
+                <sourceRootElem>/esp/esp-idf/components/esp-idf-ssd1306/components/ssd1306</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

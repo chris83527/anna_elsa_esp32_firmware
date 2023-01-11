@@ -1834,6 +1834,19 @@ __idf_led_strip/fast:
 .PHONY : __idf_led_strip/fast
 
 #=============================================================================
+# Target rules for targets named __idf_ssd1306
+
+# Build rule for target.
+__idf_ssd1306: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 __idf_ssd1306
+.PHONY : __idf_ssd1306
+
+# fast build rule for target.
+__idf_ssd1306/fast:
+	$(MAKE) -f esp-idf/ssd1306/CMakeFiles/__idf_ssd1306.dir/build.make esp-idf/ssd1306/CMakeFiles/__idf_ssd1306.dir/build
+.PHONY : __idf_ssd1306/fast
+
+#=============================================================================
 # Target rules for targets named __idf_adf_utils
 
 # Build rule for target.
@@ -2014,6 +2027,32 @@ __idf_playlist: cmake_check_build_system
 __idf_playlist/fast:
 	$(MAKE) -f esp-idf/playlist/CMakeFiles/__idf_playlist.dir/build.make esp-idf/playlist/CMakeFiles/__idf_playlist.dir/build
 .PHONY : __idf_playlist/fast
+
+#=============================================================================
+# Target rules for targets named encrypted-storage-flash
+
+# Build rule for target.
+encrypted-storage-flash: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 encrypted-storage-flash
+.PHONY : encrypted-storage-flash
+
+# fast build rule for target.
+encrypted-storage-flash/fast:
+	$(MAKE) -f esp-idf/main/CMakeFiles/encrypted-storage-flash.dir/build.make esp-idf/main/CMakeFiles/encrypted-storage-flash.dir/build
+.PHONY : encrypted-storage-flash/fast
+
+#=============================================================================
+# Target rules for targets named storage-flash
+
+# Build rule for target.
+storage-flash: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 storage-flash
+.PHONY : storage-flash
+
+# fast build rule for target.
+storage-flash/fast:
+	$(MAKE) -f esp-idf/main/CMakeFiles/storage-flash.dir/build.make esp-idf/main/CMakeFiles/storage-flash.dir/build
+.PHONY : storage-flash/fast
 
 #=============================================================================
 # Target rules for targets named spiffs_storage_bin
@@ -2209,6 +2248,7 @@ help:
 	@echo "... __idf_mcp23008"
 	@echo "... __idf_mcp23x17"
 	@echo "... __idf_led_strip"
+	@echo "... __idf_ssd1306"
 	@echo "... __idf_adf_utils"
 	@echo "... __idf_audio_recorder"
 	@echo "... __idf_wifi_service"
@@ -2223,6 +2263,8 @@ help:
 	@echo "... __idf_input_key_service"
 	@echo "... __idf_ota_service"
 	@echo "... __idf_playlist"
+	@echo "... encrypted-storage-flash"
+	@echo "... storage-flash"
 	@echo "... spiffs_storage_bin"
 	@echo "... __idf_main"
 	@echo "... project_elf_src_esp32.obj"

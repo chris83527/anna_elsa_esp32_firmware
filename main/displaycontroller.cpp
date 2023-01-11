@@ -129,8 +129,7 @@ esp_err_t DisplayController::initialise() {
         ESP_LOGD(TAG, "WS2812 driver installation succeeded");
     }
 
-
-
+  
 
     if (ht16k33_init_desc(&creditDisplay, 0, HT16K33_ADDR_BASE, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "Could not initialise credit display");
@@ -161,7 +160,8 @@ esp_err_t DisplayController::initialise() {
     buttonIO.cfg.scl_pullup_en = false;
     buttonIO.cfg.sda_pullup_en = false;
 
-    if (mcp23x17_init_desc(&buttonIO, MCP23X17_ADDR_BASE + 7, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
+    //if (mcp23x17_init_desc(&buttonIO, MCP23X17_ADDR_BASE + 7, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
+    if (mcp23x17_init_desc(&buttonIO, MCP23X17_ADDR_BASE, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "Could not initialise button interface");
     } else {
 
