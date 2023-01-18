@@ -45,7 +45,8 @@
 
 #include <cstring>
 
-#define TAG "oledcontroller"
+static const char *TAG = "oledcontroller";
+
 
 oledcontroller::oledcontroller() {
 }
@@ -57,7 +58,8 @@ oledcontroller::~oledcontroller() {
 }
 
 void oledcontroller::initialise() {
-    i2c_master_init(&dev, GPIO_I2C_SDA, GPIO_I2C_SCL, -1);
+    esp_err_t ret = i2c_master_init(&dev, I2C_NUM_0, (uint8_t)0x3c, GPIO_I2C_SDA, GPIO_I2C_SCL);    
+    
 
 #if CONFIG_FLIP
     dev._flip = true;
@@ -75,7 +77,30 @@ void oledcontroller::initialise() {
 
     ssd1306_clear_screen(&dev, false);
     ssd1306_contrast(&dev, 0xff);
-    ssd1306_display_text_x3(&dev, 0, "Hello", 5, false);
+
+}
+
+void oledcontroller::clearDisplay() {
+    ssd1306_clear_screen(&dev, false);
+}
+
+void oledcontroller::scrollText(std::string textToDisplay) {    
+    ssd1306_software_scroll(&dev, (dev._pages - 1), 1);    
+    ssd1306_scroll_text(&dev, textToDisplay.append(20 - textToDisplay.size(), ' ').c_str(), 20, false);
+}
+
+void oledcontroller::displayText(std::string textToDisplay, int lineNumber, bool invert) { 
+    ESP_LOGI(TAG, "Displaying text %s", textToDisplay.c_str());
+    if (textToDisplay.size() > 20) {
+        textToDisplay = textToDisplay.substr(0,20);
+    }
+    ssd1306_display_text(&dev, lineNumber, textToDisplay.append(20 - textToDisplay.size(), ' ').c_str(), 20, invert);
+}
+
+
+
+void oledcontroller::testDisplay() {
+    ssd1306_display_text_x3(&dev, 0, "Test", 4, false);
     vTaskDelay(3000 / portTICK_PERIOD_MS);
 
 #if CONFIG_SSD1306_128x64
@@ -205,8 +230,4 @@ void oledcontroller::initialise() {
     }
 #endif
 
-}
-
-void oledcontroller::displayText(std::string textToDisplay) {
-    ssd1306_display_text(&dev, center, textToDisplay.c_str(), textToDisplay.length(), false);
 }

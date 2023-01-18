@@ -39,16 +39,58 @@
 static const char *TAG = "MainController";
 static int blinkDelay = 250;
 
-void blinkCPUStatusLEDTask(void *pvParameter) {
+void blinkCPUStatusLEDTask(void *pvParameters) {
     while (1) {
-        /* Blink off (output low) */        
+        /* Blink off (output low) */
         gpio_set_level(CPU_LED_GPIO, 0);
-        ESP_LOGI(TAG, "cpu led off");
         vTaskDelay(pdMS_TO_TICKS(blinkDelay));
         /* Blink on (output high) */
         gpio_set_level(CPU_LED_GPIO, 1);
-        ESP_LOGI(TAG, "cpu led on");
         vTaskDelay(pdMS_TO_TICKS(blinkDelay));
+    }
+}
+
+void updateStatisticsDisplayTask(void *pvParameters) {
+    MainController *mainController = reinterpret_cast<MainController *> (pvParameters);
+
+    tm time;
+    std::string dateString;
+    oledcontroller* oledController = mainController->getOledController();
+    mainController->getOledController()->clearDisplay();
+    i2c_dev_t* ds3231 = mainController->getDs3231();
+    MoneyController* moneyController = mainController->getMoneyController();
+
+    char buf[21];
+    esp_err_t ret;
+
+    while (1) {
+
+        ret = ds3231_get_time(ds3231, &time);
+
+        if (ret == ESP_OK) {
+
+            uint16_t years = time.tm_year + 1900;
+            std::sprintf(buf, "%02d-%02d-%04d %02d:%02d", time.tm_mday, time.tm_mon, years, time.tm_hour, time.tm_min);
+
+            dateString.clear();
+            dateString.append(buf);
+            oledController->displayText(dateString, 0, true);
+
+            std::sprintf(buf, "Games    : %05d", moneyController->getGameCount());
+            oledController->displayText(buf, 2, false);
+            std::sprintf(buf, "Total in : %05d", moneyController->getIncomeTotal());
+            oledController->displayText(buf, 3, false);
+            std::sprintf(buf, "Total out: %05d", moneyController->getPayoutTotal());
+            oledController->displayText(buf, 4, false);
+            std::sprintf(buf, "Credit   : %05d", moneyController->getCredit());
+            oledController->displayText(buf, 5, false);
+            std::sprintf(buf, "Bank     : %05d", moneyController->getBank());
+            oledController->displayText(buf, 6, false);
+        } else {
+            ESP_LOGW(TAG, "Couldn't read time from RTC!");
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(1000)); // 1 second
     }
 }
 
@@ -57,12 +99,12 @@ void MainController::cctalkStatusCheckTask(void *pvParameter) {
     MainController *mainController = reinterpret_cast<MainController *> (pvParameter);
     CCTalkController *cctalkController = mainController->getCCTalkController();
     MoneyController *moneyController = mainController->getMoneyController();
-    
+
     int validatorEventCounter = 0;
 
     CctalkResponse response;
 
-    for (;;) {        
+    for (;;) {
 
         if (!moneyController->isPayoutInProgress()) {
 
@@ -119,42 +161,45 @@ MainController::MainController(const MainController& orig) {
 
 void MainController::start() {
     ESP_LOGD(TAG, "start() called");
-    
+
 
     this->cctalkController = new CCTalkController(this);
     this->audioController = new AudioController();
     this->displayController = new DisplayController(this);
     this->reelController = new ReelController(this);
     this->moneyController = new MoneyController(this);
-    this->game = new Game(this);    
+    this->game = new Game(this);
+    this->oledController = new oledcontroller();
     //this->wifiController = new Wifi::WifiController();
 
     // CPU LED is on a GPIO
-    gpio_pad_select_gpio(CPU_LED_GPIO);          
+    gpio_pad_select_gpio(CPU_LED_GPIO);
     /* Set the GPIO as a push/pull output */
-    gpio_set_direction(CPU_LED_GPIO, GPIO_MODE_OUTPUT);     
+    gpio_set_direction(CPU_LED_GPIO, GPIO_MODE_OUTPUT);
     /* Switch off to start */
     gpio_set_level(CPU_LED_GPIO, 0);
-    
+
     esp_err_t err;
 
     esp_event_loop_create_default();
-        
-//    wifiController->setCredentials("INNUENDO", "woodsamusements");
-//    wifiController->initialise();
-//    wifiController->begin();
-    
+
+    //    wifiController->setCredentials("INNUENDO", "woodsamusements");
+    //    wifiController->initialise();
+    //    wifiController->begin();
+
     xTaskCreate(&blinkCPUStatusLEDTask, "cpu_status_led_blink", 2048, this, 1, NULL);
-    
-    ESP_LOGD(TAG, "Calling i2cdev_init()");
+
+    ESP_LOGD(TAG, "Calling i2cdev_init()");    
     ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());
-    i2c_set_timeout(I2C_NUM_0, 400000);   
-    
+    i2c_set_timeout(I2C_NUM_0, 400000);
+
     // start outputting to status oled
-    oledController.initialise();
-    
+    oledController->initialise();
+
+
     // Initialize NVS
     ESP_LOGD(TAG, "Setting up NVS");
+    oledController->scrollText("Init NVS");
     // Initialize NVS
     err = nvs_flash_init_partition(NVS_PARTITION_SETTINGS);
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -168,93 +213,114 @@ void MainController::start() {
     nvs_handle = nvs::open_nvs_handle_from_partition(NVS_PARTITION_SETTINGS, NVS_PARTITION_SETTINGS, NVS_READWRITE, &err);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(err));
+        oledController->scrollText("-> failed");
     } else {
         ESP_LOGD(TAG, "NVS opened ok.");
+        oledController->scrollText("-> ok");
     }
 
     // initialise ds3231 RTC
+    oledController->scrollText("Init DS3231");
+    memset(&ds3231, 0, sizeof (i2c_dev_t));
 
     err = ds3231_init_desc(&ds3231, 0, GPIO_I2C_SDA, GPIO_I2C_SCL);
-    if (err != ESP_OK) {
+    if (err != ESP_OK) {        
         ESP_LOGE(TAG, "Error initialising RTC!");
+        oledController->scrollText("-> failed");
     } else {
+        //this->setDateTime(); // Debug only
         ESP_LOGI(TAG, "RTC initialised ok");
+        oledController->scrollText("-> ok");
     }
-          
+
+    oledController->scrollText("Init SPIFFS");
     init_spiffs();
+    oledController->scrollText("Init Webserver");
     init_webserver("/spiffs");
 
     // intialise audio subsystem    
+    oledController->scrollText("Init Audio");
     audioController->initialise();
-    
+
+    oledController->scrollText("Init Display");
     if (displayController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise tableau subsystem");
+        oledController->scrollText("-> failed");
     } else {
         ESP_LOGD(TAG, "Display controller initialisation ok.");
+        oledController->scrollText("-> ok");
     }
-    
+
+    oledController->scrollText("Init NVRAM");
     moneyController->initialise();
 
+    oledController->scrollText("Init reels");
     if (reelController->initialise() != ESP_OK) {
+        oledController->scrollText("-> failed");
         ESP_LOGE(TAG, "Failed to initialise reel controller subsystem");
     } else {
+        oledController->scrollText("-> ok");
         ESP_LOGD(TAG, "Reel controller initialisation ok.");
-    }            
+    }
 
+    oledController->scrollText("Init cctalk");
     if (cctalkController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
+        oledController->scrollText("-> failed");
     } else {
+        oledController->scrollText("-> ok");
+        oledController->scrollText("Start cctalk polling");
         ESP_LOGD(TAG, "Starting validator and hopper status polling");
         xTaskCreate(&cctalkStatusCheckTask, "check_hopper_status", 10000, this, 14, NULL);
     }
-    
+
     //audioController->playAudioFile(Sounds::SND_LET_IT_GO);
 
     blinkDelay = 1000;
-    
+
+    oledController->scrollText("Init game");
     game->initialise();
     this->displayController->beginAttractMode();
+
+    xTaskCreate(&updateStatisticsDisplayTask, "status_monitor_task", 2048, this, 1, NULL);
 
     for (;;) {
         if (!(game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
             ESP_LOGD(TAG, "Starting game...");
-            this->game->start();            
+            this->game->start();
         } else {
             if (!getDisplayController()->isAttractMode()) {
                 getDisplayController()->beginAttractMode();
             }
         }
-        
-        
-
         vTaskDelay(pdMS_TO_TICKS(200));
     }
 
 }
 
-void MainController::payout() {    
-    
+void MainController::payout() {
+
     ESP_LOGI(TAG, "Entering %s", __func__);
     moneyController->setPayoutInProgress(true);
-    
+
     uint8_t numCoins = (this->moneyController->getBank() / 20);
     ESP_LOGI(TAG, "Paying out %d coins", numCoins);
 
     CctalkResponse response;
     cctalkController->dispenseCoins(CCTALK_HOPPER, numCoins, response);
-    
+
 
     while (moneyController->isPayoutInProgress()) {
         cctalkController->pollHopperStatus(CCTALK_HOPPER, response);
         ESP_LOGD(TAG, "Polling hopper status");
-        if (response.isValidResponse() && response.getAdditionalData().size() >= 4) {            
+        if (response.isValidResponse() && response.getAdditionalData().size() >= 4) {
             uint8_t tmpHopperEventCounter = response.getAdditionalData().at(0);
             uint8_t coinsRemaining = response.getAdditionalData().at(1);
-            uint8_t coinsPaid = response.getAdditionalData().at(2);            
+            uint8_t coinsPaid = response.getAdditionalData().at(2);
             uint8_t coinsUnpaid = response.getAdditionalData().at(3);
             ESP_LOGD(TAG, "Event counter: %d, Coins remaining: %d, Coins paid: %d, Coins unpaid: %d", tmpHopperEventCounter, coinsRemaining, coinsPaid, coinsUnpaid);
 
-            if (tmpHopperEventCounter > hopperEventCounter) { 
+            if (tmpHopperEventCounter > hopperEventCounter) {
                 // all coins have been paid, or some could not be paid
                 if (coinsRemaining == 0) {
                     ESP_LOGI(TAG, "Coins paid: %d", coinsPaid);
@@ -267,14 +333,14 @@ void MainController::payout() {
                     // TODO: Error here (probably hopper was empty)
                     //processHopperErrors();
                 } else {
-                    ESP_LOGI(TAG, "Coins remaining: %d", coinsRemaining);                    
+                    ESP_LOGI(TAG, "Coins remaining: %d", coinsRemaining);
                 }
-            } 
-            
+            }
+
         } else {
             ESP_LOGE(TAG, "Invalid response received when polling hopper status");
             moneyController->setPayoutInProgress(false);
-                // TODO: We got a negative response polling hopper status. This means we should find out what went wrong
+            // TODO: We got a negative response polling hopper status. This means we should find out what went wrong
             cctalkController->testHopper(CCTALK_HOPPER, response);
 
         }
@@ -314,13 +380,13 @@ void MainController::payout() {
 
 void MainController::setDateTime() {
     tm time;
-    time.tm_hour = 0;
-    time.tm_min = 0;
+    time.tm_hour = 20;
+    time.tm_min = 07;
     time.tm_sec = 0;
     time.tm_isdst = true;
-    time.tm_mon = 11;
-    time.tm_year = 2021;
-    time.tm_mday = 27;
+    time.tm_mon = 01;
+    time.tm_year = (2023 - 1900); // tm_year = number of years since 1900
+    time.tm_mday = 16;
 
     ds3231_set_time(&ds3231, &time);
 
@@ -350,18 +416,6 @@ void MainController::setDateTime() {
     //    RTC.set(t);
 }
 
-//void MainController::printDate() {
-//    ESP_LOGI(TAG, )
-//}
-////
-//std::string MainController::getDateTime() {
-//    tm time; 
-//    std::string dateTimeString;
-//    ds3231_get_time(&ds3231, &time);
-//    
-//    dateTimeStringappend(time.tm_hour).append(":").append()
-//}
-
 AudioController* MainController::getAudioController() {
     return audioController;
 }
@@ -380,6 +434,10 @@ DisplayController* MainController::getDisplayController() {
 
 MoneyController* MainController::getMoneyController() {
     return moneyController;
+}
+
+oledcontroller* MainController::getOledController() {
+    return oledController;
 }
 
 uint8_t MainController::getVolume() {
@@ -416,9 +474,13 @@ void MainController::processHopperErrors() {
 
 }
 
+i2c_dev_t* MainController::getDs3231() {
+    return &this->ds3231;
+}
+
 void MainController::error(int errorCode) {
     //    displayController->clearText();
-    //    //displayController->displayText(errors[errorCode].errorMsg);
+    //    //displayController->scrollText(errors[errorCode].errorMsg);
     //
     //    if (errors[errorCode].attendantRequired) {
     //        // loop with blinking lights
@@ -456,11 +518,8 @@ void MainController::writeValueToNVS(const char * key, uint16_t value) {
             ESP_LOGD(TAG, "Commit Done");
             break;
         default:
-            ESP_LOGE(TAG, "Coimmit Failed!");
+            ESP_LOGE(TAG, "Commit Failed!");
     }
-
-
-
 
 }
 

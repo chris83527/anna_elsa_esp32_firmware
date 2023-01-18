@@ -21,7 +21,6 @@
 #include "nvs.h"
 #include "nvs_handle.hpp"
 #include "esp_wifi.h"
-#include "oledcontroller.h"
 //#include "wificontroller.h"
 
 class CCTalkController;
@@ -31,6 +30,7 @@ class AudioController;
 class MoneyController;
 class Game;
 class DisplayController;
+class oledcontroller;
 
 class MainController {
 public:
@@ -61,6 +61,8 @@ public:
     CCTalkController* getCCTalkController();
     Game* getGame();
     MoneyController* getMoneyController();
+    oledcontroller* getOledController();
+    i2c_dev_t* getDs3231();
     
     static void cctalkStatusCheckTask(void *pvParameter);
 
@@ -93,7 +95,7 @@ private:
     CCTalkController * cctalkController;
     AudioController * audioController;
     MoneyController * moneyController;
-    oledcontroller oledController;
+    oledcontroller * oledController;
 //    Wifi::WifiController * wifiController;
 
     std::unique_ptr<nvs::NVSHandle> nvs_handle;
@@ -115,6 +117,7 @@ private:
 
 
 void blinkCPUStatusLEDTask(void *pvParameters);
+void updateStatisticsDisplayTask(void *pvParameter);
 
 
 

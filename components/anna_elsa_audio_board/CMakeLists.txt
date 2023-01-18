@@ -2,8 +2,7 @@ set(COMPONENT_ADD_INCLUDEDIRS .)
 
 # Edit following two lines to set component requirements (see docs)
 set(COMPONENT_REQUIRES)
-#set(COMPONENT_PRIV_REQUIRES audio_sal audio_hal esp_dispatcher esp_peripherals display_service)
-set(COMPONENT_PRIV_REQUIRES audio_sal audio_hal esp_dispatcher esp_peripherals display_service)
+set(COMPONENT_PRIV_REQUIRES audio_sal audio_hal esp_dispatcher esp_peripherals display_service i2cdev log esp_idf_lib_helpers)
 
 
 if(CONFIG_AUDIO_BOARD_CUSTOM)
@@ -11,7 +10,7 @@ if(CONFIG_AUDIO_BOARD_CUSTOM)
     list(APPEND COMPONENT_ADD_INCLUDEDIRS .)
 
     set(COMPONENT_SRCS
-        ./new_codec.c
+        ./tas5731m.c
         ./board.c
         ./board_pins_config.c           
     )

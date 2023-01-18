@@ -1,6 +1,6 @@
---flash_mode dio --flash_freq 20m --flash_size 16MB
-0x8000 partition_table/partition-table.bin
-0xd000 phy_init_data.bin
+--flash_mode dio --flash_freq 40m --flash_size detect
 0x1000 bootloader/bootloader.bin
 0x10000 anna_elsa_esp32.bin
+0x8000 partition_table/partition-table.bin
+0xd000 phy_init_data.bin
 0x310000 storage.bin

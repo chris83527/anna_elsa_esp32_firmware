@@ -56,7 +56,7 @@ void init_webserver(const char *base_path)
 
     ESP_ERROR_CHECK_WITHOUT_ABORT(nvs_flash_init());
     ESP_ERROR_CHECK_WITHOUT_ABORT(esp_netif_init());
-    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_loop_create_default());
+    //ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_loop_create_default());
 
     /* Register event handlers to start server when Wi-Fi or Ethernet is connected,
      * and stop server when disconnection happens.

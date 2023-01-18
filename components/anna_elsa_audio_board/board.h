@@ -111,7 +111,7 @@ extern "C" {
      *          others  fail
      */
     esp_err_t audio_board_deinit(audio_board_handle_t audio_board);
-
+    
 
 #ifdef __cplusplus
 }

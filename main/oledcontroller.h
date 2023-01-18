@@ -33,6 +33,7 @@
 #define OLEDCONTROLLER_H
 
 #include "ssd1306.h"
+#include "i2cdev.h"
 
 #include <cstring>
 
@@ -42,14 +43,17 @@ public:
     oledcontroller(const oledcontroller& orig);
     virtual ~oledcontroller();
     void initialise(void);
-    void displayText(std::string textToDisplay);
+    void displayText(std::string textToDisplay, int lineNumber, bool invert);
+    void scrollText(std::string textToDisplay);
+    void clearDisplay(void);
+    void testDisplay();    
 
 private:
 
     SSD1306_t dev;
-    int center;
-    int top;
-    int bottom;
+    int top = 2;
+    int center = 3;
+    int bottom = 8;
     char lineChar[20];
 
 

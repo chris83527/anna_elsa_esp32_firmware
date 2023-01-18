@@ -32,22 +32,28 @@
 #ifndef BOARD_DEF_H
 #define BOARD_DEF_H
 
+
+#define GPIO_I2C_SDA GPIO_NUM_21
+#define GPIO_I2C_SCL GPIO_NUM_22
+
+#define GPIO_AUDIO_PDWN GPIO_NUM_2
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern audio_hal_func_t AUDIO_NEW_CODEC_DEFAULT_HANDLE;
+extern audio_hal_func_t AUDIO_CODEC_TAS5731M_DEFAULT_HANDLE;
 
-#define AUDIO_CODEC_DEFAULT_CONFIG(){                   \
+#define AUDIO_CODEC_DEFAULT_CONFIG() {                    \
         .adc_input  = AUDIO_HAL_ADC_INPUT_LINE1,        \
         .dac_output = AUDIO_HAL_DAC_OUTPUT_ALL,         \
-        .codec_mode = AUDIO_HAL_CODEC_MODE_BOTH,        \
+        .codec_mode = AUDIO_HAL_CODEC_MODE_BOTH,         \
         .i2s_iface = {                                  \
             .mode = AUDIO_HAL_MODE_SLAVE,               \
             .fmt = AUDIO_HAL_I2S_NORMAL,                \
             .samples = AUDIO_HAL_48K_SAMPLES,           \
             .bits = AUDIO_HAL_BIT_LENGTH_16BITS,        \
-        },                                              \
+        }\
 };
 
 

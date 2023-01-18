@@ -71,6 +71,8 @@ void MoneyController::loadValuesFromStorage() {
     this->fiftyCentIn = this->mainController->readValueFromNVS(NVS_KEY_FIFTY_CENT_IN);
     this->oneEuroIn = this->mainController->readValueFromNVS(NVS_KEY_ONE_EURO_IN);
     this->twoEuroIn = this->mainController->readValueFromNVS(NVS_KEY_TWO_EURO_IN);
+    this->incomeTotal = this->mainController->readValueFromNVS(NVS_KEY_INCOME_TOTAL);
+    this->payoutTotal = this->mainController->readValueFromNVS(NVS_KEY_PAYOUT_TOTAL);
 }
 
 /**
@@ -94,8 +96,10 @@ void MoneyController::addToCredit(Payment &payment) {
 }
 
 void MoneyController::addToCredit(uint16_t value) {
-    this->credit += value;
+    this->credit += value;    
+    this->incomeTotal += value;
     this->mainController->writeValueToNVS(NVS_KEY_CREDIT, credit);
+    this->mainController->writeValueToNVS(NVS_KEY_INCOME_TOTAL, this->incomeTotal);
 }
 
 /**
@@ -141,6 +145,18 @@ void MoneyController::removeFromBank(const uint16_t value) {
  */
 uint16_t MoneyController::getBank() {
     return bank;
+}
+
+uint16_t MoneyController::getGameCount() {
+    return gamecount;
+}
+
+uint16_t MoneyController::getPayoutTotal() {
+    return payoutTotal;
+}
+
+uint16_t MoneyController::getIncomeTotal() {
+    return incomeTotal;
 }
 
 void MoneyController::incrementGameCount() {
