@@ -57,7 +57,8 @@ oledcontroller::oledcontroller(const oledcontroller& orig) {
 oledcontroller::~oledcontroller() {
 }
 
-void oledcontroller::initialise() {
+void oledcontroller::initialise() {      
+    
     esp_err_t ret = i2c_master_init(&dev, I2C_NUM_0, (uint8_t)0x3c, GPIO_I2C_SDA, GPIO_I2C_SCL);    
     
 

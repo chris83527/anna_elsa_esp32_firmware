@@ -77,11 +77,11 @@ void AudioController::initialise() {
 
     ESP_LOGI(TAG, "Initialising board and codecs");
     I2S_NUM = I2S_NUM_0; // i2s port number
-
+    
     cfg = DEFAULT_ESP_AUDIO_CONFIG();
     cfg.in_stream_buf_size = 10 * 1024;
-    cfg.out_stream_buf_size = 10 * 1024;
-
+    cfg.out_stream_buf_size = 10 * 1024;    
+    
     board_handle = audio_board_init();
 
     if (board_handle != NULL) {
@@ -118,8 +118,8 @@ void AudioController::initialise() {
                 // Create writers and add to esp_audio
                 ESP_LOGI(TAG, "Creating i2s writer...");
                 i2s_writer = I2S_STREAM_CFG_DEFAULT();
-                i2s_writer.i2s_config.fixed_mclk = 1;
-                i2s_writer.i2s_config.bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT;
+                i2s_writer.i2s_config.fixed_mclk = 12288000;
+                i2s_writer.i2s_config.bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT;                
                 esp_audio_output_stream_add(player, i2s_stream_init(&i2s_writer));
 
                 // Set default volume

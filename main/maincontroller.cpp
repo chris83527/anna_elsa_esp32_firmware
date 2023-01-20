@@ -191,15 +191,15 @@ void MainController::start() {
 
     ESP_LOGD(TAG, "Calling i2cdev_init()");    
     ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());
-    i2c_set_timeout(I2C_NUM_0, 400000);
-
+    //i2c_set_timeout(I2C_NUM_0, 400000);
+    
     // start outputting to status oled
     oledController->initialise();
-
-
+    
     // Initialize NVS
     ESP_LOGD(TAG, "Setting up NVS");
     oledController->scrollText("Init NVS");
+    
     // Initialize NVS
     err = nvs_flash_init_partition(NVS_PARTITION_SETTINGS);
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -220,7 +220,7 @@ void MainController::start() {
     }
 
     // initialise ds3231 RTC
-    oledController->scrollText("Init DS3231");
+    oledController->scrollText("Init RTC");
     memset(&ds3231, 0, sizeof (i2c_dev_t));
 
     err = ds3231_init_desc(&ds3231, 0, GPIO_I2C_SDA, GPIO_I2C_SCL);
@@ -242,16 +242,37 @@ void MainController::start() {
     oledController->scrollText("Init Audio");
     audioController->initialise();
 
+     esp_err_t res;
+    printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n");
+        printf("00:         ");
+        for (uint8_t i = 3; i < 0x78; i++)
+        {
+            i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+            i2c_master_start(cmd);
+            i2c_master_write_byte(cmd, (i << 1) | I2C_MASTER_WRITE, 1 /* expect ack */);
+            i2c_master_stop(cmd);
+    
+            res = i2c_master_cmd_begin(I2C_NUM_0, cmd, 10 / portTICK_PERIOD_MS);
+            if (i % 16 == 0)
+                printf("\n%.2x:", i);
+            if (res == 0)
+                printf(" %.2x", i);
+            else
+                printf(" --");
+            i2c_cmd_link_delete(cmd);
+        }
+        printf("\n\n");
+    
     oledController->scrollText("Init Display");
     if (displayController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise tableau subsystem");
         oledController->scrollText("-> failed");
     } else {
         ESP_LOGD(TAG, "Display controller initialisation ok.");
-        oledController->scrollText("-> ok");
+      //  oledController->scrollText("-> ok");
     }
 
-    oledController->scrollText("Init NVRAM");
+    //oledController->scrollText("Init NVRAM");
     moneyController->initialise();
 
     oledController->scrollText("Init reels");

@@ -80,6 +80,8 @@ private:
     i2s_stream_cfg_t i2s_writer;
     ogg_decoder_cfg_t ogg_dec_cfg;
     i2s_port_t I2S_NUM;
+    
+    void i2s_init(void);
 };
 
 #endif /* __AUDIOCONTROLLER_H__ */
