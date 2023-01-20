@@ -50,7 +50,7 @@ esp_err_t i2c_master_init(SSD1306_t * dev, const i2c_port_t port, const uint8_t 
         .cfg.scl_io_num = scl_gpio,
         .cfg.sda_pullup_en = GPIO_PULLUP_DISABLE,
         .cfg.scl_pullup_en = GPIO_PULLUP_DISABLE,
-        .cfg.master.clk_speed = I2C_MASTER_FREQ_HZ,
+        .cfg.master.clk_speed = I2C_MASTER_FREQ_HZ,                
         .port = port,
     };
 

@@ -44,7 +44,7 @@ extern "C" {
 #define CFG_END_3       (0Xee)
 
 typedef struct {
-    uint8_t offset;
+    uint8_t reg;
     uint8_t value;
 } tas5731m_cfg_reg_t;
 
@@ -54,13 +54,7 @@ static const uint8_t tas5731m_volume[] = {
     0x3d, 0x3b, 0x39, 0x37, 0x35
 };
 
-static const tas5731m_cfg_reg_t tas5731m_registers[] = {
-    //RESET
-    { 0x1b, 0x00 },
-    { 0x05, 0x00 },
-    { 0x06, 0x00 },
-    { 0x07, 0x30 },    
-};
+
 
 #ifdef __cplusplus
 }
