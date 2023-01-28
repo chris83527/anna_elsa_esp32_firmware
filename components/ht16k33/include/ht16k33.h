@@ -40,7 +40,6 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <i2cdev.h>
-#include <driver/spi_master.h>
 #include <esp_err.h>
 
 #define HT16K33_ADDR_BASE 0x70

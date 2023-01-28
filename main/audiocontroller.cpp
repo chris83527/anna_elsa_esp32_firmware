@@ -42,7 +42,9 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/unistd.h>
+#include <cstring>
 
+#include "i2cdev.h"
 #include "driver/i2s.h"
 #include "spiffs_stream.h"
 #include "i2s_stream.h"
@@ -116,9 +118,8 @@ void AudioController::initialise() {
 
                 // Add i2s writer
                 // Create writers and add to esp_audio
-                ESP_LOGI(TAG, "Creating i2s writer...");
-                i2s_writer = I2S_STREAM_CFG_DEFAULT();
-                i2s_writer.i2s_config.fixed_mclk = 12288000;
+                ESP_LOGI(TAG, "Creating i2s writer...");                
+                i2s_writer = I2S_STREAM_CFG_DEFAULT();                
                 i2s_writer.i2s_config.bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT;                
                 esp_audio_output_stream_add(player, i2s_stream_init(&i2s_writer));
 
@@ -126,9 +127,13 @@ void AudioController::initialise() {
                 ESP_LOGI(TAG, "Setting volume to 45...");
                 //esp_audio_vol_set(player, 80);
 
-                playAudioFileSync(Sounds::SND_KERCHING);
+                esp_audio_state_t state;
+                esp_audio_state_get(player, &state);
+                ESP_LOGI(TAG, "State: 0x%02x", state.err_msg);
+                
+                playAudioFileSync(Sounds::SND_STARTUP);
 
-                ESP_LOGI(TAG, "esp_audio instance is:%p", player);
+                ESP_LOGI(TAG, "esp_audio instance is: %p", player);
             }
         }
     }
@@ -159,4 +164,22 @@ void AudioController::stopPlaying() {
 bool AudioController::isPlaying() {
     // TODO - find a method that will enable us to find out if the playing has finished
     return true;
+}
+
+uint8_t AudioController::getErrors() {
+    
+    
+//    // check for errors
+//    uint8_t err_data[1] = {0};
+//    uint8_t reg = 0x02;
+//
+//
+//    I2C_DEV_TAKE_MUTEX(&i2c_dev);
+//    I2C_DEV_CHECK(&i2c_dev, i2c_dev_read_reg(&i2c_dev, reg, err_data, 1));
+//    I2C_DEV_GIVE_MUTEX(&i2c_dev);
+//
+//    ESP_LOG_BUFFER_HEX(TAG, err_data, 1);
+//    
+//    return err_data[0];
+    return (uint8_t)0;
 }

@@ -26,6 +26,15 @@
                 <project-formatting-style>false</project-formatting-style>
             </formatting>
         </data>
+        <preferences xmlns="http://www.netbeans.org/ns/auxiliary-configuration-preferences/1">
+            <module name="org-netbeans-modules-html-editor-lib">
+                <property name="default-html-public-id" value="HTML5"/>
+            </module>
+            <module name="org-netbeans-modules-javascript2-editor"/>
+            <module name="org-netbeans-modules-editor-indent">
+                <node name="CodeStyle"/>
+            </module>
+        </preferences>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
             <word>initialise</word>
         </spellchecker-wordlist>

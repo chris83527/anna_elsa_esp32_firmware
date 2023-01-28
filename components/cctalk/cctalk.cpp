@@ -200,7 +200,7 @@ int Cctalk::usCctalkSerialRxPoll(size_t xEventSize) {
         ESP_LOGD(TAG, "Received data: %d bytes in buffer", (uint32_t) (usCnt - 1));
 
     } else {
-        ESP_LOGE(TAG, "%s: bRxState disabled but junk data (%d bytes) received. ", __func__, xEventSize);
+        ESP_LOGW(TAG, "%s: bRxState disabled but junk data (%d bytes) received. ", __func__, xEventSize);
     }
 
     return usCnt - 1;
@@ -272,21 +272,22 @@ bool Cctalk::initialise() {
         .data_bits = UART_DATA_8_BITS,
         .parity = UART_PARITY_DISABLE,
         .stop_bits = UART_STOP_BITS_1,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-        .rx_flow_ctrl_thresh = 2,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,        
         .source_clk = UART_SCLK_APB,
     };
 
     mutex = xSemaphoreCreateMutex();
 
-    // Set UART config
+    // Set UART config   
+    xErr = uart_driver_install(uartNumber, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE, CCTALK_QUEUE_LENGTH , &xCctalkUartQueue, CCTALK_PORT_SERIAL_ISR_FLAG);
+    CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk serial driver failure, uart_driver_install() returned (0x%x).", xErr);
+    
+    xErr = uart_set_pin(uartNumber, txPin, rxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk config failure, uart_set_pin() returned (0x%x).", xErr);
+
     xErr = uart_param_config(uartNumber, &xUartConfig);
     CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk config failure, uart_param_config() returned (0x%x).", xErr);
-
-    uart_set_pin(uartNumber, txPin, rxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    uart_driver_install(uartNumber, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE, CCTALK_QUEUE_LENGTH , &xCctalkUartQueue, CCTALK_PORT_SERIAL_ISR_FLAG);
-    CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk serial driver failure, uart_driver_install() returned (0x%x).", xErr);
-
+    
     uart_set_rx_timeout(uartNumber, CCTALK_SERIAL_RX_TOUT_TICKS);
     CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk set rx timeout failure, uart_set_rx_timeout() returned (0x%x).", xErr);
 

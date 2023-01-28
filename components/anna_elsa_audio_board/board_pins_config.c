@@ -29,6 +29,7 @@
 #include "board.h"
 #include "audio_error.h"
 #include "audio_mem.h"
+#include "board_pins_config.h"
 
 #define GPIO_I2C_SDA GPIO_NUM_21
 #define GPIO_I2C_SCL GPIO_NUM_22

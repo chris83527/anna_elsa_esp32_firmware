@@ -129,9 +129,7 @@ esp_err_t DisplayController::initialise() {
         ESP_LOGD(TAG, "WS2812 driver installation succeeded");
     }
 
-  
-
-    if (ht16k33_init_desc(&creditDisplay, 0, HT16K33_ADDR_BASE, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
+    if (ht16k33_init_desc(&creditDisplay, 0, CREDIT_DISPLAY_ADDRESS, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "Could not initialise credit display");
     } else {
         ht16k33_display_on(&creditDisplay);
@@ -139,7 +137,7 @@ esp_err_t DisplayController::initialise() {
         ESP_LOGD(TAG, "Credit display initialisation succeeded");
     }
 
-    if (ht16k33_init_desc(&bankDisplay, 0, HT16K33_ADDR_BASE + 1, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
+    if (ht16k33_init_desc(&bankDisplay, 0, BANK_DISPLAY_ADDRESS, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "Could not initialise bank display");
     } else {
         ht16k33_display_on(&bankDisplay);
@@ -147,7 +145,7 @@ esp_err_t DisplayController::initialise() {
         ESP_LOGD(TAG, "Bank display initialisation succeeded");
     }
 
-    if (ht16k33_init_desc(&movesDisplay, 0, HT16K33_ADDR_BASE + 2, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
+    if (ht16k33_init_desc(&movesDisplay, 0, MOVES_DISPLAY_ADDRESS, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "Could not initialise moves display");
     } else {
         ht16k33_display_on(&movesDisplay);
@@ -159,14 +157,13 @@ esp_err_t DisplayController::initialise() {
     buttonIO.cfg.mode = I2C_MODE_MASTER;
     buttonIO.cfg.scl_pullup_en = false;
     buttonIO.cfg.sda_pullup_en = false;
-
-    //if (mcp23x17_init_desc(&buttonIO, MCP23X17_ADDR_BASE + 7, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
-    if (mcp23x17_init_desc(&buttonIO, MCP23X17_ADDR_BASE, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
+    
+    if (mcp23x17_init_desc(&buttonIO, BUTTONS_I2C_ADDRESS, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "Could not initialise button interface");
     } else {
 
         uint16_t portMode = 0x00ff; // PortA input, portB output (0 = output, 1 = input)
-        uint16_t pullup = 0x00ff; // internal pullup resistors on button pins.
+        uint16_t pullup = 0x0000; // internal pullup resistors on button pins off - we pull them up in hardware.
 
         mcp23x17_port_set_mode(&buttonIO, portMode);
         mcp23x17_port_set_pullup(&buttonIO, pullup);

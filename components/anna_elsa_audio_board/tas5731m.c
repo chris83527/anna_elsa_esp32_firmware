@@ -124,22 +124,42 @@ static esp_err_t tas5731m_transmit_registers() {
     buf[0] = 0x60;
     I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x07, &buf[0], 1));
     ESP_LOGI(TAG, "Releasing mutex");
-I2C_DEV_GIVE_MUTEX(&i2c_dev);
+    I2C_DEV_GIVE_MUTEX(&i2c_dev);
     
-    
-//    while (i < size) { 
-//        
-//        
-//        
-//        ESP_LOGI(TAG, "Writing value 0x%x to reg 0x%x", conf_buf[i].value, conf_buf[i].reg);
-//        I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, conf_buf[i].reg, (uint8_t *) (&conf_buf[i].value), 1));
-//        
-//        
-//        
-//        
-//        i++;
-//    }
+    // Read error status register
+    I2C_DEV_TAKE_MUTEX(&i2c_dev);
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_read_reg(&i2c_dev, 0x02, &buf[0], 1));
+    I2C_DEV_GIVE_MUTEX(&i2c_dev);
 
+    if (buf[0] & 2) {
+        ESP_LOGW(TAG, "Overcurrent, overtemperature or undervoltage errors");
+    }
+    
+    if (buf[0] & 4) {
+        ESP_LOGW(TAG, "Clip indicator");        
+    }
+    
+    if (buf[0] & 8) {
+        ESP_LOGW(TAG, "Frame slip");        
+    }
+    
+    if (buf[0] & 16) {
+        ESP_LOGW(TAG, "LRCLK error");        
+    }
+    
+    if (buf[0] & 32) {
+        ESP_LOGW(TAG, "SCLK error");        
+    }
+    
+    if (buf[0] & 64) {
+        ESP_LOGW(TAG, "PLL autolock error");        
+    }
+    
+    if (buf[0] & 128) {
+        ESP_LOGW(TAG, "MCLK error");        
+    }
+    
+    
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Fail to load configuration to TAS5731M");
         return ESP_FAIL;
@@ -158,6 +178,13 @@ esp_err_t tas5731m_init(audio_hal_codec_config_t *codec_cfg) {
     gpio_set_direction(TAS5731M_RST_GPIO, GPIO_MODE_OUTPUT);
     gpio_set_direction(TAS5731M_PDWN_GPIO, GPIO_MODE_OUTPUT);    
     
+    uint32_t reg_val = REG_READ(PIN_CTRL);
+    ESP_LOGI(TAG, "PIN_CTRL before:%x", reg_val);
+    REG_WRITE(PIN_CTRL, 0xFFFFFFF0);
+    reg_val = REG_READ(PIN_CTRL);
+    ESP_LOGI(TAG, "PIN_CTRL after:%x", reg_val);
+    PIN_FUNC_SELECT(GPIO_PIN_REG_0, 1); //GPIO0 as CLK_OUT1
+        
     // See TI TAS5731M Datasheet page 63
     gpio_set_level(TAS5731M_RST_GPIO, 0);// Drive /RESET = 0
     gpio_set_level(TAS5731M_PDWN_GPIO, 0); 
@@ -194,18 +221,7 @@ esp_err_t tas5731m_init(audio_hal_codec_config_t *codec_cfg) {
     if (ret != ESP_OK) {
         ESP_LOGW(TAG, "failed to transmit register");
         return ESP_FAIL;
-    }
-    
-    // check for errors
-    uint8_t err_data[1] = {0};
-    uint8_t reg = 0x02;
-
-
-    I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_read_reg(&i2c_dev, reg, err_data, 1));
-    I2C_DEV_GIVE_MUTEX(&i2c_dev);
-
-    ESP_LOG_BUFFER_HEX(TAG, err_data, 1);
+    }       
 
     TAS5731M_ASSERT(ret, "Fail to initialise TAS5731M PA", ESP_FAIL);
     return ret;

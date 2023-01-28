@@ -2,6 +2,8 @@
 <configurationDescriptor version="100">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df root="." name="0">
+      <df name="audio">
+      </df>
       <df name="bootloader">
         <df name="CMakeFiles">
           <df name="3.16.3">
@@ -1142,6 +1144,16 @@
               </df>
             </df>
           </df>
+          <df name="joltwallet__littlefs">
+            <df name="CMakeFiles">
+              <df name="__idf_joltwallet__littlefs.dir">
+                <df name="src">
+                  <df name="littlefs">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
           <df name="jsmn">
             <df name="CMakeFiles">
               <df name="__idf_jsmn.dir">
@@ -1395,16 +1407,6 @@
           <df name="main">
             <df name="CMakeFiles">
               <df name="__idf_main.dir">
-                <df name="build">
-                  <df name="CMakeFiles">
-                    <df name="3.16.3">
-                      <df name="CompilerIdC">
-                      </df>
-                      <df name="CompilerIdCXX">
-                      </df>
-                    </df>
-                  </df>
-                </df>
               </df>
             </df>
           </df>
@@ -1759,26 +1761,6 @@
         <in>project_elf_src_esp32.c</in>
         <in>x509_crt_bundle.S</in>
       </df>
-      <df name="CMakeFiles">
-        <df name="3.16.3">
-          <df name="CompilerIdASM">
-          </df>
-          <df name="CompilerIdC">
-            <df name="tmp">
-            </df>
-            <in>CMakeCCompilerId.c</in>
-          </df>
-          <df name="CompilerIdCXX">
-            <df name="tmp">
-            </df>
-            <in>CMakeCXXCompilerId.cpp</in>
-          </df>
-        </df>
-        <df name="CMakeTmp">
-        </df>
-        <df name="git-data">
-        </df>
-      </df>
       <df name="components">
         <df name="anna_elsa_audio_board">
           <df name="build">
@@ -1825,6 +1807,83 @@
             <in>ht16k33.h</in>
           </df>
           <in>ht16k33.c</in>
+        </df>
+        <df name="joltwallet__littlefs">
+          <df name="example">
+            <df name="flash_data">
+            </df>
+            <df name="main">
+              <in>demo_esp_littlefs.c</in>
+            </df>
+          </df>
+          <df name="include">
+            <in>esp_littlefs.h</in>
+          </df>
+          <df name="mklittlefs">
+            <df name="include">
+              <in>spiffs_config.h</in>
+            </df>
+            <df name="tclap">
+              <in>Arg.h</in>
+              <in>ArgException.h</in>
+              <in>ArgTraits.h</in>
+              <in>CmdLine.h</in>
+              <in>CmdLineInterface.h</in>
+              <in>CmdLineOutput.h</in>
+              <in>Constraint.h</in>
+              <in>DocBookOutput.h</in>
+              <in>HelpVisitor.h</in>
+              <in>IgnoreRestVisitor.h</in>
+              <in>MultiArg.h</in>
+              <in>MultiSwitchArg.h</in>
+              <in>OptionalUnlabeledTracker.h</in>
+              <in>StandardTraits.h</in>
+              <in>StdOutput.h</in>
+              <in>SwitchArg.h</in>
+              <in>UnlabeledMultiArg.h</in>
+              <in>UnlabeledValueArg.h</in>
+              <in>ValueArg.h</in>
+              <in>ValuesConstraint.h</in>
+              <in>VersionVisitor.h</in>
+              <in>Visitor.h</in>
+              <in>XorHandler.h</in>
+              <in>ZshCompletionOutput.h</in>
+            </df>
+            <in>main.cpp</in>
+          </df>
+          <df name="src">
+            <df name="littlefs">
+              <df name=".github">
+                <df name="workflows">
+                </df>
+              </df>
+              <df name="bd">
+                <in>lfs_filebd.c</in>
+                <in>lfs_filebd.h</in>
+                <in>lfs_rambd.c</in>
+                <in>lfs_rambd.h</in>
+                <in>lfs_testbd.c</in>
+                <in>lfs_testbd.h</in>
+              </df>
+              <df name="scripts">
+              </df>
+              <df name="tests">
+              </df>
+              <in>lfs.c</in>
+              <in>lfs.h</in>
+              <in>lfs_util.c</in>
+              <in>lfs_util.h</in>
+            </df>
+            <in>esp_littlefs.c</in>
+            <in>lfs_config.c</in>
+            <in>lfs_config.h</in>
+            <in>littlefs_api.c</in>
+            <in>littlefs_api.h</in>
+          </df>
+          <df name="test">
+            <in>test_benchmark.c</in>
+            <in>test_littlefs.c</in>
+          </df>
         </df>
         <df name="m20ly02z">
           <df name="include">
@@ -3013,7 +3072,6 @@
                 <df name="mbedx509.dir">
                 </df>
               </df>
-              <in>error.c</in>
               <in>psa_crypto_driver_wrappers.c</in>
               <in>ssl_debug_helpers_generated.c</in>
               <in>version_features.c</in>
@@ -3339,29 +3397,13 @@
           </df>
         </df>
       </df>
+      <df name="httpd">
+      </df>
       <df name="include">
       </df>
       <df name="lib">
       </df>
       <df name="main">
-        <df name="build">
-          <df name="CMakeFiles">
-            <df name="3.16.3">
-              <df name="CompilerIdC">
-                <df name="tmp">
-                </df>
-                <in>CMakeCCompilerId.c</in>
-              </df>
-              <df name="CompilerIdCXX">
-                <df name="tmp">
-                </df>
-                <in>CMakeCXXCompilerId.cpp</in>
-              </df>
-            </df>
-            <df name="CMakeTmp">
-            </df>
-          </df>
-        </df>
         <in>audiocontroller.cpp</in>
         <in>audiocontroller.h</in>
         <in>cctalkcontroller.cpp</in>
@@ -3384,16 +3426,13 @@
         <in>spiffs.h</in>
         <in>webserver.c</in>
         <in>webserver.h</in>
-        <in>wificontroller.cpp</in>
-        <in>wificontroller.h</in>
+        <in>wifi.cpp</in>
+        <in>wifi.h</in>
       </df>
       <df name="partition_table">
       </df>
-      <df name="spiffs_image">
-      </df>
       <df name="test">
       </df>
-      <in>wificontroller.h</in>
     </df>
     <df root="../esp/esp-idf-lib/components" name="1">
       <df name="ads111x">

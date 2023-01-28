@@ -91,7 +91,7 @@ void oledcontroller::scrollText(std::string textToDisplay) {
 }
 
 void oledcontroller::displayText(std::string textToDisplay, int lineNumber, bool invert) { 
-    ESP_LOGI(TAG, "Displaying text %s", textToDisplay.c_str());
+    //ESP_LOGI(TAG, "Displaying text %s", textToDisplay.c_str());
     if (textToDisplay.size() > 20) {
         textToDisplay = textToDisplay.substr(0,20);
     }

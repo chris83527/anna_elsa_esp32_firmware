@@ -34,7 +34,7 @@
 
 #include "audio_hal.h"
 #include "board_def.h"
-#include "board_pins_config.h"
+#include "./board_pins_config.h"
 #include "esp_peripherals.h"
 #include "display_service.h"
 #include "periph_sdcard.h"

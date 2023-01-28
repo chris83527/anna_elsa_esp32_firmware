@@ -26,6 +26,7 @@
 #include "maincontroller.h"
 
 #include "cctalkcontroller.h"
+#include "oledcontroller.h"
 
 using namespace std;
 
@@ -59,10 +60,16 @@ esp_err_t CCTalkController::initialise() {
 
     requestManufacturerId(CCTALK_COIN_VALIDATOR, response);
     ESP_LOGI(TAG, "Coin validator manufacturer Id: %s", response.asStringResponse().c_str());
+    mainController->getOledController()->scrollText(std::string("Manufacturer Id:"));
+    mainController->getOledController()->scrollText(std::string(response.asStringResponse()));
     requestBuildCode(CCTALK_COIN_VALIDATOR, response);
     ESP_LOGI(TAG, "Build Code: %s", response.asStringResponse().c_str());
+    mainController->getOledController()->scrollText(std::string("Build code: "));
+    mainController->getOledController()->scrollText(std::string(response.asStringResponse()));
     requestProductCode(CCTALK_COIN_VALIDATOR, response);
     ESP_LOGI(TAG, "Product Code: %s", response.asStringResponse().c_str());
+    mainController->getOledController()->scrollText(std::string("Product code: "));
+    mainController->getOledController()->scrollText(std::string(response.asStringResponse()));
 
     modifySorterPath(CCTALK_COIN_VALIDATOR, 1, 1, response); // 5ct  (Kasse - rejected anyway)
     modifySorterPath(CCTALK_COIN_VALIDATOR, 2, 1, response); // 10ct (Kasse, adapter slot D, cctalk sort chute 1)

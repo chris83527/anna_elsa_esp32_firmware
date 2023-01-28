@@ -69,8 +69,8 @@
         <in>reelcontroller.cpp</in>
         <in>spiffs.c</in>
         <in>webserver.c</in>
-        <in>wificontroller.cpp</in>
-        <in>wificontroller.h</in>
+        <in>wifi.cpp</in>
+        <in>wifi.h</in>
       </df>
     </df>
     <df root="../esp/esp-idf-lib/components" name="1">
@@ -13944,6 +13944,7 @@
               <pElem>../esp/esp-adf/components/esp-adf-libs/media_lib_sal/include</pElem>
               <pElem>../esp/esp-adf/components/esp-adf-libs/recorder_engine/include</pElem>
               <pElem>../esp/esp-adf/components/esp-adf-libs/esp_audio/include</pElem>
+              <pElem>components/joltwallet__littlefs/include</pElem>
             </incDir>
           </cTool>
           <ccTool>
@@ -14075,6 +14076,7 @@
               <pElem>../esp/esp-adf/components/esp-adf-libs/media_lib_sal/include</pElem>
               <pElem>../esp/esp-adf/components/esp-adf-libs/recorder_engine/include</pElem>
               <pElem>../esp/esp-adf/components/esp-adf-libs/esp_audio/include</pElem>
+              <pElem>components/joltwallet__littlefs/include</pElem>
             </incDir>
           </ccTool>
         </makeTool>
@@ -60261,9 +60263,9 @@
         <cTool flags="1">
         </cTool>
       </item>
-      <item path="main/wificontroller.cpp" ex="false" tool="1" flavor2="0">
+      <item path="main/wifi.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="main/wificontroller.h" ex="false" tool="3" flavor2="0">
+      <item path="main/wifi.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>

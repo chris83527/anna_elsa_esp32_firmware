@@ -142,7 +142,7 @@ esp_err_t ReelController::initialise() {
         return ESP_FAIL;
     }
 
-    if (mcp23008_init_desc(&reel_left, MCP23008_I2C_ADDR_BASE, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
+    if (mcp23008_init_desc(&reel_left, REEL_LEFT_I2C_ADDRESS, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "An error occurred initialising left reel");
     } else {
         // motor outputs to our H-bridge
@@ -165,7 +165,7 @@ esp_err_t ReelController::initialise() {
         ESP_LOGD(TAG, "Left reel initialised ok.");
     }
 
-    if (mcp23008_init_desc(&reel_centre, MCP23008_I2C_ADDR_BASE + 1, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
+    if (mcp23008_init_desc(&reel_centre, REEL_CENTRE_I2C_ADDRESS, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "An error occurred initialising centre reel");
         //return ESP_FAIL;
     } else {
@@ -189,7 +189,7 @@ esp_err_t ReelController::initialise() {
         ESP_LOGD(TAG, "Centre reel initialised ok.");
     }
 
-    if (mcp23008_init_desc(&reel_right, MCP23008_I2C_ADDR_BASE + 2, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
+    if (mcp23008_init_desc(&reel_right, REEL_RIGHT_I2C_ADDRESS, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "An error occurred initialising right reel");
         //return ESP_FAIL;
     } else {

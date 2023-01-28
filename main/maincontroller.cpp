@@ -14,12 +14,12 @@
 #include <stdlib.h>
 #include <ctime>
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_log.h"
-#include "esp_system.h"
-#include "ds3231.h"
-#include "esp_wifi.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <esp_log.h>
+#include <esp_system.h>
+#include <ds3231.h>
+#include <esp_ota_ops.h>
 
 
 #include "config.h"
@@ -31,13 +31,53 @@
 #include "moneycontroller.h"
 #include "maincontroller.h"
 #include "webserver.h"
-#include "spiffs.h"
+#include "esp_littlefs.h"
 #include "oledcontroller.h"
-//#include "wificontroller.h"
+#include "wifi.h"
 //#include "errors.h"
 
 static const char *TAG = "MainController";
 static int blinkDelay = 250;
+
+void wifiStatusTask(void *pvParameters) {
+    MainController *mainController = reinterpret_cast<MainController *> (pvParameters);
+    WIFI::Wifi wifi = mainController->getWifiController();
+
+    while (1) {
+        WIFI::Wifi::state_e wifiState = wifi.GetState();
+
+        switch (wifiState) {
+            case WIFI::Wifi::state_e::READY_TO_CONNECT:
+                //std::cout << "Wifi Status: READY_TO_CONNECT\n";
+                wifi.Begin();
+                break;
+            case WIFI::Wifi::state_e::DISCONNECTED:
+                //std::cout << "Wifi Status: DISCONNECTED\n";
+                wifi.Begin();
+                break;
+            case WIFI::Wifi::state_e::CONNECTING:
+                //std::cout << "Wifi Status: CONNECTING\n";
+                break;
+            case WIFI::Wifi::state_e::WAITING_FOR_IP:
+                //std::cout << "Wifi Status: WAITING_FOR_IP\n";
+                break;
+            case WIFI::Wifi::state_e::ERROR:
+                //std::cout << "Wifi Status: ERROR\n";
+                break;
+            case WIFI::Wifi::state_e::CONNECTED:
+                //std::cout << "Wifi Status: CONNECTED\n";
+                break;
+            case WIFI::Wifi::state_e::NOT_INITIALIZED:
+                //std::cout << "Wifi Status: NOT_INITIALIZED\n";
+                break;
+            case WIFI::Wifi::state_e::INITIALIZED:
+                //std::cout << "Wifi Status: INITIALIZED\n";
+                break;
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
 
 void blinkCPUStatusLEDTask(void *pvParameters) {
     while (1) {
@@ -170,7 +210,7 @@ void MainController::start() {
     this->moneyController = new MoneyController(this);
     this->game = new Game(this);
     this->oledController = new oledcontroller();
-    //this->wifiController = new Wifi::WifiController();
+
 
     // CPU LED is on a GPIO
     gpio_pad_select_gpio(CPU_LED_GPIO);
@@ -183,24 +223,31 @@ void MainController::start() {
 
     esp_event_loop_create_default();
 
-    //    wifiController->setCredentials("INNUENDO", "woodsamusements");
-    //    wifiController->initialise();
-    //    wifiController->begin();
-
     xTaskCreate(&blinkCPUStatusLEDTask, "cpu_status_led_blink", 2048, this, 1, NULL);
 
-    ESP_LOGD(TAG, "Calling i2cdev_init()");    
+
+    ESP_LOGD(TAG, "Calling i2cdev_init()");
     ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());
     //i2c_set_timeout(I2C_NUM_0, 400000);
-    
+
     // start outputting to status oled
     oledController->initialise();
-    
+
+
     // Initialize NVS
     ESP_LOGD(TAG, "Setting up NVS");
     oledController->scrollText("Init NVS");
-    
+
     // Initialize NVS
+    err = nvs_flash_init();
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        // NVS partition was truncated and needs to be erased
+        // Retry nvs_flash_init
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        err = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(err);
+
     err = nvs_flash_init_partition(NVS_PARTITION_SETTINGS);
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         // NVS partition was truncated and needs to be erased
@@ -219,12 +266,18 @@ void MainController::start() {
         oledController->scrollText("-> ok");
     }
 
+    // Initialise WiFi
+    oledController->scrollText("Init WiFi");
+    Wifi.SetCredentials("INNUENDO", "woodsamusements");
+    Wifi.Init();
+    xTaskCreate(&wifiStatusTask, "wifi_status_task", 2048, this, 1, NULL);
+
     // initialise ds3231 RTC
     oledController->scrollText("Init RTC");
     memset(&ds3231, 0, sizeof (i2c_dev_t));
 
     err = ds3231_init_desc(&ds3231, 0, GPIO_I2C_SDA, GPIO_I2C_SCL);
-    if (err != ESP_OK) {        
+    if (err != ESP_OK) {
         ESP_LOGE(TAG, "Error initialising RTC!");
         oledController->scrollText("-> failed");
     } else {
@@ -233,43 +286,76 @@ void MainController::start() {
         oledController->scrollText("-> ok");
     }
 
-    oledController->scrollText("Init SPIFFS");
-    init_spiffs();
+    oledController->scrollText("Init LittleFS");
+
+    esp_vfs_littlefs_conf_t conf = {
+        .base_path = "/httpd",
+        .partition_label = "httpd",
+        .format_if_mount_failed = false,
+        .dont_mount = false,
+    };
+
+    // Use settings defined above to initialize and mount LittleFS filesystem.
+    // Note: esp_vfs_littlefs_register is an all-in-one convenience function.
+    esp_err_t ret = esp_vfs_littlefs_register(&conf);
+
+    if (ret != ESP_OK) {
+        if (ret == ESP_FAIL) {
+            ESP_LOGE(TAG, "Failed to mount or format filesystem");
+        } else if (ret == ESP_ERR_NOT_FOUND) {
+            ESP_LOGE(TAG, "Failed to find LittleFS partition");
+        } else {
+            ESP_LOGE(TAG, "Failed to initialize LittleFS (%s)", esp_err_to_name(ret));
+        }
+        return;
+    }
+
     oledController->scrollText("Init Webserver");
-    init_webserver("/spiffs");
+    init_webserver("/httpd");
+
+    /* Mark current app as valid */
+    const esp_partition_t *partition = esp_ota_get_running_partition();
+    printf("Currently running partition: %s\r\n", partition->label);
+
+    esp_ota_img_states_t ota_state;
+    if (esp_ota_get_state_partition(partition, &ota_state) == ESP_OK) {
+        if (ota_state == ESP_OTA_IMG_PENDING_VERIFY) {
+            esp_ota_mark_app_valid_cancel_rollback();
+        }
+    }
+
 
     // intialise audio subsystem    
     oledController->scrollText("Init Audio");
     audioController->initialise();
 
-     esp_err_t res;
+    esp_err_t res;
     printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n");
-        printf("00:         ");
-        for (uint8_t i = 3; i < 0x78; i++)
-        {
-            i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-            i2c_master_start(cmd);
-            i2c_master_write_byte(cmd, (i << 1) | I2C_MASTER_WRITE, 1 /* expect ack */);
-            i2c_master_stop(cmd);
-    
-            res = i2c_master_cmd_begin(I2C_NUM_0, cmd, 10 / portTICK_PERIOD_MS);
-            if (i % 16 == 0)
-                printf("\n%.2x:", i);
-            if (res == 0)
-                printf(" %.2x", i);
-            else
-                printf(" --");
-            i2c_cmd_link_delete(cmd);
-        }
-        printf("\n\n");
-    
+    printf("00:         ");
+    for (uint8_t i = 3; i < 0x78; i++) {
+        i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+        i2c_master_start(cmd);
+        i2c_master_write_byte(cmd, (i << 1) | I2C_MASTER_WRITE, 1 /* expect ack */);
+        i2c_master_stop(cmd);
+
+        res = i2c_master_cmd_begin(I2C_NUM_0, cmd, 10 / portTICK_PERIOD_MS);
+        if (i % 16 == 0)
+            printf("\n%.2x:", i);
+        if (res == 0)
+            printf(" %.2x", i);
+        else
+            printf(" --");
+        i2c_cmd_link_delete(cmd);
+    }
+    printf("\n\n");
+
     oledController->scrollText("Init Display");
     if (displayController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise tableau subsystem");
         oledController->scrollText("-> failed");
     } else {
         ESP_LOGD(TAG, "Display controller initialisation ok.");
-      //  oledController->scrollText("-> ok");
+        oledController->scrollText("-> ok");
     }
 
     //oledController->scrollText("Init NVRAM");
@@ -401,13 +487,13 @@ void MainController::payout() {
 
 void MainController::setDateTime() {
     tm time;
-    time.tm_hour = 20;
-    time.tm_min = 07;
+    time.tm_hour = 12;
+    time.tm_min = 31;
     time.tm_sec = 0;
     time.tm_isdst = true;
     time.tm_mon = 01;
     time.tm_year = (2023 - 1900); // tm_year = number of years since 1900
-    time.tm_mday = 16;
+    time.tm_mday = 24;
 
     ds3231_set_time(&ds3231, &time);
 
@@ -570,3 +656,6 @@ uint16_t MainController::readValueFromNVS(const char * key) {
     return value;
 }
 
+WIFI::Wifi MainController::getWifiController() {
+    return Wifi;
+}

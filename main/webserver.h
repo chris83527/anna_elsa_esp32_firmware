@@ -46,7 +46,6 @@
 #include "esp_netif.h"
 #include "esp_eth.h"
 
-
 #include <esp_https_server.h>
 
 #ifdef __cplusplus

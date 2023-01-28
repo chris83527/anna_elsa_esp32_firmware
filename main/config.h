@@ -40,6 +40,7 @@
 #include <string>
 
 #include "driver/gpio.h"
+#include "ht16k33.h"
 
 #define I2C_FREQ_HZ 400000
 
@@ -49,6 +50,9 @@
 // ccTalk
 #define CCTALK_GPIO_RX GPIO_NUM_16
 #define CCTALK_GPIO_TX GPIO_NUM_17
+
+//#define CCTALK_GPIO_RX GPIO_NUM_17
+//#define CCTALK_GPIO_TX GPIO_NUM_16
 
 
 // I2C
@@ -66,6 +70,7 @@
 #define MD_STROBE GPIO_NUM_32
 
 // I2S Audio
+#define AUDIO_MCLK GPIO_NUM_0
 #define AUDIO_PDWN GPIO_NUM_2
 #define AUDIO_LRCLK GPIO_NUM_25
 #define AUDIO_SCLK GPIO_NUM_26
@@ -154,7 +159,15 @@
 #define LAMP_TRAIL_FOUR_SIXTY     59
 #define LAMP_TRAIL_FIVE_EURO      60
 
+#define CREDIT_DISPLAY_ADDRESS      HT16K33_ADDR_BASE      // 0x70
+#define BANK_DISPLAY_ADDRESS        HT16K33_ADDR_BASE + 1  // 0x71
+#define MOVES_DISPLAY_ADDRESS       HT16K33_ADDR_BASE + 2  // 0x72
 
+#define REEL_LEFT_I2C_ADDRESS       MCP23008_I2C_ADDR_BASE // 0x21
+#define REEL_CENTRE_I2C_ADDRESS     MCP23008_I2C_ADDR_BASE + 1 // 0x22
+#define REEL_RIGHT_I2C_ADDRESS      MCP23008_I2C_ADDR_BASE + 2 // 0x23
+
+#define BUTTONS_I2C_ADDRESS         MCP23X17_ADDR_BASE + 7 // 0x27
 
 
 #endif /* CONFIG_H */

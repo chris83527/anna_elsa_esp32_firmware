@@ -15,13 +15,13 @@
 #define MAINCONTROLLER_H
 
 #include <cstdlib>
+#include <nvs_flash.h>
+#include <nvs.h>
+#include <nvs_handle.hpp>
+#include <esp_wifi.h>
 
 #include "ds3231.h"
-#include "nvs_flash.h"
-#include "nvs.h"
-#include "nvs_handle.hpp"
-#include "esp_wifi.h"
-//#include "wificontroller.h"
+#include "wifi.h"
 
 class CCTalkController;
 class ReelController;
@@ -62,6 +62,8 @@ public:
     Game* getGame();
     MoneyController* getMoneyController();
     oledcontroller* getOledController();
+    WIFI::Wifi getWifiController();
+    
     i2c_dev_t* getDs3231();
     
     static void cctalkStatusCheckTask(void *pvParameter);
@@ -96,7 +98,9 @@ private:
     AudioController * audioController;
     MoneyController * moneyController;
     oledcontroller * oledController;
-//    Wifi::WifiController * wifiController;
+
+    WIFI::Wifi::state_e wifiState { WIFI::Wifi::state_e::NOT_INITIALIZED };
+    WIFI::Wifi Wifi;    
 
     std::unique_ptr<nvs::NVSHandle> nvs_handle;
 
