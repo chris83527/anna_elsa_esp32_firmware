@@ -386,7 +386,8 @@ void Game::collectOrContinue() {
     lampData[LMP_COLLECT].lampState = LampState::off;
 
     if (btnStatus.test(BTN_COLLECT)) {
-        mainController->payout();
+        // TODO: Sort this out when cctalk finished
+        //mainController->payout();
     } else if (btnStatus.test(BTN_START)) {
         mainController->getMoneyController()->moveBankToCredit();
     }

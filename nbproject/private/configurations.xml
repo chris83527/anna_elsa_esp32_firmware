@@ -1793,14 +1793,26 @@
           <in>tas5731m_reg_cfg.h</in>
         </df>
         <df name="cctalk">
-          <in>CctalkException.cpp</in>
-          <in>CctalkException.h</in>
-          <in>CctalkRequest.cpp</in>
-          <in>CctalkRequest.h</in>
-          <in>CctalkResponse.cpp</in>
-          <in>CctalkResponse.h</in>
-          <in>cctalk.cpp</in>
-          <in>cctalk.h</in>
+          <df name="old">
+            <in>CctalkException.cpp</in>
+            <in>CctalkException.h</in>
+            <in>CctalkRequest.cpp</in>
+            <in>CctalkRequest.h</in>
+            <in>CctalkResponse.cpp</in>
+            <in>CctalkResponse.h</in>
+            <in>cctalk.cpp</in>
+            <in>cctalk.h</in>
+          </df>
+          <in>bill_validator_device.h</in>
+          <in>cctalk_device.cpp</in>
+          <in>cctalk_device.h</in>
+          <in>cctalk_enums.h</in>
+          <in>cctalk_link_controller.cpp</in>
+          <in>cctalk_link_controller.h</in>
+          <in>coin_acceptor_device.h</in>
+          <in>coin_hopper_device.h</in>
+          <in>serial_worker.cpp</in>
+          <in>serial_worker.h</in>
         </df>
         <df name="ht16k33">
           <df name="include">
@@ -1822,6 +1834,8 @@
           <df name="mklittlefs">
             <df name="include">
               <in>spiffs_config.h</in>
+            </df>
+            <df name="mklittlefs-193ec2f-generic-linux64">
             </df>
             <df name="tclap">
               <in>Arg.h</in>
@@ -3072,6 +3086,7 @@
                 <df name="mbedx509.dir">
                 </df>
               </df>
+              <in>error.c</in>
               <in>psa_crypto_driver_wrappers.c</in>
               <in>ssl_debug_helpers_generated.c</in>
               <in>version_features.c</in>

@@ -36,12 +36,24 @@
           <in>tas5731m_reg_cfg.h</in>
         </df>
         <df name="cctalk">
-          <in>CctalkException.cpp</in>
-          <in>CctalkException.h</in>
-          <in>CctalkRequest.cpp</in>
-          <in>CctalkRequest.h</in>
-          <in>CctalkResponse.cpp</in>
-          <in>CctalkResponse.h</in>
+          <df name="old">
+            <in>CctalkException.cpp</in>
+            <in>CctalkException.h</in>
+            <in>CctalkRequest.cpp</in>
+            <in>CctalkRequest.h</in>
+            <in>CctalkResponse.cpp</in>
+            <in>CctalkResponse.h</in>
+          </df>
+          <in>bill_validator_device.h</in>
+          <in>cctalk_device.cpp</in>
+          <in>cctalk_device.h</in>
+          <in>cctalk_enums.h</in>
+          <in>cctalk_link_controller.cpp</in>
+          <in>cctalk_link_controller.h</in>
+          <in>coin_acceptor_device.h</in>
+          <in>coin_hopper_device.h</in>
+          <in>serial_worker.cpp</in>
+          <in>serial_worker.h</in>
         </df>
         <df name="ht16k33">
           <in>ht16k33.c</in>
@@ -60182,29 +60194,76 @@
             tool="3"
             flavor2="0">
       </item>
-      <item path="components/cctalk/CctalkException.cpp"
-            ex="false"
-            tool="1"
-            flavor2="0">
-      </item>
-      <item path="components/cctalk/CctalkException.h"
+      <item path="components/cctalk/bill_validator_device.h"
             ex="false"
             tool="3"
             flavor2="0">
       </item>
-      <item path="components/cctalk/CctalkRequest.cpp"
+      <item path="components/cctalk/cctalk_device.cpp"
             ex="false"
             tool="1"
             flavor2="0">
       </item>
-      <item path="components/cctalk/CctalkRequest.h" ex="false" tool="3" flavor2="0">
+      <item path="components/cctalk/cctalk_device.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="components/cctalk/CctalkResponse.cpp"
+      <item path="components/cctalk/cctalk_enums.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="components/cctalk/cctalk_link_controller.cpp"
             ex="false"
             tool="1"
             flavor2="0">
       </item>
-      <item path="components/cctalk/CctalkResponse.h" ex="false" tool="3" flavor2="0">
+      <item path="components/cctalk/cctalk_link_controller.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="components/cctalk/coin_acceptor_device.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="components/cctalk/coin_hopper_device.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="components/cctalk/old/CctalkException.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="components/cctalk/old/CctalkException.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="components/cctalk/old/CctalkRequest.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="components/cctalk/old/CctalkRequest.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="components/cctalk/old/CctalkResponse.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="components/cctalk/old/CctalkResponse.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="components/cctalk/serial_worker.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="components/cctalk/serial_worker.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="components/ht16k33/ht16k33.c" ex="false" tool="0" flavor2="10">
         <cTool flags="1">

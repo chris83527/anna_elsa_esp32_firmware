@@ -101,7 +101,7 @@ void Cctalk::vCctalkSerialEnable(bool bRxEnable) {
     ESP_LOGD(TAG, "Exiting %s", __func__);
 }
 
-bool Cctalk::pxCctalkCBByteReceived() {
+bool Cctalk::cctalkByteReceivedCallback() {
 
     ESP_LOGD(TAG, "%s called.", __func__);
     uint8_t receivedByte;
@@ -192,7 +192,7 @@ int Cctalk::usCctalkSerialRxPoll(size_t xEventSize) {
     if (bRxStateEnabled) {
         while (xReadStatus && (usCnt++ < xEventSize)) {
             // Call the cctalk stack callback function and let it fill the stack buffers.
-            xReadStatus = pxCctalkCBByteReceived(); // callback to receive FSM
+            xReadStatus = cctalkByteReceivedCallback(); // callback to receive FSM
         }
 
         // The buffer is transferred into cctalk stack and is not needed here any more

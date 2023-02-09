@@ -37,9 +37,7 @@ public:
     MainController();
     MainController(const MainController& orig);
 
-    void start();
-
-    void payout();
+    void start();    
 
     void print_binary(uint8_t value);
     //void dumpEEPROMValues();
@@ -48,8 +46,7 @@ public:
     //void printDate(Stream *stream);
     uint8_t getVolume();
     //EEProm_Data* getEEPromData();
-    void checkHopperLevel(); // TODO: this should be in cctalkcontroller
-    void processHopperErrors();
+    
     void error(int errorCode);
 
     void writeValueToNVS(const char * key, uint16_t value);
@@ -65,8 +62,7 @@ public:
     WIFI::Wifi getWifiController();
     
     i2c_dev_t* getDs3231();
-    
-    static void cctalkStatusCheckTask(void *pvParameter);
+       
 
 private:
 
@@ -113,8 +109,7 @@ private:
         IN_GAME,
         PAYING_OUT
     };
-    
-    int hopperEventCounter = 0;
+       
         
 };
 

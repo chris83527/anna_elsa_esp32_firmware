@@ -23,6 +23,7 @@
 
 
 #include "config.h"
+#include "spiffs.h"
 #include "reelcontroller.h"
 #include "displaycontroller.h"
 #include "cctalkcontroller.h"
@@ -131,63 +132,6 @@ void updateStatisticsDisplayTask(void *pvParameters) {
         }
 
         vTaskDelay(pdMS_TO_TICKS(1000)); // 1 second
-    }
-}
-
-void MainController::cctalkStatusCheckTask(void *pvParameter) {
-    ESP_LOGD(TAG, "Hopper status check task started.");
-    MainController *mainController = reinterpret_cast<MainController *> (pvParameter);
-    CCTalkController *cctalkController = mainController->getCCTalkController();
-    MoneyController *moneyController = mainController->getMoneyController();
-
-    int validatorEventCounter = 0;
-
-    CctalkResponse response;
-
-    for (;;) {
-
-        if (!moneyController->isPayoutInProgress()) {
-
-            // now switch to polling for credit
-            cctalkController->pollCredit(CCTALK_COIN_VALIDATOR, response);
-
-            if (response.isValidResponse() && response.getAdditionalData().size() > 0) {
-                uint8_t tmpValidatorEventCounter = response.getAdditionalData().at(0);
-
-                if (tmpValidatorEventCounter > validatorEventCounter) {
-                    ESP_LOGD(TAG, "Current Coin validator event count: %d, Previous count: %d ", response.getAdditionalData().at(0), validatorEventCounter);
-
-                    int numCoinEventsToProcess = tmpValidatorEventCounter - validatorEventCounter;
-
-                    Payment payment;
-                    payment.clear();
-                    for (int i = 1; i <= numCoinEventsToProcess; i += 2) {
-                        ESP_LOGD(TAG, "Coin value for event %d: %d ", i, CCTalkController::COIN_VALUES[response.getAdditionalData().at(i)]);
-                        switch (response.getAdditionalData().at(i)) {
-                            case 2:
-                                payment.addTenCent();
-                                break;
-                            case 3:
-                                payment.addTwentyCent();
-                                break;
-                            case 4:
-                                payment.addFiftyCent();
-                                break;
-                            case 5:
-                                payment.addOneEuro();
-                                break;
-                            case 6:
-                                payment.addTwoEuro();
-                                break;
-                        }
-                    }
-                    moneyController->addToCredit(payment);
-                }
-                validatorEventCounter = tmpValidatorEventCounter;
-            }
-        }
-
-        vTaskDelay(pdMS_TO_TICKS(75));
     }
 }
 
@@ -310,6 +254,8 @@ void MainController::start() {
         return;
     }
 
+    oledController->scrollText("Init SPIFFS");
+    init_spiffs();
     oledController->scrollText("Init Webserver");
     init_webserver("/httpd");
 
@@ -338,11 +284,11 @@ void MainController::start() {
         i2c_master_write_byte(cmd, (i << 1) | I2C_MASTER_WRITE, 1 /* expect ack */);
         i2c_master_stop(cmd);
 
-        res = i2c_master_cmd_begin(I2C_NUM_0, cmd, 10 / portTICK_PERIOD_MS);
+        res = i2c_master_cmd_begin(I2C_NUM_0, cmd, pdMS_TO_TICKS(10));
         if (i % 16 == 0)
-            printf("\n%.2x:", i);
+            printf("\n%2x:", i);
         if (res == 0)
-            printf(" %.2x", i);
+            printf(" %2x", i);
         else
             printf(" --");
         i2c_cmd_link_delete(cmd);
@@ -370,16 +316,16 @@ void MainController::start() {
         ESP_LOGD(TAG, "Reel controller initialisation ok.");
     }
 
-    oledController->scrollText("Init cctalk");
-    if (cctalkController->initialise() != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
-        oledController->scrollText("-> failed");
-    } else {
-        oledController->scrollText("-> ok");
-        oledController->scrollText("Start cctalk polling");
-        ESP_LOGD(TAG, "Starting validator and hopper status polling");
-        xTaskCreate(&cctalkStatusCheckTask, "check_hopper_status", 10000, this, 14, NULL);
-    }
+//    oledController->scrollText("Init cctalk");
+//    if (cctalkController->initialise() != ESP_OK) {
+//        ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
+//        oledController->scrollText("-> failed");
+//    } else {
+//        oledController->scrollText("-> ok");
+//        oledController->scrollText("Start cctalk polling");
+//        ESP_LOGD(TAG, "Starting validator and hopper status polling");
+//        xTaskCreate(&cctalkStatusCheckTask, "check_hopper_status", 10000, this, 14, NULL);
+//    }
 
     //audioController->playAudioFile(Sounds::SND_LET_IT_GO);
 
@@ -403,59 +349,6 @@ void MainController::start() {
         vTaskDelay(pdMS_TO_TICKS(200));
     }
 
-}
-
-void MainController::payout() {
-
-    ESP_LOGI(TAG, "Entering %s", __func__);
-    moneyController->setPayoutInProgress(true);
-
-    uint8_t numCoins = (this->moneyController->getBank() / 20);
-    ESP_LOGI(TAG, "Paying out %d coins", numCoins);
-
-    CctalkResponse response;
-    cctalkController->dispenseCoins(CCTALK_HOPPER, numCoins, response);
-
-
-    while (moneyController->isPayoutInProgress()) {
-        cctalkController->pollHopperStatus(CCTALK_HOPPER, response);
-        ESP_LOGD(TAG, "Polling hopper status");
-        if (response.isValidResponse() && response.getAdditionalData().size() >= 4) {
-            uint8_t tmpHopperEventCounter = response.getAdditionalData().at(0);
-            uint8_t coinsRemaining = response.getAdditionalData().at(1);
-            uint8_t coinsPaid = response.getAdditionalData().at(2);
-            uint8_t coinsUnpaid = response.getAdditionalData().at(3);
-            ESP_LOGD(TAG, "Event counter: %d, Coins remaining: %d, Coins paid: %d, Coins unpaid: %d", tmpHopperEventCounter, coinsRemaining, coinsPaid, coinsUnpaid);
-
-            if (tmpHopperEventCounter > hopperEventCounter) {
-                // all coins have been paid, or some could not be paid
-                if (coinsRemaining == 0) {
-                    ESP_LOGI(TAG, "Coins paid: %d", coinsPaid);
-                    hopperEventCounter = tmpHopperEventCounter;
-                    moneyController->setPayoutInProgress(false);
-                    moneyController->removeFromBank(coinsPaid * 20);
-                } else if (coinsUnpaid > 0) {
-                    ESP_LOGE(TAG, "Coins unpaid: %d", coinsUnpaid);
-                    moneyController->setPayoutInProgress(false);
-                    // TODO: Error here (probably hopper was empty)
-                    //processHopperErrors();
-                } else {
-                    ESP_LOGI(TAG, "Coins remaining: %d", coinsRemaining);
-                }
-            }
-
-        } else {
-            ESP_LOGE(TAG, "Invalid response received when polling hopper status");
-            moneyController->setPayoutInProgress(false);
-            // TODO: We got a negative response polling hopper status. This means we should find out what went wrong
-            cctalkController->testHopper(CCTALK_HOPPER, response);
-
-        }
-        //TODO: Unpaid coins
-        vTaskDelay(75);
-    }
-
-    ESP_LOGI(TAG, "Exiting %s", __func__);
 }
 
 //void MainController::dumpEEPROMValues() {
@@ -553,32 +446,6 @@ uint8_t MainController::getVolume() {
 
 Game* MainController::getGame() {
     return game;
-}
-
-/*
- * if low indicator not set, then hopper level low
- * if high indicator set, then hopper full and we must modify the sorter path, so that the 20ct coins are diverted to cash box
- */
-void MainController::checkHopperLevel() {
-
-    CctalkResponse response;
-    cctalkController->requestPayoutHighLowStatus(CCTALK_HOPPER, response);
-
-
-    if (response.isValidResponse() && (response.getAdditionalData().at(0) >> 1) & 1U) { // high mark
-        cctalkController->modifySorterPath(CCTALK_COIN_VALIDATOR, 3, 1, response); // 20ct send to cash box
-    } else {
-        cctalkController->modifySorterPath(CCTALK_COIN_VALIDATOR, 3, 2, response); // 20ct (Hopper, adapter slot C, cctalk sort chute 2)
-    }
-
-    //    if (response.isValidResponse() && (response.getAdditionalData().at(0) >> 0) & 1U) {
-    //        // hopper low / maybe empty
-    //        //error(HOPPER_LOW);
-    //    }
-}
-
-void MainController::processHopperErrors() {
-
 }
 
 i2c_dev_t* MainController::getDs3231() {

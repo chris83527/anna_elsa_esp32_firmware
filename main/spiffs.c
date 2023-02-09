@@ -54,8 +54,8 @@ esp_err_t init_spiffs()
     ESP_LOGI(TAG, "Initializing SPIFFS");
 
     esp_vfs_spiffs_conf_t spiffs_conf = {
-        .base_path = "/spiffs",
-        .partition_label = NULL,
+        .base_path = "/audio",
+        .partition_label = "audio",
         .max_files = 5,
         .format_if_mount_failed = true};
 
