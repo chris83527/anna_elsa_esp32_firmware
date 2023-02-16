@@ -38,8 +38,10 @@
 namespace esp32cc {
 
 
-/// Bill validator controller
-class BillValidatorDevice : public CctalkDevice { };
+    /// Bill validator controller
+
+    class BillValidatorDevice : public CctalkDevice {
+    };
 
 
 

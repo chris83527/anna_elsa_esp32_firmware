@@ -316,16 +316,16 @@ void MainController::start() {
         ESP_LOGD(TAG, "Reel controller initialisation ok.");
     }
 
-//    oledController->scrollText("Init cctalk");
-//    if (cctalkController->initialise() != ESP_OK) {
-//        ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
-//        oledController->scrollText("-> failed");
-//    } else {
+    oledController->scrollText("Init cctalk");
+    if (cctalkController->initialise() != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
+        oledController->scrollText("-> failed");
+    } else {
 //        oledController->scrollText("-> ok");
 //        oledController->scrollText("Start cctalk polling");
 //        ESP_LOGD(TAG, "Starting validator and hopper status polling");
 //        xTaskCreate(&cctalkStatusCheckTask, "check_hopper_status", 10000, this, 14, NULL);
-//    }
+    }
 
     //audioController->playAudioFile(Sounds::SND_LET_IT_GO);
 

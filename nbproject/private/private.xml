@@ -9,8 +9,10 @@
         <group>
             <file>file:/home/chris/esp/esp-adf/components/audio_board/lyrat_v4_3/board_pins_config.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/component.mk</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/coin_acceptor_device.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/Kconfig.projbuild</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/joltwallet__littlefs/idf_component.yml</file>
+            <file>file:/home/chris/esp/esp-idf-v4.4/components/driver/uart.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/component.mk</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/m20ly02z/m20ly02z.c</file>
@@ -23,7 +25,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/joltwallet__littlefs/component.mk</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/.gitignore</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/config.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/old/cctalk.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/oledcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/bill_validator_device.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.h</file>
@@ -74,6 +76,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_pins_config.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/joltwallet__littlefs/CMakeLists.txt</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/old/cctalk.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/spiffs.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/m20ly02z/include/m20ly02z.h</file>

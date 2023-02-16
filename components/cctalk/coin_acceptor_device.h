@@ -38,10 +38,10 @@
 namespace esp32cc {
 
 
-/// Coin acceptor controller
-class CoinAcceptorDevice : public CctalkDevice { };
+    /// Coin acceptor controller
 
-
+    class CoinAcceptorDevice : public CctalkDevice {
+    };
 
 }
 

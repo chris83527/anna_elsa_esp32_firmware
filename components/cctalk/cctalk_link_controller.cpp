@@ -26,6 +26,7 @@
 #include <iomanip>
 #include <sstream>
 
+
 #include <esp_log.h>
 
 #include "cctalk_link_controller.h"
@@ -38,6 +39,7 @@ namespace esp32cc {
     CctalkLinkController::CctalkLinkController() {
         // start rx and uart tasks
         this->serialWorker = new SerialWorker(this);
+         
     }
 
     CctalkLinkController::~CctalkLinkController() {
@@ -45,33 +47,40 @@ namespace esp32cc {
         delete(serialWorker);
     }
 
-    void CctalkLinkController::openPort(const std::function<void(const std::string& error_msg)>& finish_callback) {
-        serialWorker->openPort(this->uartNumber, this->txPin, this->rxPin);
+    esp_err_t CctalkLinkController::initialise(const uart_port_t uartNumber, const int txPin, const int rxPin, bool isChecksum16bit, bool isDesEncrypted) {
+        this->controllerAddress = controllerAddress;
+        this->isChecksum16bit = isChecksum16bit;
+        this->isDesEncrypted = isDesEncrypted;
+        this->uartNumber = uartNumber;
+        
+        openPort(uartNumber, txPin, rxPin);
+        
+        if (isPortOpen) {
+            return ESP_OK;
+        } else {
+            return ESP_FAIL;
+        }
     }
-
-    void CctalkLinkController::closePort() {
-        serialWorker->closePort();
-    }
-
+    
     /**
-     * Set mandatory options for ccTalk communication
+     * Open the serial port
      * 
      * @param uartNumber The ESP32 UART number (default 1)
      * @param txPin The ESP32 GPIO pin used for TX
      * @param rxPin The ESP32 GPIO pin used for RX
-     * @param deviceAddress
-     * @param isChecksum16bit Specify whether we are using 16bit checksums
-     * @param isDesEncrypted Specify whether we are using DES encryption
      */
-    void CctalkLinkController::setCcTalkOptions(const uart_port_t uartNumber, const int txPin, const int rxPin, uint8_t deviceAddress, bool isChecksum16bit, bool isDesEncrypted) {
-        //port_device = port_device;    
-        this->uartNumber = uartNumber;
-        this->deviceAddress = deviceAddress;
-        this->isChecksum16bit = isChecksum16bit;
-        this->isDesEncrypted = isDesEncrypted;
-        this->txPin = txPin;
-        this->rxPin = rxPin;
+    void CctalkLinkController::openPort(const uart_port_t uartNumber, const int txPin, const int rxPin) {
+        
+        if (!isPortOpen) {
+            this->uartNumber = uartNumber;
+            this->isPortOpen = serialWorker->openPort(uartNumber, txPin, rxPin);
+        }
     }
+
+    void CctalkLinkController::closePort() {
+        this->isPortOpen = serialWorker->closePort();
+     
+    }    
 
     /**
      * Set various logging options
@@ -92,51 +101,45 @@ namespace esp32cc {
      * Send a ccTalk command to a device on the bus
      * 
      * @param command The ccTalk command to send to the device
+     * @param 
      * @param data Additional data to be sent if the command requires it
      * @param responseTimeoutMsec The number of milliseconds to wait 
      * @return The requestId corresponding to this request
      */
-    uint64_t CctalkLinkController::ccRequest(CcHeader command, std::vector<uint8_t>& data, int responseTimeoutMsec, const std::function<void(uint64_t request_id, const std::vector<uint8_t>& command_data)>& callbackFunction) {
+    uint64_t CctalkLinkController::ccRequest(CcHeader command, uint8_t deviceAddress, std::vector<uint8_t>& data, int responseTimeoutMsec) {                               
 
-        sendMutex.lock();
-
+        this->deviceAddress = deviceAddress;
+        
         if (data.size() > 255) {
-            ESP_LOGE(TAG, "Size of additional data too large! Aborting request.");
-            sendMutex.unlock();
+            ESP_LOGE(TAG, "Size of additional data too large! Aborting request.");        
             return 0;
         }
 
         if (this->isDesEncrypted) {
-            ESP_LOGE(TAG, "ccTalk encryption requested, unsupported! Aborting request.");
+            ESP_LOGE(TAG, "ccTalk encryption requested, unsupported! Aborting request.");            
             return 0;
         }
 
         if (this->isChecksum16bit) {
             // TODO support this
-            ESP_LOGE(TAG, "ccTalk 16-bit CRC checksums requested, unsupported! Aborting request.");
+            ESP_LOGE(TAG, "ccTalk 16-bit CRC checksums requested, unsupported! Aborting request.");            
             return 0;
         }
 
-        if (this->showCctalkRequest) { 
+        if (this->showCctalkRequest) {
             std::string formatted_data;
             for (uint8_t tmpData : data) {
                 std::stringstream stream;
                 stream << "0x" << std::hex << tmpData;
                 formatted_data.append(stream.str());
-            }                       
-            ESP_LOGE(TAG, "> ccTalk request: %s, address: %d, data: %s", ccHeaderGetDisplayableName(command).c_str(), (int(this->deviceAddress)), (data.size() == 0 ? "(empty)" : formatted_data.c_str()));
-        }
-
-        // Set the UART receive timeout
-        esp_err_t xErr = uart_set_rx_timeout(uartNumber, pdMS_TO_TICKS(responseTimeoutMsec));
-        CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk set rx timeout failure, uart_set_rx_timeout() returned (0x%x).", xErr);
-
-        uart_set_always_rx_timeout(uartNumber, true);
+            }
+            ESP_LOGD(TAG, "> ccTalk request: %s, address: %d, data: %s", ccHeaderGetDisplayableName(command).c_str(), (int(deviceAddress)), (data.size() == 0 ? "(empty)" : formatted_data.c_str()));
+        }    
 
         // Build the data structure
-        std::vector<uint8_t> requestData;
-        requestData.reserve(data.size() + 5);
-        requestData.push_back(uint8_t(this->deviceAddress));
+        std::vector<uint8_t> requestData;        
+        //requestData.resize(data.size());
+        requestData.push_back(uint8_t(deviceAddress));
         requestData.push_back(uint8_t(data.size()));
         requestData.push_back(uint8_t(this->controllerAddress));
         requestData.push_back(uint8_t(command));
@@ -153,36 +156,43 @@ namespace esp32cc {
 
         const int writeTimeoutMsec = 500 + requestData.size() * 2; // should be more than enough at 9600 baud.
 
-        this->serialWorker->sendRequest(requestId, requestData, writeTimeoutMsec, responseTimeoutMsec);
-
+        ESP_LOGD(TAG, "Sending request");
+        
+        this->serialWorker->sendRequest(requestId, requestData, writeTimeoutMsec, responseTimeoutMsec);                       
+        
         return requestId;
     }
 
+    void CctalkLinkController::executeOnReturn(std::function<void(const std::string& error_msg, const std::vector<uint8_t> & command_data)> callbackFunction) {
+        this->callbackFunction = callbackFunction;
+    }
+    
     /**
      * Called when a response is received on the UART
      * 
      * @param request_id
      * @param response_data
      */
-    void CctalkLinkController::onResponseReceive(uint64_t request_id, std::vector<uint8_t>& responseData) {
+    void CctalkLinkController::onResponseReceive(uint64_t request_id, const std::vector<uint8_t>& responseData) const {
+                       
         if (responseData.size() < 5) {
-            ESP_LOGE(TAG, "ccTalk response #%llu size too small (%d bytes).", request_id, responseData.size());
-            // TODO The command should be retried.
+            ESP_LOGE(TAG, "ccTalk response size too small (%d bytes).", responseData.size());
+            // TODO The command should be retried.            
             return;
         }
 
         uint8_t destinationAddress = responseData.at(0);
-        //uint8_t dataSize = responseData.at(1);
+        uint8_t dataSize = responseData.at(1);
         uint8_t sourceAddress = responseData.at(2);
         uint8_t command = responseData.at(3);
 
-        std::vector<uint8_t> commandData = {responseData.begin() + 4, responseData.end()};
+        std::vector<uint8_t> responseDataNoLocalEcho = {responseData.begin() + 4, responseData.end()};
         //uint8_t received_checksum = responseData.at(responseData.end() - 1);
 
         // Format error
-        if (responseData.size() != 5 + commandData.size()) {
-            ESP_LOGE(TAG, "Invalid ccTalk response #%llu size (%d bytes).", request_id, responseData.size());
-            // TODO The command should be retried.
+        if (responseData.size() != 5 + dataSize) {
+            ESP_LOGE(TAG, "Invalid ccTalk response: size (%d bytes).", responseData.size());
+            // TODO The command should be retried.            
             return;
         }
 
@@ -194,30 +204,30 @@ namespace esp32cc {
 
         // The sum of all bytes must be 0.
         if (checksum != 0) {
-            ESP_LOGE(TAG, "Invalid ccTalk response #%llu checksum.", request_id);
-            // TODO The command should be retried.
+            ESP_LOGE(TAG, "Invalid ccTalk response checksum.");
+            // TODO The command should be retried.            
             return;
         }
 
         // We should be the only destination. In multi-host networks this should be
         // ignored, but not here.
         if (destinationAddress != 0x01) {
-            ESP_LOGE(TAG, "Invalid ccTalk response #%llu destination address %d.", request_id, int(destinationAddress));
+            ESP_LOGE(TAG, "Invalid ccTalk response. Destination address %d.", int(destinationAddress));            
             return;
         }
 
         // We should be the only destination. In multi-host networks this should be
         // ignored, but not here.
-        if (this->deviceAddress != 0 && sourceAddress != this->deviceAddress) {
-            ESP_LOGE(TAG, "Invalid ccTalk response #%llu source address %d, expected %d.", request_id, int(sourceAddress), int(this->deviceAddress));
+        if (sourceAddress != this->deviceAddress) {
+            ESP_LOGE(TAG, "Invalid ccTalk response. Source address %d, expected %d.", int(sourceAddress), int(this->deviceAddress));            
             return;
         }
 
         std::string formatted_data;
-        if (commandData.size() == 0) {
+        if (responseDataNoLocalEcho.size() == 0) {
             formatted_data = "(empty)";
         } else {
-            for (uint8_t data : commandData) {
+            for (uint8_t data : responseDataNoLocalEcho) {
                 std::stringstream stream;
                 stream << "0x" << std::hex << data;
                 formatted_data.append(stream.str());
@@ -227,7 +237,7 @@ namespace esp32cc {
 
         // Every reply must have the command field set to 0.
         if (command != static_cast<decltype(command)> (CcHeader::Ack)) {
-            ESP_LOGE(TAG, "Invalid ccTalk response %llu from address %d: Command is %d, expected 0.", request_id, int(sourceAddress), int(command));
+            ESP_LOGE(TAG, "Invalid ccTalk response %lld from address %d: Command is %d, expected 0.", request_id, int(sourceAddress), int(command));       
             return;
         }
 
@@ -236,8 +246,12 @@ namespace esp32cc {
             // Don't print response_id, it interferes with identical message hiding.
             ESP_LOGD(TAG, "ccTalk response from address %d, data: %s", int(sourceAddress), formatted_data.c_str());
         }
-
-        this->callbackFunction(request_id, commandData);
+               
+        if (this->callbackFunction != nullptr) {
+            this->callbackFunction(std::string(), responseDataNoLocalEcho);
+        } else {
+            ESP_LOGE(TAG, "Callback pointer was nullptr");
+        }
 
     }
 }

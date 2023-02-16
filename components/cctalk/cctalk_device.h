@@ -34,14 +34,19 @@
 
 #include <map>
 #include <vector>
+#include <list>
+#include <string>
+#include <thread>
+#include <functional>
 
 #include "freertos/task.h"
 
 #include "cctalk_enums.h"
 #include "cctalk_link_controller.h"
 
-namespace esp32cc {
 
+namespace esp32cc {    
+    
     /// Device state.
     /// Additional commands that may change the state:
     /// - ResetDevice
@@ -146,7 +151,7 @@ namespace esp32cc {
         void creditAccepted(uint8_t id, CcIdentifier identifier);
 
         /// Emitted whenever cctalk message data cannot be decoded (logic error)
-        void ccResponseDataDecodeError(uint64_t request_id, const std::string& error_msg);
+        void ccResponseDataDecodeError(const std::string& error_msg);
 
         /// Mirrored from CctalkLinkController and expanded with local events.
         void logMessage(const std::string& msg);
@@ -173,8 +178,8 @@ namespace esp32cc {
         void requestCheckAlive(const std::function<void(const std::string& error_msg, bool alive)>& finish_callback);
 
         /// Request manufacturing information info from the device.
-        /// This includes category, serial number, manufacturer, ...
-        void requestManufacturingInfo(const std::function<void(const std::string& error_msg, CcCategory category, const std::string& info)>& finish_callback);
+        /// This includes category, serial number, manufacturer, ...        
+        void requestManufacturingInfo(const std::function<void(const std::string& error_msg, CcCategory& category, const std::string& info)>& finish_callback);
 
         /// Get device-recommended polling interval in ms.
         void requestPollingInterval(const std::function<void(const std::string& error_msg, uint64_t msec)>& finish_callback);
@@ -241,7 +246,7 @@ namespace esp32cc {
         /// Request initialising the device from ShutDown state.
         /// Starts event timer.
         /// \return true if the request was successfully sent.
-        bool initialise(const std::function<void(const std::string& error_msg)>& finish_callback);
+        bool initialise(CctalkLinkController& linkController, uint8_t deviceAddress, const std::function<void(const std::string& error_msg)>& finish_callback);
 
         /// Request the device to be switched to ShutDown state.
         /// Stops event timer.
@@ -266,10 +271,13 @@ namespace esp32cc {
 
     private:
 
-        /// Poll task
-        void devicePollTask(void* pvParameters);
+        /// Poll task        
+        std::string decodeResponseToString(const std::vector<uint8_t>& responseData);
+        std::string decodeResponseToHex(const std::vector<uint8_t>& responseData);
+        
+        void devicePollTask();
 
-        CctalkLinkController linkController; ///< Controller for serial worker thread with cctalk link management support.
+        CctalkLinkController* linkController; ///< Controller for serial worker thread with cctalk link management support.
 
         int normalPollingIntervalMsec = 0; ///< Polling interval for normal and diagnostics modes.
         const int defaultNormalPollingIntervalMsec = 100; ///< Default polling interval for normal and diagnostics modes.
@@ -291,7 +299,10 @@ namespace esp32cc {
         uint8_t lastEventNumber = 0; ///< Last event number returned by ReadBufferedCredit command.
 
         TaskHandle_t pollTaskHandle;
+        std::thread pollThread;
         int pollingInterval = defaultNormalPollingIntervalMsec;
+        
+        uint8_t deviceAddress;
     };
 
 

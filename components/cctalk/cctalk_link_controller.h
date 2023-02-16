@@ -59,38 +59,35 @@ namespace esp32cc {
         CctalkLinkController();
         virtual ~CctalkLinkController();
 
-        /// Set ccTalk options. Call before opening the device.
-        void setCcTalkOptions(const uart_port_t uartNumber, const int txPin, const int rxPin, uint8_t device_addr, bool checksum_16bit, bool des_encrypted);
-
         /// Set logging options (though logMessage() signal). Call before opening the device.
         void setLoggingOptions(bool showFullResponse, bool showSerialRequest, bool showSerialResponse, bool showCctalkRequest, bool showCctalkResponse);
 
-        void openPort(const std::function<void(const std::string& error_msg)>& finish_callback);
-
-        /// Close the serial port.
-        void closePort();
+        esp_err_t initialise(const uart_port_t uartNumber, const int txPin, const int rxPin, bool isChecksum16bit, bool isDesEncrypted);      
 
         /// Send request to serial port.
         /// The returned value is request ID which can be used to identify which
         /// response comes from which request.
-        uint64_t ccRequest(CcHeader command, std::vector<uint8_t>& additionalData, int responseTimeoutMsec, const std::function<void(uint64_t request_id, const std::vector<uint8_t>& command_data)>& callbackFunction);
-
-        /// This signals the executeOnReturn() function to call its callback.
-        void requestFinishedOrError(uint64_t request_id, const std::string& error_msg, const std::vector<uint8_t>& command_data);
+        uint64_t ccRequest(CcHeader command, uint8_t deviceAddress, std::vector<uint8_t>& additionalData, int responseTimeoutMsec);
 
         /// Handle generic serial response and emit ccResponse
-        void onResponseReceive(uint64_t request_id, std::vector<uint8_t>& response_data);
+        void onResponseReceive(uint64_t request_id, const std::vector<uint8_t>& response_data) const;
 
-        std::function<void(uint64_t request_id, const std::vector<uint8_t>& command_data)> callbackFunction;
+        void executeOnReturn(std::function<void(const std::string& error_msg, const std::vector<uint8_t> & command_data)> callbackFunction);
+        
     protected:
 
-        
+
 
     private:
+
+        void openPort(const uart_port_t uartNumber, const int txPin, const int rxPin);
+
+        /// Close the serial port.
+        void closePort();
         
-        std::mutex sendMutex;
+        std::function<void(const std::string& error_msg, const std::vector<uint8_t>& command_data) > callbackFunction;
         
-        uint8_t deviceAddress = 0x00; ///< ccTalk destination address, used to differentiate different devices on the same serial bus. 0 for all.
+        uint8_t deviceAddress = 0x00; // The slave device we are currently talking to
         uint8_t controllerAddress = 0x01; ///< Controller address. 1 means "Master". There is no reason to change this.
 
         bool isChecksum16bit = false; /// If true, use 16-bit CRC checksum. Otherwise use simple 8-bit checksum. The device must be set to the same value.
@@ -104,9 +101,9 @@ namespace esp32cc {
         TaskHandle_t workerTaskHandle;
         SerialWorker* serialWorker;
 
-        uart_port_t uartNumber;
-        int txPin;
-        int rxPin;
+        uart_port_t uartNumber = 1;
+
+        bool isPortOpen = false;
     };
 }
 

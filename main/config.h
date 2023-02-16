@@ -50,7 +50,7 @@
 // ccTalk
 #define CCTALK_GPIO_RX GPIO_NUM_16
 #define CCTALK_GPIO_TX GPIO_NUM_17
-
+#define CCTALK_UART UART_NUM_1
 
 // I2C
 #define GPIO_I2C_SDA GPIO_NUM_21

@@ -32,6 +32,8 @@
 #ifndef SERIAL_WORKER_H
 #define SERIAL_WORKER_H
 
+#include <mutex>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
@@ -48,7 +50,7 @@
 #define CCTALK_SERIAL_TIMEOUT               (200) // 3.5*8 = 28 ticks, TOUT=3 -> ~24..33 ticks
 #define CCTALK_PORT_SERIAL_ISR_FLAG         ESP_INTR_FLAG_IRAM
 
-#define MAX_BUFFER_SIZE 4096
+#define MAX_BUFFER_SIZE 256
 
 #define CCTALK_PORT_CHECK(a, ret_val, str, ...) \
     if (!(a)) { \
@@ -56,10 +58,19 @@
         return ret_val; \
     }
 
-namespace esp32cc {   
-    
+namespace esp32cc {
+
     class CctalkLinkController;
-    
+
+    class Timer {
+    public:
+        void startTimer(int tdelay); // start the countdown with tdelay in milliseconds
+        bool isReady(void); // return true if timer expired
+        unsigned long millis();
+    private:
+        unsigned long target;
+    };
+
     class SerialWorker {
     public:
         SerialWorker(const CctalkLinkController* linkController);
@@ -67,29 +78,38 @@ namespace esp32cc {
 
         void setLoggingOptions(bool showFullResponse, bool showSerialRequest, bool showSerialResponse);
         bool openPort(uart_port_t uartNumber, int txPin, int rxPin);
-        void closePort();
+        bool closePort();
         void sendRequest(uint64_t requestId, std::vector<uint8_t>& requestData, int writeTimeoutMsec, int responseTimeoutMsec);
+
+        const CctalkLinkController* getLinkController();
+        QueueHandle_t getCctalkUartQueueHandle();
+        TaskHandle_t getCctalkTaskHandle();
+        uart_port_t getUartNumber();
+        uint64_t getRequestId();
+        int getResponseTimeoutMsec();
 
     protected:
 
     private:
+
+        std::mutex sendMutex;
+
         const CctalkLinkController* linkController;
 
-        static uint64_t requestId;
+        uint64_t requestId;
         int responseTimeoutMsec;
 
         // A queue to handle UART event.
-        QueueHandle_t cctalkUartQueue;
+        QueueHandle_t cctalkUartQueueHandle;
         TaskHandle_t cctalkTaskHandle;
 
         uart_port_t uartNumber;
         int txPin;
         int rxPin;
 
-        static void uartReceiveTask(void* pvParameters);
-        //static void uartQueueTask(void* pvParameters);        
-    };
+        Timer timer;
 
+    };    
 }
 
 #endif /* SERIAL_WORKER_H */

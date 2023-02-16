@@ -24,6 +24,7 @@
 
 #include <functional>
 #include <vector>
+#include <chrono>
 
 #include "esp_log.h"
 
@@ -56,13 +57,11 @@ namespace esp32cc {
             .stop_bits = UART_STOP_BITS_1,
             .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
             .rx_flow_ctrl_thresh = 0,
-            .source_clk = UART_SCLK_APB,                        
-        };
-
-        //mutex = xSemaphoreCreateMutex();
+            .source_clk = UART_SCLK_APB,
+        };       
 
         // Set UART config   
-        xErr = uart_driver_install(uartNumber, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE, CCTALK_QUEUE_LENGTH, &this->cctalkUartQueue, CCTALK_PORT_SERIAL_ISR_FLAG);
+        xErr = uart_driver_install(uartNumber, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE, CCTALK_QUEUE_LENGTH, &this->cctalkUartQueueHandle, CCTALK_PORT_SERIAL_ISR_FLAG);        
         CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk serial driver failure, uart_driver_install() returned (0x%x).", xErr);
 
         xErr = uart_set_pin(uartNumber, txPin, rxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
@@ -72,114 +71,130 @@ namespace esp32cc {
         CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk config failure, uart_param_config() returned (0x%x).", xErr);
 
 
-        // Create a task to handle UART events
-        BaseType_t xStatus = xTaskCreatePinnedToCore(&uartReceiveTask, "uart_queue_task",
-                CCTALK_SERIAL_TASK_STACK_SIZE,
-                this, CCTALK_SERIAL_TASK_PRIO,
-                &this->cctalkTaskHandle, 0);
-
-        if (xStatus != pdPASS) {
-            vTaskDelete(this->cctalkTaskHandle);
-            // Force exit from function with failure
-            CCTALK_PORT_CHECK(false, false, "cctalk stack serial task creation error. xTaskCreate() returned (0x%x).", xStatus);
-        } else {
-            vTaskSuspend(this->cctalkTaskHandle); // Suspend serial task while stack is not started    
-        }
-
         ESP_LOGD(TAG, "%s Init serial.", __func__);
-        
+
         return true;
     }
 
-    void SerialWorker::closePort() {
+    bool SerialWorker::closePort() {
         if (this->cctalkTaskHandle != NULL) {
             vTaskDelete(this->cctalkTaskHandle);
         }
-        uart_driver_delete(this->uartNumber);
+        esp_err_t xErr = uart_driver_delete(this->uartNumber);
+
+        return xErr != ESP_OK;
     }
 
     void SerialWorker::sendRequest(uint64_t requestId, std::vector<uint8_t>& requestData, int writeTimeoutMsec, int responseTimeoutMsec) {
 
+        sendMutex.lock();
+
         this->requestId = requestId;
         this->responseTimeoutMsec = responseTimeoutMsec;
 
-        uart_flush_input(uartNumber);
-        vTaskDelay(1);
-        uart_write_bytes(uartNumber, requestData.data(), requestData.size());
+        ESP_LOGD(TAG, "Request size (start): %d", requestData.size());
 
-        // Waits while UART sending the packet
-        esp_err_t xTxStatus = uart_wait_tx_done(uartNumber, pdMS_TO_TICKS(writeTimeoutMsec));
+        // Set the UART receive timeout
+        ESP_LOGD(TAG, "Setting RX Timeout %d msec", responseTimeoutMsec);
+        esp_err_t xErr = uart_set_rx_timeout(this->getUartNumber(), pdMS_TO_TICKS(responseTimeoutMsec));
+        //CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk set rx timeout failure, uart_set_rx_timeout() returned (0x%x).", xErr);        
+
+        uart_set_always_rx_timeout(this->getUartNumber(), true);
+
+        xQueueReset(this->cctalkUartQueueHandle);        
+        uart_flush_input(this->getUartNumber());
+        vTaskDelay(25);
+        uart_write_bytes(this->getUartNumber(), requestData.data(), requestData.size());
+        
+        ESP_LOGD(TAG, "Send complete. Waiting for response");
+
+        vTaskDelay(50);
+
+        sendMutex.unlock();
+
+        std::vector<uint8_t> receivedData;
+
+        bool receiveComplete = false;
+        timer.startTimer(responseTimeoutMsec);
+        int bytesRead = 0;
+        while (!receiveComplete) {
+
+            if (timer.isReady()) {
+                ESP_LOGD(TAG, "Timer hit");
+                break; // receive complete false
+            }
+
+            int length = 0;
+            
+            // Read received data and send it to cctalk stack
+            ESP_ERROR_CHECK(uart_get_buffered_data_len(this->getUartNumber(), (size_t*) & length));
+            ESP_LOGD(TAG, "Allegedly available bytes on UART %d: %d", this->getUartNumber(), length);
+            
+            if (length > 0) {
+                receivedData.resize(receivedData.size() + length);
+                bytesRead = uart_read_bytes(this->getUartNumber(), receivedData.data(), length, pdMS_TO_TICKS(this->getResponseTimeoutMsec()));            
+            } else {
+                receiveComplete = true;
+                ESP_LOGD(TAG, "No more data available.");
+            }
+
+            vTaskDelay(pdMS_TO_TICKS(20));
+        }        
+
+        if (receiveComplete) {
+
+            if (receivedData.size() <= requestData.size()) {
+                // this shouldn't be possible as we have local echo
+                ESP_LOGE(TAG, "Received data bytes (%d) was less than request data bytes (%d). Is device connected?", receivedData.size(), requestData.size());
+            } else {
+                ESP_LOGD(TAG, "Read %d bytes - response size %d (with local echo). Executing callback", bytesRead, receivedData.size());
+                ESP_LOGD(TAG, "Request size: %d", requestData.size());
+                linkController->onResponseReceive(this->getRequestId(), std::vector<uint8_t>(receivedData.begin() + requestData.size(), receivedData.end()));
+            }
+        }
+
     }
 
-    /*
-     * UART receive task. 
-     */
-    void SerialWorker::uartReceiveTask(void* pvParameters) {
-        SerialWorker *serialWorker = reinterpret_cast<SerialWorker *> (pvParameters);
+    const CctalkLinkController* SerialWorker::getLinkController() {
+        return this->linkController;
+    }
 
-        uart_event_t xEvent;        
+    QueueHandle_t SerialWorker::getCctalkUartQueueHandle() {
+        return this->cctalkUartQueueHandle;
+    }
 
-        while (1) {
-            if (xQueueReceive(serialWorker->cctalkUartQueue, (void*) &xEvent, (portTickType) portMAX_DELAY) == pdPASS) {
-                ESP_LOGD(TAG, "cctalk_UART[%d] event:", serialWorker->uartNumber);
+    TaskHandle_t SerialWorker::getCctalkTaskHandle() {
+        return this->cctalkTaskHandle;
+    }
 
-                switch (xEvent.type) {
-                        //Event of UART receiving data
-                    case UART_DATA:
-                    case UART_BUFFER_FULL:
-                    {
-                        ESP_LOGD(TAG, "Data event, len: %d.", xEvent.size);
+    uart_port_t SerialWorker::getUartNumber() {
+        return this->uartNumber;
+    }
 
-                        // Read received data and send it to cctalk stack
-                        std::vector<uint8_t> receivedData;
-                        receivedData.reserve(xEvent.size); // make sure the vector 
-                        int bytesRead = uart_read_bytes(serialWorker->uartNumber, receivedData.data(), xEvent.size, pdMS_TO_TICKS(serialWorker->responseTimeoutMsec));
+    uint64_t SerialWorker::getRequestId() {
+        return this->requestId;
+    }
 
-                        ESP_LOGD(TAG, "%d bytes read. Expecting %d bytes.", bytesRead, xEvent.size);
+    int SerialWorker::getResponseTimeoutMsec() {
+        return this->responseTimeoutMsec;
+    }
 
-                        if (receivedData.size() != xEvent.size) {
-                            ESP_LOGD(TAG, "Leaving uartReceiveTask");
-                            break;
-                        }
+    unsigned long Timer::millis() {
+        return (esp_timer_get_time() / 1000);
+    }
 
-                        serialWorker->linkController->onResponseReceive(serialWorker->requestId, receivedData);
-                        
-                        break;
-                        //Event of HW FIFO overflow detected
-                    }
-                    case UART_FIFO_OVF:
-                    {
-                        ESP_LOGD(TAG, "Hardware FIFO overflow.");
-                        xQueueReset(serialWorker->cctalkUartQueue);
-                        break;
-                    }
-                        //Event of UART RX break detected
-                    case UART_BREAK:
-                    {
-                        ESP_LOGD(TAG, "UART RX break.");
-                        break;
-                    }
-                        //Event of UART parity check error
-                    case UART_PARITY_ERR:
-                    {
-                        ESP_LOGD(TAG, "UART parity error.");
-                        break;
-                    }
-                        //Event of UART frame error
-                    case UART_FRAME_ERR:
-                    {
-                        ESP_LOGD(TAG, "UART frame error.");
-                        break;
-                    }
-                    default:
-                    {
-                        ESP_LOGD(TAG, "UART event type: %d.", xEvent.type);
-                        break;
-                    }
-                }
-            }
-            vTaskDelay(pdMS_TO_TICKS(25));
+    void Timer::startTimer(int tdelay) {
+        unsigned long temp;
+        temp = millis();
+        target = temp + tdelay;
+    }
+
+    bool Timer::isReady() {
+
+        if (millis() >= target) {
+            return true;
+        } else {
+            return false;
         }
-        vTaskDelete(NULL);
     }
 }
