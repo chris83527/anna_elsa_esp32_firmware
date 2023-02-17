@@ -257,15 +257,22 @@ namespace esp32cc {
 
         auto shared_error = std::make_shared<std::string>();
         auto shared_alive = std::make_shared<bool>();
+        auto shared_continue = std::make_shared<bool>();
+
+        *shared_continue = true;
 
         if (shared_error->size() == 0) {
             setDeviceState(CcDeviceState::Initialized);
             finish_callback(*shared_error);
         } else if (*shared_alive) {
             requestSwitchDeviceState(CcDeviceState::InitializationFailed, finish_callback);
-            return false;
+            *shared_continue = false;
         } else {
             requestSwitchDeviceState(CcDeviceState::UninitializedDown, finish_callback);
+            *shared_continue = false;
+        }
+
+        if (!*shared_continue) {
             return false;
         }
 
@@ -273,9 +280,14 @@ namespace esp32cc {
         requestCheckAlive([ = ](const std::string& error_msg, bool alive){
             if (!error_msg.size() == 0) {
                 *shared_error = error_msg;
+                        *shared_continue = false;
             }
             *shared_alive = alive;
         });
+
+        if (!*shared_continue) {
+            return false;
+        }
 
         // Get device manufacturing info
         requestManufacturingInfo([ = ](const std::string& error_msg, CcCategory category, const std::string & info){
@@ -287,9 +299,13 @@ namespace esp32cc {
             }
 
             if (error_msg.size() > 0 || (category != CcCategory::BillValidator && category != CcCategory::CoinAcceptor && category != CcCategory::Payout)) {
-                return false;
+                *shared_continue = false;
             }
         });
+
+        if (!*shared_continue) {
+            return false;
+        }
 
         // Get recommended polling frequency        
         requestPollingInterval([ = ](const std::string& error_msg, uint64_t msec){
@@ -308,10 +324,13 @@ namespace esp32cc {
             }
 
             if (error_msg.size() > 0) {
-                return false;
+                *shared_continue = false;
             }
         });
 
+        if (!*shared_continue) {
+            return false;
+        }
 
         // Get bill / coin identifiers (Only do this if coin /bill validator. Not for Hopper)
         if (this->deviceCategory == CcCategory::CoinAcceptor || this->deviceCategory == CcCategory::BillValidator) {
@@ -322,9 +341,13 @@ namespace esp32cc {
                     this->identifiers = identifiers;
                 }
                 if (error_msg.size() > 0) {
-                    return false;
+                    *shared_continue = false;
                 }
             });
+        }
+
+        if (!shared_continue) {
+            return false;
         }
 
         // Modify bill validator operating mode - enable escrow and stacker        
@@ -334,9 +357,13 @@ namespace esp32cc {
                     *shared_error = error_msg;
                 }
                 if (error_msg.size() > 0) {
-                    return false;
+                    *shared_continue = false;
                 }
             });
+        }
+
+        if (!*shared_continue) {
+            return false;
         }
 
         // Set individual inhibit status on all bills / coins. The specification says
@@ -347,11 +374,11 @@ namespace esp32cc {
             }
 
             if (error_msg.size() > 0) {
-                return false;
+                *shared_continue = false;
             }
         });
 
-        return true;
+        return *shared_continue;
     }
 
     bool CctalkDevice::switchStateNormalAccepting(const std::function<void(const std::string& error_msg)>& finish_callback) {
@@ -549,7 +576,7 @@ namespace esp32cc {
         });
         this->linkController->ccRequest(CcHeader::RequestCommsRevision, this->deviceAddress, data, 200);
 
-        finish_callback(shared_error->, category, info);
+        finish_callback(*shared_error, category, info);
 
     }
 
@@ -565,7 +592,7 @@ namespace esp32cc {
             // Decode the data
             if (responseData.size() != 2) {
                 ESP_LOGE(TAG, "Invalid polling interval data received");
-                        finish_callback(error, 0);
+                        finish_callback("Invalid polling interval data received", 0);
                 return;
             }
 
@@ -614,7 +641,7 @@ namespace esp32cc {
         command_arg.push_back(accept_mask1);
         command_arg.push_back(accept_mask2);
 
-        this->linkController->executeOnReturn([ = ](uint64_t request_id, const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
+        this->linkController->executeOnReturn([ = ](const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
             if (!error_msg.size() == 0) {
                 ESP_LOGE(TAG, "Error setting inhibit status: %s", error_msg.c_str());
                         finish_callback(error_msg);
@@ -637,7 +664,7 @@ namespace esp32cc {
         std::vector<uint8_t> command_arg;
         command_arg.push_back(char(inhibit ? 0x0 : 0x1)); // 0 means master inhibit active.
 
-        this->linkController->executeOnReturn([ = ](uint64_t request_id, const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
+        this->linkController->executeOnReturn([ = ](const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
             if (!error_msg.size() == 0) {
                 ESP_LOGE(TAG, "Error setting master inhibit status: %s", error_msg.c_str());
                         finish_callback(error_msg);
@@ -674,7 +701,7 @@ namespace esp32cc {
     }
 
     void CctalkDevice::requestMasterInhibitStatus(const std::function<void(const std::string& error_msg, bool inhibit)>& finish_callback) {
-std::vector<uint8_t> data;
+        std::vector<uint8_t> data;
         this->linkController->executeOnReturn([ = ](const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
             if (!error_msg.size() == 0) {
                 ESP_LOGE(TAG, "Error getting master inhibit status: %s", error_msg.c_str());
@@ -708,7 +735,7 @@ std::vector<uint8_t> data;
         command_arg.push_back(char(mask));
 
 
-        this->linkController->executeOnReturn([ = ](uint64_t request_id, const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
+        this->linkController->executeOnReturn([ = ](const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
             if (!error_msg.size() == 0) {
                 ESP_LOGE(TAG, "Error setting bill validator operating mode: %s", error_msg.c_str());
                         finish_callback(error_msg);
@@ -736,7 +763,7 @@ std::vector<uint8_t> data;
         auto shared_max_positions = std::make_shared<uint8_t>(16); // FIXME Not sure if this can be queried for coin acceptors
         auto shared_error = std::make_shared<std::string>();
         auto shared_identifiers = std::make_shared<std::map<uint8_t, CcIdentifier >> ();
-        auto shared_country_scaling_data = std::make_shared<std::map < std::vector<uint8_t>, CcCountryScalingData >> ();
+        auto shared_country_scaling_data = std::make_shared<std::map < std::string, CcCountryScalingData >> ();
 
         std::string coin_bill = (this->deviceCategory == CcCategory::CoinAcceptor ? "Coin" : "Bill");
 
@@ -804,7 +831,7 @@ std::vector<uint8_t> data;
                         if (shared_country_scaling_data->count(identifier.country) > 0) {
                             identifier.setCountryScalingData(shared_country_scaling_data->at(identifier.country));
                         }
-                        shared_identifiers->insert(pos, identifier);
+                        (*shared_identifiers).emplace(pos, identifier);
                     }
                 }
 
@@ -821,27 +848,26 @@ std::vector<uint8_t> data;
             // For coin acceptors, use a fixed, predefined country scaling data.
 
 
-            if (shared_identifiers->count(pos) == 0) { // empty position
+            if (shared_identifiers.get()->count(pos) == 0) { // empty position
                 //serializer->continueSequence(true);
                 return;
             }
 
-            std::vector<uint8_t> country = shared_identifiers->at(pos).country;
+            std::string country = shared_identifiers.get()->at(pos).country;
             if (country.size() == 0 || shared_country_scaling_data->count(country) > 0) {
                 //serializer->continueSequence(true);
                 return; // already present
             }
 
-            std::string countryString = decodeResponseToString(country);
 
             // Predefined rules for Georgia. TODO Make this configurable and / or remove it from here.
-            if (this->deviceCategory == CcCategory::CoinAcceptor && countryString == "GE") {
+            if (this->deviceCategory == CcCategory::CoinAcceptor && country == "GE") {
                 CcCountryScalingData data;
                 data.scaling_factor = 1;
                 data.decimal_places = 2;
-                shared_country_scaling_data->insert(country, data);
-                (*shared_identifiers)->at(pos).country_scaling_data = data;
-                ESP_LOGI(TAG, "Using predefined country scaling data for %s: scaling factor: %d, decimal places: %d.", countryString.c_str(), data.scaling_factor, int(data.decimal_places));
+                (*shared_country_scaling_data).emplace(country, data);
+                (*shared_identifiers).at(pos).country_scaling_data = data;
+                ESP_LOGI(TAG, "Using predefined country scaling data for %s: scaling factor: %d, decimal places: %d.", country.c_str(), data.scaling_factor, int(data.decimal_places));
                 //serializer->continueSequence(true);
                 return;
             }
@@ -854,7 +880,7 @@ std::vector<uint8_t> data;
                     } else {
                         // Decode the data
                         if (responseData.size() != 3) {
-                            ESP_LOGE(TAG, "Invalid scaling data for country %s.", countryString.c_str());
+                            ESP_LOGE(TAG, "Invalid scaling data for country %s.", country.c_str());
                         } else {
                             CcCountryScalingData data;
                                     auto lsb = uint16_t(static_cast<unsigned char> (responseData.at(0)));
@@ -862,17 +888,18 @@ std::vector<uint8_t> data;
                                     data.scaling_factor = uint16_t(lsb + msb * 256);
                                     data.decimal_places = responseData.at(2);
                             if (data.isValid()) {
-                                shared_country_scaling_data->insert(country, data);
-                                        (*shared_identifiers)->at(pos).country_scaling_data = data;
-                                        ESP_LOGI(TAG, "Country scaling data for %s: scaling factor: %d, decimal places: %d.", countryString.c_str(), data.scaling_factor, int(data.decimal_places));
+                                (*shared_country_scaling_data).emplace(country, data);
+                                        (*shared_identifiers).at(pos).country_scaling_data = data;
+                                        ESP_LOGI(TAG, "Country scaling data for %s: scaling factor: %d, decimal places: %d.", country.c_str(), data.scaling_factor, int(data.decimal_places));
                             } else {
-                                ESP_LOGI(TAG, "Country scaling data for %s: empty!", decodeResponseToString(country).c_str());
+                                ESP_LOGI(TAG, "Country scaling data for %s: empty!", country.c_str());
                             }
                         }
                     }
                     //serializer->continueSequence(error_msg.size() == 0);
                 });
-                this->linkController->ccRequest(CcHeader::RequestCountryScalingFactor, this->deviceAddress, country, 200);
+                std::vector<uint8_t> countryVector = std::vector<uint8_t>(country.begin(), country.end());
+                this->linkController->ccRequest(CcHeader::RequestCountryScalingFactor, this->deviceAddress, countryVector, 200);
             }
         }
 
@@ -943,7 +970,8 @@ std::vector<uint8_t> data;
             finish_callback(std::string(), eventCounter, event_data);
         });
 
-        this->linkController->ccRequest(command, this->deviceAddress, std::vector<uint8_t>(), 200);
+        std::vector<uint8_t> data;
+        this->linkController->ccRequest(command, this->deviceAddress, data, 200);
     }
 
     void CctalkDevice::processCreditEventLog(bool accepting, const std::string& event_log_cmd_error_msg, uint8_t eventCounter, const std::vector<CcEventData>& event_data, const std::function<void()>& finish_callback) {
@@ -1021,7 +1049,7 @@ std::vector<uint8_t> data;
         }
 
         // Newest to oldest
-        std::vector<CcEventData> new_event_data = std::vector(event_data.begin(), event_data.begin() + newEventCount);
+        std::vector<CcEventData> new_event_data = std::vector<CcEventData>(event_data.begin(), event_data.begin() + newEventCount);
         ESP_LOGI(TAG, "Found %d new event(s); processing from oldest to newest.", new_event_data.size());
 
         bool self_check_requested = false;
@@ -1080,7 +1108,9 @@ std::vector<uint8_t> data;
                         ESP_LOGE(TAG, "Coin accepted even though we're in rejecting mode; internal error!");
                     }
                     if (!processing_app_startup_events) {
-                        creditAccepted(ev.coin_id, id);
+                        if (creditAccepted != nullptr) {
+                            creditAccepted(ev.coin_id, id);
+                        }
                     }
 
                     // Bills
@@ -1123,7 +1153,9 @@ std::vector<uint8_t> data;
                             ESP_LOGE(TAG, " Bill accepted even though we're in rejecting mode; internal error!");
                         }
                         if (!processing_app_startup_events) {
-                            creditAccepted(ev.bill_id, id);
+                            if (creditAccepted != nullptr) {
+                                creditAccepted(ev.bill_id, id);
+                            }
                         }
 
                     } else {
@@ -1210,7 +1242,7 @@ std::vector<uint8_t> data;
         std::vector<uint8_t> command_arg;
         command_arg.push_back(char(route));
 
-        this->linkController->executeOnReturn([ = ](uint64_t request_id, const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
+        this->linkController->executeOnReturn([ = ](const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
 
             if (!error_msg.size() == 0) {
                 ESP_LOGE(TAG, "Error sending RouteBill command: %s", error_msg.c_str());
@@ -1243,7 +1275,7 @@ std::vector<uint8_t> data;
 
     void CctalkDevice::requestSelfCheck(const std::function<void(const std::string& error_msg, CcFaultCode fault_code)>& finish_callback) {
 
-        this->linkController->executeOnReturn([ = ](uint64_t request_id, const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
+        this->linkController->executeOnReturn([ = ](const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
             if (!error_msg.size() == 0) {
                 ESP_LOGE(TAG, "Error getting self-check status: %s", error_msg.c_str());
                         finish_callback(error_msg, CcFaultCode::CustomCommandError);
@@ -1261,13 +1293,13 @@ std::vector<uint8_t> data;
             ESP_LOGI(TAG, "Self-check fault code: %s", ccFaultCodeGetDisplayableName(fault_code).c_str());
             finish_callback(std::string(), fault_code);
         });
-std::vector<uint8_t> data;
+        std::vector<uint8_t> data;
         this->linkController->ccRequest(CcHeader::PerformSelfCheck, this->deviceAddress, data, 200);
     }
 
     void CctalkDevice::requestResetDevice(const std::function<void(const std::string& error_msg)>& finish_callback) {
         // Define the callback
-        this->linkController->executeOnReturn([ = ](uint64_t request_id, const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
+        this->linkController->executeOnReturn([ = ](const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
             if (!error_msg.size() == 0) {
                 ESP_LOGE(TAG, "Error sending soft reset request: %s", error_msg.c_str());
                         finish_callback(error_msg);
@@ -1342,4 +1374,17 @@ std::vector<uint8_t> data;
         return responseString;
     }
 
+    std::string CctalkDevice::decodeResponseToHex(const std::vector<uint8_t>& responseData) {
+        std::string formatted_data;
+        for (uint8_t tmpData : responseData) {
+            std::stringstream stream;
+            stream << "0x" << std::hex << tmpData;
+            formatted_data.append(stream.str());
+        }
+        return formatted_data;
+    }
+
+    void CctalkDevice::setCreditAcceptedCallback(CoinValidatorFunc callback) {
+        this->creditAccepted = callback;
+    }
 }

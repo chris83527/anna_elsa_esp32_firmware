@@ -38,6 +38,7 @@
 #include <string>
 #include <thread>
 #include <functional>
+#include <sstream>
 
 #include "freertos/task.h"
 
@@ -144,15 +145,7 @@ namespace esp32cc {
         /// \return true if the request was successfully sent.
         bool requestSwitchDeviceState(CcDeviceState state, const std::function<void(const std::string& error_msg)>& finish_callback);
 
-        /// Emitted whenever device state is changed.
-        void deviceStateChanged(CcDeviceState old_state, CcDeviceState new_state);
-
-        /// Emitted whenever a credit is accepted.
-        void creditAccepted(uint8_t id, CcIdentifier identifier);
-
-        /// Emitted whenever cctalk message data cannot be decoded (logic error)
-        void ccResponseDataDecodeError(const std::string& error_msg);
-
+        
         /// Mirrored from CctalkLinkController and expanded with local events.
         void logMessage(const std::string& msg);
 
@@ -228,7 +221,11 @@ namespace esp32cc {
 
     public:
         using BillValidatorFunc = std::function<bool(uint8_t bill_id, const CcIdentifier& identifier)>;
-
+        using CoinValidatorFunc = std::function<bool(uint8_t coin_id, const CcIdentifier& identifier)>;
+        using ResponseErrorFunc = std::function<void(const std::string& error_msg)>;
+        
+        
+        
         /// Constructor
         CctalkDevice();
 
@@ -248,6 +245,8 @@ namespace esp32cc {
         /// \return true if the request was successfully sent.
         bool initialise(CctalkLinkController& linkController, uint8_t deviceAddress, const std::function<void(const std::string& error_msg)>& finish_callback);
 
+        void setCreditAcceptedCallback(CoinValidatorFunc callback);        
+        
         /// Request the device to be switched to ShutDown state.
         /// Stops event timer.
         /// \return true if the request was successfully sent.
@@ -271,6 +270,16 @@ namespace esp32cc {
 
     private:
 
+        /// Emitted whenever device state is changed.
+        //void deviceStateChanged(CcDeviceState old_state, CcDeviceState new_state);
+
+        /// Emitted whenever a credit is accepted.
+        CoinValidatorFunc creditAccepted;
+
+        /// Emitted whenever cctalk message data cannot be decoded (logic error)
+        ResponseErrorFunc ccResponseDataDecodeError;
+
+        
         /// Poll task        
         std::string decodeResponseToString(const std::vector<uint8_t>& responseData);
         std::string decodeResponseToHex(const std::vector<uint8_t>& responseData);
