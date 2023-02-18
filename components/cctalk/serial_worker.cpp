@@ -25,6 +25,7 @@
 #include <functional>
 #include <vector>
 #include <chrono>
+#include <mutex>
 
 #include "esp_log.h"
 
@@ -33,10 +34,11 @@
 
 static const char* TAG = "serial_worker";
 
+std::mutex sendMutex;
+
 namespace esp32cc {
 
-    SerialWorker::SerialWorker(const CctalkLinkController* linkController) {
-        this->linkController = linkController;
+    SerialWorker::SerialWorker() {        
     }
 
     SerialWorker::~SerialWorker() {
@@ -45,72 +47,74 @@ namespace esp32cc {
 
     bool SerialWorker::openPort(uart_port_t uartNumber, int txPin, int rxPin) {
         esp_err_t xErr = ESP_OK;
+        if (!this->portOpen) {
+            this->uartNumber = uartNumber;
+            this->txPin = txPin;
+            this->rxPin = rxPin;
 
-        this->uartNumber = uartNumber;
-        this->txPin = txPin;
-        this->rxPin = rxPin;
+            uart_config_t xUartConfig = {
+                .baud_rate = 9600,
+                .data_bits = UART_DATA_8_BITS,
+                .parity = UART_PARITY_DISABLE,
+                .stop_bits = UART_STOP_BITS_1,
+                .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+                .rx_flow_ctrl_thresh = 0,
+                .source_clk = UART_SCLK_APB,
+            };
 
-        uart_config_t xUartConfig = {
-            .baud_rate = 9600,
-            .data_bits = UART_DATA_8_BITS,
-            .parity = UART_PARITY_DISABLE,
-            .stop_bits = UART_STOP_BITS_1,
-            .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-            .rx_flow_ctrl_thresh = 0,
-            .source_clk = UART_SCLK_APB,
-        };       
+            // Set UART config   
+            xErr = uart_driver_install(uartNumber, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE, CCTALK_QUEUE_LENGTH, &this->cctalkUartQueueHandle, CCTALK_PORT_SERIAL_ISR_FLAG);
+            CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk serial driver failure, uart_driver_install() returned (0x%x).", xErr);
 
-        // Set UART config   
-        xErr = uart_driver_install(uartNumber, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE, CCTALK_QUEUE_LENGTH, &this->cctalkUartQueueHandle, CCTALK_PORT_SERIAL_ISR_FLAG);        
-        CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk serial driver failure, uart_driver_install() returned (0x%x).", xErr);
+            xErr = uart_set_pin(uartNumber, txPin, rxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+            CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk config failure, uart_set_pin() returned (0x%x).", xErr);
 
-        xErr = uart_set_pin(uartNumber, txPin, rxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-        CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk config failure, uart_set_pin() returned (0x%x).", xErr);
-
-        xErr = uart_param_config(uartNumber, &xUartConfig);
-        CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk config failure, uart_param_config() returned (0x%x).", xErr);
+            xErr = uart_param_config(uartNumber, &xUartConfig);
+            CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk config failure, uart_param_config() returned (0x%x).", xErr);
 
 
-        ESP_LOGD(TAG, "%s Init serial.", __func__);
+            ESP_LOGI(TAG, "%s Init serial.", __func__);
 
-        return true;
+            this->portOpen = true;
+        }
+
+        return portOpen;
     }
 
     bool SerialWorker::closePort() {
-        if (this->cctalkTaskHandle != NULL) {
-            vTaskDelete(this->cctalkTaskHandle);
-        }
+//        if (this->cctalkTaskHandle != NULL) {
+//            vTaskDelete(this->cctalkTaskHandle);
+//        }
         esp_err_t xErr = uart_driver_delete(this->uartNumber);
-
+        this->portOpen = false;
         return xErr != ESP_OK;
     }
 
-    void SerialWorker::sendRequest(uint64_t requestId, std::vector<uint8_t>& requestData, int writeTimeoutMsec, int responseTimeoutMsec) {
+    void SerialWorker::sendRequest(const uint64_t requestId, const std::vector<uint8_t>& requestData, const int writeTimeoutMsec, const int responseTimeoutMsec) {
 
-        sendMutex.lock();
+        //ESP_LOGI(TAG, "sendRequest called. Request id %d size (start): %d", int(requestId), requestData.size());
+        //sendMutex.lock();
 
         this->requestId = requestId;
         this->responseTimeoutMsec = responseTimeoutMsec;
 
-        ESP_LOGD(TAG, "Request size (start): %d", requestData.size());
-
         // Set the UART receive timeout
-        ESP_LOGD(TAG, "Setting RX Timeout %d msec", responseTimeoutMsec);
+        ESP_LOGI(TAG, "Setting RX Timeout %d msec", responseTimeoutMsec);
         esp_err_t xErr = uart_set_rx_timeout(this->getUartNumber(), pdMS_TO_TICKS(responseTimeoutMsec));
         //CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk set rx timeout failure, uart_set_rx_timeout() returned (0x%x).", xErr);        
 
         uart_set_always_rx_timeout(this->getUartNumber(), true);
 
-        xQueueReset(this->cctalkUartQueueHandle);        
+        xQueueReset(this->cctalkUartQueueHandle);
         uart_flush_input(this->getUartNumber());
         vTaskDelay(25);
         uart_write_bytes(this->getUartNumber(), requestData.data(), requestData.size());
-        
-        ESP_LOGD(TAG, "Send complete. Waiting for response");
+
+        ESP_LOGI(TAG, "Send complete. Waiting for response");
 
         vTaskDelay(50);
 
-        sendMutex.unlock();
+        //sendMutex.unlock();
 
         std::vector<uint8_t> receivedData;
 
@@ -120,26 +124,26 @@ namespace esp32cc {
         while (!receiveComplete) {
 
             if (timer.isReady()) {
-                ESP_LOGD(TAG, "Timer hit");
+                ESP_LOGI(TAG, "Timer hit");
                 break; // receive complete false
             }
 
             int length = 0;
-            
+
             // Read received data and send it to cctalk stack
             ESP_ERROR_CHECK(uart_get_buffered_data_len(this->getUartNumber(), (size_t*) & length));
-            ESP_LOGD(TAG, "Allegedly available bytes on UART %d: %d", this->getUartNumber(), length);
-            
+            ESP_LOGI(TAG, "Allegedly available bytes on UART %d: %d", this->getUartNumber(), length);
+
             if (length > 0) {
                 receivedData.resize(receivedData.size() + length);
-                bytesRead = uart_read_bytes(this->getUartNumber(), receivedData.data(), length, pdMS_TO_TICKS(this->getResponseTimeoutMsec()));            
+                bytesRead = uart_read_bytes(this->getUartNumber(), receivedData.data(), length, pdMS_TO_TICKS(this->getResponseTimeoutMsec()));
             } else {
                 receiveComplete = true;
-                ESP_LOGD(TAG, "No more data available.");
+                ESP_LOGI(TAG, "No more data available.");
             }
 
             vTaskDelay(pdMS_TO_TICKS(20));
-        }        
+        }
 
         if (receiveComplete) {
 
@@ -147,18 +151,18 @@ namespace esp32cc {
                 // this shouldn't be possible as we have local echo
                 ESP_LOGE(TAG, "Received data bytes (%d) was less than request data bytes (%d). Is device connected?", receivedData.size(), requestData.size());
             } else {
-                ESP_LOGD(TAG, "Read %d bytes - response size %d (with local echo). Executing callback", bytesRead, receivedData.size());
-                ESP_LOGD(TAG, "Request size: %d", requestData.size());
-                linkController->onResponseReceive(this->getRequestId(), std::vector<uint8_t>(receivedData.begin() + requestData.size(), receivedData.end()));
+                ESP_LOGI(TAG, "Read %d bytes - response size %d (with local echo). Executing callback", bytesRead, receivedData.size());
+                ESP_LOGI(TAG, "Request size: %d", requestData.size());
+                this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>(receivedData.begin() + requestData.size(), receivedData.end()));
             }
         }
 
     }
 
-    const CctalkLinkController* SerialWorker::getLinkController() {
-        return this->linkController;
+    void SerialWorker::setOnResponseReceiveCallback(std::function<void(const uint64_t requestId, const std::vector<uint8_t>& responseData)> callback) {
+        this->onResponseReceiveCallback = callback;
     }
-
+    
     QueueHandle_t SerialWorker::getCctalkUartQueueHandle() {
         return this->cctalkUartQueueHandle;
     }

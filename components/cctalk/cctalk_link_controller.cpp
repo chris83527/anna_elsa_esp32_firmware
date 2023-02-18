@@ -25,6 +25,7 @@
 #include <memory>
 #include <iomanip>
 #include <sstream>
+#include <functional>
 
 
 #include <esp_log.h>
@@ -38,30 +39,35 @@ namespace esp32cc {
 
     CctalkLinkController::CctalkLinkController() {
         // start rx and uart tasks
-        this->serialWorker = new SerialWorker(this);
-         
+        //this->serialWorker = new SerialWorker(this);        
     }
 
     CctalkLinkController::~CctalkLinkController() {
         // stop rx and uart tasks
-        delete(serialWorker);
+        //delete(serialWorker);
     }
 
     esp_err_t CctalkLinkController::initialise(const uart_port_t uartNumber, const int txPin, const int rxPin, bool isChecksum16bit, bool isDesEncrypted) {
+
+        this->serialWorker = new SerialWorker();
+        this->serialWorker->setOnResponseReceiveCallback([this](const uint64_t requestId, const std::vector<uint8_t> responseData) {
+            this->onResponseReceive(requestId, responseData);
+        });
+
         this->controllerAddress = controllerAddress;
         this->isChecksum16bit = isChecksum16bit;
         this->isDesEncrypted = isDesEncrypted;
         this->uartNumber = uartNumber;
-        
+
         openPort(uartNumber, txPin, rxPin);
-        
+
         if (isPortOpen) {
             return ESP_OK;
         } else {
             return ESP_FAIL;
         }
     }
-    
+
     /**
      * Open the serial port
      * 
@@ -70,7 +76,7 @@ namespace esp32cc {
      * @param rxPin The ESP32 GPIO pin used for RX
      */
     void CctalkLinkController::openPort(const uart_port_t uartNumber, const int txPin, const int rxPin) {
-        
+
         if (!isPortOpen) {
             this->uartNumber = uartNumber;
             this->isPortOpen = serialWorker->openPort(uartNumber, txPin, rxPin);
@@ -79,8 +85,8 @@ namespace esp32cc {
 
     void CctalkLinkController::closePort() {
         this->isPortOpen = serialWorker->closePort();
-     
-    }    
+
+    }
 
     /**
      * Set various logging options
@@ -106,23 +112,23 @@ namespace esp32cc {
      * @param responseTimeoutMsec The number of milliseconds to wait 
      * @return The requestId corresponding to this request
      */
-    uint64_t CctalkLinkController::ccRequest(CcHeader command, uint8_t deviceAddress, std::vector<uint8_t>& data, int responseTimeoutMsec) {                               
+    uint64_t CctalkLinkController::ccRequest(CcHeader command, uint8_t deviceAddress, std::vector<uint8_t>& data, int responseTimeoutMsec) {
 
         this->deviceAddress = deviceAddress;
-        
+
         if (data.size() > 255) {
-            ESP_LOGE(TAG, "Size of additional data too large! Aborting request.");        
+            ESP_LOGE(TAG, "Size of additional data too large! Aborting request.");
             return 0;
         }
 
         if (this->isDesEncrypted) {
-            ESP_LOGE(TAG, "ccTalk encryption requested, unsupported! Aborting request.");            
+            ESP_LOGE(TAG, "ccTalk encryption requested, unsupported! Aborting request.");
             return 0;
         }
 
         if (this->isChecksum16bit) {
             // TODO support this
-            ESP_LOGE(TAG, "ccTalk 16-bit CRC checksums requested, unsupported! Aborting request.");            
+            ESP_LOGE(TAG, "ccTalk 16-bit CRC checksums requested, unsupported! Aborting request.");
             return 0;
         }
 
@@ -134,10 +140,10 @@ namespace esp32cc {
                 formatted_data.append(stream.str());
             }
             ESP_LOGD(TAG, "> ccTalk request: %s, address: %d, data: %s", ccHeaderGetDisplayableName(command).c_str(), (int(deviceAddress)), (data.size() == 0 ? "(empty)" : formatted_data.c_str()));
-        }    
+        }
 
         // Build the data structure
-        std::vector<uint8_t> requestData;        
+        std::vector<uint8_t> requestData;
         //requestData.resize(data.size());
         requestData.push_back(uint8_t(deviceAddress));
         requestData.push_back(uint8_t(data.size()));
@@ -157,24 +163,38 @@ namespace esp32cc {
         const int writeTimeoutMsec = 500 + requestData.size() * 2; // should be more than enough at 9600 baud.
 
         ESP_LOGD(TAG, "Sending request");
-        
-        this->serialWorker->sendRequest(requestId, requestData, writeTimeoutMsec, responseTimeoutMsec);                       
-        
+
+        this->serialWorker->sendRequest(requestId, requestData, writeTimeoutMsec, responseTimeoutMsec);
+
         return requestId;
     }
 
-    void CctalkLinkController::executeOnReturn(std::function<void(const std::string& error_msg, const std::vector<uint8_t> & command_data)> callbackFunction) {
-        this->callbackFunction = callbackFunction;
+    /**
+     * @brief Tells the link controller which callback to execute when a response is received from the current cctalk command
+     * 
+     * @param callbackFunction A function or lambda to be called whenever a response is received
+     */
+    void CctalkLinkController::executeOnReturn(std::function<void(const std::string& error_msg, const std::vector<uint8_t>& command_data)> callbackFunction) {
+        if (callbackFunction != nullptr) {
+            ESP_LOGI(TAG, "Setting callback function");
+            try {
+                this->executeOnReturnCallback = callbackFunction;
+            } catch (const std::exception& e) {
+                ESP_LOGE(TAG, "An exception occurred assigning callback: %s", e.what());
+            }
+        } else {
+            ESP_LOGE(TAG, "executeOnReturn: callbackFunction was null");
+        }
     }
-    
+ 
     /**
      * Called when a response is received on the UART
      * 
      * @param request_id
      * @param response_data
      */
-    void CctalkLinkController::onResponseReceive(uint64_t request_id, const std::vector<uint8_t>& responseData) const {
-                       
+    void CctalkLinkController::onResponseReceive(const uint64_t request_id, const std::vector<uint8_t>& responseData) const {
+
         if (responseData.size() < 5) {
             ESP_LOGE(TAG, "ccTalk response size too small (%d bytes).", responseData.size());
             // TODO The command should be retried.            
@@ -212,14 +232,14 @@ namespace esp32cc {
         // We should be the only destination. In multi-host networks this should be
         // ignored, but not here.
         if (destinationAddress != 0x01) {
-            ESP_LOGE(TAG, "Invalid ccTalk response. Destination address %d.", int(destinationAddress));            
+            ESP_LOGE(TAG, "Invalid ccTalk response. Destination address %d.", int(destinationAddress));
             return;
         }
 
         // We should be the only destination. In multi-host networks this should be
         // ignored, but not here.
         if (sourceAddress != this->deviceAddress) {
-            ESP_LOGE(TAG, "Invalid ccTalk response. Source address %d, expected %d.", int(sourceAddress), int(this->deviceAddress));            
+            ESP_LOGE(TAG, "Invalid ccTalk response. Source address %d, expected %d.", int(sourceAddress), int(this->deviceAddress));
             return;
         }
 
@@ -237,7 +257,7 @@ namespace esp32cc {
 
         // Every reply must have the command field set to 0.
         if (command != static_cast<decltype(command)> (CcHeader::Ack)) {
-            ESP_LOGE(TAG, "Invalid ccTalk response %lld from address %d: Command is %d, expected 0.", request_id, int(sourceAddress), int(command));       
+            ESP_LOGE(TAG, "Invalid ccTalk response %lld from address %d: Command is %d, expected 0.", request_id, int(sourceAddress), int(command));
             return;
         }
 
@@ -246,9 +266,10 @@ namespace esp32cc {
             // Don't print response_id, it interferes with identical message hiding.
             ESP_LOGD(TAG, "ccTalk response from address %d, data: %s", int(sourceAddress), formatted_data.c_str());
         }
-               
-        if (this->callbackFunction != nullptr) {
-            this->callbackFunction(std::string(), responseDataNoLocalEcho);
+
+        if (this->executeOnReturnCallback != nullptr) {
+            std::string data;
+            this->executeOnReturnCallback(data, responseDataNoLocalEcho);
         } else {
             ESP_LOGE(TAG, "Callback pointer was nullptr");
         }

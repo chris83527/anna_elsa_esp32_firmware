@@ -58,9 +58,7 @@
         return ret_val; \
     }
 
-namespace esp32cc {
-
-    class CctalkLinkController;
+namespace esp32cc {    
 
     class Timer {
     public:
@@ -73,15 +71,15 @@ namespace esp32cc {
 
     class SerialWorker {
     public:
-        SerialWorker(const CctalkLinkController* linkController);
+        SerialWorker();
         virtual ~SerialWorker();
 
+        void setOnResponseReceiveCallback(std::function<void(const uint64_t requestId, const std::vector<uint8_t>& responseData)> callback);
         void setLoggingOptions(bool showFullResponse, bool showSerialRequest, bool showSerialResponse);
         bool openPort(uart_port_t uartNumber, int txPin, int rxPin);
         bool closePort();
-        void sendRequest(uint64_t requestId, std::vector<uint8_t>& requestData, int writeTimeoutMsec, int responseTimeoutMsec);
-
-        const CctalkLinkController* getLinkController();
+        void sendRequest(const uint64_t requestId, const std::vector<uint8_t>& requestData, const int writeTimeoutMsec, const int responseTimeoutMsec);
+        
         QueueHandle_t getCctalkUartQueueHandle();
         TaskHandle_t getCctalkTaskHandle();
         uart_port_t getUartNumber();
@@ -90,12 +88,9 @@ namespace esp32cc {
 
     protected:
 
-    private:
-
-        std::mutex sendMutex;
-
-        const CctalkLinkController* linkController;
-
+    private:        
+        
+        std::function<void(const uint64_t requestId, const std::vector<uint8_t>& responseData)>  onResponseReceiveCallback;
         uint64_t requestId;
         int responseTimeoutMsec;
 
@@ -108,6 +103,8 @@ namespace esp32cc {
         int rxPin;
 
         Timer timer;
+        
+        bool portOpen = false;
 
     };    
 }

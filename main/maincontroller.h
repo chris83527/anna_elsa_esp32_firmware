@@ -22,8 +22,9 @@
 
 #include "ds3231.h"
 #include "wifi.h"
+#include "cctalkcontroller.h"
+#include "cctalk_enums.h"
 
-class CCTalkController;
 class ReelController;
 class DisplayController;
 class AudioController;

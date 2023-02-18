@@ -40,6 +40,14 @@ namespace esp32cc {
     CctalkDevice::CctalkDevice() {
 
     }
+    
+    CctalkDevice::CctalkDevice(const CctalkDevice& orig) {
+
+    }
+    
+    CctalkDevice::~CctalkDevice() {
+        
+    }
 
     CctalkLinkController& CctalkDevice::getLinkController() {
         return *this->linkController;
@@ -65,16 +73,16 @@ namespace esp32cc {
     }
 
     void CctalkDevice::startPolling() {
-        ESP_LOGD(TAG, "Starting poll timer.");
+        ESP_LOGI(TAG, "Starting poll timer.");
 
-        //xTaskCreate(&devicePollTask, "device_poll_task", 4096, NULL, 12, &this->pollTaskHandle);
+        //xTaskCreate(&devicePollTask, "device_poll_task", 4096, NULL, 12, &this->pollTaskHandle);        
         pollThread = std::thread([this] {
             devicePollTask();
         });
     }
 
     void CctalkDevice::stopPolling() {
-        ESP_LOGD(TAG, "Stopping poll timer.");
+        ESP_LOGI(TAG, "Stopping poll timer.");
 
         pollThread.join();
     }
@@ -82,13 +90,14 @@ namespace esp32cc {
     void CctalkDevice::devicePollTask() {
 
         this->pollTaskHandle = (TaskHandle_t) (this->pollThread.native_handle());
-        UBaseType_t priority = uxTaskPriorityGet(this->pollTaskHandle) + 1;
+        UBaseType_t priority = uxTaskPriorityGet(this->pollTaskHandle) + 1;        
         vTaskPrioritySet(this->pollTaskHandle, priority);
+        
 
         if (isTimerIterationTaskRunning) {
             return;
         }
-        ESP_LOGD(TAG, "Polling...");
+        ESP_LOGI(TAG, "Polling...");
 
         // This is set to false in finish callbacks.
         this->isTimerIterationTaskRunning = true;
@@ -190,7 +199,7 @@ namespace esp32cc {
     }
 
     bool CctalkDevice::requestSwitchDeviceState(CcDeviceState state, const std::function<void(const std::string& error_msg)>& finish_callback) {
-        ESP_LOGD(TAG, "Requested device state change from %s to: %s", ccDeviceStateGetDisplayableName(getDeviceState()).c_str(), ccDeviceStateGetDisplayableName(state).c_str());
+        ESP_LOGI(TAG, "Requested device state change from %s to: %s", ccDeviceStateGetDisplayableName(getDeviceState()).c_str(), ccDeviceStateGetDisplayableName(state).c_str());
 
         if (this->deviceState == state) {
             ESP_LOGW(TAG, "Cannot switch to device state %s, already there.", ccDeviceStateGetDisplayableName(state).c_str());
@@ -276,6 +285,7 @@ namespace esp32cc {
             return false;
         }
 
+        ESP_LOGI(TAG, "Requesting checkAlive");
         // Check if it's present / alive
         requestCheckAlive([ = ](const std::string& error_msg, bool alive){
             if (!error_msg.size() == 0) {
@@ -289,6 +299,7 @@ namespace esp32cc {
             return false;
         }
 
+        ESP_LOGI(TAG, "Requesting manufacturing info");
         // Get device manufacturing info
         requestManufacturingInfo([ = ](const std::string& error_msg, CcCategory category, const std::string & info){
             if (!error_msg.size() == 0) {
@@ -307,6 +318,7 @@ namespace esp32cc {
             return false;
         }
 
+        ESP_LOGI(TAG, "Requesting polling interval");
         // Get recommended polling frequency        
         requestPollingInterval([ = ](const std::string& error_msg, uint64_t msec){
             if (!error_msg.size() == 0) {
@@ -315,10 +327,10 @@ namespace esp32cc {
                 // For very large values and unsupported values pick reasonable defaults.
                 const uint64_t max_interval_msec = 1000;
                 if (msec == 0 || msec > max_interval_msec) { // usually means "see device docs".
-                    ESP_LOGD(TAG, "Device-recommended polling frequency is invalid, using our default: %d", this->defaultNormalPollingIntervalMsec);
+                    ESP_LOGI(TAG, "Device-recommended polling frequency is invalid, using our default: %d", this->defaultNormalPollingIntervalMsec);
                             this->normalPollingIntervalMsec = this->defaultNormalPollingIntervalMsec;
                 } else {
-                    ESP_LOGD(TAG, "Device-recommended polling frequency: %d", int(msec));
+                    ESP_LOGI(TAG, "Device-recommended polling frequency: %d", int(msec));
                             this->normalPollingIntervalMsec = int(msec);
                 }
             }
@@ -332,8 +344,10 @@ namespace esp32cc {
             return false;
         }
 
+
         // Get bill / coin identifiers (Only do this if coin /bill validator. Not for Hopper)
         if (this->deviceCategory == CcCategory::CoinAcceptor || this->deviceCategory == CcCategory::BillValidator) {
+            ESP_LOGI(TAG, "Requesting identifiers");
             requestIdentifiers([ = ](const std::string& error_msg, const std::map<uint8_t, CcIdentifier>& identifiers){
                 if (!error_msg.size() == 0) {
                     *shared_error = error_msg;
@@ -447,9 +461,9 @@ namespace esp32cc {
         return true;
     }
 
-    void CctalkDevice::requestCheckAlive(const std::function<void(const std::string& error_msg, bool alive)>& finish_callback) {
-        std::vector<uint8_t> data;
-        this->linkController->executeOnReturn([ = ](const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
+    void CctalkDevice::requestCheckAlive(const std::function<void(const std::string& errorMsg, bool alive)>& finish_callback) {        
+                
+        this->linkController->executeOnReturn([&](const std::string error_msg, const std::vector<uint8_t>& responseData) {
             if (!error_msg.size() == 0) {
                 ESP_LOGE(TAG, "Error checking for device alive status (simple poll): %s", error_msg.c_str());
                         finish_callback(error_msg, false);
@@ -463,11 +477,13 @@ namespace esp32cc {
                 return;
             }
 
-            ESP_LOGD(TAG, "Device is alive (answered to simple poll)");
+            ESP_LOGI(TAG, "Device is alive (answered to simple poll)");
 
             finish_callback(std::string(), true);
         });
-
+        
+        ESP_LOGI(TAG, "Sending request for SimplePoll");
+        std::vector<uint8_t> data;
         this->linkController->ccRequest(CcHeader::SimplePoll, this->deviceAddress, data, 200);
     }
 
@@ -475,22 +491,10 @@ namespace esp32cc {
         auto shared_error = std::make_shared<std::string>();
         CcCategory category;
         std::string info;
-        std::vector<uint8_t> data;
-
-
-        //TODO: Move this to the end
-        //std::string info = infos->join(std::stringLiteral("\n"));
-
-        // Log the info
-        //        if (!shared_error->size() == 0) {
-        //            ESP_LOGE(TAG, "Error getting full general information: %s", shared_error.get().cstr());
-        //        }
-        //        if (!info.size() == 0) {
-        //            ESP_LOGI(TAG, "* Manufacturing information:\n%s", info);
-        //        }
+        std::vector<uint8_t> data;    
 
         // Category            
-        this->linkController->executeOnReturn([ = ](const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
+        this->linkController->executeOnReturn([&](const std::string& error_msg, const std::vector<uint8_t>& responseData) mutable{
             if (!error_msg.size() == 0) {
                 *shared_error = error_msg;
             } else {
@@ -502,9 +506,12 @@ namespace esp32cc {
         });
         this->linkController->ccRequest(CcHeader::RequestEquipmentCategoryId, this->deviceAddress, data, 200);
 
-
+        if ((*shared_error).size() != 0) {
+            return;
+        }
+        
         // Product code
-        this->linkController->executeOnReturn([ = ](const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
+        this->linkController->executeOnReturn([ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
             if (!error_msg.size() == 0) {
                 *shared_error = error_msg;
             } else {
@@ -516,7 +523,7 @@ namespace esp32cc {
 
 
         // Build code
-        this->linkController->executeOnReturn([ = ](const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
+        this->linkController->executeOnReturn([ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) mutable{
             if (!error_msg.size() == 0) {
                 *shared_error = error_msg;
             } else {
@@ -1069,7 +1076,7 @@ namespace esp32cc {
 
                     CcCoinRejectionType rejection_type = ccCoinAcceptorEventCodeGetRejectionType(ev.coin_error_code);
 
-                    ESP_LOGD(TAG, "Coin status/error event %s found, rejection type: %s.",
+                    ESP_LOGI(TAG, "Coin status/error event %s found, rejection type: %s.",
                             ccCoinAcceptorEventCodeGetDisplayableName(ev.coin_error_code).c_str(),
                             ccCoinRejectionTypeGetDisplayableName(rejection_type).c_str());
 
@@ -1084,7 +1091,7 @@ namespace esp32cc {
                 } else {
                     // Events may be just status events (Bill Returned From Escrow, Stacker OK, ...),
                     // or they may be ones that cause the PerformSelfCheck command to return a fault code.
-                    ESP_LOGD(TAG, "Bill status/error event %s found, event type: %s.",
+                    ESP_LOGI(TAG, "Bill status/error event %s found, event type: %s.",
                             ccBillValidatorErrorCodeGetDisplayableName(ev.bill_error_code).c_str(),
                             ccBillValidatorEventTypeGetDisplayableName(ev.bill_event_type).c_str());
 
@@ -1101,9 +1108,9 @@ namespace esp32cc {
                     // Coin accepted, credit the user.
                     CcIdentifier id = this->identifiers.at(ev.coin_id);
                     if (processing_app_startup_events) {
-                        ESP_LOGD(TAG, "The following is a startup event message, ignore it:");
+                        ESP_LOGI(TAG, "The following is a startup event message, ignore it:");
                     }
-                    ESP_LOGD(TAG, "Coin (position %d, ID %s) has been accepted to sorter path %d.", int(ev.coin_id), id.id_string.c_str(), int(ev.coin_sorter_path));
+                    ESP_LOGI(TAG, "Coin (position %d, ID %s) has been accepted to sorter path %d.", int(ev.coin_id), id.id_string.c_str(), int(ev.coin_sorter_path));
                     if (!accepting && !processing_app_startup_events) {
                         ESP_LOGE(TAG, "Coin accepted even though we're in rejecting mode; internal error!");
                     }
@@ -1124,20 +1131,20 @@ namespace esp32cc {
                         // want to operate on old data and assumptions.
                         if (!processing_last_event) {
                             if (processing_app_startup_events) {
-                                ESP_LOGD(TAG, "The following is a startup event message, ignore it:");
+                                ESP_LOGI(TAG, "The following is a startup event message, ignore it:");
                             }
-                            ESP_LOGD(TAG, "Bill (position %d, ID %s) is or was in escrow, too late to process an old event; ignoring.", int(ev.bill_id), id.id_string.c_str());
+                            ESP_LOGI(TAG, "Bill (position %d, ID %s) is or was in escrow, too late to process an old event; ignoring.", int(ev.bill_id), id.id_string.c_str());
                             continue;
                         }
                         if (!accepting) {
                             if (processing_app_startup_events) {
-                                ESP_LOGD(TAG, "The following is a startup event message, ignore it:");
+                                ESP_LOGI(TAG, "The following is a startup event message, ignore it:");
                             }
-                            ESP_LOGD(TAG, "Bill (position %d, ID %s) is or was in escrow, even though we're in rejecting mode; ignoring.", int(ev.bill_id), id.id_string.c_str());
+                            ESP_LOGI(TAG, "Bill (position %d, ID %s) is or was in escrow, even though we're in rejecting mode; ignoring.", int(ev.bill_id), id.id_string.c_str());
                             bill_routing_force_reject = true;
                         }
 
-                        //  ESP_LOGD(TAG, "Bill (position %1, ID %2) is in escrow, deciding whether to accept.",int(ev.bill_id),id.id_string));
+                        //  ESP_LOGI(TAG, "Bill (position %1, ID %2) is in escrow, deciding whether to accept.",int(ev.bill_id),id.id_string));
                         bill_routing_pending = true;
                         routing_req_event = ev;
                         // Continue below
@@ -1146,9 +1153,9 @@ namespace esp32cc {
                         // This success code appears in event log after a bill routing request, or no routing command timeout.
                         // Credit the user.
                         if (processing_app_startup_events) {
-                            ESP_LOGD(TAG, "The following is a startup event message, ignore it:");
+                            ESP_LOGI(TAG, "The following is a startup event message, ignore it:");
                         }
-                        ESP_LOGD(TAG, "Bill (position %d, ID %s) has been accepted.", int(ev.bill_id), id.id_string.c_str());
+                        ESP_LOGI(TAG, "Bill (position %d, ID %s) has been accepted.", int(ev.bill_id), id.id_string.c_str());
                         if (!accepting && !processing_app_startup_events) {
                             ESP_LOGE(TAG, " Bill accepted even though we're in rejecting mode; internal error!");
                         }
@@ -1211,10 +1218,10 @@ namespace esp32cc {
             }
 
             CcBillRouteCommandType route_command = accept ? CcBillRouteCommandType::RouteToStacker : CcBillRouteCommandType::ReturnBill;
-            ESP_LOGD(TAG, "Bill (position %d, ID %s) is in escrow, sending a request for: %s.", int(routing_req_event.bill_id), id.id_string.c_str(), ccBillRouteCommandTypeGetDisplayableName(route_command).c_str());
+            ESP_LOGI(TAG, "Bill (position %d, ID %s) is in escrow, sending a request for: %s.", int(routing_req_event.bill_id), id.id_string.c_str(), ccBillRouteCommandTypeGetDisplayableName(route_command).c_str());
 
             requestRouteBill(route_command, [ = ]([[maybe_unused]] const std::string& error_msg, CcBillRouteStatus status){
-                ESP_LOGD(TAG, "Bill (position %d, ID %s) routing status: %s.", int(routing_req_event.bill_id), id.id_string.c_str(), ccBillRouteStatusGetDisplayableName(status).c_str());
+                ESP_LOGI(TAG, "Bill (position %d, ID %s) routing status: %s.", int(routing_req_event.bill_id), id.id_string.c_str(), ccBillRouteStatusGetDisplayableName(status).c_str());
 
                 //        aser->continueSequence(true);
             });
@@ -1341,7 +1348,7 @@ namespace esp32cc {
 
             CcDeviceState old_state = this->deviceState;
             this->deviceState = state;
-            ESP_LOGD(TAG, "Device state changed to: %s", ccDeviceStateGetDisplayableName(state).c_str());
+            ESP_LOGI(TAG, "Device state changed to: %s", ccDeviceStateGetDisplayableName(state).c_str());
             //deviceStateChanged(old_state, this->deviceState);
         }
     }
@@ -1384,7 +1391,7 @@ namespace esp32cc {
         return formatted_data;
     }
 
-    void CctalkDevice::setCreditAcceptedCallback(CoinValidatorFunc callback) {
+    void CctalkDevice::setCreditAcceptedCallback(CreditAcceptedFunc callback) {
         this->creditAccepted = callback;
     }
 }

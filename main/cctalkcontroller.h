@@ -27,22 +27,23 @@
 #define CCTALK_HOPPER (3)
 #define CCTALK_COIN_VALIDATOR (2)
 
+class MainController;
+
 class CCTalkController {
 public:
-    CCTalkController(MainController *mainController);
+    CCTalkController();
     CCTalkController(const CCTalkController& orig);
     virtual ~CCTalkController();
 
+    void setCreditAcceptedCallback(esp32cc::CoinAcceptorDevice::CreditAcceptedFunc creditAcceptedCallback);
+    
     esp_err_t initialise(void);
 
-
-    const static uint8_t COIN_VALUES[];
+    //const static uint8_t COIN_VALUES[];
 
     const static unsigned long VALIDATOR_POLL_INTERVAL = 100;
     const static unsigned long HOPPER_STATUS_POLL_INTERVAL = 400;
-
-    
-
+  
 private:
 
     esp32cc::CctalkLinkController cctalkLinkController;
@@ -51,10 +52,7 @@ private:
     esp32cc::CoinHopperDevice hopper;
 
 
-    MainController * mainController;
-
-    //int getState();
-
+    MainController * mainController;   
 };
 
 

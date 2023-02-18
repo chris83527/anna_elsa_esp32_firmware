@@ -221,13 +221,15 @@ namespace esp32cc {
 
     public:
         using BillValidatorFunc = std::function<bool(uint8_t bill_id, const CcIdentifier& identifier)>;
-        using CoinValidatorFunc = std::function<bool(uint8_t coin_id, const CcIdentifier& identifier)>;
+        using CreditAcceptedFunc = std::function<void(uint8_t coin_id, const CcIdentifier& identifier)>;
         using ResponseErrorFunc = std::function<void(const std::string& error_msg)>;
         
         
         
         /// Constructor
         CctalkDevice();
+        CctalkDevice(const CctalkDevice& orig);
+        virtual ~CctalkDevice();
 
 
         /// Get link controller
@@ -245,7 +247,7 @@ namespace esp32cc {
         /// \return true if the request was successfully sent.
         bool initialise(CctalkLinkController& linkController, uint8_t deviceAddress, const std::function<void(const std::string& error_msg)>& finish_callback);
 
-        void setCreditAcceptedCallback(CoinValidatorFunc callback);        
+        void setCreditAcceptedCallback(CreditAcceptedFunc callback);        
         
         /// Request the device to be switched to ShutDown state.
         /// Stops event timer.
@@ -270,15 +272,15 @@ namespace esp32cc {
 
     private:
 
+
         /// Emitted whenever device state is changed.
         //void deviceStateChanged(CcDeviceState old_state, CcDeviceState new_state);
 
         /// Emitted whenever a credit is accepted.
-        CoinValidatorFunc creditAccepted;
+        CreditAcceptedFunc creditAccepted;
 
         /// Emitted whenever cctalk message data cannot be decoded (logic error)
         ResponseErrorFunc ccResponseDataDecodeError;
-
         
         /// Poll task        
         std::string decodeResponseToString(const std::vector<uint8_t>& responseData);

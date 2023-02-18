@@ -15,20 +15,17 @@
 
 #include "config.h"
 
-#include "maincontroller.h"
+#include "oledcontroller.h"
 
 #include "cctalkcontroller.h"
-#include "oledcontroller.h"
 
 static const char *TAG = "CCTALK_CONTROLLER";
 
-const uint8_t CCTalkController::COIN_VALUES[] = {0, 5, 10, 20, 50, 100, 200};
+//const uint8_t CCTalkController::COIN_VALUES[] = {0, 5, 10, 20, 50, 100, 200};
 
-//Cctalk cctalk(UART_NUM_1, CCTALK_GPIO_TX, CCTALK_GPIO_RX);
-
-CCTalkController::CCTalkController(MainController *mainController) {
+CCTalkController::CCTalkController() {
     ESP_LOGD(TAG, "Entering constructor");
-    this->mainController = mainController;
+    
     ESP_LOGD(TAG, "Leaving constructor");
 }
 
@@ -41,18 +38,67 @@ CCTalkController::~CCTalkController() {
 esp_err_t CCTalkController::initialise() {
     ESP_LOGD(TAG, "CCTalkController::initialise called");
     
-    cctalkLinkController.initialise(CCTALK_UART, CCTALK_GPIO_TX, CCTALK_GPIO_RX, false, false);
+    cctalkLinkController.initialise(CCTALK_UART, CCTALK_GPIO_TX, CCTALK_GPIO_RX, false, false);       
     
-    this->hopper.initialise(this->cctalkLinkController, 1, [=](const std::string& error_msg) {
-        ESP_LOGE(TAG, "An error occurred initialising the hopper: %s", error_msg.c_str());
-    }); 
+//    this->hopper.initialise(this->cctalkLinkController, CCTALK_HOPPER, [=](const std::string& error_msg) {
+//        ESP_LOGE(TAG, "An error occurred initialising the hopper: %s", error_msg.c_str());
+//    }); 
     
-    this->coinAcceptor.initialise(this->cctalkLinkController, 3, [=](const std::string& error_msg) {
+    this->coinAcceptor.initialise(this->cctalkLinkController, CCTALK_COIN_VALIDATOR, [=](const std::string& error_msg) {
         ESP_LOGE(TAG, "An error occurred initialising the coin acceptor: %s", error_msg.c_str());
     });   
                    
     return ESP_OK;
 }
 
+void CCTalkController::setCreditAcceptedCallback(esp32cc::CoinAcceptorDevice::CreditAcceptedFunc creditAcceptedCallback) {
+    this->coinAcceptor.setCreditAcceptedCallback(creditAcceptedCallback);
+}
 
+/**
+ esp_err_t CCTalkController::initialise() {
+    ESP_LOGD(TAG, "CCTalkController::initialise called");
 
+    cctalk.initialise();
+
+    CctalkResponse response;
+
+    resetDevice(CCTALK_COIN_VALIDATOR, response);
+    resetDevice(CCTALK_HOPPER, response);
+
+    requestManufacturerId(CCTALK_COIN_VALIDATOR, response);
+    ESP_LOGI(TAG, "Coin validator manufacturer Id: %s", response.asStringResponse().c_str());
+    mainController->getOledController()->scrollText(std::string("Manufacturer Id:"));
+    mainController->getOledController()->scrollText(std::string(response.asStringResponse()));
+    requestBuildCode(CCTALK_COIN_VALIDATOR, response);
+    ESP_LOGI(TAG, "Build Code: %s", response.asStringResponse().c_str());
+    mainController->getOledController()->scrollText(std::string("Build code: "));
+    mainController->getOledController()->scrollText(std::string(response.asStringResponse()));
+    requestProductCode(CCTALK_COIN_VALIDATOR, response);
+    ESP_LOGI(TAG, "Product Code: %s", response.asStringResponse().c_str());
+    mainController->getOledController()->scrollText(std::string("Product code: "));
+    mainController->getOledController()->scrollText(std::string(response.asStringResponse()));
+
+    modifySorterPath(CCTALK_COIN_VALIDATOR, 1, 1, response); // 5ct  (Kasse - rejected anyway)
+    modifySorterPath(CCTALK_COIN_VALIDATOR, 2, 1, response); // 10ct (Kasse, adapter slot D, cctalk sort chute 1)
+    modifySorterPath(CCTALK_COIN_VALIDATOR, 3, 2, response); // 20ct (Hopper, adapter slot C, cctalk sort chute 2)
+    modifySorterPath(CCTALK_COIN_VALIDATOR, 4, 1, response); // 50ct (Kasse, adapter slot D, cctalk sort chute 1)
+    modifySorterPath(CCTALK_COIN_VALIDATOR, 5, 1, response); // 1eur (Kasse, adapter slot D, cctalk sort chute 1)
+    modifySorterPath(CCTALK_COIN_VALIDATOR, 6, 1, response); // 2eur (Kasse, adapter slot D, cctalk sort chute 1)
+
+    modifyDefaultSorterPath(CCTALK_COIN_VALIDATOR, 1, response); // adapter slot D, cctalk sort chute 1
+    modifyInhibitStatus(CCTALK_COIN_VALIDATOR, 254, 0, response); // Allow all coins except 5ct
+    modifyMasterInhibitStatus(CCTALK_COIN_VALIDATOR, 1, response); // Enable coin validator
+
+    requestManufacturerId(CCTALK_HOPPER, response);
+    ESP_LOGI(TAG, "Hopper manufacturer Id: %s", response.asStringResponse().c_str());
+    requestBuildCode(CCTALK_HOPPER, response);
+    ESP_LOGI(TAG, "Build Code: %s", response.asStringResponse().c_str());
+    requestProductCode(CCTALK_HOPPER, response);
+    ESP_LOGI(TAG, "Product Code: %s", response.asStringResponse().c_str());
+
+    //dispenseCoins(CCTALK_HOPPER, 1, response);
+
+    return ESP_OK;
+}
+ */

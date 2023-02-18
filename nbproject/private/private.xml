@@ -66,9 +66,9 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/tas5731m_reg_cfg.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/component.mk</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/main.cpp</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/cctalkcontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/ssd1306/ssd1306.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/wifi.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/cctalkcontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_pins_config.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/CMakeLists.txt</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/ssd1306/ssd1306_i2c.c</file>
@@ -77,10 +77,10 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_pins_config.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/joltwallet__littlefs/CMakeLists.txt</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/old/cctalk.h</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/spiffs.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/m20ly02z/include/m20ly02z.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/webserver.c</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/idf_component.yml</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/tas5731m.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/webserver.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/ssd1306/Kconfig</file>

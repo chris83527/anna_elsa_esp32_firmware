@@ -13,6 +13,7 @@
 #include <string>
 #include <stdlib.h>
 #include <ctime>
+#include <functional>
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -147,7 +148,7 @@ void MainController::start() {
     ESP_LOGD(TAG, "start() called");
 
 
-    this->cctalkController = new CCTalkController(this);
+    this->cctalkController = new CCTalkController();
     this->audioController = new AudioController();
     this->displayController = new DisplayController(this);
     this->reelController = new ReelController(this);
@@ -204,10 +205,10 @@ void MainController::start() {
     nvs_handle = nvs::open_nvs_handle_from_partition(NVS_PARTITION_SETTINGS, NVS_PARTITION_SETTINGS, NVS_READWRITE, &err);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(err));
-        oledController->scrollText("-> failed");
+        oledController->scrollText("  -> failed");
     } else {
         ESP_LOGD(TAG, "NVS opened ok.");
-        oledController->scrollText("-> ok");
+        oledController->scrollText("  -> ok");
     }
 
     // Initialise WiFi
@@ -223,11 +224,11 @@ void MainController::start() {
     err = ds3231_init_desc(&ds3231, 0, GPIO_I2C_SDA, GPIO_I2C_SCL);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Error initialising RTC!");
-        oledController->scrollText("-> failed");
+        oledController->scrollText("  -> failed");
     } else {
         //this->setDateTime(); // Debug only
         ESP_LOGI(TAG, "RTC initialised ok");
-        oledController->scrollText("-> ok");
+        oledController->scrollText("  -> ok");
     }
 
     oledController->scrollText("Init LittleFS");
@@ -298,10 +299,10 @@ void MainController::start() {
     oledController->scrollText("Init Display");
     if (displayController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise tableau subsystem");
-        oledController->scrollText("-> failed");
+        oledController->scrollText("  -> failed");
     } else {
         ESP_LOGD(TAG, "Display controller initialisation ok.");
-        oledController->scrollText("-> ok");
+        oledController->scrollText("  -> ok");
     }
 
     //oledController->scrollText("Init NVRAM");
@@ -309,22 +310,25 @@ void MainController::start() {
 
     oledController->scrollText("Init reels");
     if (reelController->initialise() != ESP_OK) {
-        oledController->scrollText("-> failed");
+        oledController->scrollText("  -> failed");
         ESP_LOGE(TAG, "Failed to initialise reel controller subsystem");
     } else {
-        oledController->scrollText("-> ok");
+        oledController->scrollText("  -> ok");
         ESP_LOGD(TAG, "Reel controller initialisation ok.");
     }
 
     oledController->scrollText("Init cctalk");
+    cctalkController->setCreditAcceptedCallback([=](uint8_t coin_id, const esp32cc::CcIdentifier& identifier) {
+        ESP_LOGI(TAG, "Coin inserted: %d", coin_id);
+        
+    });
+    
+    
     if (cctalkController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
-        oledController->scrollText("-> failed");
+        oledController->scrollText("  -> failed");
     } else {
-//        oledController->scrollText("-> ok");
-//        oledController->scrollText("Start cctalk polling");
-//        ESP_LOGD(TAG, "Starting validator and hopper status polling");
-//        xTaskCreate(&cctalkStatusCheckTask, "check_hopper_status", 10000, this, 14, NULL);
+        oledController->scrollText("  -> ok");
     }
 
     //audioController->playAudioFile(Sounds::SND_LET_IT_GO);

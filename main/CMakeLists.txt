@@ -2,7 +2,7 @@
 # without default 'CMakeLists.txt' file.
 cmake_minimum_required(VERSION 3.16)
 
-FILE(GLOB_RECURSE app_sources ${CMAKE_SOURCE_DIR}/main/*.*)
+FILE(GLOB_RECURSE app_sources ${CMAKE_SOURCE_DIR}/main/*.c*)
 
 idf_component_register(SRCS ${app_sources})
 
