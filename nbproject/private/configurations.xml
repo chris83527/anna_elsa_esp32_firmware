@@ -350,6 +350,8 @@
             <df name="hal">
               <df name="CMakeFiles">
                 <df name="__idf_hal.dir">
+                  <df name="esp32">
+                  </df>
                 </df>
               </df>
             </df>
@@ -3086,6 +3088,10 @@
                 <df name="mbedx509.dir">
                 </df>
               </df>
+              <in>error.c</in>
+              <in>psa_crypto_driver_wrappers.c</in>
+              <in>ssl_debug_helpers_generated.c</in>
+              <in>version_features.c</in>
             </df>
           </df>
         </df>
@@ -3415,7 +3421,6 @@
       <df name="lib">
       </df>
       <df name="main">
-        <in>HttpServer.h</in>
         <in>audiocontroller.cpp</in>
         <in>audiocontroller.h</in>
         <in>cctalkcontroller.cpp</in>
@@ -6021,6 +6026,7 @@
           <in>bootloader_common_loader.c</in>
           <in>bootloader_console.c</in>
           <in>bootloader_console_loader.c</in>
+          <in>bootloader_efuse.c</in>
           <in>bootloader_efuse_esp32.c</in>
           <in>bootloader_efuse_esp32c3.c</in>
           <in>bootloader_efuse_esp32h2.c</in>
@@ -6965,6 +6971,7 @@
                 <df name="stack">
                   <in>a2d_api.h</in>
                   <in>a2d_sbc.h</in>
+                  <in>acl_hci_link_interface.h</in>
                   <in>avct_api.h</in>
                   <in>avdt_api.h</in>
                   <in>avdtc_api.h</in>
@@ -6985,6 +6992,7 @@
                   <in>hidh_api.h</in>
                   <in>l2c_api.h</in>
                   <in>l2cap_client.h</in>
+                  <in>l2cap_hci_link_interface.h</in>
                   <in>l2cdefs.h</in>
                   <in>port_api.h</in>
                   <in>port_ext.h</in>
@@ -10897,6 +10905,8 @@
               <in>clk_gate_ll.h</in>
               <in>cpu_ll.h</in>
               <in>dac_ll.h</in>
+              <in>efuse_hal.h</in>
+              <in>efuse_ll.h</in>
               <in>emac_ll.h</in>
               <in>gpio_ll.h</in>
               <in>i2c_ll.h</in>
@@ -10927,6 +10937,7 @@
           </df>
           <in>adc_hal.c</in>
           <in>brownout_hal.c</in>
+          <in>efuse_hal.c</in>
           <in>gpio_hal_workaround.c</in>
           <in>interrupt_descriptor_table.c</in>
           <in>touch_sensor_hal.c</in>
@@ -10941,6 +10952,7 @@
               <in>clk_gate_ll.h</in>
               <in>cpu_ll.h</in>
               <in>ds_ll.h</in>
+              <in>efuse_ll.h</in>
               <in>gdma_ll.h</in>
               <in>gpio_ll.h</in>
               <in>gpspi_flash_ll.h</in>
@@ -10975,6 +10987,7 @@
           </df>
           <in>adc_hal.c</in>
           <in>brownout_hal.c</in>
+          <in>efuse_hal.c</in>
           <in>hmac_hal.c</in>
           <in>rtc_cntl_hal.c</in>
         </df>
@@ -10987,6 +11000,7 @@
               <in>clk_gate_ll.h</in>
               <in>cpu_ll.h</in>
               <in>ds_ll.h</in>
+              <in>efuse_ll.h</in>
               <in>gdma_ll.h</in>
               <in>gpio_ll.h</in>
               <in>gpspi_flash_ll.h</in>
@@ -11020,6 +11034,7 @@
             </df>
           </df>
           <in>brownout_hal.c</in>
+          <in>efuse_hal.c</in>
           <in>hmac_hal.c</in>
           <in>rtc_cntl_hal.c</in>
         </df>
@@ -11037,6 +11052,7 @@
               <in>dac_hal.h</in>
               <in>dac_ll.h</in>
               <in>dedic_gpio_ll.h</in>
+              <in>efuse_ll.h</in>
               <in>gpio_ll.h</in>
               <in>gpspi_flash_ll.h</in>
               <in>i2c_ll.h</in>
@@ -11074,6 +11090,7 @@
           <in>brownout_hal.c</in>
           <in>cp_dma_hal.c</in>
           <in>dac_hal.c</in>
+          <in>efuse_hal.c</in>
           <in>interrupt_descriptor_table.c</in>
           <in>touch_sensor_hal.c</in>
         </df>
@@ -11086,6 +11103,7 @@
               <in>clk_gate_ll.h</in>
               <in>cpu_ll.h</in>
               <in>ds_ll.h</in>
+              <in>efuse_ll.h</in>
               <in>gdma_ll.h</in>
               <in>gpio_ll.h</in>
               <in>gpspi_flash_ll.h</in>
@@ -11127,6 +11145,7 @@
             </df>
           </df>
           <in>brownout_hal.c</in>
+          <in>efuse_hal.c</in>
           <in>hmac_hal.c</in>
           <in>interrupt_descriptor_table.c</in>
           <in>rtc_cntl_hal.c</in>
@@ -11145,10 +11164,12 @@
             <in>dac_types.h</in>
             <in>dma_types.h</in>
             <in>ds_hal.h</in>
+            <in>efuse_hal.h</in>
             <in>emac_hal.h</in>
             <in>esp_flash_err.h</in>
             <in>eth_types.h</in>
             <in>gdma_hal.h</in>
+            <in>gdma_types.h</in>
             <in>gpio_hal.h</in>
             <in>gpio_types.h</in>
             <in>i2c_hal.h</in>
@@ -11199,6 +11220,8 @@
             <in>uart_hal.h</in>
             <in>uart_types.h</in>
             <in>uhci_types.h</in>
+            <in>usb_dwc_hal.h</in>
+            <in>usb_dwc_ll.h</in>
             <in>usb_hal.h</in>
             <in>usb_phy_hal.h</in>
             <in>usb_phy_types.h</in>
@@ -11228,6 +11251,7 @@
         <in>cpu_hal.c</in>
         <in>dac_hal.c</in>
         <in>ds_hal.c</in>
+        <in>efuse_hal.c</in>
         <in>emac_hal.c</in>
         <in>gdma_hal.c</in>
         <in>gpio_hal.c</in>
@@ -11264,6 +11288,7 @@
         <in>twai_hal_iram.c</in>
         <in>uart_hal.c</in>
         <in>uart_hal_iram.c</in>
+        <in>usb_dwc_hal.c</in>
         <in>usb_hal.c</in>
         <in>usb_phy_hal.c</in>
         <in>usbh_hal.c</in>
@@ -14467,6 +14492,7 @@
           <in>nvs_handle_simple.hpp</in>
           <in>nvs_item_hash_list.cpp</in>
           <in>nvs_item_hash_list.hpp</in>
+          <in>nvs_memory_management.hpp</in>
           <in>nvs_page.cpp</in>
           <in>nvs_page.hpp</in>
           <in>nvs_pagemanager.cpp</in>
@@ -16249,6 +16275,7 @@
               <in>dport_access.h</in>
               <in>dport_reg.h</in>
               <in>efuse_reg.h</in>
+              <in>efuse_struct.h</in>
               <in>emac_dma_struct.h</in>
               <in>emac_ext_struct.h</in>
               <in>emac_mac_struct.h</in>
@@ -16633,6 +16660,7 @@
               <in>uart_struct.h</in>
               <in>uhci_reg.h</in>
               <in>uhci_struct.h</in>
+              <in>usb_dwc_struct.h</in>
               <in>usb_pins.h</in>
               <in>usb_reg.h</in>
               <in>usb_struct.h</in>
@@ -16783,6 +16811,7 @@
               <in>uhci_struct.h</in>
               <in>usb_caps.h</in>
               <in>usb_device_reg.h</in>
+              <in>usb_dwc_struct.h</in>
               <in>usb_pins.h</in>
               <in>usb_reg.h</in>
               <in>usb_serial_jtag_reg.h</in>
@@ -18573,6 +18602,10 @@
             <in>test_usb_common.h</in>
             <in>test_usb_mock_classes.c</in>
             <in>test_usb_mock_classes.h</in>
+            <in>test_usb_mock_hid.c</in>
+            <in>test_usb_mock_hid.h</in>
+            <in>test_usb_mock_msc.c</in>
+            <in>test_usb_mock_msc.h</in>
           </df>
           <df name="hcd">
             <in>test_hcd_bulk.c</in>
@@ -18596,6 +18629,7 @@
           </df>
         </df>
         <in>hcd.c</in>
+        <in>hcd_dwc.c</in>
         <in>hub.c</in>
         <in>usb_helpers.c</in>
         <in>usb_host.c</in>

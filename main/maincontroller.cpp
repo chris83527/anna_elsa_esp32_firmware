@@ -318,9 +318,9 @@ void MainController::start() {
     }
 
     oledController->scrollText("Init cctalk");
-    cctalkController->setCreditAcceptedCallback([=](uint8_t coin_id, const esp32cc::CcIdentifier& identifier) {
-        ESP_LOGI(TAG, "Coin inserted: %d", coin_id);
-        
+    cctalkController->setCreditAcceptedCallback([&](uint8_t coin_id, const esp32cc::CcIdentifier& identifier) {
+        ESP_LOGI(TAG, "Credit accepted: Coin id: %d, Identifier: %s", coin_id, identifier.id_string.c_str());
+        moneyController->addToCredit(COIN_VALUES[coin_id]);
     });
     
     
@@ -330,8 +330,6 @@ void MainController::start() {
     } else {
         oledController->scrollText("  -> ok");
     }
-
-    //audioController->playAudioFile(Sounds::SND_LET_IT_GO);
 
     blinkDelay = 1000;
 
@@ -354,33 +352,6 @@ void MainController::start() {
     }
 
 }
-
-//void MainController::dumpEEPROMValues() {
-//    this->getSerialMonitorController()->clearScreenAndDrawBorder();
-//    term->println("EEPROM dump");
-//    char buf[255];
-//    snprintf(buf, sizeof (buf), "Credit: %05u", this->eeprom_data.credit);
-//    term->println(buf);
-//    snprintf(buf, sizeof (buf), "Bank: %05u", this->eeprom_data.bank);
-//    term->println(buf);
-//    snprintf(buf, sizeof (buf), "Games Played (total): %05lu", this->eeprom_data.numGamesPlayed);
-//    term->println(buf);
-//    snprintf(buf, sizeof (buf), "10ct in: %05lu", this->eeprom_data.in10ct);
-//    term->println(buf);
-//    snprintf(buf, sizeof (buf), "20ct in: %05lu", this->eeprom_data.in20ct);
-//    term->println(buf);
-//    snprintf(buf, sizeof (buf), "50ct in: %05lu", this->eeprom_data.in50ct);
-//    term->println(buf);
-//    snprintf(buf, sizeof (buf), "1Eur in: %05lu", this->eeprom_data.in1eur);
-//    term->println(buf);
-//    snprintf(buf, sizeof (buf), "2Eur in: %05lu", this->eeprom_data.in2eur);
-//    term->println(buf);
-//    snprintf(buf, sizeof (buf), "Coins out: %05lu", this->eeprom_data.coinsOut);
-//    term->println(buf);
-//    snprintf(buf, sizeof (buf), "Volume: %02u", this->eeprom_data.volume);
-//    term->println(buf);
-//
-//}
 
 void MainController::setDateTime() {
     tm time;

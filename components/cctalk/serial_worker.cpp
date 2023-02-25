@@ -107,14 +107,12 @@ namespace esp32cc {
 
         xQueueReset(this->cctalkUartQueueHandle);
         uart_flush_input(this->getUartNumber());
-        vTaskDelay(25);
+        vTaskDelay(5);
         uart_write_bytes(this->getUartNumber(), requestData.data(), requestData.size());
 
         ESP_LOGI(TAG, "Send complete. Waiting for response");
 
-        vTaskDelay(50);
-
-        //sendMutex.unlock();
+        vTaskDelay(5);        
 
         std::vector<uint8_t> receivedData;
 
@@ -152,10 +150,12 @@ namespace esp32cc {
                 ESP_LOGE(TAG, "Received data bytes (%d) was less than request data bytes (%d). Is device connected?", receivedData.size(), requestData.size());
             } else {
                 ESP_LOGI(TAG, "Read %d bytes - response size %d (with local echo). Executing callback", bytesRead, receivedData.size());
-                ESP_LOGI(TAG, "Request size: %d", requestData.size());
+                ESP_LOGI(TAG, "Response size: %d", (receivedData.size() - requestData.size()));
                 this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>(receivedData.begin() + requestData.size(), receivedData.end()));
             }
         }
+        
+        //sendMutex.unlock();        
 
     }
 

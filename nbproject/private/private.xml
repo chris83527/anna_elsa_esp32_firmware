@@ -25,7 +25,6 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/joltwallet__littlefs/component.mk</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/.gitignore</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/old/cctalk.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/oledcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/bill_validator_device.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.h</file>
@@ -35,7 +34,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_device.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/CMakeLists.txt</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_link_controller.h</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/config/sdkconfig.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/old/CctalkRequest.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_device.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/httpd/statistics.html</file>

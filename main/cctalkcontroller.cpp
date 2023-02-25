@@ -21,11 +21,9 @@
 
 static const char *TAG = "CCTALK_CONTROLLER";
 
-//const uint8_t CCTalkController::COIN_VALUES[] = {0, 5, 10, 20, 50, 100, 200};
-
 CCTalkController::CCTalkController() {
     ESP_LOGD(TAG, "Entering constructor");
-    
+
     ESP_LOGD(TAG, "Leaving constructor");
 }
 
@@ -37,17 +35,52 @@ CCTalkController::~CCTalkController() {
 
 esp_err_t CCTalkController::initialise() {
     ESP_LOGD(TAG, "CCTalkController::initialise called");
-    
-    cctalkLinkController.initialise(CCTALK_UART, CCTALK_GPIO_TX, CCTALK_GPIO_RX, false, false);       
-    
-//    this->hopper.initialise(this->cctalkLinkController, CCTALK_HOPPER, [=](const std::string& error_msg) {
-//        ESP_LOGE(TAG, "An error occurred initialising the hopper: %s", error_msg.c_str());
-//    }); 
-    
-    this->coinAcceptor.initialise(this->cctalkLinkController, CCTALK_COIN_VALIDATOR, [=](const std::string& error_msg) {
-        ESP_LOGE(TAG, "An error occurred initialising the coin acceptor: %s", error_msg.c_str());
-    });   
-                   
+    cctalkLinkController = new esp32cc::CctalkLinkController();
+
+    cctalkLinkController->initialise(CCTALK_UART, CCTALK_GPIO_TX, CCTALK_GPIO_RX, false, false);
+
+    this->hopper.initialise(this->cctalkLinkController, CCTALK_HOPPER, [ = ](const std::string & error_msg){
+        if (error_msg.size() > 0) {
+            ESP_LOGE(TAG, "An error occurred initialising the hopper: %s", error_msg.c_str());
+        }
+    });
+
+    this->coinAcceptor.initialise(this->cctalkLinkController, CCTALK_COIN_VALIDATOR, [ = ](const std::string & error_msg){
+        if (error_msg.size() > 0) {
+            ESP_LOGE(TAG, "An error occurred initialising the coin acceptor: %s", error_msg.c_str());
+        }
+    });
+
+    this->coinAcceptor.modifySorterPath(1, 1, [&](const std::string & error_msg) {
+
+    });
+    this->coinAcceptor.modifySorterPath(2, 1, [&](const std::string & error_msg) {
+
+    });
+    this->coinAcceptor.modifySorterPath(3, 2, [&](const std::string & error_msg) {
+
+    });
+    this->coinAcceptor.modifySorterPath(4, 1, [&](const std::string & error_msg) {
+
+    });
+    this->coinAcceptor.modifySorterPath(5, 1, [&](const std::string & error_msg) {
+
+    });
+    this->coinAcceptor.modifySorterPath(6, 1, [&](const std::string & error_msg) {
+
+    });
+    this->coinAcceptor.modifyDefaultSorterPath(1, [&](const std::string & error_msg) {
+
+    });
+
+    esp32cc::CcDeviceState acceptingState = esp32cc::CcDeviceState::NormalAccepting;
+    this->coinAcceptor.requestSwitchDeviceState(acceptingState, [&]([[maybe_unused]] const std::string & error_msg) {
+        if (error_msg.size() > 0) {
+            ESP_LOGE(TAG, "An error occurred switching to accept state: %s", error_msg.c_str());
+        }
+    });
+
+
     return ESP_OK;
 }
 

@@ -46,8 +46,8 @@
 #include "cctalk_link_controller.h"
 
 
-namespace esp32cc {    
-    
+namespace esp32cc {
+
     /// Device state.
     /// Additional commands that may change the state:
     /// - ResetDevice
@@ -128,12 +128,22 @@ namespace esp32cc {
         }
     }
 
-    /// ccTalk device. This class contains high-level functions to manipulate
-    /// ccTalk devices. The actual messaging protocol is implemented in the
-    /// controller-thread-managing CctalkLinkController class.
-
+    /* ccTalk device. This class contains high-level functions to manipulate    
+     * ccTalk devices. The actual messaging protocol is implemented in the
+     * controller-thread-managing CctalkLinkController class.
+     */
     class CctalkDevice {
-    protected:
+    public:
+
+        using BillValidatorFunc = std::function<bool(uint8_t bill_id, const CcIdentifier& identifier)>;
+        using CreditAcceptedFunc = std::function<void(uint8_t coin_id, const CcIdentifier& identifier)>;
+        using ResponseErrorFunc = std::function<void(const std::string& error_msg)>;
+
+        /// Constructor
+        CctalkDevice();
+        CctalkDevice(const CctalkDevice& orig);
+        virtual ~CctalkDevice();
+
 
         /// Start event-handling timer
         void startPolling();
@@ -144,10 +154,6 @@ namespace esp32cc {
         /// Request switching the device state.
         /// \return true if the request was successfully sent.
         bool requestSwitchDeviceState(CcDeviceState state, const std::function<void(const std::string& error_msg)>& finish_callback);
-
-        
-        /// Mirrored from CctalkLinkController and expanded with local events.
-        void logMessage(const std::string& msg);
 
         /// Switch to Initialized state from ShutDown state.
         /// If the switch request fails, the devices is switched to InitializationFailed state.
@@ -178,16 +184,30 @@ namespace esp32cc {
         void requestPollingInterval(const std::function<void(const std::string& error_msg, uint64_t msec)>& finish_callback);
 
         /// Request inhibit status modification. This is needed to enable coin/bill acceptance.
-        void requestSetInhibitStatus(uint8_t accept_mask1, uint8_t accept_mask2, const std::function<void(const std::string& error_msg)>& finish_callback);
+        void modifyInhibitStatus(uint8_t accept_mask1, uint8_t accept_mask2, const std::function<void(const std::string& error_msg)>& finish_callback);
 
         /// Request master inhibit status modification. This is needed to enable coin/bill acceptance.
-        void requestSetMasterInhibitStatus(bool inhibit, const std::function<void(const std::string& error_msg)>& finish_callback);
+        void modifyMasterInhibitStatus(bool inhibit, const std::function<void(const std::string& error_msg)>& finish_callback);
 
         /// Request master inhibit status retrieval,
         void requestMasterInhibitStatus(const std::function<void(const std::string& error_msg, bool inhibit)>& finish_callback);
 
         /// Request bill validator operating mode modification.
-        void requestSetBillOperatingMode(bool use_stacker, bool use_escrow, const std::function<void(const std::string& error_msg)>& finish_callback);
+        void modifyBillOperatingMode(bool use_stacker, bool use_escrow, const std::function<void(const std::string& error_msg)>& finish_callback);
+
+        void modifySorterPath(const uint8_t coin_id, const uint8_t path, const std::function<void(const std::string& error_msg)>& finish_callback);
+
+        void modifyDefaultSorterPath(const uint8_t path, const std::function<void(const std::string& error_msg)>& finish_callback);
+
+        void enableHopper(const std::function<void(const std::string& error_msg)>& finish_callback);
+                              
+        void requestCipherKey(const std::function<void(const std::string& error_msg, const std::vector<uint8_t>& cipherKey)>& finish_callback);
+        
+        void requestPayoutHighLowStatus(const std::function<void(const std::string& error_msg, const std::vector<uint8_t>& highLowStatus)>& finish_callback);
+        
+        void testHopper(const std::function<void(const std::string& error_msg)>& finish_callback);
+
+        void dispenseCoins(const int numberOfCoins, const std::function<void(const std::string& error_msg)>& finish_callback);
 
         /// Request coin / bill identifiers (quantity for bills, bill/coin names) and country scaling data (bills).
         void requestIdentifiers(const std::function<void(const std::string& error_msg, const std::map<uint8_t, CcIdentifier>& identifiers)>& finish_callback);
@@ -218,22 +238,8 @@ namespace esp32cc {
         /// Set the device status. Emits deviceStateChanged() if changed.
         void setDeviceState(CcDeviceState state);
 
-
-    public:
-        using BillValidatorFunc = std::function<bool(uint8_t bill_id, const CcIdentifier& identifier)>;
-        using CreditAcceptedFunc = std::function<void(uint8_t coin_id, const CcIdentifier& identifier)>;
-        using ResponseErrorFunc = std::function<void(const std::string& error_msg)>;
-        
-        
-        
-        /// Constructor
-        CctalkDevice();
-        CctalkDevice(const CctalkDevice& orig);
-        virtual ~CctalkDevice();
-
-
         /// Get link controller
-        CctalkLinkController& getLinkController();
+        CctalkLinkController* getLinkController();
 
 
         /// This function is called in NormalAccepting state when a bill is inserted and
@@ -245,10 +251,10 @@ namespace esp32cc {
         /// Request initialising the device from ShutDown state.
         /// Starts event timer.
         /// \return true if the request was successfully sent.
-        bool initialise(CctalkLinkController& linkController, uint8_t deviceAddress, const std::function<void(const std::string& error_msg)>& finish_callback);
+        bool initialise(CctalkLinkController* linkController, const uint8_t deviceAddress, const std::function<void(const std::string& error_msg)>& finish_callback);
 
-        void setCreditAcceptedCallback(CreditAcceptedFunc callback);        
-        
+        void setCreditAcceptedCallback(CreditAcceptedFunc callback);
+
         /// Request the device to be switched to ShutDown state.
         /// Stops event timer.
         /// \return true if the request was successfully sent.
@@ -281,20 +287,19 @@ namespace esp32cc {
 
         /// Emitted whenever cctalk message data cannot be decoded (logic error)
         ResponseErrorFunc ccResponseDataDecodeError;
-        
+
         /// Poll task        
         std::string decodeResponseToString(const std::vector<uint8_t>& responseData);
         std::string decodeResponseToHex(const std::vector<uint8_t>& responseData);
-        
+
         void devicePollTask();
 
         CctalkLinkController* linkController; ///< Controller for serial worker thread with cctalk link management support.
 
-        int normalPollingIntervalMsec = 0; ///< Polling interval for normal and diagnostics modes.
+        int normalPollingIntervalMsec = 100; ///< Polling interval for normal and diagnostics modes.
         const int defaultNormalPollingIntervalMsec = 100; ///< Default polling interval for normal and diagnostics modes.
         const int notAlivePollingIntervalMsec = 1000; ///< Polling interval for modes when the device doesn't respond to alive check.
 
-        //QTimer event_timer_; ///< Polling timer
         bool isTimerIterationTaskRunning = false; ///< Avoids parallel executions of state change, since it's asynchronous
 
         CcDeviceState deviceState = CcDeviceState::ShutDown; ///< Current status
@@ -310,9 +315,10 @@ namespace esp32cc {
         uint8_t lastEventNumber = 0; ///< Last event number returned by ReadBufferedCredit command.
 
         TaskHandle_t pollTaskHandle;
-        std::thread pollThread;
+        std::unique_ptr<std::thread> pollThread;
         int pollingInterval = defaultNormalPollingIntervalMsec;
-        
+        bool isPolling = false;
+
         uint8_t deviceAddress;
     };
 

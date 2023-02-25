@@ -39,6 +39,7 @@
 #include <string>
 #include <cstddef>
 #include <bitset>
+#include <chrono>
 
 #include "../config/sdkconfig.h"
 
@@ -108,6 +109,8 @@ esp_err_t DisplayController::initialise() {
 
     ESP_LOGI(TAG, "Entering DisplayController::initialise()");
 
+    this->buttonStatus = 0;
+
     memset(&movesDisplay, 0, sizeof (ht16k33_t));
     memset(&creditDisplay, 0, sizeof (ht16k33_t));
     memset(&bankDisplay, 0, sizeof (ht16k33_t));
@@ -157,7 +160,7 @@ esp_err_t DisplayController::initialise() {
     buttonIO.cfg.mode = I2C_MODE_MASTER;
     buttonIO.cfg.scl_pullup_en = false;
     buttonIO.cfg.sda_pullup_en = false;
-    
+
     if (mcp23x17_init_desc(&buttonIO, BUTTONS_I2C_ADDRESS, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "Could not initialise button interface");
     } else {
@@ -184,6 +187,10 @@ esp_err_t DisplayController::initialise() {
     xTaskCreate(&updateSevenSegDisplaysTask, "update_7seg_displays", 3084, mainController, 5, NULL);
 
     this->testLamps();
+
+    pollButtonStatusThread.reset(new std::thread([this] {
+        pollButtonStatus();
+    }));
 
     ESP_LOGD(TAG, "Exiting DisplayController::initialise()");
     return ESP_OK;
@@ -233,7 +240,7 @@ void DisplayController::testLamps() {
 
 void DisplayController::setMoves(uint8_t value) {
     ESP_LOGD(TAG, "Entering setMoves(%d)", value);
-    ht16k33_write_value(getMovesDisplay(), "%02d", value);    
+    ht16k33_write_value(getMovesDisplay(), "%02d", value);
     ESP_LOGD(TAG, "Exiting setMoves");
 }
 
@@ -242,35 +249,53 @@ LampData* DisplayController::getLampData() {
 }
 
 uint8_t DisplayController::getButtonStatus() {
-    ESP_LOGD(TAG, "Entering getButtonStatus()");
+    ESP_LOGD(TAG, "Exiting getButtonStatus() with value %u", this->buttonStatus);
+    return this->buttonStatus;
+}
+
+void DisplayController::pollButtonStatus() {
+    ESP_LOGD(TAG, "Entering pollButtonStatus()");
 
     uint16_t val;
-    uint8_t result;
     esp_err_t err;
 
-    err = mcp23x17_port_read(&buttonIO, &val);
+    while (1) {
+        err = mcp23x17_port_read(&buttonIO, &val);
 
-    if (err == ESP_OK) {
-        result = (uint8_t) ~(val & 0xff); // Invert because we are pulling low in hardware.
-    } else {
-        ESP_LOGE(TAG, "An error occurred getting button status");
-        result = 0; // Failsafe
+        if (err == ESP_OK) {
+            this->buttonStatus = (uint8_t) ~(val & 0xff); // Invert because we are pulling low in hardware.
+        } else {
+            ESP_LOGE(TAG, "An error occurred getting button status");
+            this->buttonStatus = 0; // Failsafe
+        }
+
+        if ((this->buttonStatus & (1<<BTN_DOOR)) == 0) {
+            if (!this->doorOpen) {
+                ESP_LOGI(TAG, "Door open!");
+            }
+            this->doorOpen = true;
+        } else {
+            if (this->doorOpen) {
+                ESP_LOGI(TAG, "Door closed!");
+            }
+            this->doorOpen = false;
+        }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-    ESP_LOGD(TAG, "Exiting getButtonStatus() with value %u", result);
-    return result;
 }
 
 void DisplayController::displayText(const string& text) {
-    
+
     // Only update if we need to 
-    if (vfdText.compare(text) != 0) {            
+    if (vfdText.compare(text) != 0) {
         m20ly02z_clear();
 
         for (char str_char : text) {
             m20ly02z_send_byte(str_char);
         }
-        
+
         vfdText = text;
     }
 

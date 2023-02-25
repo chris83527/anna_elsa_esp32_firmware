@@ -26,6 +26,9 @@
 #include <iomanip>
 #include <sstream>
 #include <functional>
+#include <thread>
+#include <chrono>
+
 
 
 #include <esp_log.h>
@@ -34,6 +37,9 @@
 #include "serial_worker.h"
 
 static const char* TAG = "cctalk_link_controller";
+
+//static const std::atomic<bool> requestInProgress{false};
+static bool requestInProgress = false;
 
 namespace esp32cc {
 
@@ -112,23 +118,46 @@ namespace esp32cc {
      * @param responseTimeoutMsec The number of milliseconds to wait 
      * @return The requestId corresponding to this request
      */
-    uint64_t CctalkLinkController::ccRequest(CcHeader command, uint8_t deviceAddress, std::vector<uint8_t>& data, int responseTimeoutMsec) {
+    uint64_t CctalkLinkController::ccRequest(CcHeader command, uint8_t deviceAddress, std::vector<uint8_t>& data, int responseTimeoutMsec, std::function<void(const std::string& error_msg, const std::vector<uint8_t>& command_data)> callbackFunction) {
 
+        ESP_LOGI(TAG, "Checking no existing request in process");
+        while (requestInProgress) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+        
+        requestInProgress = true;
+        
+        if (callbackFunction != nullptr) {
+            ESP_LOGI(TAG, "Setting callback function");
+            try {
+                executeOnReturnCallback = callbackFunction;
+            } catch (const std::exception& e) {
+                ESP_LOGE(TAG, "An exception occurred assigning callback: %s", e.what());
+            }
+        } else {
+            ESP_LOGE(TAG, "executeOnReturn: callbackFunction was null");
+        }
+        
+        ESP_LOGI(TAG, "Sending request %s", ccHeaderGetDisplayableName(command).c_str());
+        
         this->deviceAddress = deviceAddress;
 
         if (data.size() > 255) {
             ESP_LOGE(TAG, "Size of additional data too large! Aborting request.");
+            requestInProgress = false;
             return 0;
         }
 
         if (this->isDesEncrypted) {
             ESP_LOGE(TAG, "ccTalk encryption requested, unsupported! Aborting request.");
+            requestInProgress = false;
             return 0;
         }
 
         if (this->isChecksum16bit) {
             // TODO support this
             ESP_LOGE(TAG, "ccTalk 16-bit CRC checksums requested, unsupported! Aborting request.");
+            requestInProgress = false;
             return 0;
         }
 
@@ -168,25 +197,7 @@ namespace esp32cc {
 
         return requestId;
     }
-
-    /**
-     * @brief Tells the link controller which callback to execute when a response is received from the current cctalk command
-     * 
-     * @param callbackFunction A function or lambda to be called whenever a response is received
-     */
-    void CctalkLinkController::executeOnReturn(std::function<void(const std::string& error_msg, const std::vector<uint8_t>& command_data)> callbackFunction) {
-        if (callbackFunction != nullptr) {
-            ESP_LOGI(TAG, "Setting callback function");
-            try {
-                this->executeOnReturnCallback = callbackFunction;
-            } catch (const std::exception& e) {
-                ESP_LOGE(TAG, "An exception occurred assigning callback: %s", e.what());
-            }
-        } else {
-            ESP_LOGE(TAG, "executeOnReturn: callbackFunction was null");
-        }
-    }
- 
+    
     /**
      * Called when a response is received on the UART
      * 
@@ -198,6 +209,7 @@ namespace esp32cc {
         if (responseData.size() < 5) {
             ESP_LOGE(TAG, "ccTalk response size too small (%d bytes).", responseData.size());
             // TODO The command should be retried.            
+            requestInProgress = false;
             return;
         }
 
@@ -206,13 +218,14 @@ namespace esp32cc {
         uint8_t sourceAddress = responseData.at(2);
         uint8_t command = responseData.at(3);
 
-        std::vector<uint8_t> responseDataNoLocalEcho = {responseData.begin() + 4, responseData.end()};
+        std::vector<uint8_t> responseDataNoLocalEcho = {responseData.begin() + 4, responseData.end() - 1};
         //uint8_t received_checksum = responseData.at(responseData.end() - 1);
 
         // Format error
         if (responseData.size() != 5 + dataSize) {
             ESP_LOGE(TAG, "Invalid ccTalk response: size (%d bytes).", responseData.size());
-            // TODO The command should be retried.            
+            // TODO The command should be retried.      
+            requestInProgress = false;
             return;
         }
 
@@ -226,6 +239,7 @@ namespace esp32cc {
         if (checksum != 0) {
             ESP_LOGE(TAG, "Invalid ccTalk response checksum.");
             // TODO The command should be retried.            
+            requestInProgress = false;
             return;
         }
 
@@ -233,6 +247,7 @@ namespace esp32cc {
         // ignored, but not here.
         if (destinationAddress != 0x01) {
             ESP_LOGE(TAG, "Invalid ccTalk response. Destination address %d.", int(destinationAddress));
+            requestInProgress = false;
             return;
         }
 
@@ -240,6 +255,7 @@ namespace esp32cc {
         // ignored, but not here.
         if (sourceAddress != this->deviceAddress) {
             ESP_LOGE(TAG, "Invalid ccTalk response. Source address %d, expected %d.", int(sourceAddress), int(this->deviceAddress));
+            requestInProgress = false;
             return;
         }
 
@@ -249,7 +265,7 @@ namespace esp32cc {
         } else {
             for (uint8_t data : responseDataNoLocalEcho) {
                 std::stringstream stream;
-                stream << "0x" << std::hex << data;
+                stream << data;
                 formatted_data.append(stream.str());
             }
         }
@@ -258,21 +274,24 @@ namespace esp32cc {
         // Every reply must have the command field set to 0.
         if (command != static_cast<decltype(command)> (CcHeader::Ack)) {
             ESP_LOGE(TAG, "Invalid ccTalk response %lld from address %d: Command is %d, expected 0.", request_id, int(sourceAddress), int(command));
+            requestInProgress = false;
             return;
         }
 
 
         if (this->showCctalkResponse) {
             // Don't print response_id, it interferes with identical message hiding.
-            ESP_LOGD(TAG, "ccTalk response from address %d, data: %s", int(sourceAddress), formatted_data.c_str());
+            ESP_LOGI(TAG, "ccTalk response from address %d, data: %s", int(sourceAddress), formatted_data.c_str());
         }
 
+        requestInProgress = false;
+        
         if (this->executeOnReturnCallback != nullptr) {
             std::string data;
             this->executeOnReturnCallback(data, responseDataNoLocalEcho);
         } else {
             ESP_LOGE(TAG, "Callback pointer was nullptr");
-        }
-
+        }        
+        
     }
 }

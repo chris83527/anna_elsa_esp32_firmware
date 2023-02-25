@@ -986,6 +986,35 @@ namespace esp32cc {
             return CcCategory::Unknown;
         }
     }
+    
+    inline std::string ccCategoryDisplayNameFromCategory(CcCategory category) {
+        static std::map<CcCategory, std::string> name_map = {
+            {CcCategory::CoinAcceptor, "Coin Acceptor"},
+            {CcCategory::Payout, "Payout"},
+            {CcCategory::Reel, "Reel"},
+            {CcCategory::BillValidator, "Bill Validator"},
+            {CcCategory::CardReader, "Card Reader"},
+            {CcCategory::Changer, "Changer"},
+            {CcCategory::Display, "Display"},
+            {CcCategory::Keypad, "Keypad"},
+            {CcCategory::Dongle, "Dongle"},
+            {CcCategory::Meter, "Meter"},
+            {CcCategory::Bootloader, "Bootloader"},
+            {CcCategory::Power, "Power"},
+            {CcCategory::Printer, "Printer"},
+            {CcCategory::Rng, "RNG"},
+            {CcCategory::HopperScale, "Hopper Scale"},
+            {CcCategory::CoinFeeder, "Coin Feeder"},
+            {CcCategory::BillRecycler, "Bill Recycler"},
+            {CcCategory::Escrow, "Escrow"},
+            {CcCategory::Debug, "Debug"},
+        };
+        try {
+            return name_map.at(category);
+        } catch (const std::exception& e) {
+            return "Unknown";
+        }
+    }
 
     /*
      *  This is a parameter for RouteBill command.

@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 
+#include "cctalk_enums.h"
 #include "cctalk_link_controller.h"
 #include "coin_acceptor_device.h"
 #include "coin_hopper_device.h"
@@ -40,13 +41,14 @@ public:
     esp_err_t initialise(void);
 
     //const static uint8_t COIN_VALUES[];
+    
 
     const static unsigned long VALIDATOR_POLL_INTERVAL = 100;
     const static unsigned long HOPPER_STATUS_POLL_INTERVAL = 400;
   
 private:
 
-    esp32cc::CctalkLinkController cctalkLinkController;
+    esp32cc::CctalkLinkController* cctalkLinkController;
 
     esp32cc::CoinAcceptorDevice coinAcceptor;
     esp32cc::CoinHopperDevice hopper;
@@ -55,7 +57,7 @@ private:
     MainController * mainController;   
 };
 
-
+const static uint8_t COIN_VALUES[] = {0, 5, 10, 20, 50, 100, 200};
 
 #endif /* CCTALKCONTROLLER_H */
 

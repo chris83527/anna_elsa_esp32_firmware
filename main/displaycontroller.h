@@ -42,6 +42,7 @@
 #include <string>
 #include <cstddef>
 #include <bitset>
+#include <thread>
 
 #include "freertos/task.h"
 
@@ -142,6 +143,11 @@ private:
     ht16k33_t bankDisplay;
 
     mcp23x17_t buttonIO;
+    
+    void pollButtonStatus(void);
+    std::unique_ptr<std::thread> pollButtonStatusThread;
+    uint8_t buttonStatus;
+    bool doorOpen;
 
     LampData lampData[LED_COUNT + 6];       
 
@@ -152,7 +158,7 @@ private:
 
     uint32_t lampDataNew[LED_COUNT + 6];
 
-    bool attractMode;             
+    bool attractMode;                
  
     // Arrangement for display
     // )

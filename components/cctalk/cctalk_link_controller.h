@@ -36,19 +36,20 @@
 #include <string>
 #include <mutex>
 #include <vector>
-
+#include <atomic>
+#include <thread>
 
 #include "esp_log.h"
 
 #include "serial_worker.h"
 
 
-namespace esp32cc {
+namespace esp32cc {    
 
     class CctalkLinkController {
     public:
-               
-        
+
+
         /// void callback()
         using ResponseAckFunc = std::function<void()>;
 
@@ -70,25 +71,19 @@ namespace esp32cc {
         /// Send request to serial port.
         /// The returned value is request ID which can be used to identify which
         /// response comes from which request.
-        uint64_t ccRequest(CcHeader command, uint8_t deviceAddress, std::vector<uint8_t>& additionalData, int responseTimeoutMsec);
+        uint64_t ccRequest(CcHeader command, uint8_t deviceAddress, std::vector<uint8_t>& additionalData, int responseTimeoutMsec, std::function<void(const std::string& error_msg, const std::vector<uint8_t>& command_data) > callbackFunction);
 
         /// Handle generic serial response and emit ccResponse
         void onResponseReceive(const uint64_t request_id, const std::vector<uint8_t>& response_data) const;
 
-        void executeOnReturn(std::function<void(const std::string& error_msg, const std::vector<uint8_t>& command_data)> callbackFunction);        
-
-    protected:
-
-
-
     private:
-
+        
         void openPort(const uart_port_t uartNumber, const int txPin, const int rxPin);
 
         /// Close the serial port.
         void closePort();
-        
-        std::function<void(const std::string& error_msg, const std::vector<uint8_t>& command_data)> executeOnReturnCallback = nullptr;       
+
+        std::function<void(const std::string& error_msg, const std::vector<uint8_t>& command_data) > executeOnReturnCallback;
 
         uint8_t deviceAddress = 0x00; // The slave device we are currently talking to
         uint8_t controllerAddress = 0x01; ///< Controller address. 1 means "Master". There is no reason to change this.
