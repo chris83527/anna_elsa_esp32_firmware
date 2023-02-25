@@ -57,6 +57,7 @@ namespace esp32cc {
         this->linkController = linkController;
 
         this->deviceAddress = deviceAddress;
+        this->lastEventNumber = 0;
 
         if (getDeviceState() != CcDeviceState::ShutDown) {
             ESP_LOGE(TAG, "Cannot initialise device that is in %s state.", ccDeviceStateGetDisplayableName(getDeviceState()).c_str());
@@ -223,7 +224,9 @@ namespace esp32cc {
             {
                 bool success = switchStateInitialized(finish_callback);
                 this->pollingInterval = normalPollingIntervalMsec;
-                startPolling();
+                if (this->deviceCategory == CcCategory::BillValidator || this->deviceCategory == CcCategory::CoinAcceptor) {
+                    startPolling();
+                }
                 return success;
             }
 
@@ -1015,10 +1018,11 @@ namespace esp32cc {
         // If true, it means that we're processing the events that are in the device.
         // We should not give credit in this case, since that was probably processed
         // during previous application run.
-        const bool processing_app_startup_events = (this->lastEventNumber == 0);
-        if (processing_app_startup_events && eventCounter != 0) {
-            ESP_LOGE(TAG, "Detected device that was up (and generating events) before the host startup; ignoring \"credit accepted\" events.");
-        }
+//        const bool processing_app_startup_events = (this->lastEventNumber == 0);
+//        if (processing_app_startup_events && eventCounter != 0) {
+//            ESP_LOGI(TAG, "last event number: %d, event counter: %d", this->lastEventNumber, eventCounter);
+//            ESP_LOGE(TAG, "Detected device that was up (and generating events) before the host startup; ignoring \"credit accepted\" events.");
+//        }
 
         int newEventCount = int(eventCounter) - int(this->lastEventNumber);
         if (newEventCount < 0) {
@@ -1083,14 +1087,14 @@ namespace esp32cc {
                     // Coin accepted, credit the user.
                     if (this->identifiers.find(ev.coin_id) != this->identifiers.cend()) {
                         CcIdentifier id = this->identifiers.at(ev.coin_id);
-                        if (processing_app_startup_events) {
-                            ESP_LOGI(TAG, "The following is a startup event message, ignore it:");
-                        }
+//                        if (processing_app_startup_events) {
+//                            ESP_LOGI(TAG, "The following is a startup event message, ignore it:");
+//                        }
                         ESP_LOGI(TAG, "Coin (position %d, ID %s) has been accepted to sorter path %d.", int(ev.coin_id), id.id_string.c_str(), int(ev.coin_sorter_path));
-                        if (!accepting && !processing_app_startup_events) {
+                        //if (!accepting && !processing_app_startup_events) {
+                        if (!accepting) {
                             ESP_LOGE(TAG, "Coin accepted even though we're in rejecting mode; internal error!");
-                        }
-                        if (!processing_app_startup_events) {
+                        } else {                        
                             if (creditAccepted != nullptr) {
                                 creditAccepted(ev.coin_id, id);
                             }
@@ -1107,16 +1111,16 @@ namespace esp32cc {
                         // there may be an inhibit or rejection or accepted any other event after it and we do not
                         // want to operate on old data and assumptions.
                         if (!processing_last_event) {
-                            if (processing_app_startup_events) {
-                                ESP_LOGI(TAG, "The following is a startup event message, ignore it:");
-                            }
+//                            if (processing_app_startup_events) {
+//                                ESP_LOGI(TAG, "The following is a startup event message, ignore it:");
+//                            }
                             ESP_LOGI(TAG, "Bill (position %d, ID %s) is or was in escrow, too late to process an old event; ignoring.", int(ev.bill_id), id.id_string.c_str());
                             continue;
                         }
                         if (!accepting) {
-                            if (processing_app_startup_events) {
-                                ESP_LOGI(TAG, "The following is a startup event message, ignore it:");
-                            }
+//                            if (processing_app_startup_events) {
+//                                ESP_LOGI(TAG, "The following is a startup event message, ignore it:");
+//                            }
                             ESP_LOGI(TAG, "Bill (position %d, ID %s) is or was in escrow, even though we're in rejecting mode; ignoring.", int(ev.bill_id), id.id_string.c_str());
                             bill_routing_force_reject = true;
                         }
@@ -1129,14 +1133,14 @@ namespace esp32cc {
                     } else if (ev.bill_success_code == CcBillValidatorSuccessCode::ValidatedAndAccepted) {
                         // This success code appears in event log after a bill routing request, or no routing command timeout.
                         // Credit the user.
-                        if (processing_app_startup_events) {
-                            ESP_LOGI(TAG, "The following is a startup event message, ignore it:");
-                        }
+//                        if (processing_app_startup_events) {
+//                            ESP_LOGI(TAG, "The following is a startup event message, ignore it:");
+//                        }
                         ESP_LOGI(TAG, "Bill (position %d, ID %s) has been accepted.", int(ev.bill_id), id.id_string.c_str());
-                        if (!accepting && !processing_app_startup_events) {
+                        //if (!accepting && !processing_app_startup_events) {
+                        if (!accepting) {
                             ESP_LOGE(TAG, " Bill accepted even though we're in rejecting mode; internal error!");
-                        }
-                        if (!processing_app_startup_events) {
+                        } else {                        
                             if (creditAccepted != nullptr) {
                                 creditAccepted(ev.bill_id, id);
                             }

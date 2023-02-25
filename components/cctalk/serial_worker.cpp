@@ -150,9 +150,9 @@ namespace esp32cc {
                 ESP_LOGE(TAG, "Received data bytes (%d) was less than request data bytes (%d). Is device connected?", receivedData.size(), requestData.size());
             } else {
                 ESP_LOGI(TAG, "Read %d bytes - response size %d (with local echo). Executing callback", bytesRead, receivedData.size());
-                ESP_LOGI(TAG, "Response size: %d", (receivedData.size() - requestData.size()));
-                this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>(receivedData.begin() + requestData.size(), receivedData.end()));
+                ESP_LOGI(TAG, "Response size: %d", (receivedData.size() - requestData.size()));                
             }
+            this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>(receivedData.begin() + requestData.size(), receivedData.end()));
         }
         
         //sendMutex.unlock();        

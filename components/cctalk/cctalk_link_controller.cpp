@@ -122,7 +122,7 @@ namespace esp32cc {
 
         ESP_LOGI(TAG, "Checking no existing request in process");
         while (requestInProgress) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }
         
         requestInProgress = true;
