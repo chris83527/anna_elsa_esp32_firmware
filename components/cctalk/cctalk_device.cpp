@@ -76,7 +76,7 @@ namespace esp32cc {
     }
 
     void CctalkDevice::startPolling() {
-        ESP_LOGI(TAG, "Starting poll timer.");
+        ESP_LOGD(TAG, "Starting poll timer.");
 
         // prevent a new thread from being spawned 
         if (!this->isPolling) {
@@ -89,7 +89,7 @@ namespace esp32cc {
     }
 
     void CctalkDevice::stopPolling() {
-        ESP_LOGI(TAG, "Stopping poll timer.");
+        ESP_LOGD(TAG, "Stopping poll timer.");
 
         pollThread.get()->join();
 
@@ -99,7 +99,7 @@ namespace esp32cc {
     void CctalkDevice::devicePollTask() {
 
         while (1) {
-            ESP_LOGI(TAG, "Polling...");
+            ESP_LOGD(TAG, "Polling...");
 
             // This is set to false in finish callbacks.
             this->isTimerIterationTaskRunning = true;
@@ -198,7 +198,7 @@ namespace esp32cc {
     }
 
     bool CctalkDevice::requestSwitchDeviceState(CcDeviceState state, const std::function<void(const std::string& error_msg)>& finish_callback) {
-        ESP_LOGI(TAG, "Requested device state change from %s to: %s", ccDeviceStateGetDisplayableName(getDeviceState()).c_str(), ccDeviceStateGetDisplayableName(state).c_str());
+        ESP_LOGD(TAG, "Requested device state change from %s to: %s", ccDeviceStateGetDisplayableName(getDeviceState()).c_str(), ccDeviceStateGetDisplayableName(state).c_str());
 
         if (this->deviceState == state) {
             ESP_LOGW(TAG, "Cannot switch to device state %s, already there.", ccDeviceStateGetDisplayableName(state).c_str());
@@ -286,7 +286,7 @@ namespace esp32cc {
             return false;
         }
 
-        ESP_LOGI(TAG, "Requesting checkAlive");
+        ESP_LOGD(TAG, "Requesting checkAlive");
         // Check if it's present / alive
         requestCheckAlive([ & ](const std::string& error_msg, bool alive) {
             if (!error_msg.size() == 0) {
@@ -300,7 +300,7 @@ namespace esp32cc {
             return false;
         }
 
-        ESP_LOGI(TAG, "Requesting manufacturing info");
+        ESP_LOGD(TAG, "Requesting manufacturing info");
         // Get device manufacturing info
         requestManufacturingInfo([ & ](const std::string& error_msg, CcCategory category, const std::string & info) {
             if (!error_msg.size() == 0) {
@@ -319,79 +319,81 @@ namespace esp32cc {
             return false;
         }
 
-        ESP_LOGI(TAG, "Requesting polling interval");
-        // Get recommended polling frequency        
-        requestPollingInterval([ & ](const std::string& error_msg, uint64_t msec) {
-            if (!error_msg.size() == 0) {
-                *shared_error = error_msg;
-            } else {
-                // For very large values and unsupported values pick reasonable defaults.
-                const uint64_t max_interval_msec = 1000;
-                if (msec == 0 || msec > max_interval_msec) { // usually means "see device docs".
-                    ESP_LOGI(TAG, "Device-recommended polling frequency is invalid, using our default: %d", this->defaultNormalPollingIntervalMsec);
-                    this->normalPollingIntervalMsec = this->defaultNormalPollingIntervalMsec;
-                } else {
-                    ESP_LOGI(TAG, "Device-recommended polling frequency: %d", int(msec));
-                    this->normalPollingIntervalMsec = int(msec);
-                }
-            }
-
-            if (error_msg.size() > 0) {
-                *shared_continue = false;
-            }
-        });
-
-        if (!*shared_continue) {
-            return false;
-        }
-
-
-        // Get bill / coin identifiers (Only do this if coin /bill validator. Not for Hopper)
         if (this->deviceCategory == CcCategory::CoinAcceptor || this->deviceCategory == CcCategory::BillValidator) {
-            ESP_LOGI(TAG, "Requesting identifiers");
-            requestIdentifiers([ & ](const std::string& error_msg, const std::map<uint8_t, CcIdentifier>& identifiers) {
+            ESP_LOGD(TAG, "Requesting polling interval");
+            // Get recommended polling frequency        
+            requestPollingInterval([ & ](const std::string& error_msg, uint64_t msec) {
                 if (!error_msg.size() == 0) {
                     *shared_error = error_msg;
                 } else {
-                    this->identifiers = identifiers;
+                    // For very large values and unsupported values pick reasonable defaults.
+                    const uint64_t max_interval_msec = 1000;
+                    if (msec == 0 || msec > max_interval_msec) { // usually means "see device docs".
+                        ESP_LOGD(TAG, "Device-recommended polling frequency is invalid, using our default: %d", this->defaultNormalPollingIntervalMsec);
+                        this->normalPollingIntervalMsec = this->defaultNormalPollingIntervalMsec;
+                    } else {
+                        ESP_LOGD(TAG, "Device-recommended polling frequency: %d", int(msec));
+                        this->normalPollingIntervalMsec = int(msec);
+                    }
                 }
+
                 if (error_msg.size() > 0) {
                     *shared_continue = false;
                 }
             });
-        }
 
-        if (!shared_continue) {
-            return false;
-        }
+            if (!*shared_continue) {
+                return false;
+            }
 
-        // Modify bill validator operating mode - enable escrow and stacker        
-        if (this->deviceCategory == CcCategory::BillValidator) {
-            modifyBillOperatingMode(true, true, [ & ](const std::string & error_msg) {
+            // Get bill / coin identifiers (Only do this if coin /bill validator. Not for Hopper)
+            if (this->deviceCategory == CcCategory::CoinAcceptor || this->deviceCategory == CcCategory::BillValidator) {
+                ESP_LOGD(TAG, "Requesting identifiers");
+                requestIdentifiers([ & ](const std::string& error_msg, const std::map<uint8_t, CcIdentifier>& identifiers) {
+                    if (!error_msg.size() == 0) {
+                        *shared_error = error_msg;
+                    } else {
+                        this->identifiers = identifiers;
+                    }
+                    if (error_msg.size() > 0) {
+                        *shared_continue = false;
+                    }
+                });
+            }
+
+            if (!shared_continue) {
+                return false;
+            }
+
+            // Modify bill validator operating mode - enable escrow and stacker        
+            if (this->deviceCategory == CcCategory::BillValidator) {
+                modifyBillOperatingMode(true, true, [ & ](const std::string & error_msg) {
+                    if (!error_msg.size() == 0) {
+                        *shared_error = error_msg;
+                    }
+                    if (error_msg.size() > 0) {
+                        *shared_continue = false;
+                    }
+                });
+            }
+
+            if (!*shared_continue) {
+                return false;
+            }
+
+            // Set individual inhibit status on all bills / coins. The specification says
+            // that this is not needed for coin acceptors, but the practice shows it is.        
+            modifyInhibitStatus(0xff, 0xff, [ & ](const std::string & error_msg) {
                 if (!error_msg.size() == 0) {
                     *shared_error = error_msg;
                 }
+
                 if (error_msg.size() > 0) {
                     *shared_continue = false;
                 }
             });
+
         }
-
-        if (!*shared_continue) {
-            return false;
-        }
-
-        // Set individual inhibit status on all bills / coins. The specification says
-        // that this is not needed for coin acceptors, but the practice shows it is.        
-        modifyInhibitStatus(0xff, 0xff, [ & ](const std::string & error_msg) {
-            if (!error_msg.size() == 0) {
-                *shared_error = error_msg;
-            }
-
-            if (error_msg.size() > 0) {
-                *shared_continue = false;
-            }
-        });
 
         return *shared_continue;
     }
@@ -404,7 +406,7 @@ namespace esp32cc {
         modifyMasterInhibitStatus(false, [ & ](const std::string & error_msg) {
             if (error_msg.size() == 0) {
                 setDeviceState(CcDeviceState::NormalAccepting);
-                ESP_LOGI(TAG, "Device switched to NormalAccepting state");
+                ESP_LOGD(TAG, "Device switched to NormalAccepting state");
                 finish_callback(error_msg);
             } else {
                 ESP_LOGE(TAG, "An error occurred modifying master inhibit status: %s", error_msg.c_str());
@@ -467,7 +469,7 @@ namespace esp32cc {
 
     void CctalkDevice::requestCheckAlive(const std::function<void(const std::string& errorMsg, bool alive)>& finish_callback) {
 
-        ESP_LOGI(TAG, "Sending request for SimplePoll");
+        ESP_LOGD(TAG, "Sending request for SimplePoll");
         std::vector<uint8_t> data;
         this->linkController->ccRequest(CcHeader::SimplePoll, this->deviceAddress, data, 200, [ & ](const std::string error_msg, const std::vector<uint8_t>& responseData) {
             if (!error_msg.size() == 0) {
@@ -483,7 +485,7 @@ namespace esp32cc {
                 return;
             }
 
-            ESP_LOGI(TAG, "Device is alive (answered to simple poll)");
+            ESP_LOGD(TAG, "Device is alive (answered to simple poll)");
 
             finish_callback(std::string(), true);
         });
@@ -654,7 +656,7 @@ namespace esp32cc {
 
                 return;
             }
-            ESP_LOGI(TAG, "Inhibit status set: %d, %d", int(accept_mask1), int(accept_mask2));
+            ESP_LOGD(TAG, "Inhibit status set: %d, %d", int(accept_mask1), int(accept_mask2));
             finish_callback(std::string());
         });
     }
@@ -674,9 +676,9 @@ namespace esp32cc {
 
                 return;
             }
-            ESP_LOGI(TAG, "Master inhibit status set to: %s", inhibit ? "reject" : "accept");
+            ESP_LOGD(TAG, "Master inhibit status set to: %s", inhibit ? "reject" : "accept");
             /*
-                             ESP_LOGI(TAG, "Verifying that master inhibit status was set correctly..."));
+                             ESP_LOGD(TAG, "Verifying that master inhibit status was set correctly..."));
                             requestMasterInhibitStatus([=](const std::string& verify_error_msg, bool fetched_inhibit) {
                                     if (!verify_error_msg.size() == 0) {
                                             finish_callback(verify_error_msg);
@@ -687,7 +689,7 @@ namespace esp32cc {
                                             finish_callback(error);
 
                                     } else {
-                                             ESP_LOGI(TAG, "Master inhibit status verified to be: %1",fetched_inhibit ? tr("reject") : tr("accept")));
+                                             ESP_LOGD(TAG, "Master inhibit status verified to be: %1",fetched_inhibit ? tr("reject") : tr("accept")));
                                             finish_callback(std::string());
                                     }
                             });
@@ -713,7 +715,7 @@ namespace esp32cc {
             }
             // Decode the data
             bool inhibit = !bool(responseData.at(0)); // 0 means inhibit
-            ESP_LOGI(TAG, "Master inhibit status: %s", !inhibit ? "accept" : "reject");
+            ESP_LOGD(TAG, "Master inhibit status: %s", !inhibit ? "accept" : "reject");
             finish_callback(std::string(), inhibit);
         });
     }
@@ -742,7 +744,7 @@ namespace esp32cc {
 
                 return;
             }
-            ESP_LOGI(TAG, "Bill validator operating mode set to: %d", int(mask));
+            ESP_LOGD(TAG, "Bill validator operating mode set to: %d", int(mask));
             finish_callback(std::string());
         });
     }
@@ -753,30 +755,20 @@ namespace esp32cc {
             return;
         }
 
-        auto shared_max_positions = std::make_shared<uint8_t>(16); // FIXME Not sure if this can be queried for coin acceptors
+        auto shared_max_positions = std::make_shared<uint8_t>(0);
+        if (this->deviceCategory == CcCategory::CoinAcceptor) {
+            shared_max_positions = std::make_shared<uint8_t>(6);
+        } else {
+            shared_max_positions = std::make_shared<uint8_t>(16);
+        }
+
         auto shared_error = std::make_shared<std::string>();
         auto shared_identifiers = std::make_shared<std::map<uint8_t, CcIdentifier >> ();
         auto shared_country_scaling_data = std::make_shared<std::map < std::string, CcCountryScalingData >> ();
 
         std::string coin_bill = (this->deviceCategory == CcCategory::CoinAcceptor ? "Coin" : "Bill");
 
-        if (!shared_error->size() == 0) {
-            ESP_LOGE(TAG, "Error getting %s identifiers: %s", coin_bill.c_str(), shared_error->c_str());
-        } else {
-            if (!shared_identifiers->size() == 0) {
-                // TODO: fix this
-                //                std::string strs;
-                //                strs.append("* %1 identifiers: " + coin_bill);
-                for (auto iter = shared_identifiers->cbegin(); iter != shared_identifiers->cend(); ++iter) {
-                    ESP_LOGI(TAG, "*** %s position %d: %s", coin_bill.c_str(), int(iter->first), iter->second.id_string.c_str());
-                }
-                //                logMessage(strs.join(std::stringLiteral("\n")));
-            } else {
-                ESP_LOGI(TAG, "No non-empty %s identifiers received.", coin_bill.c_str());
-            }
-        }
 
-        finish_callback(*shared_error, *shared_identifiers);
 
         // If this is a Bill Validator, get number of bill types currently supported    
         if (this->deviceCategory == CcCategory::BillValidator) {
@@ -795,7 +787,7 @@ namespace esp32cc {
                         // uint8_t num_banks = responseData.at(1);  // unused
                         if (num_bill_types > 1) {
                             *shared_max_positions = num_bill_types;
-                            ESP_LOGI(TAG, "Number of bill types currently supported: %d.", int(*shared_max_positions));
+                            ESP_LOGD(TAG, "Number of bill types currently supported: %d.", int(*shared_max_positions));
                         } else {
                             ESP_LOGE(TAG, "Could not get the number of bill types currently supported, falling back to %d.", int(*shared_max_positions));
                         }
@@ -804,12 +796,13 @@ namespace esp32cc {
             });
         }
 
+        std::vector<uint8_t> data;
         /// Get coin / bill IDs (and possibly country scaling data)
         for (uint8_t pos = 1; pos <= *shared_max_positions; ++pos) {
 
             /// Fetch coin / bill ID at position pos.
             CcHeader get_command = (this->deviceCategory == CcCategory::CoinAcceptor ? CcHeader::RequestCoinId : CcHeader::RequestBillId);
-            std::vector<uint8_t> data;
+            data.clear();
             data.push_back(pos);
             this->linkController->ccRequest(get_command, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
                 if (!error_msg.size() == 0) {
@@ -824,6 +817,7 @@ namespace esp32cc {
                         if (shared_country_scaling_data->count(identifier.country) > 0) {
                             identifier.setCountryScalingData(shared_country_scaling_data->at(identifier.country));
                         }
+                        ESP_LOGD(TAG, "Adding coin identifier %s to position %d in shared_identifiers", identifier.id_string.c_str(), pos);
                         (*shared_identifiers).emplace(pos, identifier);
                     }
                 }
@@ -838,13 +832,13 @@ namespace esp32cc {
 
             if (shared_identifiers.get()->count(pos) == 0) { // empty position
                 //serializer->continueSequence(true);
-                return;
+                //return;
             }
 
             std::string country = shared_identifiers.get()->at(pos).country;
             if (country.size() == 0 || shared_country_scaling_data->count(country) > 0) {
                 //serializer->continueSequence(true);
-                return; // already present
+                //return; // already present
             }
 
 
@@ -855,9 +849,9 @@ namespace esp32cc {
                 data.decimal_places = 2;
                 (*shared_country_scaling_data).emplace(country, data);
                 (*shared_identifiers).at(pos).country_scaling_data = data;
-                ESP_LOGI(TAG, "Using predefined country scaling data for %s: scaling factor: %d, decimal places: %d.", country.c_str(), data.scaling_factor, int(data.decimal_places));
+                ESP_LOGD(TAG, "Using predefined country scaling data for %s: scaling factor: %d, decimal places: %d.", country.c_str(), data.scaling_factor, int(data.decimal_places));
                 //serializer->continueSequence(true);
-                return;
+                //return;
             }
 
             if (this->deviceCategory != CcCategory::BillValidator) {
@@ -879,9 +873,9 @@ namespace esp32cc {
                             if (data.isValid()) {
                                 (*shared_country_scaling_data).emplace(country, data);
                                 (*shared_identifiers).at(pos).country_scaling_data = data;
-                                ESP_LOGI(TAG, "Country scaling data for %s: scaling factor: %d, decimal places: %d.", country.c_str(), data.scaling_factor, int(data.decimal_places));
+                                ESP_LOGD(TAG, "Country scaling data for %s: scaling factor: %d, decimal places: %d.", country.c_str(), data.scaling_factor, int(data.decimal_places));
                             } else {
-                                ESP_LOGI(TAG, "Country scaling data for %s: empty!", country.c_str());
+                                ESP_LOGD(TAG, "Country scaling data for %s: empty!", country.c_str());
                             }
                         }
                     }
@@ -889,6 +883,24 @@ namespace esp32cc {
                 });
             }
         }
+
+        if (!shared_error->size() == 0) {
+            ESP_LOGE(TAG, "Error getting %s identifiers: %s", coin_bill.c_str(), shared_error->c_str());
+        } else {
+            if (shared_identifiers->size() != 0) {
+                // TODO: fix this
+                //                std::string strs;
+                //                strs.append("* %1 identifiers: " + coin_bill);
+                for (auto iter = shared_identifiers->cbegin(); iter != shared_identifiers->cend(); ++iter) {
+                    ESP_LOGD(TAG, "*** %s position %d: %s", coin_bill.c_str(), int(iter->first), iter->second.id_string.c_str());
+                }
+                //                logMessage(strs.join(std::stringLiteral("\n")));
+            } else {
+                ESP_LOGD(TAG, "No non-empty %s identifiers received.", coin_bill.c_str());
+            }
+        }
+
+        finish_callback(*shared_error, *shared_identifiers);
 
     }
 
@@ -943,7 +955,7 @@ namespace esp32cc {
                 //strs << "*** Host-side last processed event number: %1", int(this->lastEventNumber));
                 //strs << "*** Device-side event counter: %1", int(event_counter));
                 for (int i = 1; (i + 1) < responseData.size(); i += 2) {
-                    ESP_LOGI(TAG, "*** Credit: %d, error / sorter: %d", int(responseData[i]), int(responseData[i + 1]));
+                    ESP_LOGD(TAG, "*** Credit: %d, error / sorter: %d", int(responseData[i]), int(responseData[i + 1]));
                 }
                 //logMessage(strs.join(std::stringLiteral("\n")));
                 isEventLogRead = true;
@@ -1018,11 +1030,11 @@ namespace esp32cc {
         // If true, it means that we're processing the events that are in the device.
         // We should not give credit in this case, since that was probably processed
         // during previous application run.
-//        const bool processing_app_startup_events = (this->lastEventNumber == 0);
-//        if (processing_app_startup_events && eventCounter != 0) {
-//            ESP_LOGI(TAG, "last event number: %d, event counter: %d", this->lastEventNumber, eventCounter);
-//            ESP_LOGE(TAG, "Detected device that was up (and generating events) before the host startup; ignoring \"credit accepted\" events.");
-//        }
+        //        const bool processing_app_startup_events = (this->lastEventNumber == 0);
+        //        if (processing_app_startup_events && eventCounter != 0) {
+        //            ESP_LOGD(TAG, "last event number: %d, event counter: %d", this->lastEventNumber, eventCounter);
+        //            ESP_LOGE(TAG, "Detected device that was up (and generating events) before the host startup; ignoring \"credit accepted\" events.");
+        //        }
 
         int newEventCount = int(eventCounter) - int(this->lastEventNumber);
         if (newEventCount < 0) {
@@ -1036,7 +1048,7 @@ namespace esp32cc {
 
         // Newest to oldest
         std::vector<CcEventData> new_event_data = std::vector<CcEventData>(event_data.begin(), event_data.begin() + newEventCount);
-        ESP_LOGI(TAG, "Found %d new event(s); processing from oldest to newest.", new_event_data.size());
+        ESP_LOGD(TAG, "Found %d new event(s); processing from oldest to newest.", new_event_data.size());
 
         bool self_check_requested = false;
         bool bill_routing_pending = false;
@@ -1055,7 +1067,7 @@ namespace esp32cc {
 
                     CcCoinRejectionType rejection_type = ccCoinAcceptorEventCodeGetRejectionType(ev.coin_error_code);
 
-                    ESP_LOGI(TAG, "Coin status/error event %s found, rejection type: %s.",
+                    ESP_LOGD(TAG, "Coin status/error event %s found, rejection type: %s.",
                             ccCoinAcceptorEventCodeGetDisplayableName(ev.coin_error_code).c_str(),
                             ccCoinRejectionTypeGetDisplayableName(rejection_type).c_str());
 
@@ -1070,7 +1082,7 @@ namespace esp32cc {
                 } else {
                     // Events may be just status events (Bill Returned From Escrow, Stacker OK, ...),
                     // or they may be ones that cause the PerformSelfCheck command to return a fault code.
-                    ESP_LOGI(TAG, "Bill status/error event %s found, event type: %s.",
+                    ESP_LOGD(TAG, "Bill status/error event %s found, event type: %s.",
                             ccBillValidatorErrorCodeGetDisplayableName(ev.bill_error_code).c_str(),
                             ccBillValidatorEventTypeGetDisplayableName(ev.bill_event_type).c_str());
 
@@ -1081,22 +1093,22 @@ namespace esp32cc {
                 }
 
             } else {
-
                 // Coins are accepted unconditionally
                 if (getStoredDeviceCategory() == CcCategory::CoinAcceptor) {
+                    ESP_LOGD(TAG, "Processing coin");
                     // Coin accepted, credit the user.
                     if (this->identifiers.find(ev.coin_id) != this->identifiers.cend()) {
                         CcIdentifier id = this->identifiers.at(ev.coin_id);
-//                        if (processing_app_startup_events) {
-//                            ESP_LOGI(TAG, "The following is a startup event message, ignore it:");
-//                        }
-                        ESP_LOGI(TAG, "Coin (position %d, ID %s) has been accepted to sorter path %d.", int(ev.coin_id), id.id_string.c_str(), int(ev.coin_sorter_path));
+                        //                        if (processing_app_startup_events) {
+                        //                            ESP_LOGD(TAG, "The following is a startup event message, ignore it:");
+                        //                        }
+                        ESP_LOGD(TAG, "Coin (position %d, ID %s) has been accepted to sorter path %d.", int(ev.coin_id), id.id_string.c_str(), int(ev.coin_sorter_path));
                         //if (!accepting && !processing_app_startup_events) {
                         if (!accepting) {
                             ESP_LOGE(TAG, "Coin accepted even though we're in rejecting mode; internal error!");
-                        } else {                        
-                            if (creditAccepted != nullptr) {
-                                creditAccepted(ev.coin_id, id);
+                        } else {
+                            if (creditAcceptedCallback != nullptr) {
+                                creditAcceptedCallback(ev.coin_id, id);
                             }
                         }
                     }
@@ -1111,21 +1123,21 @@ namespace esp32cc {
                         // there may be an inhibit or rejection or accepted any other event after it and we do not
                         // want to operate on old data and assumptions.
                         if (!processing_last_event) {
-//                            if (processing_app_startup_events) {
-//                                ESP_LOGI(TAG, "The following is a startup event message, ignore it:");
-//                            }
-                            ESP_LOGI(TAG, "Bill (position %d, ID %s) is or was in escrow, too late to process an old event; ignoring.", int(ev.bill_id), id.id_string.c_str());
+                            //                            if (processing_app_startup_events) {
+                            //                                ESP_LOGD(TAG, "The following is a startup event message, ignore it:");
+                            //                            }
+                            ESP_LOGD(TAG, "Bill (position %d, ID %s) is or was in escrow, too late to process an old event; ignoring.", int(ev.bill_id), id.id_string.c_str());
                             continue;
                         }
                         if (!accepting) {
-//                            if (processing_app_startup_events) {
-//                                ESP_LOGI(TAG, "The following is a startup event message, ignore it:");
-//                            }
-                            ESP_LOGI(TAG, "Bill (position %d, ID %s) is or was in escrow, even though we're in rejecting mode; ignoring.", int(ev.bill_id), id.id_string.c_str());
+                            //                            if (processing_app_startup_events) {
+                            //                                ESP_LOGD(TAG, "The following is a startup event message, ignore it:");
+                            //                            }
+                            ESP_LOGD(TAG, "Bill (position %d, ID %s) is or was in escrow, even though we're in rejecting mode; ignoring.", int(ev.bill_id), id.id_string.c_str());
                             bill_routing_force_reject = true;
                         }
 
-                        //  ESP_LOGI(TAG, "Bill (position %1, ID %2) is in escrow, deciding whether to accept.",int(ev.bill_id),id.id_string));
+                        //  ESP_LOGD(TAG, "Bill (position %1, ID %2) is in escrow, deciding whether to accept.",int(ev.bill_id),id.id_string));
                         bill_routing_pending = true;
                         routing_req_event = ev;
                         // Continue below
@@ -1133,16 +1145,16 @@ namespace esp32cc {
                     } else if (ev.bill_success_code == CcBillValidatorSuccessCode::ValidatedAndAccepted) {
                         // This success code appears in event log after a bill routing request, or no routing command timeout.
                         // Credit the user.
-//                        if (processing_app_startup_events) {
-//                            ESP_LOGI(TAG, "The following is a startup event message, ignore it:");
-//                        }
-                        ESP_LOGI(TAG, "Bill (position %d, ID %s) has been accepted.", int(ev.bill_id), id.id_string.c_str());
+                        //                        if (processing_app_startup_events) {
+                        //                            ESP_LOGD(TAG, "The following is a startup event message, ignore it:");
+                        //                        }
+                        ESP_LOGD(TAG, "Bill (position %d, ID %s) has been accepted.", int(ev.bill_id), id.id_string.c_str());
                         //if (!accepting && !processing_app_startup_events) {
                         if (!accepting) {
                             ESP_LOGE(TAG, " Bill accepted even though we're in rejecting mode; internal error!");
-                        } else {                        
-                            if (creditAccepted != nullptr) {
-                                creditAccepted(ev.bill_id, id);
+                        } else {
+                            if (creditAcceptedCallback != nullptr) {
+                                creditAcceptedCallback(ev.bill_id, id);
                             }
                         }
 
@@ -1168,7 +1180,7 @@ namespace esp32cc {
         // Check if the error is a problem enough to warrant a diagnostics polling mode
         if (self_check_requested) {
 
-            ESP_LOGI(TAG, "At least one new event has an error code, requesting SelfCheck to see if there is a global fault code.");
+            ESP_LOGD(TAG, "At least one new event has an error code, requesting SelfCheck to see if there is a global fault code.");
 
             *shared_self_check_fault_code = CcFaultCode::CustomCommandError;
 
@@ -1185,7 +1197,7 @@ namespace esp32cc {
             CcIdentifier id = this->identifiers.at(routing_req_event.bill_id);
 
             if (*shared_self_check_fault_code != CcFaultCode::Ok) {
-                ESP_LOGI(TAG, "SelfCheck returned a non-OK fault code; pending bill in escrow will be rejected.");
+                ESP_LOGD(TAG, "SelfCheck returned a non-OK fault code; pending bill in escrow will be rejected.");
 
             } else if (bill_routing_force_reject) {
                 ESP_LOGE(TAG, " Forcing bill validation rejection due to being in NormalRejecting state; internal error.");
@@ -1195,14 +1207,14 @@ namespace esp32cc {
                 if (this->billValidatorFunction) {
                     accept = this->billValidatorFunction(routing_req_event.bill_id, id);
                 }
-                ESP_LOGI(TAG, "Bill validating function status: %s.", accept ? "accept" : "reject");
+                ESP_LOGD(TAG, "Bill validating function status: %s.", accept ? "accept" : "reject");
             }
 
             CcBillRouteCommandType route_command = accept ? CcBillRouteCommandType::RouteToStacker : CcBillRouteCommandType::ReturnBill;
-            ESP_LOGI(TAG, "Bill (position %d, ID %s) is in escrow, sending a request for: %s.", int(routing_req_event.bill_id), id.id_string.c_str(), ccBillRouteCommandTypeGetDisplayableName(route_command).c_str());
+            ESP_LOGD(TAG, "Bill (position %d, ID %s) is in escrow, sending a request for: %s.", int(routing_req_event.bill_id), id.id_string.c_str(), ccBillRouteCommandTypeGetDisplayableName(route_command).c_str());
 
             requestRouteBill(route_command, [ & ]([[maybe_unused]] const std::string& error_msg, CcBillRouteStatus status) {
-                ESP_LOGI(TAG, "Bill (position %d, ID %s) routing status: %s.", int(routing_req_event.bill_id), id.id_string.c_str(), ccBillRouteStatusGetDisplayableName(status).c_str());
+                ESP_LOGD(TAG, "Bill (position %d, ID %s) routing status: %s.", int(routing_req_event.bill_id), id.id_string.c_str(), ccBillRouteStatusGetDisplayableName(status).c_str());
 
                 //        aser->continueSequence(true);
             });
@@ -1216,7 +1228,7 @@ namespace esp32cc {
                 //aser->continueSequence(true);
             } else {
 
-                ESP_LOGI(TAG, "SelfCheck returned a non-OK fault code, switching to diagnostics polling mode.");
+                ESP_LOGD(TAG, "SelfCheck returned a non-OK fault code, switching to diagnostics polling mode.");
 
                 requestSwitchDeviceState(CcDeviceState::DiagnosticsPolling, [ & ]([[maybe_unused]] const std::string & local_error_msg) {
                     //aser->continueSequence(true);
@@ -1252,7 +1264,7 @@ namespace esp32cc {
                 status = static_cast<CcBillRouteStatus> (responseData.at(0));
             }
 
-            ESP_LOGI(TAG, "RouteBill command status: %s", ccBillRouteStatusGetDisplayableName(status).c_str());
+            ESP_LOGD(TAG, "RouteBill command status: %s", ccBillRouteStatusGetDisplayableName(status).c_str());
 
             finish_callback(std::string(), status);
         });
@@ -1276,7 +1288,7 @@ namespace esp32cc {
             }
             // Decode the data
             auto fault_code = static_cast<CcFaultCode> (responseData.at(0));
-            ESP_LOGI(TAG, "Self-check fault code: %s", ccFaultCodeGetDisplayableName(fault_code).c_str());
+            ESP_LOGD(TAG, "Self-check fault code: %s", ccFaultCodeGetDisplayableName(fault_code).c_str());
             finish_callback(std::string(), fault_code);
         });
     }
@@ -1297,7 +1309,7 @@ namespace esp32cc {
 
                 return;
             }
-            ESP_LOGI(TAG, "Soft reset acknowledged, waiting for the device to get back up.");
+            ESP_LOGD(TAG, "Soft reset acknowledged, waiting for the device to get back up.");
         });
     }
 
@@ -1329,7 +1341,7 @@ namespace esp32cc {
 
                 return;
             }
-            ESP_LOGI(TAG, "Sorter path for coin_id %d set to %d", int(coin_id), int(path));
+            ESP_LOGD(TAG, "Sorter path for coin_id %d set to %d", int(coin_id), int(path));
         });
     }
 
@@ -1339,6 +1351,7 @@ namespace esp32cc {
 
     void CctalkDevice::enableHopper(const std::function<void(const std::string& error_msg)>& finish_callback) {
         std::vector<uint8_t> data;
+        data.push_back(165); // always send this byte
         this->linkController->ccRequest(CcHeader::EnableHopper, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
             if (!error_msg.size() == 0) {
                 ESP_LOGE(TAG, "Error enabling hopper: %s", error_msg.c_str());
@@ -1381,26 +1394,30 @@ namespace esp32cc {
         });
     }
 
-    void CctalkDevice::testHopper(const std::function<void(const std::string & error_msg)>& finish_callback) {
+    void CctalkDevice::testHopper(const std::function<void(const std::string & error_msg, const std::vector<uint8_t>& hopperStatus)>& finish_callback) {
         std::vector<uint8_t> data;
         this->linkController->ccRequest(CcHeader::TestHopper, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
             if (!error_msg.size() == 0) {
                 ESP_LOGE(TAG, "Error testing hopper: %s", error_msg.c_str());
-                finish_callback(error_msg);
+                finish_callback(error_msg, responseData);
                 return;
             }
 
-            if (responseData.size() != 0) {
-                std::string error = "Non-empty data received while waiting for ACK.";                
-                finish_callback(error);
-                return;
-            }
+            finish_callback(std::string(), responseData);
+            
+//            if (responseData.size() != 0) {
+//                std::string error = "Non-empty data received while waiting for ACK.";
+//                finish_callback(error);
+//                return;
+//            }
         });
     }
 
     void CctalkDevice::dispenseCoins(const int numberOfCoins, const std::function<void(const std::string & error_msg)>& finish_callback) {
 
-        std::vector<uint8_t> thisCipherKey;
+        ESP_LOGD(TAG, "Dispense coins called: Dispensing %d coins: ", numberOfCoins);
+        
+        std::vector<uint8_t> data;
         bool doContinue = true;
 
         if (this->deviceCategory != CcCategory::Payout) {
@@ -1410,11 +1427,15 @@ namespace esp32cc {
         }
 
         // Test hopper
-        testHopper([&](const std::string & error_msg) {
+        ESP_LOGD(TAG, "Testing hopper");
+        testHopper([&](const std::string & error_msg, const std::vector<uint8_t>& hopperStatus) {
             if (error_msg.size() > 0) {
                 ESP_LOGE(TAG, "Test hopper command failed: %s", error_msg.c_str());
                 doContinue = false;
             }
+            
+            // TODO: Check hopper status flags
+            
         });
 
         if (!doContinue) {
@@ -1423,6 +1444,7 @@ namespace esp32cc {
         }
 
         // Enable hopper
+        ESP_LOGD(TAG, "Enabling hopper");
         enableHopper([&](const std::string & error_msg) {
             if (error_msg.size() > 0) {
                 ESP_LOGE(TAG, "Enable hopper command failed: %s", error_msg.c_str());
@@ -1436,20 +1458,27 @@ namespace esp32cc {
         }
 
         // Request Cipher Key
+        ESP_LOGD(TAG, "Requesting cipher key");
         requestCipherKey([&](const std::string& error_msg, const std::vector<uint8_t>& cipherKey) {
             if (error_msg.size() > 0) {
                 ESP_LOGE(TAG, "Request cipher key command failed: %s", error_msg.c_str());
-                doContinue = false;
-                return;
+                doContinue = false;                
             }
 
             if (cipherKey.size() != 8) {
                 ESP_LOGE(TAG, "Expecting 8 cipher bytes, received %d", cipherKey.size());
-                doContinue = false;
-                return;
+                doContinue = false;                
+            } else {                
+                data.push_back(cipherKey.at(0));
+                data.push_back(cipherKey.at(1));
+                data.push_back(cipherKey.at(2));
+                data.push_back(cipherKey.at(3));
+                data.push_back(cipherKey.at(4));
+                data.push_back(cipherKey.at(5));
+                data.push_back(cipherKey.at(6));
+                data.push_back(cipherKey.at(7));
             }
-
-            thisCipherKey = cipherKey;
+            
         });
 
         if (!doContinue) {
@@ -1457,13 +1486,11 @@ namespace esp32cc {
             return;
         }
 
-        // Dispense Hopper Coins
-        std::vector<uint8_t> data;
-        data = thisCipherKey;
+        // Dispense Hopper Coins        
         data.push_back(numberOfCoins);
 
-        ESP_LOGI(TAG, "Cipher Key: %03d %03d %03d %03d %03d %03d %03d %03d", data.at(0), data.at(1), data.at(2), data.at(3), data.at(4), data.at(5), data.at(6), data.at(7));
-        ESP_LOGI(TAG, "Dispensing %02d coin(s).", numberOfCoins);
+        ESP_LOGD(TAG, "Cipher Key: %03d %03d %03d %03d %03d %03d %03d %03d", data.at(0), data.at(1), data.at(2), data.at(3), data.at(4), data.at(5), data.at(6), data.at(7));
+        ESP_LOGD(TAG, "Dispensing %02d coin(s).", numberOfCoins);
 
         this->linkController->ccRequest(CcHeader::DispenseHopperCoins, this->deviceAddress, data, 200, [&](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
             finish_callback(std::string());
@@ -1481,7 +1508,7 @@ namespace esp32cc {
 
             //CcDeviceState old_state = this->deviceState;
             this->deviceState = state;
-            ESP_LOGI(TAG, "Device state changed to: %s", ccDeviceStateGetDisplayableName(state).c_str());
+            ESP_LOGD(TAG, "Device state changed to: %s", ccDeviceStateGetDisplayableName(state).c_str());
             //deviceStateChanged(old_state, this->deviceState);
         }
     }
@@ -1527,6 +1554,6 @@ namespace esp32cc {
     }
 
     void CctalkDevice::setCreditAcceptedCallback(CreditAcceptedFunc callback) {
-        this->creditAccepted = callback;
+        this->creditAcceptedCallback = callback;
     }
 }

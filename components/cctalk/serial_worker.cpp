@@ -73,7 +73,7 @@ namespace esp32cc {
             CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk config failure, uart_param_config() returned (0x%x).", xErr);
 
 
-            ESP_LOGI(TAG, "%s Init serial.", __func__);
+            ESP_LOGD(TAG, "%s Init serial.", __func__);
 
             this->portOpen = true;
         }
@@ -92,14 +92,14 @@ namespace esp32cc {
 
     void SerialWorker::sendRequest(const uint64_t requestId, const std::vector<uint8_t>& requestData, const int writeTimeoutMsec, const int responseTimeoutMsec) {
 
-        //ESP_LOGI(TAG, "sendRequest called. Request id %d size (start): %d", int(requestId), requestData.size());
+        //ESP_LOGD(TAG, "sendRequest called. Request id %d size (start): %d", int(requestId), requestData.size());
         //sendMutex.lock();
 
         this->requestId = requestId;
         this->responseTimeoutMsec = responseTimeoutMsec;
 
         // Set the UART receive timeout
-        ESP_LOGI(TAG, "Setting RX Timeout %d msec", responseTimeoutMsec);
+        ESP_LOGD(TAG, "Setting RX Timeout %d msec", responseTimeoutMsec);
         esp_err_t xErr = uart_set_rx_timeout(this->getUartNumber(), pdMS_TO_TICKS(responseTimeoutMsec));
         //CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk set rx timeout failure, uart_set_rx_timeout() returned (0x%x).", xErr);        
 
@@ -110,7 +110,7 @@ namespace esp32cc {
         vTaskDelay(5);
         uart_write_bytes(this->getUartNumber(), requestData.data(), requestData.size());
 
-        ESP_LOGI(TAG, "Send complete. Waiting for response");
+        ESP_LOGD(TAG, "Send complete. Waiting for response");
 
         vTaskDelay(5);        
 
@@ -122,7 +122,7 @@ namespace esp32cc {
         while (!receiveComplete) {
 
             if (timer.isReady()) {
-                ESP_LOGI(TAG, "Timer hit");
+                ESP_LOGD(TAG, "Timer hit");
                 break; // receive complete false
             }
 
@@ -130,14 +130,14 @@ namespace esp32cc {
 
             // Read received data and send it to cctalk stack
             ESP_ERROR_CHECK(uart_get_buffered_data_len(this->getUartNumber(), (size_t*) & length));
-            ESP_LOGI(TAG, "Allegedly available bytes on UART %d: %d", this->getUartNumber(), length);
+            ESP_LOGD(TAG, "Allegedly available bytes on UART %d: %d", this->getUartNumber(), length);
 
             if (length > 0) {
                 receivedData.resize(receivedData.size() + length);
                 bytesRead = uart_read_bytes(this->getUartNumber(), receivedData.data(), length, pdMS_TO_TICKS(this->getResponseTimeoutMsec()));
             } else {
                 receiveComplete = true;
-                ESP_LOGI(TAG, "No more data available.");
+                ESP_LOGD(TAG, "No more data available.");
             }
 
             vTaskDelay(pdMS_TO_TICKS(20));
@@ -149,10 +149,14 @@ namespace esp32cc {
                 // this shouldn't be possible as we have local echo
                 ESP_LOGE(TAG, "Received data bytes (%d) was less than request data bytes (%d). Is device connected?", receivedData.size(), requestData.size());
             } else {
-                ESP_LOGI(TAG, "Read %d bytes - response size %d (with local echo). Executing callback", bytesRead, receivedData.size());
-                ESP_LOGI(TAG, "Response size: %d", (receivedData.size() - requestData.size()));                
+                ESP_LOGD(TAG, "Read %d bytes - response size %d (with local echo). Executing callback", bytesRead, receivedData.size());
+                ESP_LOGD(TAG, "Response size: %d", (receivedData.size() - requestData.size()));                
             }
-            this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>(receivedData.begin() + requestData.size(), receivedData.end()));
+            if (receivedData.size() > 5) {
+                this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>(receivedData.begin() + requestData.size(), receivedData.end()));
+            } else {
+                this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>());
+            }
         }
         
         //sendMutex.unlock();        

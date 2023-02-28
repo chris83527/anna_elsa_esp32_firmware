@@ -205,7 +205,7 @@ namespace esp32cc {
         
         void requestPayoutHighLowStatus(const std::function<void(const std::string& error_msg, const std::vector<uint8_t>& highLowStatus)>& finish_callback);
         
-        void testHopper(const std::function<void(const std::string& error_msg)>& finish_callback);
+        void testHopper(const std::function<void(const std::string& error_msg, const std::vector<uint8_t>& hopperStatus)>& finish_callback);
 
         void dispenseCoins(const int numberOfCoins, const std::function<void(const std::string& error_msg)>& finish_callback);
 
@@ -283,7 +283,7 @@ namespace esp32cc {
         //void deviceStateChanged(CcDeviceState old_state, CcDeviceState new_state);
 
         /// Emitted whenever a credit is accepted.
-        CreditAcceptedFunc creditAccepted;
+        CreditAcceptedFunc creditAcceptedCallback;
 
         /// Emitted whenever cctalk message data cannot be decoded (logic error)
         ResponseErrorFunc ccResponseDataDecodeError;
