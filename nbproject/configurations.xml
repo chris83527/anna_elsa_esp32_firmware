@@ -58,6 +58,14 @@
         <df name="ht16k33">
           <in>ht16k33.c</in>
         </df>
+        <df name="httpserver">
+          <in>HttpRequest.cpp</in>
+          <in>HttpRequest.h</in>
+          <in>HttpResponse.cpp</in>
+          <in>HttpResponse.h</in>
+          <in>HttpServer.cpp</in>
+          <in>HttpServer.h</in>
+        </df>
         <df name="m20ly02z">
           <in>m20ly02z.c</in>
         </df>
@@ -70,11 +78,12 @@
         </df>
       </df>
       <df name="main">
-        <in>HttpServer.cpp</in>
-        <in>HttpServer.h</in>
         <in>audiocontroller.cpp</in>
+        <in>cctalkcontroller.cpp</in>
         <in>displaycontroller.cpp</in>
         <in>game.cpp</in>
+        <in>httpcontroller.cpp</in>
+        <in>httpcontroller.h</in>
         <in>main.cpp</in>
         <in>maincontroller.cpp</in>
         <in>moneycontroller.cpp</in>
@@ -13805,7 +13814,6 @@
     <Elem>../esp/esp-idf-lib/components</Elem>
     <Elem>../esp/esp-idf-v4.4/components</Elem>
     <Elem>../esp/esp-adf/components</Elem>
-    <Elem>/esp/esp-idf-ssd1306/components/ssd1306</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -13959,6 +13967,7 @@
               <pElem>../esp/esp-adf/components/esp-adf-libs/recorder_engine/include</pElem>
               <pElem>../esp/esp-adf/components/esp-adf-libs/esp_audio/include</pElem>
               <pElem>components/joltwallet__littlefs/include</pElem>
+              <pElem>components/httpserver</pElem>
             </incDir>
           </cTool>
           <ccTool>
@@ -14091,6 +14100,7 @@
               <pElem>../esp/esp-adf/components/esp-adf-libs/recorder_engine/include</pElem>
               <pElem>../esp/esp-adf/components/esp-adf-libs/esp_audio/include</pElem>
               <pElem>components/joltwallet__littlefs/include</pElem>
+              <pElem>components/httpserver</pElem>
             </incDir>
           </ccTool>
         </makeTool>
@@ -60271,6 +60281,33 @@
         <cTool flags="1">
         </cTool>
       </item>
+      <item path="components/httpserver/HttpRequest.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="components/httpserver/HttpRequest.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="components/httpserver/HttpResponse.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="components/httpserver/HttpResponse.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="components/httpserver/HttpServer.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="components/httpserver/HttpServer.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="components/m20ly02z/m20ly02z.c" ex="false" tool="0" flavor2="10">
         <cTool flags="1">
         </cTool>
@@ -60284,10 +60321,6 @@
       </item>
       <item path="components/ssd1306/ssd1306_i2c.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="main/HttpServer.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="main/HttpServer.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="main/audiocontroller.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
@@ -60299,6 +60332,10 @@
       <item path="main/game.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
+      </item>
+      <item path="main/httpcontroller.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="main/httpcontroller.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main/main.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">

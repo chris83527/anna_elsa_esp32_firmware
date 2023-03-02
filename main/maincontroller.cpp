@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <ctime>
 #include <functional>
+#include <chrono>
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -32,7 +33,8 @@
 #include "audiocontroller.h"
 #include "moneycontroller.h"
 #include "maincontroller.h"
-#include "webserver.h"
+//#include "webserver.h"
+
 #include "esp_littlefs.h"
 #include "oledcontroller.h"
 #include "wifi.h"
@@ -40,101 +42,6 @@
 
 static const char *TAG = "MainController";
 static int blinkDelay = 250;
-
-void wifiStatusTask(void *pvParameters) {
-    MainController *mainController = reinterpret_cast<MainController *> (pvParameters);
-    WIFI::Wifi wifi = mainController->getWifiController();
-
-    while (1) {
-        WIFI::Wifi::state_e wifiState = wifi.GetState();
-
-        switch (wifiState) {
-            case WIFI::Wifi::state_e::READY_TO_CONNECT:
-                //std::cout << "Wifi Status: READY_TO_CONNECT\n";
-                wifi.Begin();
-                break;
-            case WIFI::Wifi::state_e::DISCONNECTED:
-                //std::cout << "Wifi Status: DISCONNECTED\n";
-                wifi.Begin();
-                break;
-            case WIFI::Wifi::state_e::CONNECTING:
-                //std::cout << "Wifi Status: CONNECTING\n";
-                break;
-            case WIFI::Wifi::state_e::WAITING_FOR_IP:
-                //std::cout << "Wifi Status: WAITING_FOR_IP\n";
-                break;
-            case WIFI::Wifi::state_e::ERROR:
-                //std::cout << "Wifi Status: ERROR\n";
-                break;
-            case WIFI::Wifi::state_e::CONNECTED:
-                //std::cout << "Wifi Status: CONNECTED\n";
-                break;
-            case WIFI::Wifi::state_e::NOT_INITIALIZED:
-                //std::cout << "Wifi Status: NOT_INITIALIZED\n";
-                break;
-            case WIFI::Wifi::state_e::INITIALIZED:
-                //std::cout << "Wifi Status: INITIALIZED\n";
-                break;
-        }
-
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-}
-
-void blinkCPUStatusLEDTask(void *pvParameters) {
-    while (1) {
-        /* Blink off (output low) */
-        gpio_set_level(CPU_LED_GPIO, 0);
-        vTaskDelay(pdMS_TO_TICKS(blinkDelay));
-        /* Blink on (output high) */
-        gpio_set_level(CPU_LED_GPIO, 1);
-        vTaskDelay(pdMS_TO_TICKS(blinkDelay));
-    }
-}
-
-void updateStatisticsDisplayTask(void *pvParameters) {
-    MainController *mainController = reinterpret_cast<MainController *> (pvParameters);
-
-    tm time;
-    std::string dateString;
-    oledcontroller* oledController = mainController->getOledController();
-    mainController->getOledController()->clearDisplay();
-    i2c_dev_t* ds3231 = mainController->getDs3231();
-    MoneyController* moneyController = mainController->getMoneyController();
-
-    char buf[21];
-    esp_err_t ret;
-
-    while (1) {
-
-        ret = ds3231_get_time(ds3231, &time);
-
-        if (ret == ESP_OK) {
-
-            uint16_t years = time.tm_year + 1900;
-            std::sprintf(buf, "%02d-%02d-%04d %02d:%02d", time.tm_mday, time.tm_mon, years, time.tm_hour, time.tm_min);
-
-            dateString.clear();
-            dateString.append(buf);
-            oledController->displayText(dateString, 0, true);
-
-            std::sprintf(buf, "Games    : %05d", moneyController->getGameCount());
-            oledController->displayText(buf, 2, false);
-            std::sprintf(buf, "Total in : %05d", moneyController->getIncomeTotal());
-            oledController->displayText(buf, 3, false);
-            std::sprintf(buf, "Total out: %05d", moneyController->getPayoutTotal());
-            oledController->displayText(buf, 4, false);
-            std::sprintf(buf, "Credit   : %05d", moneyController->getCredit());
-            oledController->displayText(buf, 5, false);
-            std::sprintf(buf, "Bank     : %05d", moneyController->getBank());
-            oledController->displayText(buf, 6, false);
-        } else {
-            ESP_LOGW(TAG, "Couldn't read time from RTC!");
-        }
-
-        vTaskDelay(pdMS_TO_TICKS(1000)); // 1 second
-    }
-}
 
 MainController::MainController() {
     ESP_LOGD(TAG, "Entering constructor");
@@ -147,15 +54,10 @@ MainController::MainController(const MainController& orig) {
 void MainController::start() {
     ESP_LOGD(TAG, "start() called");
 
-
-    this->cctalkController = new CCTalkController();
-    this->audioController = new AudioController();
-    this->displayController = new DisplayController(this);
-    this->reelController = new ReelController(this);
-    this->moneyController = new MoneyController(this);
-    this->game = new Game(this);
-    this->oledController = new oledcontroller();
-
+    this->displayController.reset(new DisplayController(this));
+    this->reelController.reset(new ReelController(this));
+    this->moneyController.reset(new MoneyController(this));
+    this->game.reset(new Game(this));
 
     // CPU LED is on a GPIO
     gpio_pad_select_gpio(CPU_LED_GPIO);
@@ -168,7 +70,10 @@ void MainController::start() {
 
     esp_event_loop_create_default();
 
-    xTaskCreate(&blinkCPUStatusLEDTask, "cpu_status_led_blink", 2048, this, 1, NULL);
+    this->blinkCPUStatusLEDThread.reset(new std::thread([this]() {
+        blinkCPUStatusLEDTask();
+    }));
+    //xTaskCreate(&blinkCPUStatusLEDTask, "cpu_status_led_blink", 2048, this, 1, NULL);
 
 
     ESP_LOGD(TAG, "Calling i2cdev_init()");
@@ -198,7 +103,7 @@ void MainController::start() {
         // NVS partition was truncated and needs to be erased
         // Retry nvs_flash_init
         ESP_ERROR_CHECK(nvs_flash_erase_partition(NVS_PARTITION_SETTINGS));
-        err = nvs_flash_init_partition(NVS_PARTITION_SETTINGS);
+        err = nvs_flash_init_partition(NVS_PARTITION_SETTINGS);        
     }
     ESP_ERROR_CHECK(err);
 
@@ -213,9 +118,7 @@ void MainController::start() {
 
     // Initialise WiFi
     oledController->scrollText("Init WiFi");
-    Wifi.SetCredentials("INNUENDO", "woodsamusements");
-    Wifi.Init();
-    xTaskCreate(&wifiStatusTask, "wifi_status_task", 2048, this, 1, NULL);
+    
 
     // initialise ds3231 RTC
     oledController->scrollText("Init RTC");
@@ -258,7 +161,7 @@ void MainController::start() {
     oledController->scrollText("Init SPIFFS");
     init_spiffs();
     oledController->scrollText("Init Webserver");
-    init_webserver("/httpd");
+    this->httpController->intialise(80, "/httpd", INNUENDO", "woodsamusements");
 
     /* Mark current app as valid */
     const esp_partition_t *partition = esp_ota_get_running_partition();
@@ -318,12 +221,12 @@ void MainController::start() {
     }
 
     oledController->scrollText("Init cctalk");
-    cctalkController->setCreditAcceptedCallback([&](uint8_t coin_id, const esp32cc::CcIdentifier& identifier) {
+    cctalkController->setCreditAcceptedCallback([&](uint8_t coin_id, const esp32cc::CcIdentifier & identifier) {
         ESP_LOGI(TAG, "Credit accepted: Coin id: %d, Identifier: %s", coin_id, identifier.id_string.c_str());
         moneyController->addToCredit(COIN_VALUES[coin_id]);
     });
-    
-    
+
+
     if (cctalkController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
         oledController->scrollText("  -> failed");
@@ -337,7 +240,12 @@ void MainController::start() {
     game->initialise();
     this->displayController->beginAttractMode();
 
-    xTaskCreate(&updateStatisticsDisplayTask, "status_monitor_task", 2048, this, 1, NULL);
+    updateStatisticsThread.reset(new std::thread([this]() {
+        updateStatisticsDisplayTask();
+    }));
+
+    //xTaskCreate(&updateStatisticsDisplayTask, "status_monitor_task", 2048, this, 1, NULL);
+
 
     for (;;) {
         if (!(game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
@@ -499,5 +407,58 @@ uint16_t MainController::readValueFromNVS(const char * key) {
 }
 
 WIFI::Wifi MainController::getWifiController() {
-    return Wifi;
+    return wifi;
+}
+
+
+void MainController::blinkCPUStatusLEDTask() {
+    while (1) {
+        /* Blink off (output low) */
+        gpio_set_level(CPU_LED_GPIO, 0);
+        std::this_thread::sleep_for(std::chrono::milliseconds(blinkDelay));
+        /* Blink on (output high) */
+        gpio_set_level(CPU_LED_GPIO, 1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(blinkDelay));
+    }
+}
+
+void MainController::updateStatisticsDisplayTask() {
+
+    tm time;
+    std::string dateString;
+
+    this->oledController->clearDisplay();
+
+    char buf[21];
+    esp_err_t ret;
+
+    while (1) {
+
+        ret = ds3231_get_time(&this->ds3231, &time);
+
+        if (ret == ESP_OK) {
+
+            uint16_t years = time.tm_year + 1900;
+            std::sprintf(buf, "%02d-%02d-%04d %02d:%02d", time.tm_mday, time.tm_mon, years, time.tm_hour, time.tm_min);
+
+            dateString.clear();
+            dateString.append(buf);
+            oledController->displayText(dateString, 0, true);
+
+            std::sprintf(buf, "Games    : %05d", this->moneyController->getGameCount());
+            oledController->displayText(buf, 2, false);
+            std::sprintf(buf, "Total in : %05d", this->moneyController->getIncomeTotal());
+            oledController->displayText(buf, 3, false);
+            std::sprintf(buf, "Total out: %05d", this->moneyController->getPayoutTotal());
+            oledController->displayText(buf, 4, false);
+            std::sprintf(buf, "Credit   : %05d", this->moneyController->getCredit());
+            oledController->displayText(buf, 5, false);
+            std::sprintf(buf, "Bank     : %05d", this->moneyController->getBank());
+            oledController->displayText(buf, 6, false);
+        } else {
+            ESP_LOGW(TAG, "Couldn't read time from RTC!");
+        }
+
+        std::this_thread::sleep_for(std::chrono::seconds(1)); // 1 second
+    }
 }

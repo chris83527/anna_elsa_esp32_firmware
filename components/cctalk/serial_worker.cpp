@@ -100,7 +100,7 @@ namespace esp32cc {
 
         // Set the UART receive timeout
         ESP_LOGD(TAG, "Setting RX Timeout %d msec", responseTimeoutMsec);
-        esp_err_t xErr = uart_set_rx_timeout(this->getUartNumber(), pdMS_TO_TICKS(responseTimeoutMsec));
+        uart_set_rx_timeout(this->getUartNumber(), pdMS_TO_TICKS(responseTimeoutMsec));
         //CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk set rx timeout failure, uart_set_rx_timeout() returned (0x%x).", xErr);        
 
         uart_set_always_rx_timeout(this->getUartNumber(), true);

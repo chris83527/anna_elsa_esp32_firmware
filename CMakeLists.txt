@@ -1,10 +1,8 @@
-
 cmake_minimum_required(VERSION 3.16.0)
 
-
-#set(EXTRA_COMPONENT_DIRS components/led_strip components/protocol_common /home/chris/esp/esp-idf-lib/components components/cctalk)
 set(EXTRA_COMPONENT_DIRS 
 "components/cctalk" 
+"components/httpserver" 
 "components/anna_elsa_audio_board" 
 "components/ht16k33" 
 "components/m20ly02z" 

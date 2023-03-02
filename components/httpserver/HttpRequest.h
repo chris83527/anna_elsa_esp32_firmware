@@ -23,29 +23,23 @@
  */
 
 /* 
- * File:   HttpServer.cpp
+ * File:   HttpRequest.h
  * Author: chris
- * 
- * Created on February 25, 2023, 9:17 PM
+ *
+ * Created on March 2, 2023, 5:04 PM
  */
-#include "esp_littlefs.h"
-#include "esp_https_server.h"
 
-#include "HttpServer.h"
+#ifndef HTTPREQUEST_H
+#define HTTPREQUEST_H
 
-HttpServer::HttpServer() {
-}
+class HttpRequest {
+public:
+    HttpRequest();
+    HttpRequest(const HttpRequest& orig);
+    virtual ~HttpRequest();
+private:
 
-HttpServer::HttpServer(const HttpServer& orig) {
-}
+};
 
-HttpServer::~HttpServer() {
-}
+#endif /* HTTPREQUEST_H */
 
-void HttpServer::initialise(const std::string& basePath) {
-    this->basePath = basePath;
-}
-
-void HttpServer::registerUriHandler(std::string& uri, std::function<void(httpd_req_t& request) const> callback) {
-
-}

@@ -23,26 +23,20 @@
  */
 
 /* 
- * File:   HttpServer.h
+ * File:   HttpRequest.cpp
  * Author: chris
- *
- * Created on February 25, 2023, 9:17 PM
+ * 
+ * Created on March 2, 2023, 5:04 PM
  */
 
-#ifndef HTTPSERVER_H
-#define HTTPSERVER_H
+#include "HttpRequest.h"
 
-class HttpServer {
-public:
-    HttpServer();
-    HttpServer(const HttpServer& orig);
-    virtual ~HttpServer();
-    
-    void initialise(std::string& basePath);
-    void registerUriHandler(const std::string& uri, std::function<void(httpd_req_t& request) const> callback);
-private:
-    std::string basePath;
-};
+HttpRequest::HttpRequest() {
+}
 
-#endif /* HTTPSERVER_H */
+HttpRequest::HttpRequest(const HttpRequest& orig) {
+}
+
+HttpRequest::~HttpRequest() {
+}
 

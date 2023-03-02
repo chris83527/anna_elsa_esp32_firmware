@@ -14,7 +14,6 @@
                 <sourceRootElem>../esp/esp-idf-lib/components</sourceRootElem>
                 <sourceRootElem>../esp/esp-idf-v4.4/components</sourceRootElem>
                 <sourceRootElem>../esp/esp-adf/components</sourceRootElem>
-                <sourceRootElem>/esp/esp-idf-ssd1306/components/ssd1306</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>
@@ -36,6 +35,7 @@
             </module>
         </preferences>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
+            <word>httpcontroller</word>
             <word>initialise</word>
         </spellchecker-wordlist>
     </configuration>

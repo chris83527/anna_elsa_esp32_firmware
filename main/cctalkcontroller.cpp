@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   CCTalkController.cpp
  * Author: chris
@@ -88,7 +82,7 @@ esp_err_t CCTalkController::initialise() {
     });
     
     // Allow all coins except 5ct
-    this->coinAcceptor.modifyInhibitStatus(254, 0, &](const std::string & error_msg) {
+    this->coinAcceptor.modifyInhibitStatus(254, 0, [&](const std::string & error_msg) {
 
     });
 

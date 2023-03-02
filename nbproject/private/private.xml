@@ -93,4 +93,10 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/kconfigs.in</file>
         </group>
     </open-files>
+    <preferences xmlns="http://www.netbeans.org/ns/auxiliary-configuration-preferences/1">
+        <module name="org-netbeans-modules-cnd-discovery">
+            <property name="model-folder" value="/home/chris/anna_elsa_esp32_firmware"/>
+            <property name="rootFolder" value="/home/chris/anna_elsa_esp32_firmware"/>
+        </module>
+    </preferences>
 </project-private>
