@@ -50,15 +50,15 @@
 class Sounds {
 public:
     // Audio files
-    static constexpr const char* SND_NOW_THATS_ICE = "audio/nowthatsice.ogg";
-    static constexpr const char* SND_LOSE = "audio/lose.ogg";
-    static constexpr const char* SND_LET_IT_GO = "audio/letitgo.ogg";
-    static constexpr const char* SND_THEYRE_TROLLES = "audio/theyretrolls.ogg";
-    static constexpr const char* SND_CANT_FEEL_LEGS = "audio/cantfeellegs.ogg";
-    static constexpr const char* SND_THATS_BETTER = "audio/thatsbetter.ogg";
-    static constexpr const char* SND_KERCHING = "audio/kerching.ogg";
-    static constexpr const char* SND_REEL_STOP = "audio/reelstop.ogg";
-    static constexpr const char* SND_STARTUP = "audio/startup.ogg";
+    static constexpr const char* SND_NOW_THATS_ICE = "spiffs/nowthatsice.ogg";
+    static constexpr const char* SND_LOSE = "spiffs/lose.ogg";
+    static constexpr const char* SND_LET_IT_GO = "spiffs/letitgo.ogg";
+    static constexpr const char* SND_THEYRE_TROLLES = "spiffs/theyretrolls.ogg";
+    static constexpr const char* SND_CANT_FEEL_LEGS = "spiffs/cantfeellegs.ogg";
+    static constexpr const char* SND_THATS_BETTER = "spiffs/thatsbetter.ogg";
+    static constexpr const char* SND_KERCHING = "spiffs/kerching.ogg";
+    static constexpr const char* SND_REEL_STOP = "spiffs/reelstop.ogg";
+    static constexpr const char* SND_STARTUP = "spiffs/startup.ogg";
 };
 
 class AudioController {

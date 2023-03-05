@@ -50,7 +50,7 @@
 static const char *TAG = "spiffs";
 
 esp_vfs_spiffs_conf_t spiffs_conf = {
-    .base_path = "/audio",
+    .base_path = "/spiffs",
     .partition_label = "audio",
     .max_files = 5,
     .format_if_mount_failed = false
