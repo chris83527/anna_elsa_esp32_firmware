@@ -45,6 +45,8 @@
 #include "audio_def.h"
 #include "esp_audio.h"
 
+#include "spiffs.h"
+
 class Sounds {
 public:
     // Audio files

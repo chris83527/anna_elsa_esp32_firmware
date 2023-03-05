@@ -1,0 +1,3 @@
+[submodule "components/server"]
+	path = components/server
+	url = https://github.com/oxomoxo/jsl-esp32-http.git

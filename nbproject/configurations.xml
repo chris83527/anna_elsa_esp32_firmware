@@ -36,14 +36,6 @@
           <in>tas5731m_reg_cfg.h</in>
         </df>
         <df name="cctalk">
-          <df name="old">
-            <in>CctalkException.cpp</in>
-            <in>CctalkException.h</in>
-            <in>CctalkRequest.cpp</in>
-            <in>CctalkRequest.h</in>
-            <in>CctalkResponse.cpp</in>
-            <in>CctalkResponse.h</in>
-          </df>
           <in>bill_validator_device.h</in>
           <in>cctalk_device.cpp</in>
           <in>cctalk_device.h</in>
@@ -58,14 +50,6 @@
         <df name="ht16k33">
           <in>ht16k33.c</in>
         </df>
-        <df name="httpserver">
-          <in>HttpRequest.cpp</in>
-          <in>HttpRequest.h</in>
-          <in>HttpResponse.cpp</in>
-          <in>HttpResponse.h</in>
-          <in>HttpServer.cpp</in>
-          <in>HttpServer.h</in>
-        </df>
         <df name="m20ly02z">
           <in>m20ly02z.c</in>
         </df>
@@ -79,7 +63,6 @@
       </df>
       <df name="main">
         <in>audiocontroller.cpp</in>
-        <in>cctalkcontroller.cpp</in>
         <in>displaycontroller.cpp</in>
         <in>game.cpp</in>
         <in>httpcontroller.cpp</in>
@@ -13968,6 +13951,7 @@
               <pElem>../esp/esp-adf/components/esp-adf-libs/esp_audio/include</pElem>
               <pElem>components/joltwallet__littlefs/include</pElem>
               <pElem>components/httpserver</pElem>
+              <pElem>components/server</pElem>
             </incDir>
           </cTool>
           <ccTool>
@@ -14101,6 +14085,7 @@
               <pElem>../esp/esp-adf/components/esp-adf-libs/esp_audio/include</pElem>
               <pElem>components/joltwallet__littlefs/include</pElem>
               <pElem>components/httpserver</pElem>
+              <pElem>components/server</pElem>
             </incDir>
           </ccTool>
         </makeTool>
@@ -60240,36 +60225,6 @@
             tool="3"
             flavor2="0">
       </item>
-      <item path="components/cctalk/old/CctalkException.cpp"
-            ex="false"
-            tool="1"
-            flavor2="0">
-      </item>
-      <item path="components/cctalk/old/CctalkException.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="components/cctalk/old/CctalkRequest.cpp"
-            ex="false"
-            tool="1"
-            flavor2="0">
-      </item>
-      <item path="components/cctalk/old/CctalkRequest.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="components/cctalk/old/CctalkResponse.cpp"
-            ex="false"
-            tool="1"
-            flavor2="0">
-      </item>
-      <item path="components/cctalk/old/CctalkResponse.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
       <item path="components/cctalk/serial_worker.cpp"
             ex="false"
             tool="1"
@@ -60280,33 +60235,6 @@
       <item path="components/ht16k33/ht16k33.c" ex="false" tool="0" flavor2="10">
         <cTool flags="1">
         </cTool>
-      </item>
-      <item path="components/httpserver/HttpRequest.cpp"
-            ex="false"
-            tool="1"
-            flavor2="0">
-      </item>
-      <item path="components/httpserver/HttpRequest.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="components/httpserver/HttpResponse.cpp"
-            ex="false"
-            tool="1"
-            flavor2="0">
-      </item>
-      <item path="components/httpserver/HttpResponse.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
-      </item>
-      <item path="components/httpserver/HttpServer.cpp"
-            ex="false"
-            tool="1"
-            flavor2="0">
-      </item>
-      <item path="components/httpserver/HttpServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="components/m20ly02z/m20ly02z.c" ex="false" tool="0" flavor2="10">
         <cTool flags="1">

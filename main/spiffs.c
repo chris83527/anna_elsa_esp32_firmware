@@ -57,7 +57,7 @@ esp_err_t init_spiffs()
         .base_path = "/audio",
         .partition_label = "audio",
         .max_files = 5,
-        .format_if_mount_failed = true};
+        .format_if_mount_failed = false};
 
     // Use settings defined above to initialize and mount SPIFFS filesystem.
     // Note: esp_vfs_spiffs_register is an all-in-one convenience function.

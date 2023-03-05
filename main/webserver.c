@@ -109,6 +109,8 @@ esp_err_t update_post_handler(httpd_req_t *req) {
         }
 
         remaining -= recv_len;
+        
+        vTaskDelay(500 / portTICK_PERIOD_MS);
     }
 
     // Validate and switch to new OTA image and reboot
@@ -119,7 +121,7 @@ esp_err_t update_post_handler(httpd_req_t *req) {
 
     httpd_resp_sendstr(req, "Firmware update complete, rebooting now!\n");
 
-    vTaskDelay(500 / portTICK_PERIOD_MS);
+    
     esp_restart();
 
     return ESP_OK;
@@ -137,11 +139,11 @@ esp_err_t download_get_handler(httpd_req_t *req) {
     FILE *fd = NULL;
     struct stat file_stat;
 
-    ESP_LOGI(TAG, "Base path: %s, URI: %s", ((struct file_server_data *) req->user_ctx)->base_path, req->uri);
+    ESP_LOGD(TAG, "Base path: %s, URI: %s", ((struct file_server_data *) req->user_ctx)->base_path, req->uri);
     
     
     const char *filename = get_path_from_uri(filepath, ((struct file_server_data *) req->user_ctx)->base_path, req->uri, sizeof (filepath));
-    ESP_LOGI(TAG, "Path from URI: %s", filename);
+    ESP_LOGD(TAG, "Path from URI: %s", filename);
 
     if (!filename) {
         ESP_LOGE(TAG, "Filename is too long");
@@ -185,7 +187,7 @@ esp_err_t download_get_handler(httpd_req_t *req) {
         return ESP_FAIL;
     }
 
-    ESP_LOGI(TAG, "Sending file : %s (%ld bytes)...", filename, file_stat.st_size);
+    ESP_LOGD(TAG, "Sending file : %s (%ld bytes)...", filename, file_stat.st_size);
     set_content_type_from_file(req, filename);
 
     /* Retrieve the pointer to scratch buffer for temporary storage */
@@ -208,12 +210,14 @@ esp_err_t download_get_handler(httpd_req_t *req) {
             }
         }
 
+        vTaskDelay(25 / portTICK_PERIOD_MS);
+        
         /* Keep looping till the whole file is sent */
     } while (chunksize != 0);
 
     /* Close file after sending complete */
     fclose(fd);
-    ESP_LOGI(TAG, "File sending complete");
+    ESP_LOGD(TAG, "File sending complete");
 
     /* Respond with an empty chunk to signal HTTP response completion */
 #ifdef CONFIG_HTTPD_CONN_CLOSE_HEADER
@@ -226,7 +230,7 @@ esp_err_t download_get_handler(httpd_req_t *req) {
 httpd_handle_t start_webserver(const char *base_path) {
     static struct file_server_data *server_data = NULL;
 
-    ESP_LOGI(TAG, "Starting webserver with base path %s", base_path);
+    ESP_LOGD(TAG, "Starting webserver with base path %s", base_path);
     
     httpd_handle_t server = NULL;
 
@@ -254,7 +258,7 @@ httpd_handle_t start_webserver(const char *base_path) {
 
 
     // Start the httpd server
-    ESP_LOGI(TAG, "Starting server");
+    ESP_LOGD(TAG, "Starting server");
 
 
     httpd_ssl_config_t conf = HTTPD_SSL_CONFIG_DEFAULT();
@@ -277,10 +281,10 @@ httpd_handle_t start_webserver(const char *base_path) {
 
     esp_err_t ret = httpd_ssl_start(&server, &conf);
     if (ESP_OK != ret) {
-        ESP_LOGI(TAG, "Error starting server!");
+        ESP_LOGD(TAG, "Error starting server!");
         return NULL;
-    }
-
+    }    
+    
     /* URI handler for getting uploaded files */
     httpd_uri_t file_download = {
         .uri = "/*", // Match all URIs of type /path/to/file

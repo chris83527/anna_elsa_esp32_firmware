@@ -106,8 +106,7 @@ public:
 
     led_strip_t* getLedStrip(void);
     mcp23x17_t* getButtonIO(void);
-    
-    TaskHandle_t attractModeTaskHandle;
+       
 
     const static uint8_t NUDGE_LAMPS_LENGTH = 6;
     const static uint8_t FEATURE_LAMPS_LENGTH = 12;
@@ -174,9 +173,12 @@ private:
 
 
 
-    static void attractModeTask(void *pvParameters);
-    static void updateSevenSegDisplaysTask(void *pvParameters);
-    static void updateLampsTask(void *pvParameters);
+    std::unique_ptr<std::thread> attractModeThread;
+    void attractModeTask(void);
+    std::unique_ptr<std::thread> updateSevenSegDisplaysThread;
+    void updateSevenSegDisplaysTask(void);
+    std::unique_ptr<std::thread> updateLampsThread;
+    void updateLampsTask(void);
 };
 
 

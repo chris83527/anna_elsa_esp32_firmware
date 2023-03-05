@@ -42,9 +42,8 @@ HttpController::HttpController(const HttpController& orig) {
 HttpController::~HttpController() {
 }
 
-HttpController::initialise(const int port, std::string& basePath, std::string& ssid, std::string& password) {
-    this->httpServer = std::make_unique<HttpServer>(new HttpServer());
-    
+void HttpController::initialise(const int port, std::string basePath, std::string ssid, std::string password) {
+        
     wifi.SetCredentials(ssid.c_str(), password.c_str()); // TODO: Move these out
     wifi.Init();
     //xTaskCreate(&wifiStatusTask, "wifi_status_task", 2048, this, 1, NULL);
@@ -52,6 +51,8 @@ HttpController::initialise(const int port, std::string& basePath, std::string& s
         wifiStatusTask();
     }));
         
+    this->webserverHandle = start_webserver(basePath.c_str());
+    
 }
 
 void HttpController::wifiStatusTask() {

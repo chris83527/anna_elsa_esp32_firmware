@@ -13,4 +13,4 @@ idf_component_register(SRCS ${app_sources})
 # the target with 'idf.py -p PORT flash'.
 
 spiffs_create_partition_image(audio ../audio FLASH_IN_PROJECT)
-littlefs_create_partition_image(httpd ../httpd)
+littlefs_create_partition_image(httpd ../httpd FLASH_IN_PROJECT)

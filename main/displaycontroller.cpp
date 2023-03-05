@@ -107,8 +107,8 @@ DisplayController::DisplayController(const DisplayController& orig) {
 
 esp_err_t DisplayController::initialise() {
 
-    ESP_LOGI(TAG, "Entering DisplayController::initialise()");
-
+    ESP_LOGI(TAG, "Entering DisplayController::initialise()");    
+    
     this->buttonStatus = 0;
 
     memset(&movesDisplay, 0, sizeof (ht16k33_t));
@@ -176,19 +176,20 @@ esp_err_t DisplayController::initialise() {
 
 
     this->resetLampData();
-    xTaskCreate(&updateLampsTask, "update lamps", 3084, this, 5, NULL);
+    
+    // Start a new thread to update the lamps
+    this->updateLampsThread.reset(new std::thread([this]() {
+        updateLampsTask();
+    }));    
 
-    if (m20ly02z_init(MD_STROBE, MD_OE, MD_CLK, MD_DATA) != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialise VFD display");
-    } else {
-        this->displayText("INITIALISING");
-    }
-
-    xTaskCreate(&updateSevenSegDisplaysTask, "update_7seg_displays", 3084, mainController, 5, NULL);
+    // Start a thread to update the 7-segment displays
+    this->updateSevenSegDisplaysThread.reset(new std::thread([this]() {
+        updateSevenSegDisplaysTask();
+    }));
 
     this->testLamps();
 
-    pollButtonStatusThread.reset(new std::thread([this] {
+    pollButtonStatusThread.reset(new std::thread([this]() {
         pollButtonStatus();
     }));
 
@@ -198,15 +199,18 @@ esp_err_t DisplayController::initialise() {
 
 void DisplayController::beginAttractMode() {
     attractMode = true;
-    BaseType_t xStatus = xTaskCreate(&attractModeTask, "attract_mode", 4096, mainController, 5, &this->attractModeTaskHandle);
-    if (xStatus != pdPASS) {
-        vTaskDelete(this->attractModeTaskHandle);
-    }
+//    BaseType_t xStatus = xTaskCreate(&attractModeTask, "attract_mode", 4096, mainController, 5, &this->attractModeTaskHandle);
+//    if (xStatus != pdPASS) {
+//        vTaskDelete(this->attractModeTaskHandle);
+//    }
+    this->attractModeThread.reset(new std::thread([this]() {
+        attractModeTask();
+    }));
 }
 
 void DisplayController::stopAttractMode() {
     attractMode = false;
-    vTaskDelete(this->attractModeTaskHandle);
+    this->attractModeThread->join();
 }
 
 void DisplayController::resetLampData() {
@@ -235,6 +239,7 @@ void DisplayController::testLamps() {
         lampData[i].lampState = LampState::on;
         vTaskDelay(pdMS_TO_TICKS(100));
     }
+    resetLampData();
     ESP_LOGD(TAG, "Exiting testLamps()");
 }
 
@@ -325,22 +330,20 @@ ht16k33_t* DisplayController::getMovesDisplay() {
     return &this->movesDisplay;
 }
 
-void DisplayController::attractModeTask(void *pvParameters) {
-    MainController *mainController = reinterpret_cast<MainController *> (pvParameters);
+void DisplayController::attractModeTask() {    
     // Show simple rainbow chasing pattern
     ESP_LOGI(TAG, "Animation task started");
-
-    DisplayController *displayController = mainController->getDisplayController();
-    LampData *lampData = displayController->getLampData();
-    //AudioController *audioController = mainController->getAudioController();
-    displayController->resetLampData();
+    
+    LampData *lampData = this->getLampData();
+    
+    this->resetLampData();
 
     rgb_t rgb_data;
     hsv_t hsv_data;
     uint8_t start_rgb = 0;
     int state = 0;
 
-    // switch all led's on;
+    // switch all LEDs on;
     for (int i = 0; i < LED_COUNT; i++) {
         lampData[i].lampState = LampState::on;
     }
@@ -361,22 +364,23 @@ void DisplayController::attractModeTask(void *pvParameters) {
                 lampData[j].rgb = rgb_data;
             }
 
-            vTaskDelay(pdMS_TO_TICKS(CHASE_SPEED_MS));
+            //vTaskDelay(pdMS_TO_TICKS(CHASE_SPEED_MS));
+            std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
         }
         start_rgb += 60;
 
         switch (state) {
             case 0:
-                displayController->displayText("       FROZEN       ");
+                this->displayText("       FROZEN       ");
                 break;
             case 1:
-                displayController->displayText("      PLAY ME       ");
+                this->displayText("      PLAY ME       ");
                 break;
             case 2:
-                displayController->displayText("     20CT GAME      ");
+                this->displayText("     20CT GAME      ");
                 break;
             case 3:
-                displayController->displayText("    INSERT COINS    ");
+                this->displayText("    INSERT COINS    ");
                 break;
         }
 
@@ -390,19 +394,16 @@ void DisplayController::attractModeTask(void *pvParameters) {
         }
 
     }
-
-    vTaskDelete(NULL);
+    
 }
 
-void DisplayController::updateLampsTask(void *pvParameters) {
-    ESP_LOGI(TAG, "Update Lamps task started");
-
-    DisplayController *displayController = reinterpret_cast<DisplayController *> (pvParameters);
+void DisplayController::updateLampsTask() {
+    ESP_LOGI(TAG, "Update Lamps task started");    
 
     uint16_t btnLamps = 0;
 
-    LampData *tmpLampData = displayController->getLampData();
-    led_strip_t *ledStrip = displayController->getLedStrip();
+    LampData *tmpLampData = this->getLampData();
+    led_strip_t *ledStrip = this->getLedStrip();
 
 
     for (;;) {
@@ -431,10 +432,10 @@ void DisplayController::updateLampsTask(void *pvParameters) {
                 btnLamps |= (1 << (i + 8));
             }
         }
-        mcp23x17_port_write(displayController->getButtonIO(), btnLamps);
+        mcp23x17_port_write(this->getButtonIO(), btnLamps);
 
 
-        vTaskDelay(pdMS_TO_TICKS(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         // set leds
         for (int i = 0; i < LED_COUNT; i++) {
@@ -460,10 +461,10 @@ void DisplayController::updateLampsTask(void *pvParameters) {
             }
         }
 
-        mcp23x17_port_write(displayController->getButtonIO(), btnLamps);
+        mcp23x17_port_write(this->getButtonIO(), btnLamps);
 
 
-        vTaskDelay(pdMS_TO_TICKS(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         // set leds
         for (int i = 0; i < LED_COUNT; i++) {
@@ -489,10 +490,10 @@ void DisplayController::updateLampsTask(void *pvParameters) {
                 btnLamps |= (1 << (i + 8));
             }
         }
-        mcp23x17_port_write(displayController->getButtonIO(), btnLamps);
+        mcp23x17_port_write(this->getButtonIO(), btnLamps);
 
 
-        vTaskDelay(pdMS_TO_TICKS(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         // set leds
         for (int i = 0; i < LED_COUNT; i++) {
@@ -517,12 +518,12 @@ void DisplayController::updateLampsTask(void *pvParameters) {
                 btnLamps |= (1 << (i + 8));
             }
         }
-        mcp23x17_port_write(displayController->getButtonIO(), (btnLamps & 0xff00));
+        mcp23x17_port_write(this->getButtonIO(), (btnLamps & 0xff00));
 
-        vTaskDelay(pdMS_TO_TICKS(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     }
-    vTaskDelete(NULL);
+    
 }
 
 /**
@@ -530,9 +531,8 @@ void DisplayController::updateLampsTask(void *pvParameters) {
  * 
  * @param pvParameter 
  */
-void DisplayController::updateSevenSegDisplaysTask(void *pvParameters) {
-    ESP_LOGI(TAG, "Update 7-segment display task started");
-    MainController *mainController = reinterpret_cast<MainController *> (pvParameters);
+void DisplayController::updateSevenSegDisplaysTask() {
+    ESP_LOGI(TAG, "Update 7-segment display task started");    
 
     // 
     uint16_t bank = 0;
@@ -553,9 +553,10 @@ void DisplayController::updateSevenSegDisplaysTask(void *pvParameters) {
 
         initialRun = false;
 
-        vTaskDelay(pdMS_TO_TICKS(500));
+        //vTaskDelay(pdMS_TO_TICKS(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
-    vTaskDelete(NULL);
+    
 }
 
 /**

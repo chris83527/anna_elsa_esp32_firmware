@@ -93,9 +93,13 @@ esp_err_t CCTalkController::initialise() {
         }
     });
 
-    this->hopper.dispenseCoins(1, [&](const std::string & error_msg) {
+    //this->hopper.dispenseCoins(1, [&](const std::string & error_msg) {
 
-    });    
+    //});    
+    
+//    this->hopper.dispenseCoins(1, [&](const std::string & error_msg) {
+//
+//    });    
     
 
     return ESP_OK;

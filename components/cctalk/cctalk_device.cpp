@@ -123,22 +123,38 @@ namespace esp32cc {
                     });
                     break;
                 case CcDeviceState::Initialized:
-                    // The device has been initialized, resume normal rejecting or diagnostics polling.
-                    // Default to bill / coin rejection.
-                    // Perform a self-check and see if everything's ok.
-                    requestSelfCheck([ & ]([[maybe_unused]] const std::string& error_msg, CcFaultCode fault_code) {
-                        if (fault_code == CcFaultCode::Ok) {
-                            // The device is OK, resume normal rejecting mode.
-                            requestSwitchDeviceState(CcDeviceState::NormalRejecting, [ & ]([[maybe_unused]] const std::string & local_error_msg) {
-                                this->isTimerIterationTaskRunning = false;
+                    switch (this->deviceCategory) {
+                        case CcCategory::Payout:
+                            // Enable hopper
+                            ESP_LOGD(TAG, "Enabling hopper");
+                            enableHopper([&](const std::string & error_msg) {
+                                if (error_msg.size() > 0) {
+                                    ESP_LOGE(TAG, "Enable hopper command failed: %s", error_msg.c_str());
+                                }
                             });
-                        } else {
-                            // The device is not ok, resume diagnostics polling mode.
-                            requestSwitchDeviceState(CcDeviceState::DiagnosticsPolling, [ & ]([[maybe_unused]] const std::string & local_error_msg) {
-                                this->isTimerIterationTaskRunning = false;
+                            break;
+                        case CcCategory::CoinAcceptor:
+                        case CcCategory::BillValidator:
+                            // The device has been initialized, resume normal rejecting or diagnostics polling.
+                            // Default to bill / coin rejection.
+                            // Perform a self-check and see if everything's ok.
+                            requestSelfCheck([ & ]([[maybe_unused]] const std::string& error_msg, CcFaultCode fault_code) {
+                                if (fault_code == CcFaultCode::Ok) {
+                                    // The device is OK, resume normal rejecting mode.
+                                    requestSwitchDeviceState(CcDeviceState::NormalRejecting, [ & ]([[maybe_unused]] const std::string & local_error_msg) {
+                                        this->isTimerIterationTaskRunning = false;
+                                    });
+                                } else {
+                                    // The device is not ok, resume diagnostics polling mode.
+                                    requestSwitchDeviceState(CcDeviceState::DiagnosticsPolling, [ & ]([[maybe_unused]] const std::string & local_error_msg) {
+                                        this->isTimerIterationTaskRunning = false;
+                                    });
+                                }
                             });
-                        }
-                    });
+                            break;
+                        default:
+                            break;
+                    }
                     break;
                 case CcDeviceState::InitializationFailed:
                     // The device initialization failed, something wrong with it. Abort.
@@ -147,12 +163,30 @@ namespace esp32cc {
                     stopPolling();
                     break;
                 case CcDeviceState::NormalAccepting:
-                    // We're accepting the credit, process the credit / event log.
-                    requestBufferedCreditEvents([ & ](const std::string& error_msg, uint8_t event_counter, const std::vector<CcEventData>& event_data) {
-                        processCreditEventLog(true, error_msg, event_counter, event_data, [ & ]() {
-                            this->isTimerIterationTaskRunning = false;
-                        });
-                    });
+                    switch (this->deviceCategory) {
+                        case CcCategory::Payout:
+                            // We just need to regularly poll the hopper
+                            // Test hopper
+                            ESP_LOGD(TAG, "Testing hopper");
+                            requestHopperStatus([ & ](const std::string & error_msg, uint8_t event_counter, const std::vector<CcEventData>& hopperStatusData) {
+                                processHopperStatus(error_msg, event_counter, hopperStatusData, [ & ]() {
+                                    this->isTimerIterationTaskRunning = false;
+                                });
+                            });
+                            break;
+                        case CcCategory::CoinAcceptor:
+                        case CcCategory::BillValidator:
+                            // We're accepting the credit, process the credit / event log.
+                            requestBufferedCreditEvents([ & ](const std::string& error_msg, uint8_t event_counter, const std::vector<CcEventData>& event_data) {
+                                processCreditEventLog(true, error_msg, event_counter, event_data, [ & ]() {
+                                    this->isTimerIterationTaskRunning = false;
+                                });
+                            });
+                            break;
+                        default:
+                            break;
+                    }
+
                     break;
                 case CcDeviceState::NormalRejecting:
                     requestBufferedCreditEvents([ & ](const std::string& error_msg, uint8_t event_counter, const std::vector<CcEventData>& event_data) {
@@ -224,9 +258,9 @@ namespace esp32cc {
             {
                 bool success = switchStateInitialized(finish_callback);
                 this->pollingInterval = normalPollingIntervalMsec;
-                if (this->deviceCategory == CcCategory::BillValidator || this->deviceCategory == CcCategory::CoinAcceptor) {
-                    startPolling();
-                }
+                //if (this->deviceCategory == CcCategory::BillValidator || this->deviceCategory == CcCategory::CoinAcceptor) {
+                startPolling();
+                //}
                 return success;
             }
 
@@ -818,7 +852,7 @@ namespace esp32cc {
                             identifier.setCountryScalingData(shared_country_scaling_data->at(identifier.country));
                         }
                         ESP_LOGD(TAG, "Adding coin identifier %s to position %d in shared_identifiers", identifier.id_string.c_str(), pos);
-                        (*shared_identifiers).emplace(pos, identifier);
+                        (*shared_identifiers).insert(std::make_pair(pos, identifier));
                     }
                 }
 
@@ -847,7 +881,7 @@ namespace esp32cc {
                 CcCountryScalingData data;
                 data.scaling_factor = 1;
                 data.decimal_places = 2;
-                (*shared_country_scaling_data).emplace(country, data);
+                (*shared_country_scaling_data).insert(std::make_pair(country, data));
                 (*shared_identifiers).at(pos).country_scaling_data = data;
                 ESP_LOGD(TAG, "Using predefined country scaling data for %s: scaling factor: %d, decimal places: %d.", country.c_str(), data.scaling_factor, int(data.decimal_places));
                 //serializer->continueSequence(true);
@@ -871,7 +905,7 @@ namespace esp32cc {
                             data.scaling_factor = uint16_t(lsb + msb * 256);
                             data.decimal_places = responseData.at(2);
                             if (data.isValid()) {
-                                (*shared_country_scaling_data).emplace(country, data);
+                                (*shared_country_scaling_data).insert(std::make_pair(country, data));
                                 (*shared_identifiers).at(pos).country_scaling_data = data;
                                 ESP_LOGD(TAG, "Country scaling data for %s: scaling factor: %d, decimal places: %d.", country.c_str(), data.scaling_factor, int(data.decimal_places));
                             } else {
@@ -902,6 +936,32 @@ namespace esp32cc {
 
         finish_callback(*shared_error, *shared_identifiers);
 
+    }
+
+    void CctalkDevice::requestHopperStatus(const std::function<void(const std::string& error_msg, uint8_t eventCounter, const std::vector<CcEventData>& event_data)>& finish_callback) {
+        std::vector<uint8_t> data;
+        this->linkController->ccRequest(CcHeader::RequestHopperStatus, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
+
+            // TODO Handle command timeout
+
+            std::vector<CcEventData> event_data;
+
+            if (!error_msg.size() == 0) {
+                //ESP_LOGE(TAG, "Error getting %s buffered credit / events: %s", coin_bill.c_str(), error_msg.c_str());
+                finish_callback(error_msg, 0, event_data);
+                return;
+            }
+
+            if (responseData.size() == 0) {
+                std::string error = std::string("Invalid (empty) hopper status data received.");
+                        finish_callback(error, 0, event_data);
+                return;
+            }
+
+            uint8_t eventCounter = 0; // TODO change this
+
+            finish_callback(std::string(), eventCounter, event_data);
+        });
     }
 
     void CctalkDevice::requestBufferedCreditEvents(const std::function<void(const std::string& error_msg, uint8_t event_counter, const std::vector<CcEventData>& event_data)>& finish_callback) {
@@ -971,23 +1031,62 @@ namespace esp32cc {
         });
     }
 
+    /**
+     * Check to see if the hopper has any payout errors (e.g. stuck coin)
+     * 
+     * @param error_msg An error messaged returned by the cctalk command
+     * @param hopperStatus 2 data bytes containing error codes from the hopper.
+     */
+    void CctalkDevice::processHopperStatus(const std::string & error_msg, uint8_t eventCounter, const std::vector<CcEventData>& hopperStatusData, const std::function<void()>& finish_callback) {
+        // Per specification, a command timeout should be ignored.
+        if (error_msg.size() == 0 && eventCounter == 0 && hopperStatusData.size() == 0) {
+            finish_callback();
+            return; // nothing
+        }
+
+        // If an error occurred during polling, do nothing (?)
+        if (error_msg.size() != 0) {
+            finish_callback();
+            return;
+        }
+
+        // When the device is first booted, the event log contains all zeroes.
+        if (this->lastEventNumber == 0 && eventCounter == 0) {
+            // The device is operating normally (just initialized).
+            finish_callback();
+            return;
+        }
+
+
+    }
+
+    /**
+     * @brief Process any credit events from the coin acceptor or bill validator
+     * 
+     * The specification says:
+     * If ReadBufferedCredit times out, do nothing.
+     * If [event_counter] == 0 and last_event_num == 0, the device is operating normally (just initialized).
+     * If [event_counter] == 0 and last_event_num != 0, the device lost power (possible loss of credits).
+     * If [event_counter] == last_event_counter, no new credits.
+     * If diff([event_counter], last_event_counter) > 5, one or more credits lost.
+     * if diff([event_counter], last_event_counter) <= 5, new credit/event info.
+     *
+     * The general mode of operation:
+     * If in coin event polling and an error event is received, set status to error and start error event polling instead.
+     * If in error event polling and all ok event is received, switch to coin event polling.
+     *
+     * if master inhibit ON is detected there, switch to NormalRejecting (?).
+     * if an error is detected there, switch to diagnostics state.
+     * If bill is held in escrow, call validator function and accept / reject it.
+     *  creditAccepted().
+     * 
+     * @param accepting Are we accepting coins at present? If we are, then call the callback method
+     * @param event_log_cmd_error_msg
+     * @param eventCounter
+     * @param event_data
+     * @param finish_callback
+     */
     void CctalkDevice::processCreditEventLog(bool accepting, const std::string& event_log_cmd_error_msg, uint8_t eventCounter, const std::vector<CcEventData>& event_data, const std::function<void()>& finish_callback) {
-        // The specification says:
-        // If ReadBufferedCredit times out, do nothing.
-        // If [event_counter] == 0 and last_event_num == 0, the device is operating normally (just initialized).
-        // If [event_counter] == 0 and last_event_num != 0, the device lost power (possible loss of credits).
-        // If [event_counter] == last_event_counter, no new credits.
-        // If diff([event_counter], last_event_counter) > 5, one or more credits lost.
-        // if diff([event_counter], last_event_counter) <= 5, new credit/event info.
-
-        // The general mode of operation:
-        // If in coin event polling and an error event is received, set status to error and start error event polling instead.
-        // If in error event polling and all ok event is received, switch to coin event polling.
-
-        // if master inhibit ON is detected there, switch to NormalRejecting (?).
-        // if an error is detected there, switch to diagnostics state.
-        // If bill is held in escrow, call validator function and accept / reject it.
-        //  creditAccepted().
 
         // Per specification, a command timeout should be ignored.
         if (event_log_cmd_error_msg.size() == 0 && eventCounter == 0 && event_data.size() == 0) {
@@ -1376,8 +1475,15 @@ namespace esp32cc {
                 finish_callback(error_msg, responseData);
                 return;
             }
-            finish_callback(std::string(), responseData);
-            return;
+
+            if (responseData.size() != 8) {
+                std::string errormsg = "Error requesting cipher key: No data returned";
+                ESP_LOGE(TAG, "%s", errormsg.c_str());
+                finish_callback(errormsg, responseData);
+            } else {
+                finish_callback(std::string(), responseData);
+            }
+
         });
     }
 
@@ -1404,19 +1510,19 @@ namespace esp32cc {
             }
 
             finish_callback(std::string(), responseData);
-            
-//            if (responseData.size() != 0) {
-//                std::string error = "Non-empty data received while waiting for ACK.";
-//                finish_callback(error);
-//                return;
-//            }
+
+            //            if (responseData.size() != 0) {
+            //                std::string error = "Non-empty data received while waiting for ACK.";
+            //                finish_callback(error);
+            //                return;
+            //            }
         });
     }
 
     void CctalkDevice::dispenseCoins(const int numberOfCoins, const std::function<void(const std::string & error_msg)>& finish_callback) {
 
         ESP_LOGD(TAG, "Dispense coins called: Dispensing %d coins: ", numberOfCoins);
-        
+
         std::vector<uint8_t> data;
         bool doContinue = true;
 
@@ -1426,49 +1532,20 @@ namespace esp32cc {
             return;
         }
 
-        // Test hopper
-        ESP_LOGD(TAG, "Testing hopper");
-        testHopper([&](const std::string & error_msg, const std::vector<uint8_t>& hopperStatus) {
-            if (error_msg.size() > 0) {
-                ESP_LOGE(TAG, "Test hopper command failed: %s", error_msg.c_str());
-                doContinue = false;
-            }
-            
-            // TODO: Check hopper status flags
-            
-        });
-
-        if (!doContinue) {
-            finish_callback("Test hopper command failed.");
-            return;
-        }
-
-        // Enable hopper
-        ESP_LOGD(TAG, "Enabling hopper");
-        enableHopper([&](const std::string & error_msg) {
-            if (error_msg.size() > 0) {
-                ESP_LOGE(TAG, "Enable hopper command failed: %s", error_msg.c_str());
-                doContinue = false;
-            }
-        });
-
-        if (!doContinue) {
-            finish_callback("Test hopper command failed.");
-            return;
-        }
-
         // Request Cipher Key
         ESP_LOGD(TAG, "Requesting cipher key");
         requestCipherKey([&](const std::string& error_msg, const std::vector<uint8_t>& cipherKey) {
             if (error_msg.size() > 0) {
                 ESP_LOGE(TAG, "Request cipher key command failed: %s", error_msg.c_str());
-                doContinue = false;                
+                doContinue = false;
+                finish_callback("Request cipher key command failed.");
+                return;
             }
 
             if (cipherKey.size() != 8) {
                 ESP_LOGE(TAG, "Expecting 8 cipher bytes, received %d", cipherKey.size());
-                doContinue = false;                
-            } else {                
+                doContinue = false;
+            } else {
                 data.push_back(cipherKey.at(0));
                 data.push_back(cipherKey.at(1));
                 data.push_back(cipherKey.at(2));
@@ -1478,7 +1555,7 @@ namespace esp32cc {
                 data.push_back(cipherKey.at(6));
                 data.push_back(cipherKey.at(7));
             }
-            
+
         });
 
         if (!doContinue) {

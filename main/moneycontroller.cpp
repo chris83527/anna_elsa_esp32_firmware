@@ -52,6 +52,10 @@ MoneyController::MoneyController(MainController* mainController) {
     this->payoutInProgress = false;    
 }
 
+MoneyController::~MoneyController() {
+    
+}
+
 void MoneyController::initialise() {
     ESP_LOGI(TAG, "initialise() called");
     loadValuesFromStorage();

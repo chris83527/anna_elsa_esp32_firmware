@@ -54,10 +54,14 @@ MainController::MainController(const MainController& orig) {
 void MainController::start() {
     ESP_LOGD(TAG, "start() called");
 
+    this->audioController.reset(new AudioController());
     this->displayController.reset(new DisplayController(this));
     this->reelController.reset(new ReelController(this));
+    this->oledController.reset(new oledcontroller());
     this->moneyController.reset(new MoneyController(this));
     this->game.reset(new Game(this));
+    this->cctalkController.reset(new CCTalkController());                          
+    this->httpController.reset(new HttpController());      
 
     // CPU LED is on a GPIO
     gpio_pad_select_gpio(CPU_LED_GPIO);
@@ -70,6 +74,12 @@ void MainController::start() {
 
     esp_event_loop_create_default();
 
+    if (m20ly02z_init(MD_STROBE, MD_OE, MD_CLK, MD_DATA) != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialise VFD display");
+    } else {
+        this->displayController->displayText("INITIALISING");
+    }
+    
     this->blinkCPUStatusLEDThread.reset(new std::thread([this]() {
         blinkCPUStatusLEDTask();
     }));
@@ -82,7 +92,6 @@ void MainController::start() {
 
     // start outputting to status oled
     oledController->initialise();
-
 
     // Initialize NVS
     ESP_LOGD(TAG, "Setting up NVS");
@@ -157,11 +166,9 @@ void MainController::start() {
         }
         return;
     }
-
-    oledController->scrollText("Init SPIFFS");
-    init_spiffs();
+    
     oledController->scrollText("Init Webserver");
-    this->httpController->intialise(80, "/httpd", INNUENDO", "woodsamusements");
+    this->httpController->initialise(80, "/httpd", "INNUENDO", "woodsamusements");
 
     /* Mark current app as valid */
     const esp_partition_t *partition = esp_ota_get_running_partition();
@@ -242,11 +249,9 @@ void MainController::start() {
 
     updateStatisticsThread.reset(new std::thread([this]() {
         updateStatisticsDisplayTask();
-    }));
+    }));    
 
-    //xTaskCreate(&updateStatisticsDisplayTask, "status_monitor_task", 2048, this, 1, NULL);
-
-
+    
     for (;;) {
         if (!(game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
             ESP_LOGD(TAG, "Starting game...");
@@ -256,7 +261,7 @@ void MainController::start() {
                 getDisplayController()->beginAttractMode();
             }
         }
-        vTaskDelay(pdMS_TO_TICKS(200));
+        std::this_thread::__sleep_for(std::chrono::seconds(1));
     }
 
 }
@@ -271,55 +276,30 @@ void MainController::setDateTime() {
     time.tm_year = (2023 - 1900); // tm_year = number of years since 1900
     time.tm_mday = 24;
 
-    ds3231_set_time(&ds3231, &time);
-
-    //    serialMonitorController->clearScreenAndDrawBorder();
-    //    term->position(4, 2);
-    //    term->println(F("Please enter the current date/time (yyyymmddHHMMSS"));
-    //    String dateString;
-    //
-    //    for (int i = 0; i < 14; i++) {
-    //        char c = term->read();
-    //        while (c == -1) {
-    //            c = term->read();
-    //        }
-    //        term->write(c);
-    //        dateString.concat(c);
-    //    }
-    //
-    //    int year = dateString.substring(0, 4).toInt();
-    //    int month = dateString.substring(4, 6).toInt();
-    //    int day = dateString.substring(6, 8).toInt();
-    //    int hours = dateString.substring(8, 10).toInt();
-    //    int minutes = dateString.substring(10, 12).toInt();
-    //    int seconds = dateString.substring(12, 14).toInt();
-    //
-    //    setTime(hours, minutes, seconds, day, month, year);
-    //    time_t t = now();
-    //    RTC.set(t);
+    ds3231_set_time(&ds3231, &time);    
 }
 
-AudioController* MainController::getAudioController() {
+std::shared_ptr<AudioController> MainController::getAudioController() {
     return audioController;
 }
 
-ReelController* MainController::getReelController() {
+std::shared_ptr<ReelController> MainController::getReelController() {
     return reelController;
 }
 
-CCTalkController* MainController::getCCTalkController() {
+std::shared_ptr<CCTalkController> MainController::getCCTalkController() {
     return cctalkController;
 }
 
-DisplayController* MainController::getDisplayController() {
+std::shared_ptr<DisplayController> MainController::getDisplayController() {
     return displayController;
 }
 
-MoneyController* MainController::getMoneyController() {
+std::shared_ptr<MoneyController> MainController::getMoneyController() {
     return moneyController;
 }
 
-oledcontroller* MainController::getOledController() {
+std::shared_ptr<oledcontroller> MainController::getOledController() {
     return oledController;
 }
 
@@ -327,7 +307,7 @@ uint8_t MainController::getVolume() {
     return volume;
 }
 
-Game* MainController::getGame() {
+std::shared_ptr<Game> MainController::getGame() {
     return game;
 }
 
@@ -406,9 +386,9 @@ uint16_t MainController::readValueFromNVS(const char * key) {
     return value;
 }
 
-WIFI::Wifi MainController::getWifiController() {
-    return wifi;
-}
+//std::shared_ptr<WIFI::Wifi> MainController::getWifiController() {
+//    return wifi;
+//}
 
 
 void MainController::blinkCPUStatusLEDTask() {

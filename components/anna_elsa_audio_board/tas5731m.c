@@ -73,7 +73,7 @@ static esp_err_t tas5731m_transmit_registers() {
     int i = 0;
     esp_err_t ret = ESP_OK;
 
-    ESP_LOGI(TAG, "Taking mutex");
+    ESP_LOGD(TAG, "Taking mutex");
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
     uint8_t buf[10];
     buf[0] = 0x00;
@@ -123,7 +123,7 @@ static esp_err_t tas5731m_transmit_registers() {
     I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x05, &buf[0], 1));
     buf[0] = 0x60;
     I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x07, &buf[0], 1));
-    ESP_LOGI(TAG, "Releasing mutex");
+    ESP_LOGD(TAG, "Releasing mutex");
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
     
     // Read error status register
@@ -170,7 +170,7 @@ static esp_err_t tas5731m_transmit_registers() {
 
 esp_err_t tas5731m_init(audio_hal_codec_config_t *codec_cfg) {
     esp_err_t ret = ESP_OK;
-    ESP_LOGI(TAG, "Power ON CODEC with GPIO %d", TAS5731M_PDWN_GPIO);
+    ESP_LOGD(TAG, "Power ON CODEC with GPIO %d", TAS5731M_PDWN_GPIO);
 
     gpio_pad_select_gpio(TAS5731M_RST_GPIO);
     gpio_pad_select_gpio(TAS5731M_PDWN_GPIO);
@@ -179,10 +179,10 @@ esp_err_t tas5731m_init(audio_hal_codec_config_t *codec_cfg) {
     gpio_set_direction(TAS5731M_PDWN_GPIO, GPIO_MODE_OUTPUT);    
     
     uint32_t reg_val = REG_READ(PIN_CTRL);
-    ESP_LOGI(TAG, "PIN_CTRL before:%x", reg_val);
+    ESP_LOGD(TAG, "PIN_CTRL before:%x", reg_val);
     REG_WRITE(PIN_CTRL, 0xFFFFFFF0);
     reg_val = REG_READ(PIN_CTRL);
-    ESP_LOGI(TAG, "PIN_CTRL after:%x", reg_val);
+    ESP_LOGD(TAG, "PIN_CTRL after:%x", reg_val);
     PIN_FUNC_SELECT(GPIO_PIN_REG_0, 1); //GPIO0 as CLK_OUT1
         
     // See TI TAS5731M Datasheet page 63
@@ -261,7 +261,7 @@ esp_err_t tas5731m_get_volume(int *value) {
         if (cmd[1] >= tas5731m_volume[i])
             break;
     }
-    ESP_LOGI(TAG, "Volume is %d", i * 5);
+    ESP_LOGD(TAG, "Volume is %d", i * 5);
     *value = 5 * i;
     return ret;
 }
@@ -289,7 +289,7 @@ esp_err_t tas5731m_get_mute(int *value) {
 
     TAS5731M_ASSERT(ret, "Fail to get mute", ESP_FAIL);
     *value = (cmd[1] & 0x08) >> 4;
-    ESP_LOGI(TAG, "Get mute value: 0x%x", *value);
+    ESP_LOGD(TAG, "Get mute value: 0x%x", *value);
     return ret;
 }
 

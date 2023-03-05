@@ -17,6 +17,7 @@
 #include <cstdlib>
 #include <thread>
 #include <memory>
+#include <utility>
 
 #include "nvs_flash.h"
 #include "nvs.h"
@@ -55,14 +56,14 @@ public:
     void writeValueToNVS(const char * key, uint16_t value);
     uint16_t readValueFromNVS(const char * key);
 
-    AudioController* getAudioController();
-    DisplayController* getDisplayController();
-    ReelController* getReelController();
-    CCTalkController* getCCTalkController();
-    Game* getGame();
-    MoneyController* getMoneyController();
-    oledcontroller* getOledController();
-    //WIFI::Wifi getWifiController();
+    std::shared_ptr<AudioController> getAudioController();
+    std::shared_ptr<DisplayController> getDisplayController();
+    std::shared_ptr<ReelController> getReelController();
+    std::shared_ptr<CCTalkController> getCCTalkController();
+    std::shared_ptr<Game> getGame();
+    std::shared_ptr<MoneyController> getMoneyController();
+    std::shared_ptr<oledcontroller> getOledController();
+    //std::shared_ptr<WIFI::Wifi> getWifiController();
 
     i2c_dev_t* getDs3231();
 
@@ -91,17 +92,17 @@ private:
 
     uint8_t volume = 0;
 
-    std::unique_ptr<Game> game;
-    std::unique_ptr<ReelController> reelController;
-    std::unique_ptr<DisplayController> displayController;
-    std::unique_ptr<CCTalkController> cctalkController;
-    std::unique_ptr<AudioController> audioController;
-    std::unique_ptr<MoneyController> moneyController;
-    std::unique_ptr<oledcontroller> oledController;    
-    std::unique_ptr<HttpController> httpController;
+    std::shared_ptr<Game> game;
+    std::shared_ptr<ReelController> reelController;
+    std::shared_ptr<DisplayController> displayController;
+    std::shared_ptr<CCTalkController> cctalkController;
+    std::shared_ptr<AudioController> audioController;
+    std::shared_ptr<MoneyController> moneyController;
+    std::shared_ptr<oledcontroller> oledController;    
+    std::shared_ptr<HttpController> httpController;
 
     std::unique_ptr<nvs::NVSHandle> nvs_handle;
-
+    
     const char* NVS_PARTITION_SETTINGS = "settings";
 
     enum class MachineState : uint8_t {

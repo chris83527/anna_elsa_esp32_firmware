@@ -209,6 +209,8 @@ namespace esp32cc {
 
         void dispenseCoins(const int numberOfCoins, const std::function<void(const std::string& error_msg)>& finish_callback);
 
+        void purgeHopper(const std::function<void(const std::string& error_msg, const std::vector<uint8_t>& hopperStatus)>& finish_callback);
+        
         /// Request coin / bill identifiers (quantity for bills, bill/coin names) and country scaling data (bills).
         void requestIdentifiers(const std::function<void(const std::string& error_msg, const std::map<uint8_t, CcIdentifier>& identifiers)>& finish_callback);
 
@@ -218,9 +220,20 @@ namespace esp32cc {
         /// A command timeout here is not an error condition - an empty event counter / log and
         // an empty error message are returned. The caller should ignore this and continue normally.
         void requestBufferedCreditEvents(const std::function<void(const std::string& error_msg, uint8_t event_counter, const std::vector<CcEventData>& event_data)>& finish_callback);
+        
+        /**
+         * The data field consist in four bytes , an event counter similar to the event counter in “read buffer bill events” 
+         * from bill acceptors that is zero right after power up and increment with each event up to 255 and back to 1, one 
+         * byte payout coins remaining , one byte last payout – coins paid and one byte last payout – coins unpaid. As you 
+         * see the hopper is right after a power up , the last payout was 20 coins
+         * 
+         * @param finish_callback The callback function to execute returning the values
+         */
+        void requestHopperStatus(const std::function<void(const std::string& error_msg, uint8_t event_counter, const std::vector<CcEventData>& event_data)>& finish_callback);
 
         /// Process the credit/event log. This is used by timerIteration().
         void processCreditEventLog(bool accepting, const std::string& event_log_cmd_error_msg, uint8_t event_counter, const std::vector<CcEventData>& event_data, const std::function<void()>& finish_callback);
+        void processHopperStatus(const std::string & error_msg, uint8_t event_counter, const std::vector<CcEventData>& hopperStatusData, const std::function<void()>& finish_callback);
 
         /// Route a bill that is held in escrow.
         void requestRouteBill(CcBillRouteCommandType route, const std::function<void(const std::string& error_msg, CcBillRouteStatus status)>& finish_callback);
@@ -292,7 +305,7 @@ namespace esp32cc {
         std::string decodeResponseToString(const std::vector<uint8_t>& responseData);
         std::string decodeResponseToHex(const std::vector<uint8_t>& responseData);
 
-        void devicePollTask();
+        virtual void devicePollTask();
 
         CctalkLinkController* linkController; ///< Controller for serial worker thread with cctalk link management support.
 

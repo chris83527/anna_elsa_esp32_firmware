@@ -564,5 +564,5 @@ void ssd1306_dump(SSD1306_t dev) {
 }
 
 void ssd1306_dump_page(SSD1306_t * dev, int page, int seg) {
-    ESP_LOGI(TAG, "dev->_page[%d]._segs[%d]=%02x", page, seg, dev->_page[page]._segs[seg]);
+    ESP_LOGD(TAG, "dev->_page[%d]._segs[%d]=%02x", page, seg, dev->_page[page]._segs[seg]);
 }

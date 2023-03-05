@@ -34,12 +34,12 @@
 
 #include <thread>
 #include <cstring>
+#include <chrono>
 
-#include "esp_wifi.h"
 #include "esp_log.h"
 #include "wifi.h"
 
-#include "HttpServer.h"
+#include "webserver.h"
 
 class HttpController {
 public:
@@ -47,15 +47,17 @@ public:
     HttpController(const HttpController& orig);
     virtual ~HttpController();
 
-    void initialise(const int port, std::string& basePath, std::string& ssid, std::string& password);
+    void initialise(const int port, std::string basePath, std::string ssid, std::string password);
 private:
 
-    std::make_unique<HttpServer> httpServer;
+    
     void wifiStatusTask(void);
 
     WIFI::Wifi::state_e wifiState{ WIFI::Wifi::state_e::NOT_INITIALIZED};
     WIFI::Wifi wifi;
-    std::make_unique<std::thread> wifiStatusThread; 
+    std::unique_ptr<std::thread> wifiStatusThread; 
+    
+    httpd_handle_t webserverHandle;
 };
 
 #endif /* HTTPCONTROLLER_H */

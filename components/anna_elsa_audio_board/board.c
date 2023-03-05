@@ -35,7 +35,7 @@ static audio_board_handle_t board_handle = 0;
 
 
 audio_board_handle_t audio_board_init(void) {
-    ESP_LOGI(TAG, "audio_board_init called");
+    ESP_LOGD(TAG, "audio_board_init called");
     if (board_handle) {
         ESP_LOGW(TAG, "The board has already been initialized!");
         return board_handle;
@@ -49,7 +49,7 @@ audio_board_handle_t audio_board_init(void) {
 }
 
 audio_hal_handle_t audio_board_codec_init(void) {
-    ESP_LOGI(TAG, "audio_board_codec_init called");
+    ESP_LOGD(TAG, "audio_board_codec_init called");
     audio_hal_codec_config_t audio_codec_cfg = AUDIO_CODEC_DEFAULT_CONFIG();
     audio_hal_handle_t codec_hal = audio_hal_init(&audio_codec_cfg, &AUDIO_CODEC_TAS5731M_DEFAULT_HANDLE);
     AUDIO_NULL_CHECK(TAG, codec_hal, return NULL);

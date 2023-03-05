@@ -79,6 +79,8 @@ void AudioController::initialise() {
 
     ESP_LOGI(TAG, "Initialising board and codecs");
     I2S_NUM = I2S_NUM_0; // i2s port number
+        
+    init_spiffs();
     
     cfg = DEFAULT_ESP_AUDIO_CONFIG();
     cfg.in_stream_buf_size = 10 * 1024;

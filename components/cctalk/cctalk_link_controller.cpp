@@ -120,7 +120,7 @@ namespace esp32cc {
      */
     uint64_t CctalkLinkController::ccRequest(CcHeader command, uint8_t deviceAddress, std::vector<uint8_t>& data, int responseTimeoutMsec, std::function<void(const std::string& error_msg, const std::vector<uint8_t>& command_data)> callbackFunction) {
 
-        ESP_LOGI(TAG, "Checking no existing request in process");
+        ESP_LOGD(TAG, "Checking no existing request in process");
         while (requestInProgress) {
             std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }
@@ -128,7 +128,7 @@ namespace esp32cc {
         requestInProgress = true;
         
         if (callbackFunction != nullptr) {
-            ESP_LOGI(TAG, "Setting callback function");
+            ESP_LOGD(TAG, "Setting callback function");
             try {
                 executeOnReturnCallback = callbackFunction;
             } catch (const std::exception& e) {
@@ -138,7 +138,7 @@ namespace esp32cc {
             ESP_LOGE(TAG, "executeOnReturn: callbackFunction was null");
         }
         
-        ESP_LOGI(TAG, "Sending request %s", ccHeaderGetDisplayableName(command).c_str());
+        ESP_LOGD(TAG, "Sending request %s", ccHeaderGetDisplayableName(command).c_str());
         
         this->deviceAddress = deviceAddress;
 
@@ -281,7 +281,7 @@ namespace esp32cc {
 
         if (this->showCctalkResponse) {
             // Don't print response_id, it interferes with identical message hiding.
-            ESP_LOGI(TAG, "ccTalk response from address %d, data: %s", int(sourceAddress), formatted_data.c_str());
+            ESP_LOGD(TAG, "ccTalk response from address %d, data: %s", int(sourceAddress), formatted_data.c_str());
         }
 
         requestInProgress = false;

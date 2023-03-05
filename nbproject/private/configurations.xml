@@ -1128,6 +1128,8 @@
           </df>
           <df name="httpserver">
             <df name="CMakeFiles">
+              <df name="__idf_httpserver.dir">
+              </df>
             </df>
           </df>
           <df name="i2cdev">
@@ -1799,16 +1801,6 @@
           <in>tas5731m_reg_cfg.h</in>
         </df>
         <df name="cctalk">
-          <df name="old">
-            <in>CctalkException.cpp</in>
-            <in>CctalkException.h</in>
-            <in>CctalkRequest.cpp</in>
-            <in>CctalkRequest.h</in>
-            <in>CctalkResponse.cpp</in>
-            <in>CctalkResponse.h</in>
-            <in>cctalk.cpp</in>
-            <in>cctalk.h</in>
-          </df>
           <in>bill_validator_device.h</in>
           <in>cctalk_device.cpp</in>
           <in>cctalk_device.h</in>
@@ -1825,14 +1817,6 @@
             <in>ht16k33.h</in>
           </df>
           <in>ht16k33.c</in>
-        </df>
-        <df name="httpserver">
-          <in>HttpRequest.cpp</in>
-          <in>HttpRequest.h</in>
-          <in>HttpResponse.cpp</in>
-          <in>HttpResponse.h</in>
-          <in>HttpServer.cpp</in>
-          <in>HttpServer.h</in>
         </df>
         <df name="joltwallet__littlefs">
           <df name="example">
@@ -1852,6 +1836,8 @@
             <df name="mklittlefs-193ec2f-generic-linux64">
             </df>
             <df name="mklittlefs-6ce7478-generic-linux64">
+            </df>
+            <df name="mklittlefs-866fd36-generic-linux64">
             </df>
             <df name="tclap">
               <in>Arg.h</in>
@@ -3102,8 +3088,6 @@
                 <df name="mbedx509.dir">
                 </df>
               </df>
-              <in>error.c</in>
-              <in>psa_crypto_driver_wrappers.c</in>
               <in>ssl_debug_helpers_generated.c</in>
               <in>version_features.c</in>
             </df>

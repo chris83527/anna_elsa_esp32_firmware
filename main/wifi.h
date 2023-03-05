@@ -86,6 +86,6 @@ namespace WIFI {
         constexpr static const char *GetMac(void) {
             return _mac_addr_cstr;
         }
-    }; // Wifi class
+    };
 
-} // namaspace WIFI
+}
