@@ -25,7 +25,6 @@
 
 
 #include "config.h"
-#include "spiffs.h"
 #include "reelcontroller.h"
 #include "displaycontroller.h"
 #include "cctalkcontroller.h"
