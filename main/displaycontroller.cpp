@@ -132,6 +132,10 @@ esp_err_t DisplayController::initialise() {
         ESP_LOGD(TAG, "WS2812 driver installation succeeded");
     }
 
+    creditDisplay.cfg.master.clk_speed = I2C_FREQ_HZ;
+    creditDisplay.cfg.mode = I2C_MODE_MASTER;
+    creditDisplay.cfg.scl_pullup_en = false;
+    creditDisplay.cfg.sda_pullup_en = false;
     if (ht16k33_init_desc(&creditDisplay, 0, CREDIT_DISPLAY_ADDRESS, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "Could not initialise credit display");
     } else {
@@ -140,6 +144,10 @@ esp_err_t DisplayController::initialise() {
         ESP_LOGD(TAG, "Credit display initialisation succeeded");
     }
 
+    bankDisplay.cfg.master.clk_speed = I2C_FREQ_HZ;
+    bankDisplay.cfg.mode = I2C_MODE_MASTER;
+    bankDisplay.cfg.scl_pullup_en = false;
+    bankDisplay.cfg.sda_pullup_en = false;
     if (ht16k33_init_desc(&bankDisplay, 0, BANK_DISPLAY_ADDRESS, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "Could not initialise bank display");
     } else {
@@ -148,6 +156,10 @@ esp_err_t DisplayController::initialise() {
         ESP_LOGD(TAG, "Bank display initialisation succeeded");
     }
 
+    movesDisplay.cfg.master.clk_speed = I2C_FREQ_HZ;
+    movesDisplay.cfg.mode = I2C_MODE_MASTER;
+    movesDisplay.cfg.scl_pullup_en = false;
+    movesDisplay.cfg.sda_pullup_en = false;
     if (ht16k33_init_desc(&movesDisplay, 0, MOVES_DISPLAY_ADDRESS, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "Could not initialise moves display");
     } else {

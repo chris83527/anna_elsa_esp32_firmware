@@ -40,7 +40,7 @@
 #include <esp_idf_lib_helpers.h>
 #include "ht16k33.h"
 
-#define I2C_FREQ_HZ 400000
+#define I2C_FREQ_HZ 100000
 
 #define HT16K33_ON              0x21  // Commands
 #define HT16K33_STANDBY         0x20
@@ -128,9 +128,7 @@ esp_err_t ht16k33_init_desc(ht16k33_t *dev, const i2c_port_t port, const uint8_t
     dev->cfg.sda_io_num = sda_gpio;
     dev->cfg.scl_io_num = scl_gpio;
     dev->cfg.clk_flags = 0;
-#if HELPER_TARGET_IS_ESP32
     dev->cfg.master.clk_speed = I2C_FREQ_HZ;
-#endif
 
     return i2c_dev_create_mutex(dev);
 }

@@ -142,6 +142,10 @@ esp_err_t ReelController::initialise() {
         return ESP_FAIL;
     }
 
+    reel_left.cfg.master.clk_speed = I2C_FREQ_HZ;
+    reel_left.cfg.mode = I2C_MODE_MASTER;
+    reel_left.cfg.scl_pullup_en = false;
+    reel_left.cfg.sda_pullup_en = false;
     if (mcp23008_init_desc(&reel_left, REEL_LEFT_I2C_ADDRESS, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "An error occurred initialising left reel");
     } else {
@@ -165,6 +169,10 @@ esp_err_t ReelController::initialise() {
         ESP_LOGD(TAG, "Left reel initialised ok.");
     }
 
+    reel_centre.cfg.master.clk_speed = I2C_FREQ_HZ;
+    reel_centre.cfg.mode = I2C_MODE_MASTER;
+    reel_centre.cfg.scl_pullup_en = false;
+    reel_centre.cfg.sda_pullup_en = false;
     if (mcp23008_init_desc(&reel_centre, REEL_CENTRE_I2C_ADDRESS, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "An error occurred initialising centre reel");
         //return ESP_FAIL;
@@ -189,6 +197,10 @@ esp_err_t ReelController::initialise() {
         ESP_LOGD(TAG, "Centre reel initialised ok.");
     }
 
+    reel_right.cfg.master.clk_speed = I2C_FREQ_HZ;
+    reel_right.cfg.mode = I2C_MODE_MASTER;
+    reel_right.cfg.scl_pullup_en = false;
+    reel_right.cfg.sda_pullup_en = false;
     if (mcp23008_init_desc(&reel_right, REEL_RIGHT_I2C_ADDRESS, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "An error occurred initialising right reel");
         //return ESP_FAIL;
