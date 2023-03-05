@@ -261,7 +261,7 @@ void MainController::start() {
                 getDisplayController()->beginAttractMode();
             }
         }
-        std::this_thread::__sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
 }
