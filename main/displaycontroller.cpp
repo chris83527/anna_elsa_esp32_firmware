@@ -221,8 +221,7 @@ void DisplayController::beginAttractMode() {
 }
 
 void DisplayController::stopAttractMode() {
-    attractMode = false;
-    this->attractModeThread->join();
+    attractMode = false;    
 }
 
 void DisplayController::resetLampData() {
@@ -361,7 +360,7 @@ void DisplayController::attractModeTask() {
     }
 
 
-    for (;;) {
+    while (this->attractMode) {
 
         for (int i = 0; i < 3; i++) {
             for (int j = i; j < LED_COUNT; j += 3) {
