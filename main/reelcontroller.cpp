@@ -296,7 +296,7 @@ void ReelController::stepMotorTask(void* pvParameters) {
             if (reelController->reel_status_data_centre.step_number > 3) reelController->reel_status_data_centre.step_number = 0;
             if (reelController->reel_status_data_right.step_number > 3) reelController->reel_status_data_right.step_number = 0;
         }
-        vTaskDelay(pdMS_TO_TICKS(5));
+        //vTaskDelay(pdMS_TO_TICKS(5));
     }
 }
 
@@ -494,7 +494,7 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
             dly -= 10;
         }
 
-        vTaskDelay(pdMS_TO_TICKS(dly));
+        //vTaskDelay(pdMS_TO_TICKS(dly));
     }
 
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
@@ -575,7 +575,7 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
             dly -= 10;
         }
 
-        vTaskDelay(pdMS_TO_TICKS(dly));
+        //vTaskDelay(pdMS_TO_TICKS(dly));
     }
 
     //delay(100);
@@ -650,7 +650,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, cons
         } else {
             ESP_LOGE(TAG, "Could not send step event to queue");
         }     
-        vTaskDelay(pdMS_TO_TICKS(5));
+        //vTaskDelay(pdMS_TO_TICKS(5));
                 
     }
 

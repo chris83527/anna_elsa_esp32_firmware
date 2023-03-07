@@ -46,7 +46,7 @@ void HttpController::initialise(const int port, std::string basePath, std::strin
         
     wifi.SetCredentials(ssid.c_str(), password.c_str()); // TODO: Move these out
     wifi.Init();
-    //xTaskCreate(&wifiStatusTask, "wifi_status_task", 2048, this, 1, NULL);
+    
     wifiStatusThread.reset(new std::thread([this]() {
         wifiStatusTask();
     }));

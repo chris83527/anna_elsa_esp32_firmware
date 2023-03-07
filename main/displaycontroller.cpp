@@ -400,6 +400,10 @@ void DisplayController::attractModeTask() {
         }
 
     }
+    
+     for (int i = 0; i < LED_COUNT; i++) {
+        lampData[i].lampState = LampState::off;
+    }
 
 }
 
@@ -461,9 +465,10 @@ void DisplayController::updateLampsTask() {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         // set leds
+        btnLamps=0;
         for (int i = 0; i < LED_COUNT + 6; i++) {
             if (tmpLampData[i].lampState == LampState::on || tmpLampData[i].lampState == LampState::blinkslow) {
-                //ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);       
+                ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);       
                 if (i < LED_COUNT) {
                     led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
                 } else {
@@ -491,7 +496,7 @@ void DisplayController::updateLampsTask() {
                 }
             } else {
                 if (i < LED_COUNT) {
-                    //ESP_LOGD(TAG, "Switching off pixel %d", i);
+                    ESP_LOGD(TAG, "Switching off pixel %d", i);
                     rgb.r = 0;
                     rgb.g = 0;
                     rgb.b = 0;
@@ -505,9 +510,10 @@ void DisplayController::updateLampsTask() {
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
               
+        btnLamps=0;
         for (int i = 0; i < LED_COUNT + 6; i++) {
             if (tmpLampData[i].lampState == LampState::on) {
-                //ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);       
+                ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);       
                 if (i < LED_COUNT) {
                     led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
                 } else {
@@ -549,9 +555,10 @@ void DisplayController::updateLampsTask() {
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
                
+        btnLamps=0;
         for (int i = 0; i < LED_COUNT + 6; i++) {
             if (tmpLampData[i].lampState == LampState::on || tmpLampData[i].lampState == LampState::blinkfast) {
-                //ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);       
+                ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);       
                 if (i < LED_COUNT) {
                     led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
                 } else {

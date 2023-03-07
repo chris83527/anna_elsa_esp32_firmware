@@ -82,9 +82,7 @@ void MainController::start() {
     this->blinkCPUStatusLEDThread.reset(new std::thread([this]() {
         blinkCPUStatusLEDTask();
     }));
-    //xTaskCreate(&blinkCPUStatusLEDTask, "cpu_status_led_blink", 2048, this, 1, NULL);
-
-
+    
     ESP_LOGD(TAG, "Calling i2cdev_init()");
     ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());
     //i2c_set_timeout(I2C_NUM_0, 400000);
@@ -125,7 +123,7 @@ void MainController::start() {
     }
 
     // Initialise WiFi
-    oledController->scrollText("Init WiFi");
+    //oledController->scrollText("Init WiFi");
     
 
     // initialise ds3231 RTC
@@ -214,7 +212,7 @@ void MainController::start() {
         oledController->scrollText("  -> ok");
     }    
     
-    //oledController->scrollText("Init NVRAM");
+    oledController->scrollText("Load stats");
     moneyController->initialise();
     
     oledController->scrollText("Init cctalk");
