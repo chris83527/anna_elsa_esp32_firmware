@@ -212,26 +212,16 @@ void MainController::start() {
     } else {
         ESP_LOGD(TAG, "Display controller initialisation ok.");
         oledController->scrollText("  -> ok");
-    }
-
+    }    
+    
     //oledController->scrollText("Init NVRAM");
     moneyController->initialise();
-
-    oledController->scrollText("Init reels");
-    if (reelController->initialise() != ESP_OK) {
-        oledController->scrollText("  -> failed");
-        ESP_LOGE(TAG, "Failed to initialise reel controller subsystem");
-    } else {
-        oledController->scrollText("  -> ok");
-        ESP_LOGD(TAG, "Reel controller initialisation ok.");
-    }
-
+    
     oledController->scrollText("Init cctalk");
     cctalkController->setCreditAcceptedCallback([&](uint8_t coin_id, const esp32cc::CcIdentifier & identifier) {
         ESP_LOGI(TAG, "Credit accepted: Coin id: %d, Identifier: %s", coin_id, identifier.id_string.c_str());
         moneyController->addToCredit(COIN_VALUES[coin_id]);
     });
-
 
     if (cctalkController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
@@ -240,17 +230,26 @@ void MainController::start() {
         oledController->scrollText("  -> ok");
     }
 
+    oledController->scrollText("Init reels");
+    if (reelController->initialise() != ESP_OK) {
+        oledController->scrollText("  -> failed");
+        ESP_LOGE(TAG, "Failed to initialise reel controller subsystem");
+    } else {
+        oledController->scrollText("  -> ok");
+        ESP_LOGD(TAG, "Reel controller initialisation ok.");
+    }    
+
     blinkDelay = 1000;
 
     oledController->scrollText("Init game");
     game->initialise();
-    this->displayController->beginAttractMode();
-
+    
     updateStatisticsThread.reset(new std::thread([this]() {
         updateStatisticsDisplayTask();
-    }));    
-
+    }));   
     
+    this->displayController->beginAttractMode();
+      
     for (;;) {
         if ((!game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
             ESP_LOGD(TAG, "Starting game...");

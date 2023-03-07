@@ -107,8 +107,8 @@ DisplayController::DisplayController(const DisplayController& orig) {
 
 esp_err_t DisplayController::initialise() {
 
-    ESP_LOGI(TAG, "Entering DisplayController::initialise()");    
-    
+    ESP_LOGI(TAG, "Entering DisplayController::initialise()");
+
     this->buttonStatus = 0;
 
     memset(&movesDisplay, 0, sizeof (ht16k33_t));
@@ -188,11 +188,11 @@ esp_err_t DisplayController::initialise() {
 
 
     this->resetLampData();
-    
+
     // Start a new thread to update the lamps
     this->updateLampsThread.reset(new std::thread([this]() {
         updateLampsTask();
-    }));    
+    }));
 
     // Start a thread to update the 7-segment displays
     this->updateSevenSegDisplaysThread.reset(new std::thread([this]() {
@@ -211,17 +211,13 @@ esp_err_t DisplayController::initialise() {
 
 void DisplayController::beginAttractMode() {
     attractMode = true;
-//    BaseType_t xStatus = xTaskCreate(&attractModeTask, "attract_mode", 4096, mainController, 5, &this->attractModeTaskHandle);
-//    if (xStatus != pdPASS) {
-//        vTaskDelete(this->attractModeTaskHandle);
-//    }
     this->attractModeThread.reset(new std::thread([this]() {
         attractModeTask();
     }));
 }
 
 void DisplayController::stopAttractMode() {
-    attractMode = false;    
+    attractMode = false;
 }
 
 void DisplayController::resetLampData() {
@@ -285,7 +281,7 @@ void DisplayController::pollButtonStatus() {
             this->buttonStatus = 0; // Failsafe
         }
 
-        if ((this->buttonStatus & (1<<BTN_DOOR)) == 0) {
+        if ((this->buttonStatus & (1 << BTN_DOOR)) == 0) {
             if (!this->doorOpen) {
                 ESP_LOGI(TAG, "Door open!");
             }
@@ -296,7 +292,7 @@ void DisplayController::pollButtonStatus() {
             }
             this->doorOpen = false;
         }
-        
+
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
@@ -341,12 +337,12 @@ ht16k33_t* DisplayController::getMovesDisplay() {
     return &this->movesDisplay;
 }
 
-void DisplayController::attractModeTask() {    
+void DisplayController::attractModeTask() {
     // Show simple rainbow chasing pattern
     ESP_LOGI(TAG, "Animation task started");
-    
+
     LampData *lampData = this->getLampData();
-    
+
     this->resetLampData();
 
     rgb_t rgb_data;
@@ -375,7 +371,6 @@ void DisplayController::attractModeTask() {
                 lampData[j].rgb = rgb_data;
             }
 
-            //vTaskDelay(pdMS_TO_TICKS(CHASE_SPEED_MS));
             std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
         }
         start_rgb += 60;
@@ -405,136 +400,199 @@ void DisplayController::attractModeTask() {
         }
 
     }
-    
+
 }
 
 void DisplayController::updateLampsTask() {
-    ESP_LOGI(TAG, "Update Lamps task started");    
+    ESP_LOGI(TAG, "Update Lamps task started");
 
     uint16_t btnLamps = 0;
 
     LampData *tmpLampData = this->getLampData();
     led_strip_t *ledStrip = this->getLedStrip();
 
-
     for (;;) {
 
         rgb_t rgb;
 
         // set leds
-        for (int i = 0; i < LED_COUNT; i++) {
+        btnLamps = 0;
+        for (int i = 0; i < LED_COUNT + 6; i++) {
             if (tmpLampData[i].lampState == LampState::on || tmpLampData[i].lampState == LampState::blinkfast || tmpLampData[i].lampState == LampState::blinkslow) {
-                //ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);                
-                led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
+                //ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);       
+                if (i < LED_COUNT) {
+                    led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
+                } else {
+                    // GPB1 and GPB0 are unconnected
+                    switch (i) {
+                        case LED_COUNT:
+                            btnLamps |= (1 << 7); //GPB7 (Start)
+                            break;
+                        case LED_COUNT + 1:
+                            btnLamps |= (1 << 6); //GPB6 (Collect)
+                            break;
+                        case LED_COUNT + 2:
+                            btnLamps |= (1 << 5); // GPB5
+                            break;
+                        case LED_COUNT + 3:
+                            btnLamps |= (1 << 4); // GPB4
+                            break;
+                        case LED_COUNT + 4:
+                            btnLamps |= (1 << 3); // GPB3
+                            break;
+                        case LED_COUNT + 5:
+                            btnLamps |= (1 << 2); // GPB2
+                            break;
+                    }
+                }
             } else {
-                //ESP_LOGD(TAG, "Switching off pixel %d", i);
-                rgb.r = 0;
-                rgb.g = 0;
-                rgb.b = 0;
-                led_strip_set_pixel(ledStrip, i, rgb);
+                if (i < LED_COUNT) {
+                    //ESP_LOGD(TAG, "Switching off pixel %d", i);
+                    rgb.r = 0;
+                    rgb.g = 0;
+                    rgb.b = 0;
+                    led_strip_set_pixel(ledStrip, i, rgb);
+                }
             }
         }
         led_strip_flush(ledStrip);
-
-        btnLamps = 0;
-        // set button lamps
-        for (int i = 0; i < 6; i++) {
-            if (tmpLampData[i + LED_COUNT].lampState == LampState::on || tmpLampData[i + LED_COUNT].lampState == LampState::blinkfast || tmpLampData[i + LED_COUNT].lampState == LampState::blinkslow) {
-                btnLamps |= (1 << (i + 8));
-            }
-        }
         mcp23x17_port_write(this->getButtonIO(), btnLamps);
-
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         // set leds
-        for (int i = 0; i < LED_COUNT; i++) {
+        for (int i = 0; i < LED_COUNT + 6; i++) {
             if (tmpLampData[i].lampState == LampState::on || tmpLampData[i].lampState == LampState::blinkslow) {
-                //ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);
-                led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
+                //ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);       
+                if (i < LED_COUNT) {
+                    led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
+                } else {
+                    // GPB1 and GPB0 are unconnected
+                    switch (i) {
+                        case LED_COUNT:
+                            btnLamps |= (1 << 7); //GPB7 (Start)
+                            break;
+                        case LED_COUNT + 1:
+                            btnLamps |= (1 << 6); //GPB6 (Collect)
+                            break;
+                        case LED_COUNT + 2:
+                            btnLamps |= (1 << 5); // GPB5
+                            break;
+                        case LED_COUNT + 3:
+                            btnLamps |= (1 << 4); // GPB4
+                            break;
+                        case LED_COUNT + 4:
+                            btnLamps |= (1 << 3); // GPB3
+                            break;
+                        case LED_COUNT + 5:
+                            btnLamps |= (1 << 2); // GPB2
+                            break;
+                    }
+                }
             } else {
-                //ESP_LOGD(TAG, "Switching off pixel %d", i);
-                rgb.r = 0;
-                rgb.g = 0;
-                rgb.b = 0;
-                led_strip_set_pixel(ledStrip, i, rgb);
+                if (i < LED_COUNT) {
+                    //ESP_LOGD(TAG, "Switching off pixel %d", i);
+                    rgb.r = 0;
+                    rgb.g = 0;
+                    rgb.b = 0;
+                    led_strip_set_pixel(ledStrip, i, rgb);
+                }
             }
         }
 
-        led_strip_flush(ledStrip);
-
-        btnLamps = 0;
-        // set button lamps
-        for (int i = 0; i < 6; i++) {
-            if (tmpLampData[i + LED_COUNT].lampState == LampState::on || tmpLampData[i + LED_COUNT].lampState == LampState::blinkslow) {
-                btnLamps |= (1 << (i + 8));
-            }
-        }
-
+        led_strip_flush(ledStrip);        
         mcp23x17_port_write(this->getButtonIO(), btnLamps);
 
-
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-        // set leds
-        for (int i = 0; i < LED_COUNT; i++) {
+              
+        for (int i = 0; i < LED_COUNT + 6; i++) {
             if (tmpLampData[i].lampState == LampState::on) {
-                //ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);
-                rgb.r = tmpLampData[i].rgb.r;
-                led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
+                //ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);       
+                if (i < LED_COUNT) {
+                    led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
+                } else {
+                    // GPB1 and GPB0 are unconnected
+                    switch (i) {
+                        case LED_COUNT:
+                            btnLamps |= (1 << 7); //GPB7 (Start)
+                            break;
+                        case LED_COUNT + 1:
+                            btnLamps |= (1 << 6); //GPB6 (Collect)
+                            break;
+                        case LED_COUNT + 2:
+                            btnLamps |= (1 << 5); // GPB5
+                            break;
+                        case LED_COUNT + 3:
+                            btnLamps |= (1 << 4); // GPB4
+                            break;
+                        case LED_COUNT + 4:
+                            btnLamps |= (1 << 3); // GPB3
+                            break;
+                        case LED_COUNT + 5:
+                            btnLamps |= (1 << 2); // GPB2
+                            break;
+                    }
+                }
             } else {
-                //ESP_LOGD(TAG, "Switching off pixel %d", i);
-                rgb.r = 0;
-                rgb.g = 0;
-                rgb.b = 0;
-                led_strip_set_pixel(ledStrip, i, rgb);
+                if (i < LED_COUNT) {
+                    //ESP_LOGD(TAG, "Switching off pixel %d", i);
+                    rgb.r = 0;
+                    rgb.g = 0;
+                    rgb.b = 0;
+                    led_strip_set_pixel(ledStrip, i, rgb);
+                }
             }
         }
 
-        led_strip_flush(ledStrip);
-
-        btnLamps = 0;
-        // set button lamps
-        for (int i = 0; i < 6; i++) {
-            if (tmpLampData[i + LED_COUNT].lampState == LampState::on) {
-                btnLamps |= (1 << (i + 8));
-            }
-        }
+        led_strip_flush(ledStrip);       
         mcp23x17_port_write(this->getButtonIO(), btnLamps);
 
-
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-        // set leds
-        for (int i = 0; i < LED_COUNT; i++) {
+               
+        for (int i = 0; i < LED_COUNT + 6; i++) {
             if (tmpLampData[i].lampState == LampState::on || tmpLampData[i].lampState == LampState::blinkfast) {
-                //                ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);
-                led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
+                //ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);       
+                if (i < LED_COUNT) {
+                    led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
+                } else {
+                    // GPB1 and GPB0 are unconnected
+                    switch (i) {
+                        case LED_COUNT:
+                            btnLamps |= (1 << 7); //GPB7 (Start)
+                            break;
+                        case LED_COUNT + 1:
+                            btnLamps |= (1 << 6); //GPB6 (Collect)
+                            break;
+                        case LED_COUNT + 2:
+                            btnLamps |= (1 << 5); // GPB5
+                            break;
+                        case LED_COUNT + 3:
+                            btnLamps |= (1 << 4); // GPB4
+                            break;
+                        case LED_COUNT + 4:
+                            btnLamps |= (1 << 3); // GPB3
+                            break;
+                        case LED_COUNT + 5:
+                            btnLamps |= (1 << 2); // GPB2
+                            break;
+                    }
+                }
             } else {
-                //              ESP_LOGD(TAG, "Switching off pixel %d", i);
-                rgb.r = 0;
-                rgb.g = 0;
-                rgb.b = 0;
-                led_strip_set_pixel(ledStrip, i, rgb);
+                if (i < LED_COUNT) {
+                    //ESP_LOGD(TAG, "Switching off pixel %d", i);
+                    rgb.r = 0;
+                    rgb.g = 0;
+                    rgb.b = 0;
+                    led_strip_set_pixel(ledStrip, i, rgb);
+                }
             }
         }
 
         led_strip_flush(ledStrip);
-
-        btnLamps = 0;
-        // set button lamps
-        for (int i = 0; i < 6; i++) {
-            if (tmpLampData[i + LED_COUNT].lampState == LampState::on || tmpLampData[i + LED_COUNT].lampState == LampState::blinkfast) {
-                btnLamps |= (1 << (i + 8));
-            }
-        }
         mcp23x17_port_write(this->getButtonIO(), (btnLamps & 0xff00));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
     }
-    
 }
 
 /**
@@ -543,7 +601,7 @@ void DisplayController::updateLampsTask() {
  * @param pvParameter 
  */
 void DisplayController::updateSevenSegDisplaysTask() {
-    ESP_LOGI(TAG, "Update 7-segment display task started");    
+    ESP_LOGI(TAG, "Update 7-segment display task started");
 
     // 
     uint16_t bank = 0;
@@ -563,10 +621,10 @@ void DisplayController::updateSevenSegDisplaysTask() {
         }
 
         initialRun = false;
-        
+
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
-    
+
 }
 
 /**
