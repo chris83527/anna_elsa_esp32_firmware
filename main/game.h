@@ -73,7 +73,7 @@ private:
 
     LampData *lampData;
     
-    bool isInProgress;
+    bool isInProgress = false;
 
     bool holdLeft;
     bool holdCentre;

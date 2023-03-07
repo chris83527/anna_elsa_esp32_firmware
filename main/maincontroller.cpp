@@ -252,7 +252,7 @@ void MainController::start() {
 
     
     for (;;) {
-        if (!(game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
+        if ((!game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
             ESP_LOGD(TAG, "Starting game...");
             this->game->start();
         } else {

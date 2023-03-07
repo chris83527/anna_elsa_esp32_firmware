@@ -249,7 +249,7 @@ void DisplayController::testLamps() {
     resetLampData();
     for (int i = 0; i < (LED_COUNT + 6); i++) {
         lampData[i].lampState = LampState::on;
-        vTaskDelay(pdMS_TO_TICKS(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     resetLampData();
     ESP_LOGD(TAG, "Exiting testLamps()");
@@ -564,8 +564,7 @@ void DisplayController::updateSevenSegDisplaysTask() {
         }
 
         initialRun = false;
-
-        //vTaskDelay(pdMS_TO_TICKS(500));
+        
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
     

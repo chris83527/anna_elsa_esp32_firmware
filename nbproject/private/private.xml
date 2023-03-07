@@ -27,6 +27,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/joltwallet__littlefs/component.mk</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/.gitignore</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/config.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/oledcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/bill_validator_device.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.h</file>
@@ -61,6 +62,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.cpp</file>
             <file>file:/home/chris/esp/esp-adf/components/audio_stream/i2s_stream.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/httpd/update.html</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/ht16k33/ht16k33.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/spiffs.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/tas5731m_reg_cfg.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/component.mk</file>
@@ -75,6 +77,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_pins_config.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/joltwallet__littlefs/CMakeLists.txt</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/spiffs.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/m20ly02z/include/m20ly02z.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/webserver.c</file>
@@ -83,6 +86,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/webserver.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/ssd1306/Kconfig</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/serial_worker.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/oledcontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/sdkconfig</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/displaycontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/partitions.csv</file>
