@@ -1434,8 +1434,7 @@ namespace esp32cc {
                 return;
             }
             if (responseData.size() != 0) {
-                std::string error = "Non-empty data received while waiting for ACK.";
-                //ccResponseDataDecodeError(request_id, error); // auto-logged
+                std::string error = "Non-empty data received while waiting for ACK.";                
                 finish_callback(error);
 
                 return;
@@ -1458,8 +1457,7 @@ namespace esp32cc {
                 return;
             }
             if (responseData.size() != 0) {
-                std::string error = "Non-empty data received while waiting for ACK.";
-                //ccResponseDataDecodeError(request_id, error); // auto-logged
+                std::string error = "Non-empty data received while waiting for ACK.";                
                 finish_callback(error);
 
                 return;
@@ -1581,12 +1579,9 @@ namespace esp32cc {
     }
 
     void CctalkDevice::setDeviceState(CcDeviceState state) {
-        if (this->deviceState != state) {
-
-            //CcDeviceState old_state = this->deviceState;
+        if (this->deviceState != state) {            
             this->deviceState = state;
-            ESP_LOGD(TAG, "Device state changed to: %s", ccDeviceStateGetDisplayableName(state).c_str());
-            //deviceStateChanged(old_state, this->deviceState);
+            ESP_LOGD(TAG, "Device state changed to: %s", ccDeviceStateGetDisplayableName(state).c_str());            
         }
     }
 
