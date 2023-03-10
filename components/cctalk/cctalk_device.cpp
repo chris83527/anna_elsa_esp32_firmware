@@ -1166,9 +1166,10 @@ namespace esp32cc {
 
                     CcCoinRejectionType rejection_type = ccCoinAcceptorEventCodeGetRejectionType(ev.coin_error_code);
 
-                    ESP_LOGD(TAG, "Coin status/error event %s found, rejection type: %s.",
-                            ccCoinAcceptorEventCodeGetDisplayableName(ev.coin_error_code).c_str(),
-                            ccCoinRejectionTypeGetDisplayableName(rejection_type).c_str());
+//TODO: Causes kernel panic
+                    //ESP_LOGD(TAG, "Coin status/error event %s found, rejection type: %s.",
+                    //        ccCoinAcceptorEventCodeGetDisplayableName(ev.coin_error_code).c_str(),
+                    //        ccCoinRejectionTypeGetDisplayableName(rejection_type).c_str());
 
                     // If the coin event code is of Unknown type (that is, not Accepted or Rejected),
                     // there may be a device error. Perform diagnostics.

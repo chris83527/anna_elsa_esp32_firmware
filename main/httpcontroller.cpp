@@ -45,13 +45,13 @@ HttpController::~HttpController() {
 void HttpController::initialise(const int port, std::string basePath, std::string ssid, std::string password) {
         
     wifi.SetCredentials(ssid.c_str(), password.c_str()); // TODO: Move these out
-    wifi.Init();
+//    wifi.Init();
     
-    wifiStatusThread.reset(new std::thread([this]() {
-        wifiStatusTask();
-    }));
+//    wifiStatusThread.reset(new std::thread([this]() {
+//        wifiStatusTask();
+//    }));
         
-    this->webserverHandle = start_webserver(basePath.c_str());
+//    this->webserverHandle = start_webserver(basePath.c_str());
     
 }
 
