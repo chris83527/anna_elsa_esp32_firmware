@@ -130,6 +130,8 @@ private:
     
     MainController* mainController;
 
+    std::unique_ptr<std::thread> spinReelThread;
+    
     void step(reel_event_t event);
     void spinToZero(void);
 };

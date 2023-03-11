@@ -308,7 +308,7 @@ void ReelController::spinToZero() {
     uint32_t mcp23008_centre_state;
     uint32_t mcp23008_right_state;
 
-    std::thread([ & ]() {
+    this->spinReelThread.reset(new std::thread([ & ]() {
 
         for (counter = 0; counter < ((MAX_STOPS * 2) * STEPS_PER_STOP); counter++) // two spins, multiply by 4 steps
         {
@@ -359,7 +359,7 @@ void ReelController::spinToZero() {
             //    break;
             //}
         }
-    });
+    }));
 
     if (leftOk) {
         reel_status_data_left.status = STATUS_OK;
@@ -424,7 +424,7 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-    std::thread([ & ]() {
+    this->spinReelThread.reset(new std::thread([ & ]() {
         for (int i = 0; i <= maxSteps; i++) {
 
             if (reel_status_data_left.status != STATUS_OK) {
@@ -471,7 +471,7 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
 
             std::this_thread::sleep_for(std::chrono::milliseconds(delay));
         }
-    });
+    }));
 
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
@@ -511,7 +511,7 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-    std::thread([ & ]() {
+    this->spinReelThread.reset(new std::thread([ & ]() {
         for (int i = 0; i <= maxSteps; i++) {
 
             if (i < leftSteps) {
@@ -550,7 +550,7 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
 
             std::this_thread::sleep_for(std::chrono::milliseconds(delay));
         }
-    });
+    }));
 
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
@@ -590,7 +590,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, cons
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-    std::thread([ & ]() {
+    this->spinReelThread.reset(new std::thread([ & ]() {
         for (int i = 0; i < maxSteps; i++) {
             if (i < leftSteps) {
                 reels |= REEL_LEFT;
@@ -623,7 +623,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, cons
 
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
-    });
+    }));
 
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
