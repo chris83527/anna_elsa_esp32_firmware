@@ -13952,6 +13952,7 @@
               <pElem>components/joltwallet__littlefs/include</pElem>
               <pElem>components/httpserver</pElem>
               <pElem>components/server</pElem>
+              <pElem>../esp/esp-idf-lib/components/led_strip</pElem>
             </incDir>
           </cTool>
           <ccTool>
@@ -14086,6 +14087,7 @@
               <pElem>components/joltwallet__littlefs/include</pElem>
               <pElem>components/httpserver</pElem>
               <pElem>components/server</pElem>
+              <pElem>../esp/esp-idf-lib/components/led_strip</pElem>
             </incDir>
           </ccTool>
         </makeTool>

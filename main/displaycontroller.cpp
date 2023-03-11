@@ -115,18 +115,20 @@ esp_err_t DisplayController::initialise() {
     memset(&creditDisplay, 0, sizeof (ht16k33_t));
     memset(&bankDisplay, 0, sizeof (ht16k33_t));
     memset(&buttonIO, 0, sizeof (mcp23x17_t));
-    memset(&ledStrip, 0, sizeof (led_strip_t));
+    memset(&ledStrip, 0, sizeof (led_strip_t));    
 
-    ledStrip.brightness = 255;
-    ledStrip.channel = RMT_TX_CHANNEL;
-    ledStrip.gpio = LED_GPIO;
-    ledStrip.buf = NULL;
+    ledStrip.is_rgbw = true;
     ledStrip.type = LED_STRIP_WS2812;
     ledStrip.length = LED_COUNT;
-
+    ledStrip.gpio = LED_GPIO;
+    ledStrip.buf = NULL;
+    ledStrip.brightness = 255;
+    ledStrip.channel = RMT_TX_CHANNEL;
+    
+    
     led_strip_install();
 
-    if (led_strip_init(&ledStrip) != ESP_OK) {
+    if (led_strip_init(&this->ledStrip) != ESP_OK) {
         ESP_LOGE(TAG, "WS2812 driver installation failed!");
     } else {
         ESP_LOGD(TAG, "WS2812 driver installation succeeded");
@@ -400,8 +402,8 @@ void DisplayController::attractModeTask() {
         }
 
     }
-    
-     for (int i = 0; i < LED_COUNT; i++) {
+
+    for (int i = 0; i < LED_COUNT; i++) {
         lampData[i].lampState = LampState::off;
     }
 
@@ -465,10 +467,10 @@ void DisplayController::updateLampsTask() {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         // set leds
-        btnLamps=0;
+        btnLamps = 0;
         for (int i = 0; i < LED_COUNT + 6; i++) {
             if (tmpLampData[i].lampState == LampState::on || tmpLampData[i].lampState == LampState::blinkslow) {
-                ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);       
+                ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);
                 if (i < LED_COUNT) {
                     led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
                 } else {
@@ -505,15 +507,15 @@ void DisplayController::updateLampsTask() {
             }
         }
 
-        led_strip_flush(ledStrip);        
+        led_strip_flush(ledStrip);
         mcp23x17_port_write(this->getButtonIO(), btnLamps);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-              
-        btnLamps=0;
+
+        btnLamps = 0;
         for (int i = 0; i < LED_COUNT + 6; i++) {
             if (tmpLampData[i].lampState == LampState::on) {
-                ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);       
+                ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);
                 if (i < LED_COUNT) {
                     led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
                 } else {
@@ -550,15 +552,15 @@ void DisplayController::updateLampsTask() {
             }
         }
 
-        led_strip_flush(ledStrip);       
+        led_strip_flush(ledStrip);
         mcp23x17_port_write(this->getButtonIO(), btnLamps);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-               
-        btnLamps=0;
+
+        btnLamps = 0;
         for (int i = 0; i < LED_COUNT + 6; i++) {
             if (tmpLampData[i].lampState == LampState::on || tmpLampData[i].lampState == LampState::blinkfast) {
-                ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);       
+                ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);
                 if (i < LED_COUNT) {
                     led_strip_set_pixel(ledStrip, i, tmpLampData[i].rgb);
                 } else {
