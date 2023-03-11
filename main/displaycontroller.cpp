@@ -432,22 +432,22 @@ void DisplayController::updateLampsTask() {
                     // GPB1 and GPB0 are unconnected
                     switch (i) {
                         case LED_COUNT:
-                            btnLamps |= (1 << 7); //GPB7 (Start)
+                            btnLamps |= (1 << 15); //GPB7 (Start)
                             break;
                         case LED_COUNT + 1:
-                            btnLamps |= (1 << 6); //GPB6 (Collect)
+                            btnLamps |= (1 << 14); //GPB6 (Collect)
                             break;
                         case LED_COUNT + 2:
-                            btnLamps |= (1 << 5); // GPB5
+                            btnLamps |= (1 << 13); // GPB5
                             break;
                         case LED_COUNT + 3:
-                            btnLamps |= (1 << 4); // GPB4
+                            btnLamps |= (1 << 12); // GPB4
                             break;
                         case LED_COUNT + 4:
-                            btnLamps |= (1 << 3); // GPB3
+                            btnLamps |= (1 << 11); // GPB3
                             break;
                         case LED_COUNT + 5:
-                            btnLamps |= (1 << 2); // GPB2
+                            btnLamps |= (1 << 10); // GPB2
                             break;
                     }
                 }
@@ -477,22 +477,22 @@ void DisplayController::updateLampsTask() {
                     // GPB1 and GPB0 are unconnected
                     switch (i) {
                         case LED_COUNT:
-                            btnLamps |= (1 << 7); //GPB7 (Start)
+                            btnLamps |= (1 << 15); //GPB7 (Start)
                             break;
                         case LED_COUNT + 1:
-                            btnLamps |= (1 << 6); //GPB6 (Collect)
+                            btnLamps |= (1 << 14); //GPB6 (Collect)
                             break;
                         case LED_COUNT + 2:
-                            btnLamps |= (1 << 5); // GPB5
+                            btnLamps |= (1 << 13); // GPB5
                             break;
                         case LED_COUNT + 3:
-                            btnLamps |= (1 << 4); // GPB4
+                            btnLamps |= (1 << 12); // GPB4
                             break;
                         case LED_COUNT + 4:
-                            btnLamps |= (1 << 3); // GPB3
+                            btnLamps |= (1 << 11); // GPB3
                             break;
                         case LED_COUNT + 5:
-                            btnLamps |= (1 << 2); // GPB2
+                            btnLamps |= (1 << 10); // GPB2
                             break;
                     }
                 }
@@ -522,22 +522,22 @@ void DisplayController::updateLampsTask() {
                     // GPB1 and GPB0 are unconnected
                     switch (i) {
                         case LED_COUNT:
-                            btnLamps |= (1 << 7); //GPB7 (Start)
+                            btnLamps |= (1 << 15); //GPB7 (Start)
                             break;
                         case LED_COUNT + 1:
-                            btnLamps |= (1 << 6); //GPB6 (Collect)
+                            btnLamps |= (1 << 14); //GPB6 (Collect)
                             break;
                         case LED_COUNT + 2:
-                            btnLamps |= (1 << 5); // GPB5
+                            btnLamps |= (1 << 13); // GPB5
                             break;
                         case LED_COUNT + 3:
-                            btnLamps |= (1 << 4); // GPB4
+                            btnLamps |= (1 << 12); // GPB4
                             break;
                         case LED_COUNT + 4:
-                            btnLamps |= (1 << 3); // GPB3
+                            btnLamps |= (1 << 11); // GPB3
                             break;
                         case LED_COUNT + 5:
-                            btnLamps |= (1 << 2); // GPB2
+                            btnLamps |= (1 << 10); // GPB2
                             break;
                     }
                 }
@@ -567,22 +567,22 @@ void DisplayController::updateLampsTask() {
                     // GPB1 and GPB0 are unconnected
                     switch (i) {
                         case LED_COUNT:
-                            btnLamps |= (1 << 7); //GPB7 (Start)
+                            btnLamps |= (1 << 15); //GPB7 (Start)
                             break;
                         case LED_COUNT + 1:
-                            btnLamps |= (1 << 6); //GPB6 (Collect)
+                            btnLamps |= (1 << 14); //GPB6 (Collect)
                             break;
                         case LED_COUNT + 2:
-                            btnLamps |= (1 << 5); // GPB5
+                            btnLamps |= (1 << 13); // GPB5
                             break;
                         case LED_COUNT + 3:
-                            btnLamps |= (1 << 4); // GPB4
+                            btnLamps |= (1 << 12); // GPB4
                             break;
                         case LED_COUNT + 4:
-                            btnLamps |= (1 << 3); // GPB3
+                            btnLamps |= (1 << 11); // GPB3
                             break;
                         case LED_COUNT + 5:
-                            btnLamps |= (1 << 2); // GPB2
+                            btnLamps |= (1 << 10); // GPB2
                             break;
                     }
                 }
