@@ -110,7 +110,7 @@ void Game::start() {
     std::bitset<8> btnStatus = mainController->getDisplayController()->getButtonStatus();
     while (!btnStatus.test(BTN_START)) {
         btnStatus = this->mainController->getDisplayController()->getButtonStatus();
-        vTaskDelay(pdMS_TO_TICKS(100)); // let the processor do something else
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         holdLeft = false;
         holdCentre = false;
@@ -204,7 +204,7 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
     mainController->getReelController()->spin(reelStopLeft, reelStopCentre, reelStopRight);
 
     while (mainController->getReelController()->isCommandInProgress()) {
-        vTaskDelay(pdMS_TO_TICKS(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
         this->moves = random8_to(13);
         this->mainController->getDisplayController()->setMoves(this->moves); // TODO: fix this
     }
@@ -225,7 +225,7 @@ void Game::shuffleReels() {
     mainController->getReelController()->shuffle(reelStopLeft, reelStopCentre, reelStopRight);
 
     while (mainController->getReelController()->isCommandInProgress()) {
-        vTaskDelay(pdMS_TO_TICKS(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
         this->moves = random8_to(12);
         this->mainController->getDisplayController()->setMoves(this->moves);   // TODO: fix this
     }
@@ -273,7 +273,8 @@ void Game::playNudges(int nudges) {
                 (!btnStatus.test(BTN_HOLD_HI))) {
 
             btnStatus = mainController->getDisplayController()->getButtonStatus();
-            vTaskDelay(pdMS_TO_TICKS(100));
+            
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
 
         if (btnStatus.test(BTN_HOLD_LO)) {
@@ -286,7 +287,7 @@ void Game::playNudges(int nudges) {
 
         // wait for reel controller to finish command
         while (mainController->getReelController()->isCommandInProgress()) {
-            vTaskDelay(pdMS_TO_TICKS(75));
+            std::this_thread::sleep_for(std::chrono::milliseconds(75));
         }
 
         win = isWinningLine();
@@ -295,7 +296,7 @@ void Game::playNudges(int nudges) {
             transferOrGamble();
             return;
         } else {
-            vTaskDelay(pdMS_TO_TICKS(20));
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
         }
 
         nudges--;
@@ -346,7 +347,7 @@ void Game::transferOrGamble() {
     // loop waiting for button press.
     while (!btnStatus.test(BTN_TRANSFER) && !btnStatus.test(BTN_START)) {
         btnStatus = mainController->getDisplayController()->getButtonStatus();
-        vTaskDelay(pdMS_TO_TICKS(75));
+        std::this_thread::sleep_for(std::chrono::milliseconds(75));
     }
 
     lampData[LMP_START].lampState = LampState::off;
@@ -379,7 +380,7 @@ void Game::collectOrContinue() {
     // loop waiting for button press.
     while (!btnStatus.test(BTN_COLLECT) && !btnStatus.test(BTN_START)) {
         btnStatus = mainController->getDisplayController()->getButtonStatus();
-        vTaskDelay(pdMS_TO_TICKS(75));
+        std::this_thread::sleep_for(std::chrono::milliseconds(75));
     }
 
     lampData[LMP_START].lampState = LampState::off;
@@ -444,7 +445,7 @@ void Game::playFeatureMatrix() {
         // TODO: do something here.
 
         lampData[DisplayController::FEATURE_LAMPS[featureIndex]].lampState = LampState::off;
-        vTaskDelay(pdMS_TO_TICKS(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     // Feature has been chosen, let's continue...
@@ -501,7 +502,7 @@ void Game::playShuffle() {
     // loop waiting for button press.
     while (!btnStatus.test(BTN_START)) {
         btnStatus = this->mainController->getDisplayController()->getButtonStatus();
-        vTaskDelay(pdMS_TO_TICKS(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
     mainController->getAudioController()->playAudioFile(Sounds::SND_NOW_THATS_ICE);
@@ -530,7 +531,7 @@ void Game::playFreeSpin() {
     // loop waiting for button press.
     while (!btnStatus.test(BTN_START)) {
         btnStatus = this->mainController->getDisplayController()->getButtonStatus();
-        vTaskDelay(pdMS_TO_TICKS(75));
+        std::this_thread::sleep_for(std::chrono::milliseconds(75));
     }
 
     mainController->getAudioController()->playAudioFile(Sounds::SND_NOW_THATS_ICE);

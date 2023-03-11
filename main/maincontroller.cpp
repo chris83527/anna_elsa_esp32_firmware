@@ -229,7 +229,7 @@ void MainController::start() {
     }
 
     oledController->scrollText("Init reels");
-    if (reelController->initialise() != ESP_OK) {
+    if (!reelController->initialise()) {
         oledController->scrollText("  -> failed");
         ESP_LOGE(TAG, "Failed to initialise reel controller subsystem");
     } else {

@@ -37,8 +37,8 @@
 #ifndef __REELS_H__
 #define __REELS_H__
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+#include <chrono>
+#include <thread>
 
 #include "driver/gpio.h"
 #include "driver/ledc.h"
@@ -90,7 +90,7 @@ public:
     bool reelCentreInitOk;
     bool reelRightInitOk;
 
-    esp_err_t initialise(void);
+    bool initialise(void);
 
     void spin(const uint8_t leftStops, const uint8_t midStops, const uint8_t rightStops);
     void nudge(const uint8_t leftStops, const uint8_t midStops, const uint8_t rightStops);
@@ -127,14 +127,10 @@ private:
 
     uint8_t status;
     bool commandInProgress;
-
-    QueueHandle_t xStepperQueue;
-    TaskHandle_t xStepperTaskHandle;
-
+    
     MainController* mainController;
 
-    static void stepMotorTask(void* pvParameters);
-
+    void step(reel_event_t event);
     void spinToZero(void);
 };
 

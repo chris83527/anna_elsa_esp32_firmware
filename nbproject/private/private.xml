@@ -12,7 +12,6 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/coin_acceptor_device.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/Kconfig.projbuild</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/joltwallet__littlefs/idf_component.yml</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/httpcontroller.cpp</file>
             <file>file:/home/chris/esp/esp-idf-v4.4/components/driver/uart.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/component.mk</file>
