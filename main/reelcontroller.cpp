@@ -281,8 +281,6 @@ void ReelController::step(reel_event_t event) {
 }
 
 /*
-
-      
  * @brief performs maximum two complete spins of the reels and stops when at the null position.
  * 
  * Performs maximum two complete spins of the reels and stops when at the null position. If no null position is detected then the reel error is set.
@@ -322,7 +320,7 @@ void ReelController::spinToZero() {
 
             step(event);
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            std::this_thread::sleep_for(std::chrono::milliseconds(15));
 
             if (reelLeftInitOk) {
                 mcp23008_get_level(&reel_left, GPIO_PHOTO_INTERRUPTER, &mcp23008_left_state); // read bit 4 (Photointerrupter)
@@ -457,12 +455,12 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
                 }
             }
 
-            //stepMotor(reels, Clockwise, Clockwise, Clockwise); // 7 = all reels forward direction
             reel_event_t event;
             event.reels = reels;
             event.dir_left = Clockwise;
             event.dir_centre = Clockwise;
             event.dir_right = Clockwise;
+
             step(event);
 
             if (delay > 15) {
@@ -544,7 +542,6 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
             step(event);
 
             if (delay > 15) {
-
                 delay -= 10;
             }
 
