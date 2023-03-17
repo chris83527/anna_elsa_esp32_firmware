@@ -52,10 +52,11 @@
 #define LEDC_TIMER LEDC_TIMER_1
 #define LEDC_MODE LEDC_LOW_SPEED_MODE
 #define LEDC_CHANNEL LEDC_CHANNEL_0
-#define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
+//#define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
+#define LEDC_DUTY_RES 3
 #define LEDC_DUTY_QUARTER (4095)        // Set duty to 12,5%
 #define LEDC_DUTY_FULL (8190)           // Set duty to 50%.((2 ** 13) - 1) * 50% = 4095
-#define LEDC_FREQUENCY (100)            // Frequency in Hertz. Set frequency at 500Hz
+#define LEDC_FREQUENCY (150)            // Frequency in Hertz. Set frequency at 500Hz
 
 static const char *TAG = "ReelController";
 
@@ -306,6 +307,7 @@ void ReelController::spinToZero() {
 
     this->spinReelThread.reset(new std::thread([ & ]() {
         reel_event_t event;
+        int delay = 35;
 
         for (int counter = 0; counter < ((MAX_STOPS * 2) * STEPS_PER_STOP); counter++) // two spins, multiply by 4 steps
         {
@@ -318,7 +320,7 @@ void ReelController::spinToZero() {
 
                     step(event);
 
-                    std::this_thread::sleep_for(std::chrono::milliseconds(55));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(15));
 
             if (reelLeftInitOk) {
                 mcp23008_get_level(&reel_left, GPIO_PHOTO_INTERRUPTER, &mcp23008_left_state); // read bit 4 (Photointerrupter)
@@ -351,9 +353,12 @@ void ReelController::spinToZero() {
                 }
             }
 
-            //if (leftOk && centreOk && rightOk) {
-            //    break;
-            //}
+            if (delay > 5) {
+                delay -= 5;
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+                    
         }
     }));
 
@@ -412,7 +417,7 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
     }
 
     int reels = 0;
-    int delay = 25;
+    int delay = 35;
 
     reel_status_data_left.status = STATUS_INITIAL; // reset status
     reel_status_data_centre.status = STATUS_INITIAL; // reset status
@@ -464,11 +469,11 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
 
                     step(event);
 
-            if (delay > 15) {
-                delay -= 10;
+            if (delay > 5) {
+                delay -= 5;
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(15));
+            std::this_thread::sleep_for(std::chrono::milliseconds(delay));
         }
     }));
 

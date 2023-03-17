@@ -79,7 +79,7 @@ void Game::start() {
 
     random16_add_entropy(esp_random() >> 16);
     random16_add_entropy(esp_random() >> 16);
-    
+
     mainController->getDisplayController()->resetLampData();
     if (mainController->getDisplayController()->isAttractMode()) {
         mainController->getDisplayController()->stopAttractMode();
@@ -143,14 +143,14 @@ void Game::start() {
         }
 
     }
-    
+
     // Switch off hold lights for reels that are not held
     if (!holdLeft) lampData[LMP_HOLD_HI].lampState = LampState::off;
     if (!holdCentre) lampData[LMP_HOLD].lampState = LampState::off;
     if (!holdRight) lampData[LMP_HOLD_LO].lampState = LampState::off;
     lampData[LMP_COLLECT].lampState = LampState::off;
     lampData[LMP_START].lampState = LampState::off;
-    
+
     mainController->getMoneyController()->incrementGameCount();
     mainController->getMoneyController()->removeFromCredit(20);
     mainController->getAudioController()->playAudioFileSync(Sounds::SND_NOW_THATS_ICE);
@@ -179,7 +179,7 @@ void Game::start() {
     }
 
     Game::isInProgress = false;
-    
+
     ESP_LOGI(TAG, "Exiting game");
 }
 
@@ -190,13 +190,13 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
     uint8_t reelStopLeft;
     uint8_t reelStopCentre;
     uint8_t reelStopRight;
-    
+
     mainController->getReelController()->getReelPositions(reelStopLeft, reelStopCentre, reelStopRight);
-    
+
     if (!holdLeft) reelStopLeft = random8_to(26);
     if (!holdCentre) reelStopCentre = random8_to(26);
     if (!holdRight) reelStopRight = random8_to(26);
-    
+
     lampData[LMP_START].lampState = LampState::off;
 
     this->mainController->getDisplayController()->displayText("    LET IT GO!!     ");
@@ -227,7 +227,7 @@ void Game::shuffleReels() {
     while (mainController->getReelController()->isCommandInProgress()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
         this->moves = random8_to(12);
-        this->mainController->getDisplayController()->setMoves(this->moves);   // TODO: fix this
+        this->mainController->getDisplayController()->setMoves(this->moves); // TODO: fix this
     }
 }
 
@@ -273,7 +273,7 @@ void Game::playNudges(int nudges) {
                 (!btnStatus.test(BTN_HOLD_HI))) {
 
             btnStatus = mainController->getDisplayController()->getButtonStatus();
-            
+
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
 
@@ -387,8 +387,9 @@ void Game::collectOrContinue() {
     lampData[LMP_COLLECT].lampState = LampState::off;
 
     if (btnStatus.test(BTN_COLLECT)) {
-        // TODO: Sort this out when cctalk finished
-        //mainController->payout();
+        this->mainController->getCCTalkController()->hopper.dispenseCoins(1, [&](const std::string & error_msg) {
+            // TODO: Check status and see how many coins were returned and remove these from bank. For now we will just set bank to 0 (and presume all coins were paid out)
+        });
     } else if (btnStatus.test(BTN_START)) {
         mainController->getMoneyController()->moveBankToCredit();
     }
@@ -409,7 +410,7 @@ bool Game::isWinningLine() {
     uint8_t leftSymbolId = symbolsLeftReel[leftPos];
     uint8_t centreSymbolId = symbolsCentreReel[centrePos];
     uint8_t rightSymbolId = symbolsRightReel[rightPos];
-// TODO: Causes kernel panic
+
     ESP_LOGI(TAG, "Reel positions: %s - %s - %s", Game::symbolMap[leftSymbolId].c_str(), Game::symbolMap[centreSymbolId].c_str(), Game::symbolMap[rightSymbolId].c_str());
 
     for (int i = 0; i < 7; i++) {

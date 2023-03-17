@@ -458,7 +458,7 @@ void DisplayController::updateLampsTask() {
             }
         }
         led_strip_flush(ledStrip);
-        mcp23x17_port_write(this->getButtonIO(), btnLamps);
+        mcp23x17_port_write(this->getButtonIO(), (btnLamps & 0xff00));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -504,7 +504,7 @@ void DisplayController::updateLampsTask() {
         }
 
         led_strip_flush(ledStrip);
-        mcp23x17_port_write(this->getButtonIO(), btnLamps);
+        mcp23x17_port_write(this->getButtonIO(), (btnLamps & 0xff00));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -549,7 +549,7 @@ void DisplayController::updateLampsTask() {
         }
 
         led_strip_flush(ledStrip);
-        mcp23x17_port_write(this->getButtonIO(), btnLamps);
+        mcp23x17_port_write(this->getButtonIO(), (btnLamps & 0xff00));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
