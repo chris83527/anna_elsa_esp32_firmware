@@ -318,7 +318,7 @@ void ReelController::spinToZero() {
 
                     step(event);
 
-                    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(55));
 
             if (reelLeftInitOk) {
                 mcp23008_get_level(&reel_left, GPIO_PHOTO_INTERRUPTER, &mcp23008_left_state); // read bit 4 (Photointerrupter)
@@ -468,7 +468,7 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
                 delay -= 10;
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            std::this_thread::sleep_for(std::chrono::milliseconds(15));
         }
     }));
 
