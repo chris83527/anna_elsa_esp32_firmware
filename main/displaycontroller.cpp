@@ -207,6 +207,7 @@ esp_err_t DisplayController::initialise() {
         pollButtonStatus();
     }));
 
+    this->attractMode = false;
     this->attractModeThread.reset(new std::thread([this]() {
         attractModeTask();
     }));
@@ -217,7 +218,6 @@ esp_err_t DisplayController::initialise() {
 
 void DisplayController::beginAttractMode() {
     attractMode = true;
-
 }
 
 void DisplayController::stopAttractMode() {

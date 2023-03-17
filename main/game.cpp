@@ -236,9 +236,7 @@ void Game::playNudges(int nudges) {
 
     std::string nudgeText = "        NUDGE        ";
 
-    mainController->getDisplayController()->displayText(nudgeText);
-
-    bool win = false;
+    mainController->getDisplayController()->displayText(nudgeText);    
 
     while (nudges > 0) {
 
@@ -287,16 +285,14 @@ void Game::playNudges(int nudges) {
 
         // wait for reel controller to finish command
         while (mainController->getReelController()->isCommandInProgress()) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(75));
-        }
+            std::this_thread::sleep_for(std::chrono::milliseconds(25));
+        }        
 
-        win = isWinningLine();
-
-        if (win) {
+        if (isWinningLine()) {
             transferOrGamble();
             return;
         } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }
 
         nudges--;

@@ -244,9 +244,7 @@ void MainController::start() {
     
     updateStatisticsThread.reset(new std::thread([this]() {
         updateStatisticsDisplayTask();
-    }));   
-    
-    this->displayController->beginAttractMode();
+    }));          
       
     for (;;) {
         if ((!game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {

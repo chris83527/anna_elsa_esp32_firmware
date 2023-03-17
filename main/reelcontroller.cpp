@@ -52,11 +52,10 @@
 #define LEDC_TIMER LEDC_TIMER_1
 #define LEDC_MODE LEDC_LOW_SPEED_MODE
 #define LEDC_CHANNEL LEDC_CHANNEL_0
-//#define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
-#define LEDC_DUTY_RES 3
+#define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
 #define LEDC_DUTY_QUARTER (4095)        // Set duty to 12,5%
 #define LEDC_DUTY_FULL (8190)           // Set duty to 50%.((2 ** 13) - 1) * 50% = 4095
-#define LEDC_FREQUENCY (150)            // Frequency in Hertz. Set frequency at 500Hz
+#define LEDC_FREQUENCY (100)            // Frequency in Hertz. Set frequency at 500Hz
 
 static const char *TAG = "ReelController";
 
@@ -358,7 +357,7 @@ void ReelController::spinToZero() {
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(delay));
-                    
+
         }
     }));
 
@@ -417,7 +416,7 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
     }
 
     int reels = 0;
-    int delay = 35;
+    int delay = 75;
 
     reel_status_data_left.status = STATUS_INITIAL; // reset status
     reel_status_data_centre.status = STATUS_INITIAL; // reset status
