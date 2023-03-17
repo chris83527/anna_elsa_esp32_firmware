@@ -1415,6 +1415,16 @@
           <df name="main">
             <df name="CMakeFiles">
               <df name="__idf_main.dir">
+                <df name="build">
+                  <df name="CMakeFiles">
+                    <df name="3.16.3">
+                      <df name="CompilerIdC">
+                      </df>
+                      <df name="CompilerIdCXX">
+                      </df>
+                    </df>
+                  </df>
+                </df>
               </df>
             </df>
           </df>
@@ -3100,6 +3110,10 @@
                 <df name="mbedx509.dir">
                 </df>
               </df>
+              <in>error.c</in>
+              <in>psa_crypto_driver_wrappers.c</in>
+              <in>ssl_debug_helpers_generated.c</in>
+              <in>version_features.c</in>
             </df>
           </df>
         </df>

@@ -77,7 +77,6 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_pins_config.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/joltwallet__littlefs/CMakeLists.txt</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/spiffs.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/m20ly02z/include/m20ly02z.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/webserver.c</file>
