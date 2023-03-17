@@ -115,7 +115,7 @@ esp_err_t DisplayController::initialise() {
     memset(&creditDisplay, 0, sizeof (ht16k33_t));
     memset(&bankDisplay, 0, sizeof (ht16k33_t));
     memset(&buttonIO, 0, sizeof (mcp23x17_t));
-    memset(&ledStrip, 0, sizeof (led_strip_t));    
+    memset(&ledStrip, 0, sizeof (led_strip_t));
 
     ledStrip.is_rgbw = true;
     ledStrip.type = LED_STRIP_WS2812;
@@ -124,8 +124,8 @@ esp_err_t DisplayController::initialise() {
     ledStrip.buf = NULL;
     ledStrip.brightness = 255;
     ledStrip.channel = RMT_TX_CHANNEL;
-    
-    
+
+
     led_strip_install();
 
     if (led_strip_init(&this->ledStrip) != ESP_OK) {
@@ -207,15 +207,17 @@ esp_err_t DisplayController::initialise() {
         pollButtonStatus();
     }));
 
+    this->attractModeThread.reset(new std::thread([this]() {
+        attractModeTask();
+    }));
+
     ESP_LOGD(TAG, "Exiting DisplayController::initialise()");
     return ESP_OK;
 }
 
 void DisplayController::beginAttractMode() {
     attractMode = true;
-    this->attractModeThread.reset(new std::thread([this]() {
-        attractModeTask();
-    }));
+
 }
 
 void DisplayController::stopAttractMode() {
@@ -223,6 +225,7 @@ void DisplayController::stopAttractMode() {
 }
 
 void DisplayController::resetLampData() {
+
     ESP_LOGD(TAG, "Entering resetLampData()");
     // initialise lamps
     for (int i = 0; i < (LED_COUNT + 6); i++) {
@@ -350,61 +353,52 @@ void DisplayController::attractModeTask() {
     rgb_t rgb_data;
     hsv_t hsv_data;
     uint8_t start_rgb = 0;
-    int state = 0;
+    int state = 0;    
 
-    // switch all LEDs on;
-    for (int i = 0; i < LED_COUNT; i++) {
-        lampData[i].lampState = LampState::on;
-    }
+    while (1) {
+        if (this->attractMode) {
+            for (int i = 0; i < 3; i++) {
+                for (int j = i; j < LED_COUNT; j += 3) {
 
+                    // Build RGB values
+                    hsv_data.hue = j * 360 / LED_COUNT + start_rgb;
+                    hsv_data.sat = 255;
+                    hsv_data.val = 255;
+                    rgb_data = hsv2rgb_rainbow(hsv_data);
 
-    while (this->attractMode) {
+                    // Write RGB values to strip driver
+                    lampData[j].rgb = rgb_data;
+                    lampData[j].lampState = LampState::on;
+                }
 
-        for (int i = 0; i < 3; i++) {
-            for (int j = i; j < LED_COUNT; j += 3) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
+            }
+            start_rgb += 60;
 
-                // Build RGB values
-                hsv_data.hue = j * 360 / LED_COUNT + start_rgb;
-                hsv_data.sat = 255;
-                hsv_data.val = 255;
-                rgb_data = hsv2rgb_rainbow(hsv_data);
-
-                // Write RGB values to strip driver
-                lampData[j].rgb = rgb_data;
+            switch (state) {
+                case 0:
+                    this->displayText("       FROZEN       ");
+                    break;
+                case 1:
+                    this->displayText("      PLAY ME       ");
+                    break;
+                case 2:
+                    this->displayText("     20CT GAME      ");
+                    break;
+                case 3:
+                    this->displayText("    INSERT COINS    ");
+                    break;
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
-        }
-        start_rgb += 60;
-
-        switch (state) {
-            case 0:
-                this->displayText("       FROZEN       ");
-                break;
-            case 1:
-                this->displayText("      PLAY ME       ");
-                break;
-            case 2:
-                this->displayText("     20CT GAME      ");
-                break;
-            case 3:
-                this->displayText("    INSERT COINS    ");
-                break;
-        }
-
-        // reset state
-        if (state >= 3) {
-            state = 0;
-        } else {
-            if ((start_rgb % 240) == 0) { // only advance every 4 calls
-                state++;
+            // reset state
+            if (state >= 3) {
+                state = 0;
+            } else {
+                if ((start_rgb % 240) == 0) { // only advance every 4 calls
+                    state++;
+                }
             }
         }
-
-    }
-
-    for (int i = 0; i < LED_COUNT; i++) {
-        lampData[i].lampState = LampState::off;
     }
 
 }
