@@ -357,6 +357,8 @@ void ReelController::spinToZero() {
         }
     }));
 
+    this->spinReelThread->join();
+    
     if (leftOk) {
         reel_status_data_left.status = STATUS_OK;
     } else {
@@ -470,6 +472,8 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
         }
     }));
 
+    this->spinReelThread->join();
+    
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
@@ -549,6 +553,8 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
         }
     }));
 
+    this->spinReelThread->join();
+    
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
@@ -624,6 +630,8 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, cons
         }
     }));
 
+    this->spinReelThread->join();
+    
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
