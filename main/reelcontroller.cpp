@@ -318,7 +318,7 @@ void ReelController::spinToZero() {
 
                     step(event);
 
-                    std::this_thread::sleep_for(std::chrono::milliseconds(15));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
             if (reelLeftInitOk) {
                 mcp23008_get_level(&reel_left, GPIO_PHOTO_INTERRUPTER, &mcp23008_left_state); // read bit 4 (Photointerrupter)
@@ -358,7 +358,7 @@ void ReelController::spinToZero() {
     }));
 
     this->spinReelThread->join();
-    
+
     if (leftOk) {
         reel_status_data_left.status = STATUS_OK;
     } else {
@@ -468,12 +468,12 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
                 delay -= 10;
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
     }));
 
     this->spinReelThread->join();
-    
+
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
@@ -554,7 +554,7 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
     }));
 
     this->spinReelThread->join();
-    
+
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
@@ -631,7 +631,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, cons
     }));
 
     this->spinReelThread->join();
-    
+
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
