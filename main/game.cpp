@@ -383,8 +383,15 @@ void Game::collectOrContinue() {
     lampData[LMP_COLLECT].lampState = LampState::off;
 
     if (btnStatus.test(BTN_COLLECT)) {
-        this->mainController->getCCTalkController()->hopper.dispenseCoins(1, [&](const std::string & error_msg) {
+        ESP_LOGI(TAG, "Calling payout...");
+        
+        this->mainController->getCCTalkController()->hopper.dispenseCoins((this->mainController->getMoneyController()->getBank() / 20), [&](const std::string & error_msg) {
             // TODO: Check status and see how many coins were returned and remove these from bank. For now we will just set bank to 0 (and presume all coins were paid out)
+            if (error_msg.size() > 0) {
+                ESP_LOGE(TAG, "An error occurred during payout: %s", error_msg.c_str());
+            } else {
+                this->mainController->getMoneyController()->removeFromBank(this->mainController->getMoneyController()->getBank());
+            }
         });
     } else if (btnStatus.test(BTN_START)) {
         mainController->getMoneyController()->moveBankToCredit();
