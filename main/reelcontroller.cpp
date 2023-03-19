@@ -55,7 +55,7 @@
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
 #define LEDC_DUTY_QUARTER (4095)        // Set duty to 12,5%
 #define LEDC_DUTY_FULL (8190)           // Set duty to 50%.((2 ** 13) - 1) * 50% = 4095
-#define LEDC_FREQUENCY (100)            // Frequency in Hertz. Set frequency at 500Hz
+#define LEDC_FREQUENCY (200)            // Frequency in Hertz. Set frequency at 100Hz
 
 static const char *TAG = "ReelController";
 

@@ -280,22 +280,23 @@ void DisplayController::pollButtonStatus() {
         err = mcp23x17_port_read(&buttonIO, &val);
 
         if (err == ESP_OK) {
-            this->buttonStatus = (uint8_t) ~(val & 0xff); // Invert because we are pulling low in hardware.
+            this->buttonStatus = (uint8_t) ~(val & 0x00ff); // Invert because we are pulling low in hardware.
+
+            if ((this->buttonStatus & (1 << BTN_DOOR)) == 0) {
+                if (!this->doorOpen) {
+                    ESP_LOGI(TAG, "Door open!");
+                }
+                this->doorOpen = true;
+            } else {
+                if (this->doorOpen) {
+                    ESP_LOGI(TAG, "Door closed!");
+                }
+                this->doorOpen = false;
+            }
+            
         } else {
             ESP_LOGE(TAG, "An error occurred getting button status");
-            this->buttonStatus = 0; // Failsafe
-        }
-
-        if ((this->buttonStatus & (1 << BTN_DOOR)) == 0) {
-            if (!this->doorOpen) {
-                ESP_LOGI(TAG, "Door open!");
-            }
-            this->doorOpen = true;
-        } else {
-            if (this->doorOpen) {
-                ESP_LOGI(TAG, "Door closed!");
-            }
-            this->doorOpen = false;
+            //this->buttonStatus = 0; // Failsafe            
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -353,7 +354,7 @@ void DisplayController::attractModeTask() {
     rgb_t rgb_data;
     hsv_t hsv_data;
     uint8_t start_rgb = 0;
-    int state = 0;    
+    int state = 0;
 
     while (1) {
         if (this->attractMode) {
@@ -399,8 +400,8 @@ void DisplayController::attractModeTask() {
                 }
             }
         } else {
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
-}
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        }
     }
 
 }
