@@ -84,8 +84,7 @@ void MainController::start() {
     }));
     
     ESP_LOGD(TAG, "Calling i2cdev_init()");
-    ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());
-    //i2c_set_timeout(I2C_NUM_0, 400000);
+    ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());   
 
     // start outputting to status oled
     oledController->initialise();
