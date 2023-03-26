@@ -205,10 +205,6 @@ esp_err_t DisplayController::initialise() {
 
     this->testLamps();
 
-    pollButtonStatusThread.reset(new std::thread([this]() {
-        pollButtonStatus();
-    }));
-
     this->attractMode = false;
     this->attractModeThread.reset(new std::thread([this]() {
         attractModeTask();
@@ -270,43 +266,6 @@ LampData* DisplayController::getLampData() {
 uint8_t DisplayController::getButtonStatus() {
     //ESP_LOGD(TAG, "Exiting getButtonStatus() with value %u", this->buttonStatus);
     return this->buttonStatus;
-}
-
-void DisplayController::pollButtonStatus() {
-    ESP_LOGD(TAG, "Entering pollButtonStatus()");
-
-    uint16_t val;
-    esp_err_t err;
-
-    while (1) {
-        val = 0;
-        
-        err = mcp23x17_port_read(&buttonIO, &val);
-
-        if (err == ESP_OK) {
-            this->buttonStatus = (uint8_t) ~(val & 0xff); // Invert because we are pulling low in hardware.
-
-            if ((this->buttonStatus & (1 << BTN_DOOR)) == 0) {
-                if (!this->doorOpen) {
-                    ESP_LOGI(TAG, "Door open!");
-                }
-                this->doorOpen = true;
-            } else {
-                if (this->doorOpen) {
-                    ESP_LOGI(TAG, "Door closed!");
-                }
-                this->doorOpen = false;
-            }
-            
-        } else {
-            ESP_LOGE(TAG, "An error occurred getting button status");
-            esp_backtrace_print(10);
-            //this->buttonStatus = 0; // Failsafe            
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    }
-
 }
 
 void DisplayController::displayText(const string& text) {
@@ -405,7 +364,7 @@ void DisplayController::attractModeTask() {
                 }
             }
         } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
 
@@ -419,9 +378,33 @@ void DisplayController::updateLampsTask() {
     LampData *tmpLampData = this->getLampData();
     led_strip_t *ledStrip = this->getLedStrip();
 
+    rgb_t rgb;
+    err_t err;
+    uint16_t buttonVal;
+
     for (;;) {
 
-        rgb_t rgb;
+        err = mcp23x17_port_read(&buttonIO, &buttonVal);
+
+        if (err == ESP_OK) {
+            this->buttonStatus = (uint8_t) ~(buttonVal & 0xff); // Invert because we are pulling low in hardware.
+
+            if ((this->buttonStatus & (1 << BTN_DOOR)) == 0) {
+                if (!this->doorOpen) {
+                    ESP_LOGI(TAG, "Door open!");
+                }
+                this->doorOpen = true;
+            } else {
+                if (this->doorOpen) {
+                    ESP_LOGI(TAG, "Door closed!");
+                }
+                this->doorOpen = false;
+            }
+
+        } else {
+            ESP_LOGE(TAG, "An error occurred getting button status");
+            esp_backtrace_print(100);
+        }
 
         // set leds
         btnLamps = 0;

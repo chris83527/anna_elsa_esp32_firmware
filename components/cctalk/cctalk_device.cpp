@@ -227,7 +227,7 @@ namespace esp32cc {
                     break;
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(this->normalPollingIntervalMsec));
+            std::this_thread::sleep_for(std::chrono::milliseconds(this->pollingInterval));
         }
     }
 
@@ -257,10 +257,8 @@ namespace esp32cc {
             case CcDeviceState::Initialized:
             {
                 bool success = switchStateInitialized(finish_callback);
-                this->pollingInterval = normalPollingIntervalMsec;
-                //if (this->deviceCategory == CcCategory::BillValidator || this->deviceCategory == CcCategory::CoinAcceptor) {
-                startPolling();
-                //}
+                this->pollingInterval = normalPollingIntervalMsec;                
+                startPolling();                
                 return success;
             }
 

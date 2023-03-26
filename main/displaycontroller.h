@@ -142,9 +142,7 @@ private:
     ht16k33_t bankDisplay;
 
     mcp23x17_t buttonIO;
-    
-    void pollButtonStatus(void);
-    std::unique_ptr<std::thread> pollButtonStatusThread;
+            
     uint8_t buttonStatus;
     bool doorOpen;
 
