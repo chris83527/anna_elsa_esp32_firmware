@@ -25,6 +25,7 @@
 #include <functional>
 #include <vector>
 #include <chrono>
+#include <thread>
 #include <mutex>
 
 #include "esp_log.h"
@@ -63,7 +64,8 @@ namespace esp32cc {
             };
 
             // Set UART config   
-            xErr = uart_driver_install(uartNumber, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE, CCTALK_QUEUE_LENGTH, &this->cctalkUartQueueHandle, CCTALK_PORT_SERIAL_ISR_FLAG);
+            xErr = uart_driver_install(uartNumber, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE, CCTALK_QUEUE_LENGTH, &this->cctalkUartQueueHandle, 0);
+            
             CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk serial driver failure, uart_driver_install() returned (0x%x).", xErr);
 
             xErr = uart_set_pin(uartNumber, txPin, rxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
@@ -82,9 +84,6 @@ namespace esp32cc {
     }
 
     bool SerialWorker::closePort() {
-//        if (this->cctalkTaskHandle != NULL) {
-//            vTaskDelete(this->cctalkTaskHandle);
-//        }
         esp_err_t xErr = uart_driver_delete(this->uartNumber);
         this->portOpen = false;
         return xErr != ESP_OK;
@@ -112,7 +111,7 @@ namespace esp32cc {
 
         ESP_LOGD(TAG, "Send complete. Waiting for response");
 
-        vTaskDelay(5);        
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
         std::vector<uint8_t> receivedData;
 
@@ -167,13 +166,13 @@ namespace esp32cc {
         this->onResponseReceiveCallback = callback;
     }
     
-    QueueHandle_t SerialWorker::getCctalkUartQueueHandle() {
-        return this->cctalkUartQueueHandle;
-    }
-
-    TaskHandle_t SerialWorker::getCctalkTaskHandle() {
-        return this->cctalkTaskHandle;
-    }
+//    QueueHandle_t SerialWorker::getCctalkUartQueueHandle() {
+//        return this->cctalkUartQueueHandle;
+//    }
+//
+//    TaskHandle_t SerialWorker::getCctalkTaskHandle() {
+//        return this->cctalkTaskHandle;
+//    }
 
     uart_port_t SerialWorker::getUartNumber() {
         return this->uartNumber;

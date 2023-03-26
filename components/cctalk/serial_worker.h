@@ -48,7 +48,7 @@
 #define CCTALK_SERIAL_TASK_PRIO             (15)
 #define CCTALK_SERIAL_TASK_STACK_SIZE       (4096)
 #define CCTALK_SERIAL_TIMEOUT               (200) // 3.5*8 = 28 ticks, TOUT=3 -> ~24..33 ticks
-#define CCTALK_PORT_SERIAL_ISR_FLAG         ESP_INTR_FLAG_IRAM
+#define CCTALK_PORT_SERIAL_ISR_FLAG         0
 
 #define MAX_BUFFER_SIZE 256
 
@@ -79,9 +79,7 @@ namespace esp32cc {
         bool openPort(uart_port_t uartNumber, int txPin, int rxPin);
         bool closePort();
         void sendRequest(const uint64_t requestId, const std::vector<uint8_t>& requestData, const int writeTimeoutMsec, const int responseTimeoutMsec);
-        
-        QueueHandle_t getCctalkUartQueueHandle();
-        TaskHandle_t getCctalkTaskHandle();
+                
         uart_port_t getUartNumber();
         uint64_t getRequestId();
         int getResponseTimeoutMsec();
@@ -96,7 +94,6 @@ namespace esp32cc {
 
         // A queue to handle UART event.
         QueueHandle_t cctalkUartQueueHandle;
-        TaskHandle_t cctalkTaskHandle;
 
         uart_port_t uartNumber;
         int txPin;

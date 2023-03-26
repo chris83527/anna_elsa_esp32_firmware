@@ -287,9 +287,6 @@ void ReelController::spinToZero() {
     uint32_t mcp23008_centre_state;
     uint32_t mcp23008_right_state;
 
-    int32_t speed_target = 200;
-    int32_t speed_current = 75;
-
     bool leftOk = false;
     bool centreOk = false;
     bool rightOk = false;
@@ -299,7 +296,7 @@ void ReelController::spinToZero() {
 
         ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 16); // 16 is 50% duty cycle in 5-bit PWM resolution.
         ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
-        ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, 32);
+        ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, 100);
 
         int delay = 75;
 
@@ -346,7 +343,7 @@ void ReelController::spinToZero() {
             }
 
             if (delay > 5) {
-                delay -= 5;
+                delay -= 10;
             }
 
             //            if (speed_current < speed_target) {
@@ -472,7 +469,7 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
                     step(event);
 
             if (delay > 5) {
-                delay -= 5;
+                delay -= 20;
             }
             //ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 16); // 16 is 50% duty cycle in 5-bit PWM resolution.
             //ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);

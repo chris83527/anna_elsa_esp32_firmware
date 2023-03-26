@@ -270,14 +270,12 @@ namespace esp32cc {
             }
         }
 
-
         // Every reply must have the command field set to 0.
         if (command != static_cast<decltype(command)> (CcHeader::Ack)) {
             ESP_LOGE(TAG, "Invalid ccTalk response %lld from address %d: Command is %d, expected 0.", request_id, int(sourceAddress), int(command));
             requestInProgress = false;
             return;
         }
-
 
         if (this->showCctalkResponse) {
             // Don't print response_id, it interferes with identical message hiding.
