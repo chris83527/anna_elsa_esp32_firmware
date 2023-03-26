@@ -266,7 +266,7 @@ LampData* DisplayController::getLampData() {
 }
 
 uint8_t DisplayController::getButtonStatus() {
-    ESP_LOGD(TAG, "Exiting getButtonStatus() with value %u", this->buttonStatus);
+    //ESP_LOGD(TAG, "Exiting getButtonStatus() with value %u", this->buttonStatus);
     return this->buttonStatus;
 }
 
@@ -280,7 +280,7 @@ void DisplayController::pollButtonStatus() {
         err = mcp23x17_port_read(&buttonIO, &val);
 
         if (err == ESP_OK) {
-            this->buttonStatus = (uint8_t) ~(val & 0x00ff); // Invert because we are pulling low in hardware.
+            this->buttonStatus = (uint8_t) ~(val & 0xff); // Invert because we are pulling low in hardware.
 
             if ((this->buttonStatus & (1 << BTN_DOOR)) == 0) {
                 if (!this->doorOpen) {

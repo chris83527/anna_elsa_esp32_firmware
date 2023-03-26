@@ -109,7 +109,7 @@ bool ReelController::initialise() {
     memset(&ledc_channel, 0, sizeof (ledc_channel_config_t));
 
     // Prepare and then apply the LEDC PWM timer configuration
-    ledc_timer.speed_mode = LEDC_SPEED_MODE_MAX;
+    ledc_timer.speed_mode = LEDC_LOW_SPEED_MODE;
     ledc_timer.timer_num = LEDC_TIMER_0;
     ledc_timer.duty_resolution = LEDC_TIMER_5_BIT;
     ledc_timer.clk_cfg = LEDC_AUTO_CLK;
@@ -122,7 +122,7 @@ bool ReelController::initialise() {
 
     // Prepare and then apply the LEDC PWM channel configuration
     ledc_channel.timer_sel = LEDC_TIMER_0;
-    ledc_channel.speed_mode = LEDC_SPEED_MODE_MAX;
+    ledc_channel.speed_mode = LEDC_LOW_SPEED_MODE;
     ledc_channel.channel = LEDC_CHANNEL_0;
     ledc_channel.intr_type = LEDC_INTR_DISABLE;
     ledc_channel.duty = 0;
@@ -584,7 +584,7 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
 void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, const uint8_t rightStops) {
 
     this->commandInProgress = true;
-    ESP_LOGD(TAG, "nudge() called: leftStops: %d, midStops: %d, rightStops: %d", leftStops, midStops, rightStops);
+    //ESP_LOGD(TAG, "nudge() called: leftStops: %d, midStops: %d, rightStops: %d", leftStops, midStops, rightStops);
 
     reel_status_data_left.stop += leftStops;
     reel_status_data_centre.stop += midStops;
