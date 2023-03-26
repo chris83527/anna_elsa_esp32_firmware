@@ -294,6 +294,7 @@ void ReelController::spinToZero() {
     this->spinReelThread.reset(new std::thread([ & ]() {
         reel_event_t event;
 
+    	ESP_LOGD(TAG, "Setting 50pc duty cycle");
         ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 16); // 16 is 50% duty cycle in 5-bit PWM resolution.
         ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
         ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, 100);
