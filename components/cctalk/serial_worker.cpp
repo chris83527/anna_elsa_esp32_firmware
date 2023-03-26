@@ -106,7 +106,9 @@ namespace esp32cc {
 
         xQueueReset(this->cctalkUartQueueHandle);
         uart_flush_input(this->getUartNumber());
-        vTaskDelay(5);
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        
         uart_write_bytes(this->getUartNumber(), requestData.data(), requestData.size());
 
         ESP_LOGD(TAG, "Send complete. Waiting for response");
@@ -139,7 +141,7 @@ namespace esp32cc {
                 ESP_LOGD(TAG, "No more data available.");
             }
 
-            vTaskDelay(pdMS_TO_TICKS(20));
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
         }
 
         if (receiveComplete) {

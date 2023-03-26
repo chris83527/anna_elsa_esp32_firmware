@@ -81,7 +81,7 @@ namespace esp32cc {
         // prevent a new thread from being spawned 
         if (!this->isPolling) {
             isPolling = true;
-            pollThread.reset(new std::thread([this] {
+            pollThread.reset(new std::thread([this] {                
                 devicePollTask();
             }));
         }
@@ -99,7 +99,7 @@ namespace esp32cc {
     void CctalkDevice::devicePollTask() {
 
         while (1) {
-            //ESP_LOGD(TAG, "Polling...");
+            ESP_LOGD(TAG, "Polling...");
 
             // This is set to false in finish callbacks.
             this->isTimerIterationTaskRunning = true;
