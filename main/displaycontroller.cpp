@@ -47,6 +47,8 @@
 #include "freertos/task.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "esp_pthread.h"
+#include "esp_debug_helpers.h"
 #include "driver/rmt.h"
 #include "driver/gpio.h"
 
@@ -277,6 +279,8 @@ void DisplayController::pollButtonStatus() {
     esp_err_t err;
 
     while (1) {
+        val = 0;
+        
         err = mcp23x17_port_read(&buttonIO, &val);
 
         if (err == ESP_OK) {
@@ -296,6 +300,7 @@ void DisplayController::pollButtonStatus() {
             
         } else {
             ESP_LOGE(TAG, "An error occurred getting button status");
+            esp_backtrace_print(10);
             //this->buttonStatus = 0; // Failsafe            
         }
 

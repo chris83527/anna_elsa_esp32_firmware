@@ -283,12 +283,12 @@ void ReelController::spinToZero() {
 
     ESP_LOGD(TAG, "Setting 50pc duty cycle");
 
-    int32_t speed_target = 0;
-    int32_t speed_current = 0;
-
     uint32_t mcp23008_left_state;
     uint32_t mcp23008_centre_state;
     uint32_t mcp23008_right_state;
+
+    int32_t speed_target = 200;
+    int32_t speed_current = 75;
 
     bool leftOk = false;
     bool centreOk = false;
@@ -296,9 +296,6 @@ void ReelController::spinToZero() {
 
     this->spinReelThread.reset(new std::thread([ & ]() {
         reel_event_t event;
-
-        speed_target = 150;
-        speed_current = 32;
 
         ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 16); // 16 is 50% duty cycle in 5-bit PWM resolution.
         ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
@@ -399,8 +396,8 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
     reel_status_data_centre.stop = midPos;
     reel_status_data_right.stop = rightPos;
 
-    int32_t speed_target = 150;
-    int32_t speed_current = 32;
+    int32_t speed_target = 200;
+    int32_t speed_current = 75;
 
     // Use different values (75, 50, 25) to get the effect of one reel stopping after another
     int leftSteps = ((reel_status_data_left.stop + 75) * STEPS_PER_STOP);
@@ -517,8 +514,8 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
     reel_status_data_centre.status = STATUS_INITIAL; // reset status
     reel_status_data_right.status = STATUS_INITIAL; // reset status
 
-    int32_t speed_target = 150;
-    int32_t speed_current = 32;
+    int32_t speed_target = 200;
+    int32_t speed_current = 75;
 
     spinToZero(); // get us back to a known position
 
@@ -650,7 +647,13 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, cons
 
                     step(event);
 
-                    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+                     if (speed_current < speed_target) {
+                speed_current += 5;
+            }
+
+            //ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 16); // 16 is 50% duty cycle in 5-bit PWM resolution.
+            //ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
+            ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, speed_current);
         }
     }));
 
