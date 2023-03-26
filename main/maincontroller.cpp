@@ -177,8 +177,7 @@ void MainController::start() {
         }
     }
 
-
-    // intialise audio subsystem    
+    // initialise audio subsystem    
     oledController->scrollText("Init Audio");
     audioController->initialise();
 
@@ -248,7 +247,8 @@ void MainController::start() {
     for (;;) {
         if ((!game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
             ESP_LOGD(TAG, "Starting game...");
-            this->game->start();
+            getDisplayController()->stopAttractMode();
+            game->start();
         } else {
             if (!getDisplayController()->isAttractMode()) {
                 getDisplayController()->beginAttractMode();

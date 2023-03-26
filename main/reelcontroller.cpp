@@ -467,14 +467,14 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
                     step(event);
 
             if (speed_current < speed_target) {
-                speed_current += 5;
+                speed_current += 10;
             }
 
             //ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 16); // 16 is 50% duty cycle in 5-bit PWM resolution.
             //ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
             ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, speed_current);
 
-                    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+                    //std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
     }));
 
@@ -557,14 +557,14 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
                     step(event);
 
             if (speed_current < speed_target) {
-                speed_current += 5;
+                speed_current += 10;
             }
 
             //ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 16); // 16 is 50% duty cycle in 5-bit PWM resolution.
             //ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
             ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, speed_current);
 
-                    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+                    //std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
     }));
 
