@@ -99,7 +99,7 @@ namespace esp32cc {
     void CctalkDevice::devicePollTask() {
 
         while (1) {
-            ESP_LOGD(TAG, "Polling...");
+            //ESP_LOGD(TAG, "Polling...");
 
             // This is set to false in finish callbacks.
             this->isTimerIterationTaskRunning = true;
@@ -167,7 +167,7 @@ namespace esp32cc {
                         case CcCategory::Payout:
                             // We just need to regularly poll the hopper
                             // Test hopper
-                            ESP_LOGD(TAG, "Testing hopper");
+                            //ESP_LOGD(TAG, "Testing hopper");
                             requestHopperStatus([ & ](const std::string & error_msg, uint8_t event_counter, const std::vector<CcEventData>& hopperStatusData) {
                                 processHopperStatus(error_msg, event_counter, hopperStatusData, [ & ]() {
                                     this->isTimerIterationTaskRunning = false;
