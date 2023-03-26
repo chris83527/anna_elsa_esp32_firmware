@@ -48,7 +48,7 @@
 #define CCTALK_SERIAL_TASK_PRIO             (15)
 #define CCTALK_SERIAL_TASK_STACK_SIZE       (4096)
 #define CCTALK_SERIAL_TIMEOUT               (200) // 3.5*8 = 28 ticks, TOUT=3 -> ~24..33 ticks
-#define CCTALK_PORT_SERIAL_ISR_FLAG         0
+#define CCTALK_PORT_SERIAL_ISR_FLAG         ESP_INTR_FLAG_IRAM
 
 #define MAX_BUFFER_SIZE 256
 

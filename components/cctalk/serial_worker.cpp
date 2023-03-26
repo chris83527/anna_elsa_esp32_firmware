@@ -64,7 +64,7 @@ namespace esp32cc {
             };
 
             // Set UART config   
-            xErr = uart_driver_install(uartNumber, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE, CCTALK_QUEUE_LENGTH, &this->cctalkUartQueueHandle, 0);
+            xErr = uart_driver_install(uartNumber, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE, CCTALK_QUEUE_LENGTH, &this->cctalkUartQueueHandle, CCTALK_PORT_SERIAL_ISR_FLAG);
             
             CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk serial driver failure, uart_driver_install() returned (0x%x).", xErr);
 
