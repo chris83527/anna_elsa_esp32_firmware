@@ -396,8 +396,8 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
     reel_status_data_centre.stop = midPos;
     reel_status_data_right.stop = rightPos;
 
-    int32_t speed_target = 200;
-    int32_t speed_current = 75;
+    int32_t speed_target = 250;
+    int32_t speed_current = 25;
 
     // Use different values (75, 50, 25) to get the effect of one reel stopping after another
     int leftSteps = ((reel_status_data_left.stop + 75) * STEPS_PER_STOP);
@@ -467,7 +467,7 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
                     step(event);
 
             if (speed_current < speed_target) {
-                speed_current += 10;
+                speed_current += 20;
             }
 
             //ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 16); // 16 is 50% duty cycle in 5-bit PWM resolution.
@@ -514,8 +514,8 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
     reel_status_data_centre.status = STATUS_INITIAL; // reset status
     reel_status_data_right.status = STATUS_INITIAL; // reset status
 
-    int32_t speed_target = 200;
-    int32_t speed_current = 75;
+    int32_t speed_target = 250;
+    int32_t speed_current = 25;
 
     spinToZero(); // get us back to a known position
 
@@ -557,7 +557,7 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
                     step(event);
 
             if (speed_current < speed_target) {
-                speed_current += 10;
+                speed_current += 20;
             }
 
             //ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 16); // 16 is 50% duty cycle in 5-bit PWM resolution.
