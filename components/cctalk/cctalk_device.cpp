@@ -91,9 +91,9 @@ namespace esp32cc {
     void CctalkDevice::stopPolling() {
         ESP_LOGD(TAG, "Stopping poll timer.");
 
+        this->isPolling = false;
         pollThread.get()->join();
 
-        this->isPolling = false;
     }
 
     void CctalkDevice::devicePollTask() {
@@ -227,7 +227,7 @@ namespace esp32cc {
                     break;
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(this->pollingInterval));
+            std::this_thread::sleep_for(std::chrono::milliseconds(this->normalPollingIntervalMsec));
         }
     }
 
