@@ -64,7 +64,7 @@ namespace esp32cc {
             };
 
             // Set UART config   
-            xErr = uart_driver_install(uartNumber, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE, CCTALK_QUEUE_LENGTH, &this->cctalkUartQueueHandle, CCTALK_PORT_SERIAL_ISR_FLAG);
+            xErr = uart_driver_install(uartNumber, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE, CCTALK_QUEUE_LENGTH, &this->cctalkUartQueueHandle, CCTALK_PORT_SERIAL_ISR_FLAG);            
             
             CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk serial driver failure, uart_driver_install() returned (0x%x).", xErr);
 
@@ -107,13 +107,13 @@ namespace esp32cc {
         xQueueReset(this->cctalkUartQueueHandle);
         uart_flush_input(this->getUartNumber());
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(5));
         
         uart_write_bytes(this->getUartNumber(), requestData.data(), requestData.size());
 
         ESP_LOGD(TAG, "Send complete. Waiting for response");
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
         std::vector<uint8_t> receivedData;
 
@@ -141,7 +141,7 @@ namespace esp32cc {
                 ESP_LOGD(TAG, "No more data available.");
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
 
         if (receiveComplete) {
