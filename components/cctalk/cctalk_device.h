@@ -41,6 +41,7 @@
 #include <sstream>
 
 #include "freertos/task.h"
+#include "esp_pthread.h"
 
 #include "cctalk_enums.h"
 #include "cctalk_link_controller.h"

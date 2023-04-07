@@ -91,16 +91,7 @@ esp_err_t CCTalkController::initialise() {
             ESP_LOGE(TAG, "An error occurred switching to accept state: %s", error_msg.c_str());
         }
     });
-
-    //this->hopper.dispenseCoins(1, [&](const std::string & error_msg) {
-
-    //});    
-    
-//    this->hopper.dispenseCoins(1, [&](const std::string & error_msg) {
-//
-//    });    
-    
-
+  
     return ESP_OK;
 }
 

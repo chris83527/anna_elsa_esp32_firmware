@@ -81,7 +81,12 @@ namespace esp32cc {
         // prevent a new thread from being spawned 
         if (!this->isPolling) {
             isPolling = true;
-            pollThread.reset(new std::thread([this] {                
+            auto cfg = esp_pthread_get_default_config();
+            cfg.thread_name = "SpinToZeroThread";
+            cfg.prio = 8;
+            cfg.stack_size = 4096;
+            esp_pthread_set_cfg(&cfg);
+            pollThread.reset(new std::thread([this] {
                 devicePollTask();
             }));
         }
@@ -257,8 +262,8 @@ namespace esp32cc {
             case CcDeviceState::Initialized:
             {
                 bool success = switchStateInitialized(finish_callback);
-                this->pollingInterval = normalPollingIntervalMsec;                
-                startPolling();                
+                this->pollingInterval = normalPollingIntervalMsec;
+                startPolling();
                 return success;
             }
 
@@ -1164,7 +1169,7 @@ namespace esp32cc {
 
                     CcCoinRejectionType rejection_type = ccCoinAcceptorEventCodeGetRejectionType(ev.coin_error_code);
 
-//TODO: Causes kernel panic
+                    //TODO: Causes kernel panic
                     //ESP_LOGD(TAG, "Coin status/error event %s found, rejection type: %s.",
                     //        ccCoinAcceptorEventCodeGetDisplayableName(ev.coin_error_code).c_str(),
                     //        ccCoinRejectionTypeGetDisplayableName(rejection_type).c_str());
@@ -1433,7 +1438,7 @@ namespace esp32cc {
                 return;
             }
             if (responseData.size() != 0) {
-                std::string error = "Non-empty data received while waiting for ACK.";                
+                std::string error = "Non-empty data received while waiting for ACK.";
                 finish_callback(error);
 
                 return;
@@ -1456,7 +1461,7 @@ namespace esp32cc {
                 return;
             }
             if (responseData.size() != 0) {
-                std::string error = "Non-empty data received while waiting for ACK.";                
+                std::string error = "Non-empty data received while waiting for ACK.";
                 finish_callback(error);
 
                 return;
@@ -1578,9 +1583,9 @@ namespace esp32cc {
     }
 
     void CctalkDevice::setDeviceState(CcDeviceState state) {
-        if (this->deviceState != state) {            
+        if (this->deviceState != state) {
             this->deviceState = state;
-            ESP_LOGD(TAG, "Device state changed to: %s", ccDeviceStateGetDisplayableName(state).c_str());            
+            ESP_LOGD(TAG, "Device state changed to: %s", ccDeviceStateGetDisplayableName(state).c_str());
         }
     }
 

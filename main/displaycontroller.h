@@ -45,6 +45,7 @@
 #include <thread>
 
 #include "freertos/task.h"
+#include "esp_pthread.h"
 
 #include "led_strip.h"
 #include "driver/rmt.h"

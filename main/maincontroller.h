@@ -20,6 +20,8 @@
 #include <utility>
 #include <chrono>
 
+#include "esp_pthread.h"
+
 #include "nvs_flash.h"
 #include "nvs.h"
 #include "nvs_handle.hpp"

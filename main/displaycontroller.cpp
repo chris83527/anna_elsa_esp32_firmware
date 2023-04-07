@@ -194,6 +194,11 @@ esp_err_t DisplayController::initialise() {
     this->resetLampData();
 
     // Start a new thread to update the lamps
+    auto cfg = esp_pthread_get_default_config();
+    cfg.thread_name = "SpinToZeroThread";
+    cfg.prio = 3;
+    cfg.stack_size = 4096;
+    esp_pthread_set_cfg(&cfg);
     this->updateLampsThread.reset(new std::thread([this]() {
         updateLampsTask();
     }));
@@ -309,11 +314,11 @@ ht16k33_t* DisplayController::getMovesDisplay() {
 
 void DisplayController::attractModeTask() {
     // Show simple rainbow chasing pattern
-    ESP_LOGI(TAG, "Animation task started");    
+    ESP_LOGI(TAG, "Animation task started");
 
     rgb_t rgb_data;
     hsv_t hsv_data;
-    uint8_t start_rgb = 0;    
+    uint8_t start_rgb = 0;
 
     while (1) {
         if (this->attractMode) {
@@ -342,7 +347,7 @@ void DisplayController::attractModeTask() {
             }
 
             resetLampData();
-            std::this_thread::sleep_for(std::chrono::seconds(5));            
+            std::this_thread::sleep_for(std::chrono::seconds(5));
 
             this->displayText("      PLAY ME       ");
             // Red trail effect
@@ -375,13 +380,13 @@ void DisplayController::attractModeTask() {
                 }
                 if (i > 19) {
                     lampData[currentLamp - 1].lampState = LampState::off;
-                }                
+                }
 
                 if (i < 16) {
                     currentLamp++;
                 }
             }
-            
+
             resetLampData();
             std::this_thread::sleep_for(std::chrono::seconds(5));
 

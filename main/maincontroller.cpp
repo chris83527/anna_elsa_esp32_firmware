@@ -59,8 +59,8 @@ void MainController::start() {
     this->oledController.reset(new oledcontroller());
     this->moneyController.reset(new MoneyController(this));
     this->game.reset(new Game(this));
-    this->cctalkController.reset(new CCTalkController());                          
-    this->httpController.reset(new HttpController());      
+    this->cctalkController.reset(new CCTalkController());
+    this->httpController.reset(new HttpController());
 
     // CPU LED is on a GPIO
     gpio_pad_select_gpio(CPU_LED_GPIO);
@@ -78,13 +78,18 @@ void MainController::start() {
     } else {
         this->displayController->displayText("INITIALISING");
     }
-    
+
+    auto cfg = esp_pthread_get_default_config();
+    cfg.thread_name = "BlinkRunLEDThread";
+    cfg.prio = 1;
+    cfg.stack_size = 1024;
+    esp_pthread_set_cfg(&cfg);
     this->blinkCPUStatusLEDThread.reset(new std::thread([this]() {
         blinkCPUStatusLEDTask();
     }));
-    
+
     ESP_LOGD(TAG, "Calling i2cdev_init()");
-    ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());   
+    ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());
 
     // start outputting to status oled
     oledController->initialise();
@@ -108,7 +113,7 @@ void MainController::start() {
         // NVS partition was truncated and needs to be erased
         // Retry nvs_flash_init
         ESP_ERROR_CHECK(nvs_flash_erase_partition(NVS_PARTITION_SETTINGS));
-        err = nvs_flash_init_partition(NVS_PARTITION_SETTINGS);        
+        err = nvs_flash_init_partition(NVS_PARTITION_SETTINGS);
     }
     ESP_ERROR_CHECK(err);
 
@@ -123,7 +128,7 @@ void MainController::start() {
 
     // Initialise WiFi
     //oledController->scrollText("Init WiFi");
-    
+
 
     // initialise ds3231 RTC
     oledController->scrollText("Init RTC");
@@ -162,7 +167,7 @@ void MainController::start() {
         }
         return;
     }
-    
+
     oledController->scrollText("Init Webserver");
     this->httpController->initialise(80, "/httpd", "INNUENDO", "woodsamusements");
 
@@ -208,11 +213,11 @@ void MainController::start() {
     } else {
         ESP_LOGD(TAG, "Display controller initialisation ok.");
         oledController->scrollText("  -> ok");
-    }    
-    
+    }
+
     oledController->scrollText("Load stats");
     moneyController->initialise();
-    
+
     oledController->scrollText("Init cctalk");
     cctalkController->setCreditAcceptedCallback([&](uint8_t coin_id, const esp32cc::CcIdentifier & identifier) {
         ESP_LOGI(TAG, "Credit accepted: Coin id: %d, Identifier: %s", coin_id, identifier.id_string.c_str());
@@ -233,17 +238,22 @@ void MainController::start() {
     } else {
         oledController->scrollText("  -> ok");
         ESP_LOGD(TAG, "Reel controller initialisation ok.");
-    }    
+    }
 
     blinkDelay = 1000;
 
     oledController->scrollText("Init game");
     game->initialise();
-    
+
+    cfg = esp_pthread_get_default_config();
+    cfg.thread_name = "UpdateStatisticsThread";
+    cfg.prio = 2;
+    cfg.stack_size = 1024;
+    esp_pthread_set_cfg(&cfg);
     updateStatisticsThread.reset(new std::thread([this]() {
         updateStatisticsDisplayTask();
-    }));          
-      
+    }));
+
     for (;;) {
         if ((!game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
             ESP_LOGD(TAG, "Starting game...");
@@ -269,7 +279,7 @@ void MainController::setDateTime() {
     time.tm_year = (2023 - 1900); // tm_year = number of years since 1900
     time.tm_mday = 24;
 
-    ds3231_set_time(&ds3231, &time);    
+    ds3231_set_time(&ds3231, &time);
 }
 
 std::shared_ptr<AudioController> MainController::getAudioController() {
@@ -382,7 +392,6 @@ uint16_t MainController::readValueFromNVS(const char * key) {
 //std::shared_ptr<WIFI::Wifi> MainController::getWifiController() {
 //    return wifi;
 //}
-
 
 void MainController::blinkCPUStatusLEDTask() {
     while (1) {

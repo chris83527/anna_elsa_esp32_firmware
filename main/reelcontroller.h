@@ -40,6 +40,8 @@
 #include <chrono>
 #include <thread>
 
+#include "esp_pthread.h"
+
 #include "driver/gpio.h"
 #include "driver/ledc.h"
 

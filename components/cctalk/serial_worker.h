@@ -58,7 +58,7 @@
         return ret_val; \
     }
 
-namespace esp32cc {    
+namespace esp32cc {
 
     class Timer {
     public:
@@ -74,21 +74,21 @@ namespace esp32cc {
         SerialWorker();
         virtual ~SerialWorker();
 
-        void setOnResponseReceiveCallback(std::function<void(const uint64_t requestId, const std::vector<uint8_t>& responseData)> callback);
+        void setOnResponseReceiveCallback(std::function<void(const uint64_t requestId, const std::vector<uint8_t>& responseData) > callback);
         void setLoggingOptions(bool showFullResponse, bool showSerialRequest, bool showSerialResponse);
         bool openPort(uart_port_t uartNumber, int txPin, int rxPin);
         bool closePort();
         void sendRequest(const uint64_t requestId, const std::vector<uint8_t>& requestData, const int writeTimeoutMsec, const int responseTimeoutMsec);
-                
+
         uart_port_t getUartNumber();
         uint64_t getRequestId();
         int getResponseTimeoutMsec();
 
     protected:
 
-    private:        
-        
-        std::function<void(const uint64_t requestId, const std::vector<uint8_t>& responseData)>  onResponseReceiveCallback;
+    private:
+
+        std::function<void(const uint64_t requestId, const std::vector<uint8_t>& responseData) > onResponseReceiveCallback;
         uint64_t requestId;
         int responseTimeoutMsec;
 
@@ -100,10 +100,10 @@ namespace esp32cc {
         int rxPin;
 
         Timer timer;
-        
+
         bool portOpen = false;
 
-    };    
+    };
 }
 
 #endif /* SERIAL_WORKER_H */

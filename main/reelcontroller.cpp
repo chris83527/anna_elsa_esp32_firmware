@@ -48,6 +48,7 @@
 #include "config.h"
 #include "reelcontroller.h"
 #include "audiocontroller.h"
+#include "esp_pthread.h"
 
 static const char *TAG = "ReelController";
 
@@ -291,6 +292,11 @@ void ReelController::spinToZero() {
     bool centreOk = false;
     bool rightOk = false;
 
+    auto cfg = esp_pthread_get_default_config();
+    cfg.thread_name = "SpinReelToZeroThread";
+    cfg.prio = 8;
+    cfg.stack_size = 1024;
+    esp_pthread_set_cfg(&cfg);
     this->spinReelThread.reset(new std::thread([ & ]() {
         reel_event_t event;
 
@@ -299,7 +305,7 @@ void ReelController::spinToZero() {
         ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
         ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, 75);
 
-        int delay = 30;
+        int freq = 75;
 
         for (int counter = 0; counter < ((MAX_STOPS * 2) * STEPS_PER_STOP); counter++) // two spins, multiply by 4 steps
         {
@@ -343,11 +349,12 @@ void ReelController::spinToZero() {
                 }
             }
 
-            if (delay > 5) {
-                delay -= 5;
+            if (freq < 130) {
+                ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, freq);
+                freq -= 5;
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+            //std::this_thread::sleep_for(std::chrono::milliseconds(delay));
 
         }
     }));
@@ -417,6 +424,11 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
     ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
     ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, 75);
 
+    auto cfg = esp_pthread_get_default_config();
+    cfg.thread_name = "SpinReelThread";
+    cfg.prio = 8;
+    cfg.stack_size = 1024;
+    esp_pthread_set_cfg(&cfg);
     this->spinReelThread.reset(new std::thread([ & ]() {
         reel_event_t event;
 
@@ -592,8 +604,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, cons
     reel_status_data_left.status = STATUS_INITIAL; // reset status
     reel_status_data_centre.status = STATUS_INITIAL; // reset status
     reel_status_data_right.status = STATUS_INITIAL; // reset status
-
-    int32_t speed_target = 150;
+    
     int32_t speed_current = 32;
 
     ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 16); // 16 is 50% duty cycle in 5-bit PWM resolution.
