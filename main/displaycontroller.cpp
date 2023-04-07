@@ -309,14 +309,11 @@ ht16k33_t* DisplayController::getMovesDisplay() {
 
 void DisplayController::attractModeTask() {
     // Show simple rainbow chasing pattern
-    ESP_LOGI(TAG, "Animation task started");
-
-    //LampData *lampData = this->getLampData();    
+    ESP_LOGI(TAG, "Animation task started");    
 
     rgb_t rgb_data;
     hsv_t hsv_data;
-    uint8_t start_rgb = 0;
-    int state = 0;
+    uint8_t start_rgb = 0;    
 
     while (1) {
         if (this->attractMode) {
@@ -324,7 +321,7 @@ void DisplayController::attractModeTask() {
             this->displayText("       FROZEN       ");
             this->resetLampData();
             // Rainbow effect (10 repeats)
-            for (k = 0; k < 10; k++) {
+            for (int k = 0; k < 10; k++) {
                 for (int i = 0; i < 3; i++) {
                     for (int j = i; j < LED_COUNT; j += 3) {
 
@@ -346,11 +343,11 @@ void DisplayController::attractModeTask() {
 
             std::this_thread::sleep_for(std::chrono::seconds(5));
             resetLampData();
-            
+
             // Red trail effect
             int currentLamp = LAMP_TRAIL_20_CENT;
-            for (int i = 0 ; i < 20 ; i++ ) {
-                
+            for (int i = 0; i < 20; i++) {
+
                 lampData[currentLamp].rgb.r = 255;
                 if (i > 0) {
                     lampData[currentLamp - 1].rgb.r = 192;
@@ -364,24 +361,24 @@ void DisplayController::attractModeTask() {
                 if (i > 4) {
                     lampData[currentLamp - 4].rgb.r = 0;
                 }
-                
+
                 // tail catches up
                 if (i > 16) {
                     lampData[currentLamp - 3].rgb.r = 0;
                 }
                 if (i > 17) {
                     lampData[currentLamp - 2].rgb.r = 0;
-                }               
-                if (i> 17) {
+                }
+                if (i > 17) {
                     lampData[currentLamp - 1].rgb.r = 0;
                 }
-                
+
                 if (i < 16) {
                     currentLamp++;
                 }
             }
 
-                this->displayText("      PLAY ME       ");
+            this->displayText("      PLAY ME       ");
 
             std::this_thread::sleep_for(std::chrono::seconds(5));
 
@@ -393,15 +390,11 @@ void DisplayController::attractModeTask() {
 
             std::this_thread::sleep_for(std::chrono::seconds(5));
 
+        } else {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
-
-
-    } else {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }
-
-
 
 void DisplayController::updateLampsTask() {
     ESP_LOGI(TAG, "Update Lamps task started");
@@ -480,7 +473,7 @@ void DisplayController::updateLampsTask() {
             }
         }
         led_strip_flush(ledStrip);
-        mcp23x17_port_write(this->getButtonIO(), (btnLamps & 0xff00));
+        mcp23x17_port_write(this->getButtonIO(), (btnLamps & 0xff));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -526,7 +519,7 @@ void DisplayController::updateLampsTask() {
         }
 
         led_strip_flush(ledStrip);
-        mcp23x17_port_write(this->getButtonIO(), (btnLamps & 0xff00));
+        mcp23x17_port_write(this->getButtonIO(), (btnLamps & 0xff));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -571,7 +564,7 @@ void DisplayController::updateLampsTask() {
         }
 
         led_strip_flush(ledStrip);
-        mcp23x17_port_write(this->getButtonIO(), (btnLamps & 0xff00));
+        mcp23x17_port_write(this->getButtonIO(), (btnLamps & 0xff));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -616,7 +609,7 @@ void DisplayController::updateLampsTask() {
         }
 
         led_strip_flush(ledStrip);
-        mcp23x17_port_write(this->getButtonIO(), (btnLamps & 0xff00));
+        mcp23x17_port_write(this->getButtonIO(), (btnLamps & 0xff));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
