@@ -311,9 +311,7 @@ void DisplayController::attractModeTask() {
     // Show simple rainbow chasing pattern
     ESP_LOGI(TAG, "Animation task started");
 
-    LampData *lampData = this->getLampData();
-
-    this->resetLampData();
+    //LampData *lampData = this->getLampData();    
 
     rgb_t rgb_data;
     hsv_t hsv_data;
@@ -322,53 +320,88 @@ void DisplayController::attractModeTask() {
 
     while (1) {
         if (this->attractMode) {
-            for (int i = 0; i < 3; i++) {
-                for (int j = i; j < LED_COUNT; j += 3) {
 
-                    // Build RGB values
-                    hsv_data.hue = j * 360 / LED_COUNT + start_rgb;
-                    hsv_data.sat = 255;
-                    hsv_data.val = 255;
-                    rgb_data = hsv2rgb_rainbow(hsv_data);
+            this->displayText("       FROZEN       ");
+            this->resetLampData();
+            // Rainbow effect (10 repeats)
+            for (k = 0; k < 10; k++) {
+                for (int i = 0; i < 3; i++) {
+                    for (int j = i; j < LED_COUNT; j += 3) {
 
-                    // Write RGB values to strip driver
-                    lampData[j].rgb = rgb_data;
-                    lampData[j].lampState = LampState::on;
+                        // Build RGB values
+                        hsv_data.hue = j * 360 / LED_COUNT + start_rgb;
+                        hsv_data.sat = 255;
+                        hsv_data.val = 255;
+                        rgb_data = hsv2rgb_rainbow(hsv_data);
+
+                        // Write RGB values to strip driver
+                        lampData[j].rgb = rgb_data;
+                        lampData[j].lampState = LampState::on;
+                    }
+
+                    std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
                 }
-
-                std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
-            }
-            start_rgb += 60;
-
-            switch (state) {
-                case 0:
-                    this->displayText("       FROZEN       ");
-                    break;
-                case 1:
-                    this->displayText("      PLAY ME       ");
-                    break;
-                case 2:
-                    this->displayText("     20CT GAME      ");
-                    break;
-                case 3:
-                    this->displayText("    INSERT COINS    ");
-                    break;
+                start_rgb += 60;
             }
 
-            // reset state
-            if (state >= 3) {
-                state = 0;
-            } else {
-                if ((start_rgb % 240) == 0) { // only advance every 4 calls
-                    state++;
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+            resetLampData();
+            
+            // Red trail effect
+            int currentLamp = LAMP_TRAIL_20_CENT;
+            for (int i = 0 ; i < 20 ; i++ ) {
+                
+                lampData[currentLamp].rgb.r = 255;
+                if (i > 0) {
+                    lampData[currentLamp - 1].rgb.r = 192;
+                }
+                if (i > 1) {
+                    lampData[currentLamp - 2].rgb.r = 129;
+                }
+                if (i > 3) {
+                    lampData[currentLamp - 3].rgb.r = 66;
+                }
+                if (i > 4) {
+                    lampData[currentLamp - 4].rgb.r = 0;
+                }
+                
+                // tail catches up
+                if (i > 16) {
+                    lampData[currentLamp - 3].rgb.r = 0;
+                }
+                if (i > 17) {
+                    lampData[currentLamp - 2].rgb.r = 0;
+                }               
+                if (i> 17) {
+                    lampData[currentLamp - 1].rgb.r = 0;
+                }
+                
+                if (i < 16) {
+                    currentLamp++;
                 }
             }
-        } else {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+
+                this->displayText("      PLAY ME       ");
+
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+
+            this->displayText("     20CT GAME      ");
+
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+
+            this->displayText("    INSERT COINS    ");
+
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+
         }
-    }
 
+
+    } else {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 }
+
+
 
 void DisplayController::updateLampsTask() {
     ESP_LOGI(TAG, "Update Lamps task started");
