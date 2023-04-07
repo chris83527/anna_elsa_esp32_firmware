@@ -341,9 +341,10 @@ void DisplayController::attractModeTask() {
                 start_rgb += 60;
             }
 
-            std::this_thread::sleep_for(std::chrono::seconds(5));
             resetLampData();
+            std::this_thread::sleep_for(std::chrono::seconds(5));            
 
+            this->displayText("      PLAY ME       ");
             // Red trail effect
             int currentLamp = LAMP_TRAIL_20_CENT;
             for (int i = 0; i < 20; i++) {
@@ -351,35 +352,37 @@ void DisplayController::attractModeTask() {
                 lampData[currentLamp].rgb.r = 255;
                 if (i > 0) {
                     lampData[currentLamp - 1].rgb.r = 192;
+                    lampData[currentLamp - 1].lampState = LampState::on;
                 }
                 if (i > 1) {
                     lampData[currentLamp - 2].rgb.r = 129;
+                    lampData[currentLamp - 1].lampState = LampState::on;
                 }
                 if (i > 3) {
                     lampData[currentLamp - 3].rgb.r = 66;
+                    lampData[currentLamp - 1].lampState = LampState::on;
                 }
                 if (i > 4) {
-                    lampData[currentLamp - 4].rgb.r = 0;
+                    lampData[currentLamp - 4].lampState = LampState::off;
                 }
 
                 // tail catches up
-                if (i > 16) {
-                    lampData[currentLamp - 3].rgb.r = 0;
-                }
                 if (i > 17) {
-                    lampData[currentLamp - 2].rgb.r = 0;
+                    lampData[currentLamp - 3].lampState = LampState::off;
                 }
-                if (i > 17) {
-                    lampData[currentLamp - 1].rgb.r = 0;
+                if (i > 18) {
+                    lampData[currentLamp - 2].lampState = LampState::off;
                 }
+                if (i > 19) {
+                    lampData[currentLamp - 1].lampState = LampState::off;
+                }                
 
                 if (i < 16) {
                     currentLamp++;
                 }
             }
-
-            this->displayText("      PLAY ME       ");
-
+            
+            resetLampData();
             std::this_thread::sleep_for(std::chrono::seconds(5));
 
             this->displayText("     20CT GAME      ");

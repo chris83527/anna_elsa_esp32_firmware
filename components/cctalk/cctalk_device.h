@@ -252,7 +252,7 @@ namespace esp32cc {
         void setDeviceState(CcDeviceState state);
 
         /// Get link controller
-        CctalkLinkController* getLinkController();
+        CctalkLinkController getLinkController();
 
 
         /// This function is called in NormalAccepting state when a bill is inserted and
@@ -264,7 +264,7 @@ namespace esp32cc {
         /// Request initialising the device from ShutDown state.
         /// Starts event timer.
         /// \return true if the request was successfully sent.
-        bool initialise(CctalkLinkController* linkController, const uint8_t deviceAddress, const std::function<void(const std::string& error_msg)>& finish_callback);
+        bool initialise(CctalkLinkController& linkController, const uint8_t deviceAddress, const std::function<void(const std::string& error_msg)>& finish_callback);
 
         void setCreditAcceptedCallback(CreditAcceptedFunc callback);
 
@@ -291,10 +291,6 @@ namespace esp32cc {
 
     private:
 
-
-        /// Emitted whenever device state is changed.
-        //void deviceStateChanged(CcDeviceState old_state, CcDeviceState new_state);
-
         /// Emitted whenever a credit is accepted.
         CreditAcceptedFunc creditAcceptedCallback;
 
@@ -307,7 +303,7 @@ namespace esp32cc {
 
         virtual void devicePollTask();
 
-        CctalkLinkController* linkController; ///< Controller for serial worker thread with cctalk link management support.
+        CctalkLinkController linkController; ///< Controller for serial worker thread with cctalk link management support.
 
         int normalPollingIntervalMsec = 100; ///< Polling interval for normal and diagnostics modes.
         const int defaultNormalPollingIntervalMsec = 100; ///< Default polling interval for normal and diagnostics modes.

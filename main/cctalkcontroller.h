@@ -48,7 +48,7 @@ public:
     esp32cc::CoinHopperDevice hopper;
 private:
 
-    esp32cc::CctalkLinkController* cctalkLinkController;
+    esp32cc::CctalkLinkController cctalkLinkController;
 
     esp32cc::CoinAcceptorDevice coinAcceptor;
     

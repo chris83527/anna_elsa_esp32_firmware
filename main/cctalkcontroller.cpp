@@ -29,10 +29,9 @@ CCTalkController::~CCTalkController() {
 
 esp_err_t CCTalkController::initialise() {
    
-    ESP_LOGD(TAG, "CCTalkController::initialise called");
-    cctalkLinkController = new esp32cc::CctalkLinkController();
+    ESP_LOGD(TAG, "CCTalkController::initialise called");    
 
-    cctalkLinkController->initialise(CCTALK_UART, CCTALK_GPIO_TX, CCTALK_GPIO_RX, false, false);
+    cctalkLinkController.initialise(CCTALK_UART, CCTALK_GPIO_TX, CCTALK_GPIO_RX, false, false);
 
     this->hopper.initialise(this->cctalkLinkController, CCTALK_HOPPER, [ = ](const std::string & error_msg){
         if (error_msg.size() > 0) {
