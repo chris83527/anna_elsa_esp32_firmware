@@ -297,7 +297,7 @@ void ReelController::spinToZero() {
         ESP_LOGD(TAG, "Setting 50pc duty cycle");
         ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 24); // 16 is 50% duty cycle in 5-bit PWM resolution.
         ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
-        ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, 100);
+        ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, 75);
 
         int delay = 75;
 
@@ -415,7 +415,7 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
 
     ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 24); // 16 is 50% duty cycle in 5-bit PWM resolution.
     ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
-    ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, 100);
+    ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, 75);
 
     this->spinReelThread.reset(new std::thread([ & ]() {
         reel_event_t event;
@@ -509,7 +509,7 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
 
     ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 16); // 16 is 50% duty cycle in 5-bit PWM resolution.
     ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
-    ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, 100);
+    ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, 75);
 
     this->spinReelThread.reset(new std::thread([ & ]() {
         reel_event_t event;

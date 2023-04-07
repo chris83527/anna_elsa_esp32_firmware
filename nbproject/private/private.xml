@@ -7,17 +7,18 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/displaycontroller.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_device.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.h</file>
-            <file>file:/home/chris/esp/esp-idf-lib/components/mcp23x17/mcp23x17.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/cctalkcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/serial_worker.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/webserver.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/main.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/serial_worker.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/ssd1306/ssd1306.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/cctalkcontroller.cpp</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_link_controller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/displaycontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/config.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.h</file>
