@@ -97,7 +97,7 @@ namespace esp32cc {
         bool showCctalkResponse = true;
 
         TaskHandle_t workerTaskHandle;
-        SerialWorker* serialWorker;
+        SerialWorker serialWorker;
 
         uart_port_t uartNumber = 1;
 

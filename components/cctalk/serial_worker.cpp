@@ -107,13 +107,13 @@ namespace esp32cc {
         xQueueReset(this->cctalkUartQueueHandle);
         uart_flush_input(this->getUartNumber());
         
-        //std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         
         uart_write_bytes(this->getUartNumber(), requestData.data(), requestData.size());
 
         ESP_LOGD(TAG, "Send complete. Waiting for response");
 
-        //std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         std::vector<uint8_t> receivedData;
 
@@ -158,23 +158,13 @@ namespace esp32cc {
             } else {
                 this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>());
             }
-        }
-        
-        //sendMutex.unlock();        
+        }                  
 
     }
 
     void SerialWorker::setOnResponseReceiveCallback(std::function<void(const uint64_t requestId, const std::vector<uint8_t>& responseData)> callback) {
         this->onResponseReceiveCallback = callback;
-    }
-    
-//    QueueHandle_t SerialWorker::getCctalkUartQueueHandle() {
-//        return this->cctalkUartQueueHandle;
-//    }
-//
-//    TaskHandle_t SerialWorker::getCctalkTaskHandle() {
-//        return this->cctalkTaskHandle;
-//    }
+    }   
 
     uart_port_t SerialWorker::getUartNumber() {
         return this->uartNumber;

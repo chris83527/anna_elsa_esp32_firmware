@@ -54,9 +54,8 @@ namespace esp32cc {
     }
 
     esp_err_t CctalkLinkController::initialise(const uart_port_t uartNumber, const int txPin, const int rxPin, bool isChecksum16bit, bool isDesEncrypted) {
-
-        this->serialWorker = new SerialWorker();
-        this->serialWorker->setOnResponseReceiveCallback([this](const uint64_t requestId, const std::vector<uint8_t> responseData) {
+        
+        this->serialWorker.setOnResponseReceiveCallback([this](const uint64_t requestId, const std::vector<uint8_t> responseData) {
             this->onResponseReceive(requestId, responseData);
         });
 
@@ -85,12 +84,12 @@ namespace esp32cc {
 
         if (!isPortOpen) {
             this->uartNumber = uartNumber;
-            this->isPortOpen = serialWorker->openPort(uartNumber, txPin, rxPin);
+            this->isPortOpen = serialWorker.openPort(uartNumber, txPin, rxPin);
         }
     }
 
     void CctalkLinkController::closePort() {
-        this->isPortOpen = serialWorker->closePort();
+        this->isPortOpen = serialWorker.closePort();
 
     }
 
@@ -193,7 +192,7 @@ namespace esp32cc {
 
         ESP_LOGD(TAG, "Sending request");
 
-        this->serialWorker->sendRequest(requestId, requestData, writeTimeoutMsec, responseTimeoutMsec);
+        this->serialWorker.sendRequest(requestId, requestData, writeTimeoutMsec, responseTimeoutMsec);
 
         return requestId;
     }

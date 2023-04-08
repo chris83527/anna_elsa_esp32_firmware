@@ -287,8 +287,7 @@ namespace esp32cc {
         [[nodiscard]] int getStoredPollingInterval() const;
 
         /// Get requestIdentifiers() result
-        [[nodiscard]] std::map<uint8_t, CcIdentifier> getStoredIndentifiers() const;
-
+        [[nodiscard]] std::map<uint8_t, CcIdentifier> getStoredIndentifiers() const;        
 
     private:
 

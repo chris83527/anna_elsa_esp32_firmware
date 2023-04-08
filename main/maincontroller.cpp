@@ -80,7 +80,7 @@ void MainController::start() {
     }
 
     auto cfg = esp_pthread_get_default_config();
-    cfg.thread_name = "BlinkRunLEDThread";
+    cfg.thread_name = "BlinkRunLED";
     cfg.prio = 1;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
@@ -246,7 +246,7 @@ void MainController::start() {
     game->initialise();
 
     cfg = esp_pthread_get_default_config();
-    cfg.thread_name = "UpdateStatisticsThread";
+    cfg.thread_name = "UpdateStatistics";
     cfg.prio = 2;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);

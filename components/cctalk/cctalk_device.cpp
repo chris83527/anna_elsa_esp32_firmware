@@ -82,7 +82,7 @@ namespace esp32cc {
         if (!this->isPolling) {
             isPolling = true;
             auto cfg = esp_pthread_get_default_config();
-            cfg.thread_name = "SpinToZeroThread";
+            cfg.thread_name = ccCategoryDisplayNameFromCategory(this->getStoredDeviceCategory()).append("Polling").c_str();
             cfg.prio = 8;
             cfg.stack_size = 4096;
             esp_pthread_set_cfg(&cfg);
@@ -104,7 +104,7 @@ namespace esp32cc {
     void CctalkDevice::devicePollTask() {
 
         while (1) {
-            ESP_LOGD(TAG, "Polling...");
+            ESP_LOGD(TAG, "Polling %s...", ccCategoryDisplayNameFromCategory(this->getStoredDeviceCategory()).c_str());
 
             // This is set to false in finish callbacks.
             this->isTimerIterationTaskRunning = true;
