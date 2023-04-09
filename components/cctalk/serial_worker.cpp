@@ -106,8 +106,6 @@ namespace esp32cc {
 
         xQueueReset(this->cctalkUartQueueHandle);
         uart_flush_input(this->getUartNumber());
-
-
         uart_write_bytes(this->getUartNumber(), requestData.data(), requestData.size());
         uart_wait_tx_done(this->getUartNumber(), pdMS_TO_TICKS(75)); // wait 75ms max 
 
@@ -118,86 +116,36 @@ namespace esp32cc {
         bool receiveComplete = false;
         timer.startTimer(responseTimeoutMsec);
         int bytesRead = 0;
-        uart_event_t xEvent;
+        
+        int length;
 
         while (!receiveComplete) {
 
             if (timer.isReady()) {
                 ESP_LOGD(TAG, "Timer hit");
                 break; // receive complete false
-            }            
-
-            if (xQueueReceive(this->cctalkUartQueueHandle, (void*) &xEvent, (portTickType) portMAX_DELAY) == pdPASS) {
-                ESP_LOGD(TAG, "cctalk_UART[%d] event:", this->uartNumber);
-
-                switch (xEvent.type) {
-                        //Event of UART receiving data
-                    case UART_DATA:
-                    case UART_BUFFER_FULL:
-                    {
-                        ESP_LOGD(TAG, "Data event, len: %d.", xEvent.size);
-
-                        // Read received data and send it to cctalk stack
-                        //ESP_ERROR_CHECK(uart_get_buffered_data_len(this->getUartNumber(), (size_t*) & length));
-                        ESP_LOGD(TAG, "Allegedly available bytes on UART %d: %d", this->getUartNumber(), xEvent.size);
-
-                        if (xEvent.size > 0) {
-                            receivedData.resize(receivedData.size() + xEvent.size);
-                            bytesRead = uart_read_bytes(this->getUartNumber(), receivedData.data(), xEvent.size, pdMS_TO_TICKS(this->getResponseTimeoutMsec()));
-                        } else {
-                            receiveComplete = true;
-                            ESP_LOGD(TAG, "No more data available.");
-                        }
-
-                        break;
-                        //Event of HW FIFO overflow detected
-                    }
-                    case UART_FIFO_OVF:
-                    {
-                        ESP_LOGD(TAG, "Hardware FIFO overflow.");
-                        xQueueReset(this->cctalkUartQueueHandle);
-                        break;
-                    }
-                        //Event of UART RX break detected
-                    case UART_BREAK:
-                    {
-                        ESP_LOGD(TAG, "UART RX break.");
-                        break;
-                    }
-                        //Event of UART parity check error
-                    case UART_PARITY_ERR:
-                    {
-                        ESP_LOGD(TAG, "UART parity error.");
-                        break;
-                    }
-                        //Event of UART frame error
-                    case UART_FRAME_ERR:
-                    {
-                        ESP_LOGD(TAG, "UART frame error.");
-                        break;
-                    }
-                    default:
-                    {
-                        ESP_LOGD(TAG, "UART event type: %d.", xEvent.type);
-                        break;
-                    }
-                }
             }
 
+            uart_get_buffered_data_len(this->getUartNumber(), (size_t*) & length);
 
+            // Read received data and send it to cctalk stack
+            //ESP_ERROR_CHECK(uart_get_buffered_data_len(this->getUartNumber(), (size_t*) & length));
+            ESP_LOGD(TAG, "Allegedly available bytes on UART %d: %d", this->getUartNumber(), length);
 
-
-
-
-
-
-
-
+            if (length > 0) {
+                receivedData.resize(receivedData.size() + length);
+                bytesRead = uart_read_bytes(this->getUartNumber(), receivedData.data(), length, pdMS_TO_TICKS(this->getResponseTimeoutMsec()));
+            } else {
+                receiveComplete = true;
+                ESP_LOGD(TAG, "No more data available.");
+            }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
 
         if (receiveComplete) {
+
+            uart_flush(this->getUartNumber());
 
             if (receivedData.size() <= requestData.size()) {
                 // this shouldn't be possible as we have local echo
