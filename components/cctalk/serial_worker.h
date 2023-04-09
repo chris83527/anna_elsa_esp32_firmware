@@ -50,7 +50,7 @@
 #define CCTALK_SERIAL_TIMEOUT               (200) // 3.5*8 = 28 ticks, TOUT=3 -> ~24..33 ticks
 #define CCTALK_PORT_SERIAL_ISR_FLAG         ESP_INTR_FLAG_IRAM
 
-#define MAX_BUFFER_SIZE 256
+#define MAX_BUFFER_SIZE 1024
 
 #define CCTALK_PORT_CHECK(a, ret_val, str, ...) \
     if (!(a)) { \

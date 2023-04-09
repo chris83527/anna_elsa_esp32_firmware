@@ -44,13 +44,11 @@ static bool requestInProgress = false;
 namespace esp32cc {
 
     CctalkLinkController::CctalkLinkController() {
-        // start rx and uart tasks
-        //this->serialWorker = new SerialWorker(this);        
+       
     }
 
     CctalkLinkController::~CctalkLinkController() {
-        // stop rx and uart tasks
-        //delete(serialWorker);
+       
     }
 
     esp_err_t CctalkLinkController::initialise(const uart_port_t uartNumber, const int txPin, const int rxPin, bool isChecksum16bit, bool isDesEncrypted) {

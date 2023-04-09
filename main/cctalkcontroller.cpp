@@ -45,6 +45,14 @@ esp_err_t CCTalkController::initialise() {
         }
     });
 
+    this->hopper.requestResetDevice([ = ](const std::string & error_msg){
+    
+    });
+    
+    this->coinAcceptor.requestResetDevice([ = ](const std::string & error_msg){
+    
+    });
+    
     // 5ct  (Kasse - rejected anyway)
     this->coinAcceptor.modifySorterPath(1, 1, [&](const std::string & error_msg) {
 
