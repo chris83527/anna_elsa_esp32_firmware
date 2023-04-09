@@ -124,12 +124,10 @@ namespace esp32cc {
             if (timer.isReady()) {
                 ESP_LOGD(TAG, "Timer hit");
                 break; // receive complete false
-            }
-
-            uart_get_buffered_data_len(this->getUartNumber(), (size_t*) & length);
+            }            
 
             // Read received data and send it to cctalk stack
-            //ESP_ERROR_CHECK(uart_get_buffered_data_len(this->getUartNumber(), (size_t*) & length));
+            ESP_ERROR_CHECK(uart_get_buffered_data_len(this->getUartNumber(), (size_t*) & length));
             ESP_LOGD(TAG, "Allegedly available bytes on UART %d: %d", this->getUartNumber(), length);
 
             if (length > 0) {
@@ -139,8 +137,7 @@ namespace esp32cc {
                 receiveComplete = true;
                 ESP_LOGD(TAG, "No more data available.");
             }
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            
         }
 
         if (receiveComplete) {
