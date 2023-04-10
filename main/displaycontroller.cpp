@@ -354,7 +354,10 @@ void DisplayController::attractModeTask() {
             int currentLamp = LAMP_TRAIL_20_CENT;
             for (int i = 0; i < 20; i++) {
 
+                lampData[currentLamp].rgb.b = 0;
+                lampData[currentLamp].rgb.g = 0;
                 lampData[currentLamp].rgb.r = 255;
+                lampData[currentLamp].lampState = LampState::on;
                 if (i > 0) {
                     lampData[currentLamp - 1].rgb.r = 192;
                     lampData[currentLamp - 1].lampState = LampState::on;
@@ -385,6 +388,8 @@ void DisplayController::attractModeTask() {
                 if (i < 16) {
                     currentLamp++;
                 }
+                
+                std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));                
             }
 
             resetLampData();
