@@ -112,7 +112,7 @@ bool ReelController::initialise() {
     // Prepare and then apply the LEDC PWM timer configuration
     ledc_timer.speed_mode = LEDC_LOW_SPEED_MODE;
     ledc_timer.timer_num = LEDC_TIMER_0;
-    ledc_timer.duty_resolution = LEDC_TIMER_5_BIT;
+    ledc_timer.duty_resolution = LEDC_TIMER_13_BIT;
     ledc_timer.clk_cfg = LEDC_AUTO_CLK;
     ledc_timer.freq_hz = 32;
 
@@ -351,7 +351,7 @@ void ReelController::spinToZero() {
 
             if (freq < 130) {
                 ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, freq);
-                freq -= 5;
+                freq += 5;
             }
 
             //std::this_thread::sleep_for(std::chrono::milliseconds(delay));
