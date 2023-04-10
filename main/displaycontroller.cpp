@@ -196,7 +196,7 @@ esp_err_t DisplayController::initialise() {
     // Start a new thread to update the lamps
     auto cfg = esp_pthread_get_default_config();
     cfg.thread_name = "UpdateLamps";
-    cfg.prio = 3;
+    cfg.prio = 5;
     cfg.stack_size = 4096;
     esp_pthread_set_cfg(&cfg);
     this->updateLampsThread.reset(new std::thread([this]() {

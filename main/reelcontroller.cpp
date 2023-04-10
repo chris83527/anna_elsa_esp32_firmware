@@ -301,7 +301,7 @@ void ReelController::spinToZero() {
         reel_event_t event;
 
         ESP_LOGD(TAG, "Setting 50pc duty cycle");
-        ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 16); // 16 is 50% duty cycle in 5-bit PWM resolution.
+        ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, ((2^13) - 1) * 0.5); // Set duty to 50%. ((2 ** 13) - 1) * 50% = 4095
         ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
         ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, 75);
 
@@ -384,7 +384,7 @@ void ReelController::spinToZero() {
     }
 
     ESP_LOGD(TAG, "Setting 25pc duty cycle");
-    ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, 8); // 16 is 50% duty cycle in 5-bit PWM resolution.
+    ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, ((2^13) - 1) * 0.25 ); // 25% duty cycle in 5-bit PWM resolution.
     ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);
     ledc_set_freq(ledc_timer.speed_mode, ledc_timer.timer_num, 32);
 
