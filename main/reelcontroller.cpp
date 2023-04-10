@@ -354,7 +354,7 @@ void ReelController::spinToZero() {
                 freq += 5;
             }
 
-            //std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
         }
     }));
