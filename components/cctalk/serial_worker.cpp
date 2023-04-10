@@ -104,7 +104,7 @@ namespace esp32cc {
 
         uart_set_always_rx_timeout(this->getUartNumber(), true);
 
-        xQueueReset(this->cctalkUartQueueHandle);
+        //xQueueReset(this->cctalkUartQueueHandle);
         uart_flush_input(this->getUartNumber());
         uart_write_bytes(this->getUartNumber(), requestData.data(), requestData.size());
         uart_wait_tx_done(this->getUartNumber(), pdMS_TO_TICKS(75)); // wait 75ms max 
