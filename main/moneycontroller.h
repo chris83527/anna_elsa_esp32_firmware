@@ -80,6 +80,7 @@ public:
     void removeFromBank(const uint16_t value);
     void moveBankToCredit(void);
     void moveTransferToBank(void);
+    void payout(uint16_t value);
     //void removeFromTransfer(const int value);
     uint16_t getCredit(void);
     uint16_t getBank(void);

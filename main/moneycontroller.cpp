@@ -129,6 +129,12 @@ void MoneyController::removeFromCredit(const uint16_t value) {
     }
 }
 
+void MoneyController::payout(const uint16_t value) {
+    removeFromBank(value);
+    this->payoutTotal += value;        
+    this->mainController->writeValueToNVS(NVS_KEY_PAYOUT_TOTAL, this->payoutTotal);
+}
+
 /**
  * @brief Remove the given amount from the player's bank 
  * 

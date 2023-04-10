@@ -111,13 +111,15 @@ namespace esp32cc {
 
         ESP_LOGD(TAG, "Send complete. Waiting for response");
 
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        
         std::vector<uint8_t> receivedData;
 
         bool receiveComplete = false;
         timer.startTimer(responseTimeoutMsec);
         int bytesRead = 0;
         
-        int length;
+        int length = 0;
 
         while (!receiveComplete) {
 
@@ -138,6 +140,7 @@ namespace esp32cc {
                 ESP_LOGD(TAG, "No more data available.");
             }
             
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
 
         if (receiveComplete) {

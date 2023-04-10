@@ -390,7 +390,7 @@ void Game::collectOrContinue() {
             if (error_msg.size() > 0) {
                 ESP_LOGE(TAG, "An error occurred during payout: %s", error_msg.c_str());
             } else {
-                this->mainController->getMoneyController()->removeFromBank(this->mainController->getMoneyController()->getBank());
+                this->mainController->getMoneyController()->payout(this->mainController->getMoneyController()->getBank());
             }
         });
     } else if (btnStatus.test(BTN_START)) {
