@@ -195,6 +195,16 @@ esp_err_t DisplayController::initialise() {
 
     // Start a new thread to update the lamps
     auto cfg = esp_pthread_get_default_config();
+    
+    
+    cfg.thread_name = "BlinkLamps";
+    cfg.prio = 3;
+    cfg.stack_size = 1024;
+    esp_pthread_set_cfg(&cfg);
+    this->blinkLampsThread.reset(new std::thread([this]() {
+        blinkLampsTask();
+    }));
+    
     cfg.thread_name = "UpdateLamps";
     cfg.prio = 5;
     cfg.stack_size = 1024;
@@ -203,13 +213,7 @@ esp_err_t DisplayController::initialise() {
         updateLampsTask();
     }));
 
-    cfg.thread_name = "BlinkLamps";
-    cfg.prio = 3;
-    cfg.stack_size = 1024;
-    esp_pthread_set_cfg(&cfg);
-    this->blinkLampsThread.reset(new std::thread([this]() {
-        blinkLampsTask();
-    }));
+    
 
     cfg.thread_name = "UpdateSevenSeg";
     cfg.prio = 2;
@@ -363,7 +367,7 @@ void DisplayController::attractModeTask() {
             }
 
             resetLampData();
-            std::this_thread::sleep_for(std::chrono::seconds(5));
+            std::this_thread::sleep_for(std::chrono::seconds(10));
 
             this->displayText("      PLAY ME       ");
             // Red trail effect
