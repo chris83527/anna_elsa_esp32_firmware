@@ -277,7 +277,7 @@ namespace esp32cc {
         try {
             return name_map.at(header);
         } catch (const std::exception& e) {
-            return "";
+            return "Unknown";
         }
     }
 
@@ -503,7 +503,7 @@ namespace esp32cc {
         try {
             return name_map.at(code);
         } catch (const std::exception& e) {
-            return "";
+            return "Unknown";
         }
     }
 
@@ -594,7 +594,7 @@ namespace esp32cc {
         try {
             return name_map.at(code);
         } catch (const std::exception& e) {
-            return "";
+            return "Unknown";
         }
     }
 
@@ -622,7 +622,7 @@ namespace esp32cc {
         try {
             return name_map.at(type);
         } catch (const std::exception& e) {
-            return "";
+            return "Unknown";
         }
     }
 
@@ -787,7 +787,7 @@ namespace esp32cc {
         try {
             return name_map.at(type);
         } catch (const std::exception& e) {
-            return "";
+            return "Unknown";
         }
     }
 
@@ -817,7 +817,7 @@ namespace esp32cc {
         try {
             return name_map.at(type);
         } catch (const std::exception& e) {
-            return "";
+            return "Unknown";
         }
     }
 
@@ -859,7 +859,7 @@ namespace esp32cc {
         try {
             return name_map.at(type);
         } catch (const std::exception& e) {
-            return "";
+            return "Unknown";
         }
     }
 
@@ -1037,7 +1037,7 @@ namespace esp32cc {
         try {
             return name_map.at(type);
         } catch (const std::exception& e) {
-            return "";
+            return "Unknown";
         }
     }
 
@@ -1063,7 +1063,7 @@ namespace esp32cc {
         try {
             return name_map.at(type);
         } catch (const std::exception& e) {
-            return "";
+            return "Unknown";
         }
     }
 

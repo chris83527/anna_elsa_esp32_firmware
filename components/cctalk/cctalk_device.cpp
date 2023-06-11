@@ -84,7 +84,7 @@ namespace esp32cc {
             auto cfg = esp_pthread_get_default_config();
             cfg.thread_name = ccCategoryDisplayNameFromCategory(this->getStoredDeviceCategory()).append("Polling").c_str();
             cfg.prio = 9;
-            cfg.stack_size = 4096;
+            cfg.stack_size = 8192;
             esp_pthread_set_cfg(&cfg);
             pollThread.reset(new std::thread([this] {
                 devicePollTask();
@@ -1377,7 +1377,7 @@ namespace esp32cc {
     void CctalkDevice::requestSelfCheck(const std::function<void(const std::string& error_msg, CcFaultCode fault_code)>& finish_callback) {
         std::vector<uint8_t> data;
         this->linkController->ccRequest(CcHeader::PerformSelfCheck, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 ESP_LOGE(TAG, "Error getting self-check status: %s", error_msg.c_str());
                 finish_callback(error_msg, CcFaultCode::CustomCommandError);
                 return;
@@ -1389,10 +1389,14 @@ namespace esp32cc {
 
                 return;
             }
-            // Decode the data
-            auto fault_code = static_cast<CcFaultCode> (responseData.at(0));
-            ESP_LOGD(TAG, "Self-check fault code: %s", ccFaultCodeGetDisplayableName(fault_code).c_str());
-            finish_callback(std::string(), fault_code);
+//            if (responseData.size() > 0) {
+//                // Decode the data
+//                auto fault_code = static_cast<CcFaultCode> (responseData.at(0));
+//                ESP_LOGD(TAG, "Self-check fault code: %s", ccFaultCodeGetDisplayableName(fault_code).c_str());
+//                finish_callback(ccFaultCodeGetDisplayableName(fault_code), fault_code);
+//            } else {
+                finish_callback(ccFaultCodeGetDisplayableName(CcFaultCode::Ok), CcFaultCode::Ok);
+//            }
         });
     }
 
