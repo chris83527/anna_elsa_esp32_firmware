@@ -172,11 +172,6 @@ esp_err_t DisplayController::initialise() {
         ESP_LOGD(TAG, "Moves display initialisation succeeded");
     }
 
-    buttonIO.cfg.master.clk_speed = I2C_FREQ_HZ;
-    buttonIO.cfg.mode = I2C_MODE_MASTER;
-    buttonIO.cfg.scl_pullup_en = false;
-    buttonIO.cfg.sda_pullup_en = false;
-
     if (mcp23x17_init_desc(this->getButtonIO(), BUTTONS_I2C_ADDRESS, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "Could not initialise button interface");
     } else {
