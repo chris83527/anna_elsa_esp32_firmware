@@ -83,7 +83,7 @@ namespace esp32cc {
             isPolling = true;
             auto cfg = esp_pthread_get_default_config();
             cfg.thread_name = ccCategoryDisplayNameFromCategory(this->getStoredDeviceCategory()).append("Polling").c_str();
-            cfg.prio = 8;
+            cfg.prio = 9;
             cfg.stack_size = 4096;
             esp_pthread_set_cfg(&cfg);
             pollThread.reset(new std::thread([this] {
