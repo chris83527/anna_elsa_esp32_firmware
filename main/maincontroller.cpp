@@ -247,7 +247,7 @@ void MainController::start() {
 
     cfg = esp_pthread_get_default_config();
     cfg.thread_name = "UpdateStatistics";
-    cfg.prio = 2;
+    cfg.prio = 1;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
     updateStatisticsThread.reset(new std::thread([this]() {

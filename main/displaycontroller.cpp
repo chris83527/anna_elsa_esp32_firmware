@@ -197,12 +197,24 @@ esp_err_t DisplayController::initialise() {
     auto cfg = esp_pthread_get_default_config();
     cfg.thread_name = "UpdateLamps";
     cfg.prio = 5;
-    cfg.stack_size = 4096;
+    cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
     this->updateLampsThread.reset(new std::thread([this]() {
         updateLampsTask();
     }));
+    
+    cfg.thread_name = "BlinkLamps";
+    cfg.prio = 3;
+    cfg.stack_size = 1024;
+    esp_pthread_set_cfg(&cfg);    
+    this->blinkLampsThread.reset(new std::thread([this]() {
+        blinkLampsTask();
+    }));
 
+    cfg.thread_name = "UpdateSevenSeg";
+    cfg.prio = 2;
+    cfg.stack_size = 1024;
+    esp_pthread_set_cfg(&cfg);
     // Start a thread to update the 7-segment displays
     this->updateSevenSegDisplaysThread.reset(new std::thread([this]() {
         updateSevenSegDisplaysTask();
@@ -211,6 +223,10 @@ esp_err_t DisplayController::initialise() {
     this->testLamps();
 
     this->attractMode = false;
+    cfg.thread_name = "AttractMode";
+    cfg.prio = 4;
+    cfg.stack_size = 4096;
+    esp_pthread_set_cfg(&cfg);
     this->attractModeThread.reset(new std::thread([this]() {
         attractModeTask();
     }));
@@ -527,7 +543,7 @@ void DisplayController::updateLampsTask() {
         led_strip_flush(&ledStrip);
         mcp23x17_port_write(this->getButtonIO(), buttonVal);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+        std::this_thread::sleep_for(std::chrono::milliseconds(75));
 
     }
 }
