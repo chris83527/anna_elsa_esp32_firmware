@@ -67,6 +67,7 @@ enum class LampState {off, blinkslow, blinkfast, on};
 class LampData {
 public:
     rgb_t rgb;
+    rgb_t activeRgb;
     LampState lampState;
 private:
     
