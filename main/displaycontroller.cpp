@@ -429,7 +429,9 @@ void DisplayController::attractModeTask() {
 }
 
 void DisplayController::blinkLampsTask() {
+
     for (;;) {
+
         for (int i = 0; i < LED_COUNT + 6; i++) {
 
             if (this->lampData[i].lampState == LampState::on || this->lampData[i].lampState == LampState::blinkfast || this->lampData[i].lampState == LampState::blinkslow) {
@@ -440,9 +442,11 @@ void DisplayController::blinkLampsTask() {
                 this->lampData[i].activeRgb.green = 0;
                 this->lampData[i].activeRgb.red = 0;
             }
+        }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
+        for (int i = 0; i < LED_COUNT + 6; i++) {
             if (this->lampData[i].lampState == LampState::on || this->lampData[i].lampState == LampState::blinkslow) {
                 this->lampData[i].activeRgb = this->lampData[i].rgb;
             } else {
@@ -451,9 +455,11 @@ void DisplayController::blinkLampsTask() {
                 this->lampData[i].activeRgb.green = 0;
                 this->lampData[i].activeRgb.red = 0;
             }
+        }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
+        for (int i = 0; i < LED_COUNT + 6; i++) {
             if (this->lampData[i].lampState == LampState::on) {
                 this->lampData[i].activeRgb = this->lampData[i].rgb;
             } else {
@@ -462,9 +468,11 @@ void DisplayController::blinkLampsTask() {
                 this->lampData[i].activeRgb.green = 0;
                 this->lampData[i].activeRgb.red = 0;
             }
+        }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
+        for (int i = 0; i < LED_COUNT + 6; i++) {
             if (this->lampData[i].lampState == LampState::on || this->lampData[i].lampState == LampState::blinkfast) {
                 this->lampData[i].activeRgb = this->lampData[i].rgb;
             } else {
@@ -473,9 +481,10 @@ void DisplayController::blinkLampsTask() {
                 this->lampData[i].activeRgb.green = 0;
                 this->lampData[i].activeRgb.red = 0;
             }
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
     }
 }
 
