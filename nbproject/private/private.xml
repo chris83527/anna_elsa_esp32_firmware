@@ -9,8 +9,6 @@
         <group>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/coin_acceptor_device.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/moneycontroller.h</file>
-            <file>file:/home/chris/esp/esp-idf-v4.4/components/driver/uart.c</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/displaycontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/audiocontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/cctalkcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.cpp</file>
