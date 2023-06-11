@@ -194,7 +194,7 @@ esp_err_t DisplayController::initialise() {
     this->resetLampData();
 
     // Start a new thread to update the lamps
-    auto cfg = esp_pthread_get_default_config();      
+    auto cfg = esp_pthread_get_default_config();
     cfg.thread_name = "BlinkLamps";
     cfg.prio = 3;
     cfg.stack_size = 1024;
@@ -202,14 +202,14 @@ esp_err_t DisplayController::initialise() {
     this->blinkLampsThread.reset(new std::thread([this]() {
         blinkLampsTask();
     }));
-    
+
     cfg.thread_name = "UpdateLamps";
     cfg.prio = 4;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
     this->updateLampsThread.reset(new std::thread([this]() {
         updateLampsTask();
-    }));    
+    }));
 
     cfg.thread_name = "UpdateSevenSeg";
     cfg.prio = 2;
@@ -267,7 +267,7 @@ void DisplayController::testLamps() {
     // switch all LEDs on;
     resetLampData();
     for (int i = 0; i < (LED_COUNT + 6); i++) {
-        lampData[i].lampState = LampState::on;      
+        lampData[i].lampState = LampState::on;
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     resetLampData();
@@ -429,52 +429,53 @@ void DisplayController::attractModeTask() {
 }
 
 void DisplayController::blinkLampsTask() {
-    for (int i = 0; i < LED_COUNT + 6; i++) {
+    for (;;) {
+        for (int i = 0; i < LED_COUNT + 6; i++) {
 
-        if (this->lampData[i].lampState == LampState::on || this->lampData[i].lampState == LampState::blinkfast || this->lampData[i].lampState == LampState::blinkslow) {
-            this->lampData[i].activeRgb = this->lampData[i].rgb;
-        } else {
-            // Set active rgb value to 0 (off or black)
-            this->lampData[i].activeRgb.blue = 0;
-            this->lampData[i].activeRgb.green = 0;
-            this->lampData[i].activeRgb.red = 0;
+            if (this->lampData[i].lampState == LampState::on || this->lampData[i].lampState == LampState::blinkfast || this->lampData[i].lampState == LampState::blinkslow) {
+                this->lampData[i].activeRgb = this->lampData[i].rgb;
+            } else {
+                // Set active rgb value to 0 (off or black)
+                this->lampData[i].activeRgb.blue = 0;
+                this->lampData[i].activeRgb.green = 0;
+                this->lampData[i].activeRgb.red = 0;
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+            if (this->lampData[i].lampState == LampState::on || this->lampData[i].lampState == LampState::blinkslow) {
+                this->lampData[i].activeRgb = this->lampData[i].rgb;
+            } else {
+                // Set active rgb value to 0 (off or black)
+                this->lampData[i].activeRgb.blue = 0;
+                this->lampData[i].activeRgb.green = 0;
+                this->lampData[i].activeRgb.red = 0;
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+            if (this->lampData[i].lampState == LampState::on) {
+                this->lampData[i].activeRgb = this->lampData[i].rgb;
+            } else {
+                // Set active rgb value to 0 (off or black)
+                this->lampData[i].activeRgb.blue = 0;
+                this->lampData[i].activeRgb.green = 0;
+                this->lampData[i].activeRgb.red = 0;
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+            if (this->lampData[i].lampState == LampState::on || this->lampData[i].lampState == LampState::blinkfast) {
+                this->lampData[i].activeRgb = this->lampData[i].rgb;
+            } else {
+                // Set active rgb value to 0 (off or black)
+                this->lampData[i].activeRgb.blue = 0;
+                this->lampData[i].activeRgb.green = 0;
+                this->lampData[i].activeRgb.red = 0;
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-        if (this->lampData[i].lampState == LampState::on || this->lampData[i].lampState == LampState::blinkslow) {
-            this->lampData[i].activeRgb = this->lampData[i].rgb;
-        } else {
-            // Set active rgb value to 0 (off or black)
-            this->lampData[i].activeRgb.blue = 0;
-            this->lampData[i].activeRgb.green = 0;
-            this->lampData[i].activeRgb.red = 0;
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-        if (this->lampData[i].lampState == LampState::on) {
-            this->lampData[i].activeRgb = this->lampData[i].rgb;
-        } else {
-            // Set active rgb value to 0 (off or black)
-            this->lampData[i].activeRgb.blue = 0;
-            this->lampData[i].activeRgb.green = 0;
-            this->lampData[i].activeRgb.red = 0;
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-        if (this->lampData[i].lampState == LampState::on || this->lampData[i].lampState == LampState::blinkfast) {
-            this->lampData[i].activeRgb = this->lampData[i].rgb;
-        } else {
-            // Set active rgb value to 0 (off or black)
-            this->lampData[i].activeRgb.blue = 0;
-            this->lampData[i].activeRgb.green = 0;
-            this->lampData[i].activeRgb.red = 0;
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
     }
 }
 
@@ -538,7 +539,7 @@ void DisplayController::updateLampsTask() {
                             buttonVal |= (1 << 10); // GPB2
                             break;
                     }
-                } 
+                }
             }
         }
 
