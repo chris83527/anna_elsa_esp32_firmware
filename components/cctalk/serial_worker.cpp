@@ -63,8 +63,14 @@ namespace esp32cc {
                 .source_clk = UART_SCLK_APB,
             };
 
+            int intr_alloc_flags = 0;
+
+#if CONFIG_UART_ISR_IN_IRAM
+            intr_alloc_flags = ESP_INTR_FLAG_IRAM;
+#endif
+
             // Set UART config   
-            xErr = uart_driver_install(uartNumber, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE, 10, &cctalkUartQueueHandle, 0);
+            xErr = uart_driver_install(uartNumber, MAX_BUFFER_SIZE, 0, 0, NULL, intr_alloc_flags);
 
             CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk serial driver failure, uart_driver_install() returned (0x%x).", xErr);
 
@@ -112,13 +118,13 @@ namespace esp32cc {
         ESP_LOGD(TAG, "Send complete. Waiting for response");
 
         std::this_thread::sleep_for(std::chrono::milliseconds(25));
-        
+
         std::vector<uint8_t> receivedData;
 
         bool receiveComplete = false;
         timer.startTimer(responseTimeoutMsec);
         int bytesRead = 0;
-        
+
         int length = 0;
 
         while (!receiveComplete) {
@@ -126,7 +132,7 @@ namespace esp32cc {
             if (timer.isReady()) {
                 ESP_LOGD(TAG, "Timer hit");
                 break; // receive complete false
-            }            
+            }
 
             // Read received data and send it to cctalk stack
             ESP_ERROR_CHECK(uart_get_buffered_data_len(this->getUartNumber(), (size_t*) & length));
@@ -139,7 +145,7 @@ namespace esp32cc {
                 receiveComplete = true;
                 ESP_LOGD(TAG, "No more data available.");
             }
-            
+
             std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }
 

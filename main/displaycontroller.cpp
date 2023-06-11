@@ -202,11 +202,11 @@ esp_err_t DisplayController::initialise() {
     this->updateLampsThread.reset(new std::thread([this]() {
         updateLampsTask();
     }));
-    
+
     cfg.thread_name = "BlinkLamps";
     cfg.prio = 3;
     cfg.stack_size = 1024;
-    esp_pthread_set_cfg(&cfg);    
+    esp_pthread_set_cfg(&cfg);
     this->blinkLampsThread.reset(new std::thread([this]() {
         blinkLampsTask();
     }));
@@ -267,7 +267,7 @@ void DisplayController::testLamps() {
     // switch all LEDs on;
     resetLampData();
     for (int i = 0; i < (LED_COUNT + 6); i++) {
-        lampData[i].lampState = LampState::on;
+        lampData[i].lampState = LampState::on;      
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     resetLampData();
@@ -480,7 +480,7 @@ void DisplayController::blinkLampsTask() {
 
 void DisplayController::updateLampsTask() {
     ESP_LOGI(TAG, "Update Lamps task started");
-    
+
     err_t err;
     uint16_t buttonVal;
 
@@ -516,28 +516,30 @@ void DisplayController::updateLampsTask() {
                 led_strip_set_pixel(&ledStrip, i, this->lampData[i].rgb);
             } else {
                 // GPB1 and GPB0 are unconnected
-                switch (i) {
-                    case LED_COUNT:
-                        buttonVal |= (1 << 15); //GPB7 (Start)
-                        break;
-                    case LED_COUNT + 1:
-                        buttonVal |= (1 << 14); //GPB6 (Collect)
-                        break;
-                    case LED_COUNT + 2:
-                        buttonVal |= (1 << 13); // GPB5
-                        break;
-                    case LED_COUNT + 3:
-                        buttonVal |= (1 << 12); // GPB4
-                        break;
-                    case LED_COUNT + 4:
-                        buttonVal |= (1 << 11); // GPB3
-                        break;
-                    case LED_COUNT + 5:
-                        buttonVal |= (1 << 10); // GPB2
-                        break;
+                // RGB value must be 255 for non-led lamps
+                if (this->lampData[i].rgb.red = 255 && this->lampData[i].rgb.green = 255 && this->lampData[i].rgb.blue = 255) {
+                    switch (i) {
+                        case LED_COUNT:
+                            buttonVal |= (1 << 15); //GPB7 (Start)
+                            break;
+                        case LED_COUNT + 1:
+                            buttonVal |= (1 << 14); //GPB6 (Collect)
+                            break;
+                        case LED_COUNT + 2:
+                            buttonVal |= (1 << 13); // GPB5
+                            break;
+                        case LED_COUNT + 3:
+                            buttonVal |= (1 << 12); // GPB4
+                            break;
+                        case LED_COUNT + 4:
+                            buttonVal |= (1 << 11); // GPB3
+                            break;
+                        case LED_COUNT + 5:
+                            buttonVal |= (1 << 10); // GPB2
+                            break;
+                    }
                 }
             }
-
         }
 
         led_strip_flush(&ledStrip);
