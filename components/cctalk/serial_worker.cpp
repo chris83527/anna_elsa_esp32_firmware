@@ -35,7 +35,7 @@
 
 static const char* TAG = "serial_worker";
 
-std::mutex sendMutex;
+//std::mutex sendMutex;
 
 namespace esp32cc {
 
@@ -105,19 +105,19 @@ namespace esp32cc {
 
         // Set the UART receive timeout
         ESP_LOGD(TAG, "Setting RX Timeout %d msec", responseTimeoutMsec);
-        uart_set_rx_timeout(this->getUartNumber(), pdMS_TO_TICKS(responseTimeoutMsec));
+        //uart_set_rx_timeout(this->getUartNumber(), pdMS_TO_TICKS(responseTimeoutMsec));
         //CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk set rx timeout failure, uart_set_rx_timeout() returned (0x%x).", xErr);        
 
-        uart_set_always_rx_timeout(this->getUartNumber(), true);
+        //uart_set_always_rx_timeout(this->getUartNumber(), true);
 
         //xQueueReset(this->cctalkUartQueueHandle);
-        uart_flush_input(this->getUartNumber());
+        uart_flush(this->getUartNumber());
         uart_write_bytes(this->getUartNumber(), requestData.data(), requestData.size());
-        uart_wait_tx_done(this->getUartNumber(), pdMS_TO_TICKS(75)); // wait 75ms max 
+        uart_wait_tx_done(this->getUartNumber(), pdMS_TO_TICKS(500)); // wait 75ms max 
 
         ESP_LOGD(TAG, "Send complete. Waiting for response");
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
         std::vector<uint8_t> receivedData;
 
@@ -146,7 +146,7 @@ namespace esp32cc {
                 ESP_LOGD(TAG, "No more data available.");
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(25));
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
 
         if (receiveComplete) {

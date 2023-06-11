@@ -43,8 +43,8 @@ public:
     //const static uint8_t COIN_VALUES[];
     
 
-    const static unsigned long VALIDATOR_POLL_INTERVAL = 100;
-    const static unsigned long HOPPER_STATUS_POLL_INTERVAL = 400;
+    const static unsigned long VALIDATOR_POLL_INTERVAL = 250;
+    const static unsigned long HOPPER_STATUS_POLL_INTERVAL = 100;
     esp32cc::CoinHopperDevice hopper;
 private:
 

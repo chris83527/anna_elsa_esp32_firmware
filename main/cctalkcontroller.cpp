@@ -45,12 +45,14 @@ esp_err_t CCTalkController::initialise() {
         }
     });
 
-    this->hopper.requestResetDevice([ = ](const std::string & error_msg){
-    
-    });
+//    this->hopper.requestResetDevice([ = ](const std::string & error_msg){
+//    
+//    });
     
     this->coinAcceptor.requestResetDevice([ = ](const std::string & error_msg){
-    
+        if (error_msg.size() > 0) {
+            ESP_LOGE(TAG, "%s", error_msg.c_str());
+        }
     });
     
     // 5ct  (Kasse - rejected anyway)
