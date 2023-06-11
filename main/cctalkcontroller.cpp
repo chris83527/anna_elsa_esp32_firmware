@@ -39,7 +39,7 @@ esp_err_t CCTalkController::initialise() {
 //        }
 //    });
 
-    this->coinAcceptor.initialise(this->cctalkLinkController, CCTALK_COIN_VALIDATOR, [ = ](const std::string & error_msg){
+    this->coinAcceptor.initialise(&this->cctalkLinkController, CCTALK_COIN_VALIDATOR, [ = ](const std::string & error_msg){
         if (error_msg.size() > 0) {
             ESP_LOGE(TAG, "An error occurred initialising the coin acceptor: %s", error_msg.c_str());
         }

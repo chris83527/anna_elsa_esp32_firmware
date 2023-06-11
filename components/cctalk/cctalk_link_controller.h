@@ -44,7 +44,7 @@
 #include "serial_worker.h"
 
 
-namespace esp32cc {    
+namespace esp32cc {
 
     class CctalkLinkController {
     public:
@@ -74,10 +74,10 @@ namespace esp32cc {
         uint64_t ccRequest(CcHeader command, uint8_t deviceAddress, std::vector<uint8_t>& additionalData, int responseTimeoutMsec, std::function<void(const std::string& error_msg, const std::vector<uint8_t>& command_data) > callbackFunction);
 
         /// Handle generic serial response and emit ccResponse
-        void onResponseReceive(const uint64_t request_id, const std::vector<uint8_t>& response_data) const;
+        void onResponseReceive(const uint64_t request_id, const std::vector<uint8_t>& response_data);
 
     private:
-        
+
         void openPort(const uart_port_t uartNumber, const int txPin, const int rxPin);
 
         /// Close the serial port.
@@ -85,13 +85,16 @@ namespace esp32cc {
 
         std::function<void(const std::string& error_msg, const std::vector<uint8_t>& command_data) > executeOnReturnCallback;
 
-        uint8_t deviceAddress = 0x00; // The slave device we are currently talking to
-        uint8_t controllerAddress = 0x01; ///< Controller address. 1 means "Master". There is no reason to change this.
-
         bool isChecksum16bit = false; /// If true, use 16-bit CRC checksum. Otherwise use simple 8-bit checksum. The device must be set to the same value.
         bool isDesEncrypted = false; ///< If true, use DES encryption. The device must be set to the same value. NOTE: Unsupported.
 
         uint64_t requestNumber = 0; ///< Request number. This is used to identify which response came from which request.
+
+        bool requestInProgress = false;
+
+        uint8_t currentDeviceAddress = 0x00; // The slave device we are currently talking to        
+        const uint8_t controllerAddress = 0x01; ///< Controller address. 1 means "Master". There is no reason to change this.
+
 
         bool showCctalkRequest = true;
         bool showCctalkResponse = true;
