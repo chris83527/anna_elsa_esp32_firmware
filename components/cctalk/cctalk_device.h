@@ -305,8 +305,8 @@ namespace esp32cc {
 
         CctalkLinkController linkController; ///< Controller for serial worker thread with cctalk link management support.
 
-        int normalPollingIntervalMsec = 100; ///< Polling interval for normal and diagnostics modes.
-        const int defaultNormalPollingIntervalMsec = 100; ///< Default polling interval for normal and diagnostics modes.
+        int normalPollingIntervalMsec = 250; ///< Polling interval for normal and diagnostics modes.
+        const int defaultNormalPollingIntervalMsec = 250; ///< Default polling interval for normal and diagnostics modes.
         const int notAlivePollingIntervalMsec = 1000; ///< Polling interval for modes when the device doesn't respond to alive check.
 
         bool isTimerIterationTaskRunning = false; ///< Avoids parallel executions of state change, since it's asynchronous
