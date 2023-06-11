@@ -352,6 +352,8 @@ void DisplayController::attractModeTask() {
             this->displayText("      PLAY ME       ");
             // Red trail effect
             int currentLamp = LAMP_TRAIL_20_CENT;
+	    for (int j = 0 ; j < 3 ; j++) {
+            currentLamp = LAMP_TRAIL_20_CENT;
             for (int i = 0; i < 20; i++) {
 
                 lampData[currentLamp].rgb.b = 0;
@@ -391,9 +393,10 @@ void DisplayController::attractModeTask() {
                 
                 std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));                
             }
+}
 
-            resetLampData();
             std::this_thread::sleep_for(std::chrono::seconds(5));
+            resetLampData();
 
             this->displayText("     20CT GAME      ");
 

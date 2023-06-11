@@ -56,18 +56,18 @@ extern "C" {
 void app_main() {
     ESP_LOGI(TAG, "app_main() called");
 
-    // See https://github.com/espressif/esp-idf/issues/3544
-    esp_pthread_cfg_t cfg;
-    if (esp_pthread_get_cfg(&cfg) != ESP_OK) {
-        cfg = esp_pthread_get_default_config();
-    }
-    cfg.prio = 1;
-    cfg.inherit_cfg = true;
-    cfg.stack_size = (4096);
-    if (esp_pthread_set_cfg(&cfg) != ESP_OK) {
-        printf("esp_pthread_set_cfg failed\n");
-        abort();
-    };
+//    // See https://github.com/espressif/esp-idf/issues/3544
+//    esp_pthread_cfg_t cfg;
+//    if (esp_pthread_get_cfg(&cfg) != ESP_OK) {
+//        cfg = esp_pthread_get_default_config();
+//    }
+//    cfg.prio = 1;
+//    cfg.inherit_cfg = true;
+//    cfg.stack_size = (4096);
+//    if (esp_pthread_set_cfg(&cfg) != ESP_OK) {
+//        printf("esp_pthread_set_cfg failed\n");
+//        abort();
+//    };
 
     esp_log_level_set("ESP_AUDIO_CTRL", ESP_LOG_WARN);
     esp_log_level_set("ESP_AUDIO_TASK", ESP_LOG_WARN);
