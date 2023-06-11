@@ -194,9 +194,7 @@ esp_err_t DisplayController::initialise() {
     this->resetLampData();
 
     // Start a new thread to update the lamps
-    auto cfg = esp_pthread_get_default_config();
-    
-    
+    auto cfg = esp_pthread_get_default_config();      
     cfg.thread_name = "BlinkLamps";
     cfg.prio = 3;
     cfg.stack_size = 1024;
@@ -206,14 +204,12 @@ esp_err_t DisplayController::initialise() {
     }));
     
     cfg.thread_name = "UpdateLamps";
-    cfg.prio = 5;
+    cfg.prio = 4;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
     this->updateLampsThread.reset(new std::thread([this]() {
         updateLampsTask();
-    }));
-
-    
+    }));    
 
     cfg.thread_name = "UpdateSevenSeg";
     cfg.prio = 2;
