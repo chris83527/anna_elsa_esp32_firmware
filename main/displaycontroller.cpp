@@ -517,7 +517,7 @@ void DisplayController::updateLampsTask() {
             } else {
                 // GPB1 and GPB0 are unconnected
                 // RGB value must be 255 for non-led lamps
-                if (this->lampData[i].rgb.red = 255 && this->lampData[i].rgb.green = 255 && this->lampData[i].rgb.blue = 255) {
+                if (this->lampData[i].rgb.red == 255 && this->lampData[i].rgb.green == 255 && this->lampData[i].rgb.blue == 255) {
                     switch (i) {
                         case LED_COUNT:
                             buttonVal |= (1 << 15); //GPB7 (Start)
