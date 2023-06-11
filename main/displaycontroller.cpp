@@ -517,7 +517,7 @@ void DisplayController::updateLampsTask() {
             } else {
                 // GPB1 and GPB0 are unconnected
                 // RGB value must be 255 for non-led lamps
-                if (this->lampData[i].rgb.red == 255 && this->lampData[i].rgb.green == 255 && this->lampData[i].rgb.blue == 255) {
+                if (this->lampData[i].activeRgb.red == 255 && this->lampData[i].activeRgb.green == 255 && this->lampData[i].activeRgb.blue == 255) {
                     switch (i) {
                         case LED_COUNT:
                             buttonVal |= (1 << 15); //GPB7 (Start)
@@ -538,28 +538,7 @@ void DisplayController::updateLampsTask() {
                             buttonVal |= (1 << 10); // GPB2
                             break;
                     }
-                } else {
-                    switch (i) {
-                        case LED_COUNT:
-                            buttonVal ~= (1 << 15); //GPB7 (Start)
-                            break;
-                        case LED_COUNT + 1:
-                            buttonVal ~= (1 << 14); //GPB6 (Collect)
-                            break;
-                        case LED_COUNT + 2:
-                            buttonVal ~= (1 << 13); // GPB5
-                            break;
-                        case LED_COUNT + 3:
-                            buttonVal ~= (1 << 12); // GPB4
-                            break;
-                        case LED_COUNT + 4:
-                            buttonVal ~= (1 << 11); // GPB3
-                            break;
-                        case LED_COUNT + 5:
-                            buttonVal ~= (1 << 10); // GPB2
-                            break;
-                    }
-                }
+                } 
             }
         }
 
