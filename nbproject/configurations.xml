@@ -78,6 +78,7 @@
         <in>wifi.cpp</in>
         <in>wifi.h</in>
       </df>
+      <in>newfile</in>
     </df>
     <df root="../esp/esp-idf-lib/components" name="1">
       <df name="ads111x">
@@ -60298,6 +60299,8 @@
       <item path="main/wifi.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="main/wifi.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="newfile" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>

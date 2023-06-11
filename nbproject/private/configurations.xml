@@ -3482,6 +3482,7 @@
       </df>
       <df name="test">
       </df>
+      <in>newfile</in>
     </df>
     <df root="../esp/esp-idf-lib/components" name="1">
       <df name="ads111x">
@@ -3495,6 +3496,10 @@
       <df name="aht">
         <in>aht.c</in>
         <in>aht.h</in>
+      </df>
+      <df name="am2320">
+        <in>am2320.c</in>
+        <in>am2320.h</in>
       </df>
       <df name="bh1750">
         <in>bh1750.c</in>
@@ -3759,6 +3764,10 @@
       <df name="scd4x">
         <in>scd4x.c</in>
         <in>scd4x.h</in>
+      </df>
+      <df name="sgm58031">
+        <in>sgm58031.c</in>
+        <in>sgm58031.h</in>
       </df>
       <df name="sgp40">
         <in>sensirion_voc_algorithm.c</in>
