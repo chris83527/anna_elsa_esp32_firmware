@@ -152,9 +152,10 @@ private:
     MainController *mainController;
 
     void testLamps(void);
+    
     uint8_t keyStatus;
 
-    uint32_t lampDataNew[LED_COUNT + 6];
+    //uint32_t lampDataNew[LED_COUNT + 6];
 
     bool attractMode = false;                
  
@@ -178,6 +179,8 @@ private:
     void updateSevenSegDisplaysTask(void);
     std::unique_ptr<std::thread> updateLampsThread;
     void updateLampsTask(void);
+    std::unique_ptr<std::thread> blinkLampsThread;
+    void blinkLampsTask(void);
 };
 
 

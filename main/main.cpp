@@ -56,11 +56,19 @@ extern "C" {
 void app_main() {
     ESP_LOGI(TAG, "app_main() called");
 
+<<<<<<< Updated upstream
 //    // See https://github.com/espressif/esp-idf/issues/3544
 //    esp_pthread_cfg_t cfg;
 //    if (esp_pthread_get_cfg(&cfg) != ESP_OK) {
 //        cfg = esp_pthread_get_default_config();
 //    }
+=======
+    // See https://github.com/espressif/esp-idf/issues/3544
+    esp_pthread_cfg_t cfg;
+    if (esp_pthread_get_cfg(&cfg) != ESP_OK) {
+        cfg = esp_pthread_get_default_config();
+    }
+>>>>>>> Stashed changes
 //    cfg.prio = 1;
 //    cfg.inherit_cfg = true;
 //    cfg.stack_size = (4096);
