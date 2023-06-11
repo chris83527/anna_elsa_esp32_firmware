@@ -345,6 +345,7 @@ namespace esp32cc {
             } else {
                 this->deviceCategory = category;
                 this->manufacturingInfo = info;
+                ESP_LOGI(TAG, "Manufacturing info: \n%s", manufacturingInfo.c_str());
             }
 
             if (error_msg.size() > 0 || (category != CcCategory::BillValidator && category != CcCategory::CoinAcceptor && category != CcCategory::Payout)) {
