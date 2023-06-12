@@ -83,14 +83,23 @@ const uint8_t DisplayController::NUDGE_LAMPS[] = {
 };
 
 const uint8_t DisplayController::TRAIL_LAMPS[] = {
-    LAMP_PRIZE_20_CENT,
-    LAMP_PRIZE_40_CENT,
-    LAMP_PRIZE_80_CENT,
-    LAMP_PRIZE_120_CENT,
-    LAMP_PRIZE_160_CENT,
-    LAMP_PRIZE_200_CENT,
-    LAMP_PRIZE_300_CENT,
-    LAMP_PRIZE_400_CENT
+    LAMP_TRAIL_20_CENT,
+    LAMP_TRAIL_40_CENT,
+    LAMP_TRAIL_60_CENT,
+    LAMP_TRAIL_80_CENT,
+    LAMP_TRAIL_ONE_EURO,
+    LAMP_TRAIL_ONE_TWENTY,
+    LAMP_TRAIL_ONE_FOURTY,
+    LAMP_TRAIL_ONE_SIXTY,
+    LAMP_TRAIL_ONE_EIGHTY,
+    LAMP_TRAIL_TWO_EURO,
+    LAMP_TRAIL_TWO_FOURTY,
+    LAMP_TRAIL_TWO_EIGHTY,
+    LAMP_TRAIL_THREE_FOURTY,
+    LAMP_TRAIL_THREE_EIGHTY,
+    LAMP_TRAIL_FOUR_TWENTY,
+    LAMP_TRAIL_FOUR_SIXTY,
+    LAMP_TRAIL_FIVE_EURO,
 };
 
 const uint8_t DisplayController::FEATURE_LAMPS[] = {
@@ -343,7 +352,7 @@ void DisplayController::attractModeTask() {
     uint8_t start_rgb = 0;
 
     while (1) {
-        if (this->attractMode) {
+        if (isAttractMode()) {
 
             this->displayText("       FROZEN       ");
             this->resetLampData();
@@ -374,7 +383,7 @@ void DisplayController::attractModeTask() {
             this->displayText("      PLAY ME       ");
             // Red trail effect           
             int currentLamp;
-            int trailElements = (sizeof(TRAIL_LAMPS) / sizeof(TRAIL_LAMPS[0]));
+            int trailElements = (sizeof (TRAIL_LAMPS) / sizeof (TRAIL_LAMPS[0]));
             for (int j = 0; j < 3; j++) {
 
                 currentLamp = 0;
@@ -388,17 +397,23 @@ void DisplayController::attractModeTask() {
 
                     if (i > 0) {
                         lampData[TRAIL_LAMPS[currentLamp - 1]].rgb.r = 192;
+                        lampData[TRAIL_LAMPS[currentLamp - 1]].rgb.b = 0;
+                        lampData[TRAIL_LAMPS[currentLamp - 1]].rgb.g = 0;
                         lampData[TRAIL_LAMPS[currentLamp - 1]].lampState = LampState::on;
                     }
                     if (i > 1) {
                         lampData[TRAIL_LAMPS[currentLamp - 2]].rgb.r = 129;
+                        lampData[TRAIL_LAMPS[currentLamp - 2]].rgb.b = 0;
+                        lampData[TRAIL_LAMPS[currentLamp - 2]].rgb.g = 0;
                         lampData[TRAIL_LAMPS[currentLamp - 2]].lampState = LampState::on;
                     }
                     if (i > 2) {
                         lampData[TRAIL_LAMPS[currentLamp - 3]].rgb.r = 66;
+                        lampData[TRAIL_LAMPS[currentLamp - 3]].rgb.b = 0;
+                        lampData[TRAIL_LAMPS[currentLamp - 3]].rgb.g = 0;
                         lampData[TRAIL_LAMPS[currentLamp - 3]].lampState = LampState::on;
                     }
-                    if (i > 3) {
+                    if (i > 3) {                        
                         lampData[TRAIL_LAMPS[currentLamp - 4]].lampState = LampState::off;
                     }
 
@@ -412,7 +427,7 @@ void DisplayController::attractModeTask() {
                     if (i > (trailElements + 3)) {
                         lampData[TRAIL_LAMPS[currentLamp - 1]].lampState = LampState::off;
                     }
-                    
+
 
                     if (i < trailElements) {
                         currentLamp++;

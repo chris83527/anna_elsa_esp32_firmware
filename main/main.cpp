@@ -76,7 +76,7 @@ void app_main() {
     esp_log_level_set("AUDIO_PIPELINE", ESP_LOG_WARN);
     esp_log_level_set("VORBIS_DECODER", ESP_LOG_WARN);
     esp_log_level_set("I2S_STREAM", ESP_LOG_WARN);
-    esp_log_level_set("ReelController", ESP_LOG_DEBUG);
+    //esp_log_level_set("ReelController", ESP_LOG_DEBUG);
     esp_log_level_set("m20ly02z", ESP_LOG_WARN);
     esp_log_level_set("i2cdev", ESP_LOG_NONE);
     //esp_log_level_set("cctalkDevice", ESP_LOG_DEBUG);

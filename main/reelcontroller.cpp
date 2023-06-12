@@ -56,7 +56,7 @@
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
 #define LEDC_DUTY_QUARTER (4095)        // Set duty to 12,5%
 #define LEDC_DUTY_FULL (8190)           // Set duty to 50%.((2 ** 13) - 1) * 50% = 4095
-#define LEDC_FREQUENCY (100)            // Frequency in Hertz. Set frequency at 500Hz
+#define LEDC_FREQUENCY (250)            // Frequency in Hertz. Set frequency at 500Hz
 
 static const char *TAG = "ReelController";
 
@@ -355,8 +355,8 @@ void ReelController::spinToZero() {
                 }
             }
 
-            if (delay > 5) {
-                delay -= 5;
+            if (delay > 10) {
+                delay -= 10;
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(delay));
@@ -477,8 +477,8 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
 
                     step(event);
 
-            if (delay > 5) {
-                delay -= 5;
+            if (delay > 10) {
+                delay -= 10;
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(delay));
@@ -562,8 +562,8 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
 
                     step(event);
 
-            if (delay > 5) {
-                delay -= 5;
+            if (delay > 10) {
+                delay -= 10;
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(delay));
