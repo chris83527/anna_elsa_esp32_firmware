@@ -81,7 +81,18 @@ const uint8_t DisplayController::NUDGE_LAMPS[] = {
     LAMP_NUDGE_4,
     LAMP_NUDGE_5
 };
-const uint8_t DisplayController::TRAIL_LAMPS[] = {23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39};
+
+const uint8_t DisplayController::TRAIL_LAMPS[] = {
+    LAMP_PRIZE_20_CENT,
+    LAMP_PRIZE_40_CENT,
+    LAMP_PRIZE_80_CENT,
+    LAMP_PRIZE_120_CENT,
+    LAMP_PRIZE_160_CENT,
+    LAMP_PRIZE_200_CENT,
+    LAMP_PRIZE_300_CENT,
+    LAMP_PRIZE_400_CENT
+};
+
 const uint8_t DisplayController::FEATURE_LAMPS[] = {
     LAMP_MATRIX_FREE_SPIN_1_2,
     LAMP_MATRIX_DOUBLE_MONEY_1_3,
@@ -361,44 +372,49 @@ void DisplayController::attractModeTask() {
             std::this_thread::sleep_for(std::chrono::seconds(10));
 
             this->displayText("      PLAY ME       ");
-            // Red trail effect
-            int currentLamp = LAMP_TRAIL_20_CENT;
+            // Red trail effect           
+            int currentLamp;
+            int trailElements = (sizeof(TRAIL_LAMPS) / sizeof(TRAIL_LAMPS[0]);
             for (int j = 0; j < 3; j++) {
-                currentLamp = LAMP_TRAIL_20_CENT;
-                for (int i = 0; i < 20; i++) {
 
-                    lampData[currentLamp].rgb.b = 0;
-                    lampData[currentLamp].rgb.g = 0;
-                    lampData[currentLamp].rgb.r = 255;
-                    lampData[currentLamp].lampState = LampState::on;
+                currentLamp = 0;
+
+                for (int i = 0; i < (trailElements + 4); i++) {
+
+                    lampData[TRAIL_LAMPS[currentLamp]].rgb.b = 0;
+                    lampData[TRAIL_LAMPS[currentLamp]].rgb.g = 0;
+                    lampData[TRAIL_LAMPS[currentLamp]].rgb.r = 255;
+                    lampData[TRAIL_LAMPS[currentLamp]].lampState = LampState::on;
+
                     if (i > 0) {
-                        lampData[currentLamp - 1].rgb.r = 192;
-                        lampData[currentLamp - 1].lampState = LampState::on;
+                        lampData[TRAIL_LAMPS[currentLamp - 1]].rgb.r = 192;
+                        lampData[TRAIL_LAMPS[currentLamp - 1]].lampState = LampState::on;
                     }
                     if (i > 1) {
-                        lampData[currentLamp - 2].rgb.r = 129;
-                        lampData[currentLamp - 1].lampState = LampState::on;
+                        lampData[TRAIL_LAMPS[currentLamp - 2]].rgb.r = 129;
+                        lampData[TRAIL_LAMPS[currentLamp - 2]].lampState = LampState::on;
+                    }
+                    if (i > 2) {
+                        lampData[TRAIL_LAMPS[currentLamp - 3]].rgb.r = 66;
+                        lampData[TRAIL_LAMPS[currentLamp - 3]].lampState = LampState::on;
                     }
                     if (i > 3) {
-                        lampData[currentLamp - 3].rgb.r = 66;
-                        lampData[currentLamp - 1].lampState = LampState::on;
-                    }
-                    if (i > 4) {
-                        lampData[currentLamp - 4].lampState = LampState::off;
+                        lampData[TRAIL_LAMPS[currentLamp - 4]].lampState = LampState::off;
                     }
 
-                    // tail catches up
-                    if (i > 17) {
-                        lampData[currentLamp - 3].lampState = LampState::off;
+                    // tail catches up                    
+                    if (i > (trailElements + 1)) {
+                        lampData[TRAIL_LAMPS[currentLamp - 3]].lampState = LampState::off;
                     }
-                    if (i > 18) {
-                        lampData[currentLamp - 2].lampState = LampState::off;
+                    if (i > (trailElements + 2)) {
+                        lampData[TRAIL_LAMPS[currentLamp - 2]].lampState = LampState::off;
                     }
-                    if (i > 19) {
-                        lampData[currentLamp - 1].lampState = LampState::off;
+                    if (i > (trailElements + 3)) {
+                        lampData[TRAIL_LAMPS[currentLamp - 1]].lampState = LampState::off;
                     }
+                    
 
-                    if (i < 16) {
+                    if (i < trailElements) {
                         currentLamp++;
                     }
 
@@ -513,7 +529,8 @@ void DisplayController::updateLampsTask() {
             esp_backtrace_print(100);
         }
 
-        // set leds        
+        // set leds
+        buttonVal = 0;
         for (int i = 0; i < LED_COUNT + 6; i++) {
 
             //ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i, tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);       
@@ -550,7 +567,7 @@ void DisplayController::updateLampsTask() {
         led_strip_flush(&ledStrip);
         mcp23x17_port_write(this->getButtonIO(), buttonVal);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(75));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     }
 }

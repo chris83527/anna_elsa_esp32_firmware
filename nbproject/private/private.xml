@@ -25,13 +25,17 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/moneycontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_link_controller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_device.cpp</file>
+            <file>file:/home/chris/esp/esp-idf-lib/components/mcp23x17/mcp23x17.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.h</file>
+            <file>file:/home/chris/esp/esp-idf-lib/components/mcp23x17/mcp23x17.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/webserver.c</file>
+            <file>file:/home/chris/esp/esp-idf-lib/components/color/rgb.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/serial_worker.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/oledcontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_enums.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/displaycontroller.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/newfile</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/audiocontroller.h</file>
         </group>
     </open-files>
