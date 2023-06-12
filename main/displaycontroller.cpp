@@ -374,7 +374,7 @@ void DisplayController::attractModeTask() {
             this->displayText("      PLAY ME       ");
             // Red trail effect           
             int currentLamp;
-            int trailElements = (sizeof(TRAIL_LAMPS) / sizeof(TRAIL_LAMPS[0]);
+            int trailElements = (sizeof(TRAIL_LAMPS) / sizeof(TRAIL_LAMPS[0]));
             for (int j = 0; j < 3; j++) {
 
                 currentLamp = 0;
