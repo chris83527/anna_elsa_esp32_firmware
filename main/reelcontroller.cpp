@@ -54,9 +54,9 @@
 #define LEDC_MODE LEDC_LOW_SPEED_MODE
 #define LEDC_CHANNEL LEDC_CHANNEL_0
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
-#define LEDC_DUTY_QUARTER (4095)        // Set duty to 12,5%
-#define LEDC_DUTY_FULL (8190)           // Set duty to 50%.((2 ** 13) - 1) * 50% = 4095
-#define LEDC_FREQUENCY (150)            // Frequency in Hertz. Set frequency at 150Hz
+#define LEDC_DUTY_QUARTER (4095 / 2)        // Set duty to 12,5%
+#define LEDC_DUTY_FULL (4095)           // Set duty to 50%.((2 ** 13) - 1) * 50% = 4095
+#define LEDC_FREQUENCY (75)            // Frequency in Hertz. Set frequency at 150Hz
 
 static const char *TAG = "ReelController";
 
@@ -75,7 +75,7 @@ Step	a+	b+	a-	b-
 3	0	0	1	1
 4	1	0	0	1
 */
-uint8_t cw_steps[4] = {
+uint8_t ccw_steps[4] = {
     GPIO_MOTOR_A_PLUS | GPIO_MOTOR_B_PLUS,
     GPIO_MOTOR_B_PLUS | GPIO_MOTOR_A_MINUS,
     GPIO_MOTOR_A_MINUS | GPIO_MOTOR_B_MINUS,
@@ -83,7 +83,7 @@ uint8_t cw_steps[4] = {
 };
 
 
-uint8_t ccw_steps[4] = {
+uint8_t cw_steps[4] = {
     GPIO_MOTOR_B_MINUS | GPIO_MOTOR_A_PLUS,
     GPIO_MOTOR_A_MINUS | GPIO_MOTOR_B_MINUS,
     GPIO_MOTOR_B_PLUS | GPIO_MOTOR_A_MINUS,
@@ -321,7 +321,7 @@ void ReelController::spinToZero() {
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-        int delay = 75;
+        int delay = 100;
 
         for (int counter = 0; counter < ((MAX_STOPS * 2) * STEPS_PER_STOP); counter++) // two spins, multiply by 4 steps
         {
@@ -365,8 +365,8 @@ void ReelController::spinToZero() {
                 }
             }
 
-            if (delay > 10) {
-                delay -= 10;
+            if (delay > 5) {
+                delay -= 5;
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(delay));
