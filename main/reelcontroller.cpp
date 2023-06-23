@@ -69,7 +69,7 @@ bool reelCentreInitOk;
 bool reelRightInitOk;
 
 /*
-Step	a	c	b	d
+Step	a+	b+	a-	b-
 1	1	1	0	0
 2	0	1	1	0
 3	0	0	1	1
@@ -161,12 +161,12 @@ bool ReelController::initialise() {
         return false;
     } else {
         // motor outputs to our H-bridge
-        if (mcp23008_set_mode(&reel_left, GPIO_MOTOR_1, MCP23008_GPIO_OUTPUT) != ESP_OK) {
+        if (mcp23008_set_mode(&reel_left, GPIO_MOTOR_A_PLUS, MCP23008_GPIO_OUTPUT) != ESP_OK) {
             ESP_LOGE(TAG, "An error occurred initialising left reel");
             return false;
         }
-        mcp23008_set_mode(&reel_left, GPIO_MOTOR_2, MCP23008_GPIO_OUTPUT);
-        mcp23008_set_mode(&reel_left, GPIO_MOTOR_3, MCP23008_GPIO_OUTPUT);
+        mcp23008_set_mode(&reel_left, GPIO_MOTOR_A_MINUS, MCP23008_GPIO_OUTPUT);
+        mcp23008_set_mode(&reel_left, GPIO_MOTOR_B_MINUS, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_left, GPIO_MOTOR_4, MCP23008_GPIO_OUTPUT);
         // photointerrupter
         mcp23008_set_mode(&reel_left, GPIO_PHOTO_INTERRUPTER, MCP23008_GPIO_INPUT);
@@ -189,12 +189,12 @@ bool ReelController::initialise() {
         return false;
     } else {
         // motor outputs to our H-bridge
-        if (mcp23008_set_mode(&reel_centre, GPIO_MOTOR_1, MCP23008_GPIO_OUTPUT) != ESP_OK) {
+        if (mcp23008_set_mode(&reel_centre, GPIO_MOTOR_A_PLUS, MCP23008_GPIO_OUTPUT) != ESP_OK) {
             ESP_LOGE(TAG, "An error occurred initialising centre reel");
             return false;
         }
-        mcp23008_set_mode(&reel_centre, GPIO_MOTOR_2, MCP23008_GPIO_OUTPUT);
-        mcp23008_set_mode(&reel_centre, GPIO_MOTOR_3, MCP23008_GPIO_OUTPUT);
+        mcp23008_set_mode(&reel_centre, GPIO_MOTOR_A_MINUS, MCP23008_GPIO_OUTPUT);
+        mcp23008_set_mode(&reel_centre, GPIO_MOTOR_B_MINUS, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_centre, GPIO_MOTOR_4, MCP23008_GPIO_OUTPUT);
         // photointerrupter
         mcp23008_set_mode(&reel_centre, GPIO_PHOTO_INTERRUPTER, MCP23008_GPIO_INPUT);
@@ -216,12 +216,12 @@ bool ReelController::initialise() {
         ESP_LOGE(TAG, "An error occurred initialising right reel");
         //return ESP_FAIL;
     } else {
-        if (mcp23008_set_mode(&reel_right, GPIO_MOTOR_1, MCP23008_GPIO_OUTPUT) != ESP_OK) {
+        if (mcp23008_set_mode(&reel_right, GPIO_MOTOR_A_PLUS, MCP23008_GPIO_OUTPUT) != ESP_OK) {
             ESP_LOGE(TAG, "An error occurred initialising right reel");
             return false;
         }
-        mcp23008_set_mode(&reel_right, GPIO_MOTOR_2, MCP23008_GPIO_OUTPUT);
-        mcp23008_set_mode(&reel_right, GPIO_MOTOR_3, MCP23008_GPIO_OUTPUT);
+        mcp23008_set_mode(&reel_right, GPIO_MOTOR_A_MINUS, MCP23008_GPIO_OUTPUT);
+        mcp23008_set_mode(&reel_right, GPIO_MOTOR_B_MINUS, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_right, GPIO_MOTOR_4, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_right, GPIO_PHOTO_INTERRUPTER, MCP23008_GPIO_INPUT);
         mcp23008_set_pullup(&reel_right, GPIO_PHOTO_INTERRUPTER, true); // switch on pullup (should be on the board, but forgot)
