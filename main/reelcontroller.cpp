@@ -167,7 +167,7 @@ bool ReelController::initialise() {
         }
         mcp23008_set_mode(&reel_left, GPIO_MOTOR_A_MINUS, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_left, GPIO_MOTOR_B_MINUS, MCP23008_GPIO_OUTPUT);
-        mcp23008_set_mode(&reel_left, GPIO_MOTOR_4, MCP23008_GPIO_OUTPUT);
+        mcp23008_set_mode(&reel_left, GPIO_MOTOR_B_PLUS, MCP23008_GPIO_OUTPUT);
         // photointerrupter
         mcp23008_set_mode(&reel_left, GPIO_PHOTO_INTERRUPTER, MCP23008_GPIO_INPUT);
         mcp23008_set_pullup(&reel_left, GPIO_PHOTO_INTERRUPTER, true); // switch on pullup (should be on the board, but forgot)
@@ -195,7 +195,7 @@ bool ReelController::initialise() {
         }
         mcp23008_set_mode(&reel_centre, GPIO_MOTOR_A_MINUS, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_centre, GPIO_MOTOR_B_MINUS, MCP23008_GPIO_OUTPUT);
-        mcp23008_set_mode(&reel_centre, GPIO_MOTOR_4, MCP23008_GPIO_OUTPUT);
+        mcp23008_set_mode(&reel_centre, GPIO_MOTOR_B_PLUS, MCP23008_GPIO_OUTPUT);
         // photointerrupter
         mcp23008_set_mode(&reel_centre, GPIO_PHOTO_INTERRUPTER, MCP23008_GPIO_INPUT);
         mcp23008_set_pullup(&reel_centre, GPIO_PHOTO_INTERRUPTER, true); // switch on pullup (should be on the board, but forgot)
@@ -222,7 +222,7 @@ bool ReelController::initialise() {
         }
         mcp23008_set_mode(&reel_right, GPIO_MOTOR_A_MINUS, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_right, GPIO_MOTOR_B_MINUS, MCP23008_GPIO_OUTPUT);
-        mcp23008_set_mode(&reel_right, GPIO_MOTOR_4, MCP23008_GPIO_OUTPUT);
+        mcp23008_set_mode(&reel_right, GPIO_MOTOR_B_PLUS, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_right, GPIO_PHOTO_INTERRUPTER, MCP23008_GPIO_INPUT);
         mcp23008_set_pullup(&reel_right, GPIO_PHOTO_INTERRUPTER, true); // switch on pullup (should be on the board, but forgot)
         // following outputs are not used
