@@ -28,8 +28,8 @@ CCTalkController::~CCTalkController() {
 }
 
 esp_err_t CCTalkController::initialise() {
-   
-    ESP_LOGD(TAG, "CCTalkController::initialise called");    
+
+    ESP_LOGD(TAG, "CCTalkController::initialise called");
 
     cctalkLinkController.initialise(CCTALK_UART, CCTALK_GPIO_TX, CCTALK_GPIO_RX, false, false);
 
@@ -46,51 +46,53 @@ esp_err_t CCTalkController::initialise() {
     });
 
     this->hopper.requestResetDevice([ = ](const std::string & error_msg){
-    
+        if (error_msg.size() > 0) {
+            ESP_LOGE(TAG, "%s", error_msg.c_str());
+        }
     });
-    
+
     this->coinAcceptor.requestResetDevice([ = ](const std::string & error_msg){
         if (error_msg.size() > 0) {
             ESP_LOGE(TAG, "%s", error_msg.c_str());
         }
     });
-    
+
     // adapter slot D, cctalk sort chute 1
     this->coinAcceptor.modifyDefaultSorterPath(1, [&](const std::string & error_msg) {
 
     });
-    
+
     // 5ct  (Kasse - rejected anyway)
     this->coinAcceptor.modifySorterPath(1, 1, [&](const std::string & error_msg) {
 
     });
-    
+
     // 10ct (Kasse, adapter slot D, cctalk sort chute 1)
     this->coinAcceptor.modifySorterPath(2, 1, [&](const std::string & error_msg) {
 
     });
-    
+
     // 20ct (Hopper, adapter slot C, cctalk sort chute 2)
     this->coinAcceptor.modifySorterPath(3, 2, [&](const std::string & error_msg) {
 
     });
-    
+
     // 50ct (Kasse, adapter slot D, cctalk sort chute 1)
     this->coinAcceptor.modifySorterPath(4, 1, [&](const std::string & error_msg) {
 
     });
-    
+
     // 1eur (Kasse, adapter slot D, cctalk sort chute 1)
     this->coinAcceptor.modifySorterPath(5, 1, [&](const std::string & error_msg) {
 
     });
-    
+
     // 2eur (Kasse, adapter slot D, cctalk sort chute 1)
     this->coinAcceptor.modifySorterPath(6, 1, [&](const std::string & error_msg) {
 
     });
-       
-    
+
+
     // Allow all coins except 5ct
     this->coinAcceptor.modifyInhibitStatus(254, 0, [&](const std::string & error_msg) {
 
@@ -102,7 +104,7 @@ esp_err_t CCTalkController::initialise() {
             ESP_LOGE(TAG, "An error occurred switching to accept state: %s", error_msg.c_str());
         }
     });
-  
+
     return ESP_OK;
 }
 
