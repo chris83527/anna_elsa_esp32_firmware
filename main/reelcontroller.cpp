@@ -56,7 +56,7 @@
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
 #define LEDC_DUTY_QUARTER (4095)        // Set duty to 12,5%
 #define LEDC_DUTY_FULL (8190)           // Set duty to 50%.((2 ** 13) - 1) * 50% = 4095
-#define LEDC_FREQUENCY (250)            // Frequency in Hertz. Set frequency at 500Hz
+#define LEDC_FREQUENCY (75)            // Frequency in Hertz. Set frequency at 500Hz
 
 static const char *TAG = "ReelController";
 
@@ -69,16 +69,26 @@ bool reelCentreInitOk;
 bool reelRightInitOk;
 
 /*
- * 
- * Step 	wire 1 	wire 2 	wire 3 	wire 4
- * 1 	    High 	low 	high 	low
- * 2 	    low 	high 	high 	low
- * 3 	    low 	high 	low 	high
- * 4 	    high 	low 	low 	high
- * 
- */
-uint8_t cw_steps[4] = {5, 6, 10, 9};
-uint8_t ccw_steps[4] = {9, 10, 6, 5};
+Step	a	c	b	d
+1	1	1	0	0
+2	0	1	1	0
+3	0	0	1	1
+4	1	0	0	1
+*/
+uint8_t cw_steps[4] = {
+    GPIO_MOTOR_A_PLUS | GPIO_MOTOR_B_PLUS,
+    GPIO_MOTOR_B_PLUS | GPIO_MOTOR_A_MINUS,
+    GPIO_MOTOR_A_MINUS | GPIO_MOTOR_B_MINUS,
+    GPIO_MOTOR_B_MINUS | GPIO_MOTOR_A_PLUS
+};
+
+
+uint8_t ccw_steps[4] = {
+    GPIO_MOTOR_B_MINUS | GPIO_MOTOR_A_PLUS,
+    GPIO_MOTOR_A_MINUS | GPIO_MOTOR_B_MINUS,
+    GPIO_MOTOR_B_PLUS | GPIO_MOTOR_A_MINUS,
+    GPIO_MOTOR_A_PLUS | GPIO_MOTOR_B_PLUS
+};
 
 ReelController::ReelController(MainController *mainController) {
     ESP_LOGD(TAG, "Entering constructor");
@@ -300,8 +310,8 @@ void ReelController::spinToZero() {
     bool rightOk = false;
 
     auto cfg = esp_pthread_get_default_config();
-    cfg.thread_name = "SpinReelToZeroThread";
-    cfg.prio = 8;
+    cfg.thread_name = "SpinReelThread";
+    cfg.prio = 10;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
     this->spinReelThread.reset(new std::thread([ & ]() {
@@ -430,7 +440,7 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
 
     auto cfg = esp_pthread_get_default_config();
     cfg.thread_name = "SpinReelThread";
-    cfg.prio = 8;
+    cfg.prio = 10;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
     this->spinReelThread.reset(new std::thread([ & ]() {

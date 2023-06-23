@@ -51,10 +51,10 @@
 #define REEL_CENTRE (1 << 1)
 #define REEL_RIGHT (1 << 2)
 
-#define GPIO_MOTOR_1 0
-#define GPIO_MOTOR_2 1
-#define GPIO_MOTOR_3 2
-#define GPIO_MOTOR_4 3
+#define GPIO_MOTOR_A_PLUS 0
+#define GPIO_MOTOR_A_MINUS 1
+#define GPIO_MOTOR_B_MINUS 2
+#define GPIO_MOTOR_B_PLUS 3
 #define GPIO_PHOTO_INTERRUPTER 4
 
 #define STATUS_OK 0
