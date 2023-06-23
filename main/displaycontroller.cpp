@@ -382,55 +382,55 @@ void DisplayController::attractModeTask() {
 
             this->displayText("      PLAY ME       ");
             // Red trail effect           
-            int currentLamp;
+            int currentIndex;
             int trailElements = (sizeof (TRAIL_LAMPS) / sizeof (TRAIL_LAMPS[0]));
             for (int j = 0; j < 3; j++) {
 
-                currentLamp = 0;
+                currentIndex = 0;
 
                 for (int i = 0; i < (trailElements + 4); i++) {
 
-                    lampData[TRAIL_LAMPS[currentLamp]].rgb.b = 0;
-                    lampData[TRAIL_LAMPS[currentLamp]].rgb.g = 0;
-                    lampData[TRAIL_LAMPS[currentLamp]].rgb.r = 255;
-                    lampData[TRAIL_LAMPS[currentLamp]].lampState = LampState::on;
+                    lampData[TRAIL_LAMPS[currentIndex]].rgb.b = 0;
+                    lampData[TRAIL_LAMPS[currentIndex]].rgb.g = 0;
+                    lampData[TRAIL_LAMPS[currentIndex]].rgb.r = 255;
+                    lampData[TRAIL_LAMPS[currentIndex]].lampState = LampState::on;
 
                     if (i > 0) {
-                        lampData[TRAIL_LAMPS[currentLamp - 1]].rgb.r = 192;
-                        lampData[TRAIL_LAMPS[currentLamp - 1]].rgb.b = 0;
-                        lampData[TRAIL_LAMPS[currentLamp - 1]].rgb.g = 0;
-                        lampData[TRAIL_LAMPS[currentLamp - 1]].lampState = LampState::on;
+                        lampData[TRAIL_LAMPS[currentIndex - 1]].rgb.r = 192;
+                        lampData[TRAIL_LAMPS[currentIndex - 1]].rgb.b = 0;
+                        lampData[TRAIL_LAMPS[currentIndex - 1]].rgb.g = 0;
+                        lampData[TRAIL_LAMPS[currentIndex - 1]].lampState = LampState::on;
                     }
                     if (i > 1) {
-                        lampData[TRAIL_LAMPS[currentLamp - 2]].rgb.r = 129;
-                        lampData[TRAIL_LAMPS[currentLamp - 2]].rgb.b = 0;
-                        lampData[TRAIL_LAMPS[currentLamp - 2]].rgb.g = 0;
-                        lampData[TRAIL_LAMPS[currentLamp - 2]].lampState = LampState::on;
+                        lampData[TRAIL_LAMPS[currentIndex - 2]].rgb.r = 129;
+                        lampData[TRAIL_LAMPS[currentIndex - 2]].rgb.b = 0;
+                        lampData[TRAIL_LAMPS[currentIndex - 2]].rgb.g = 0;
+                        lampData[TRAIL_LAMPS[currentIndex - 2]].lampState = LampState::on;
                     }
                     if (i > 2) {
-                        lampData[TRAIL_LAMPS[currentLamp - 3]].rgb.r = 66;
-                        lampData[TRAIL_LAMPS[currentLamp - 3]].rgb.b = 0;
-                        lampData[TRAIL_LAMPS[currentLamp - 3]].rgb.g = 0;
-                        lampData[TRAIL_LAMPS[currentLamp - 3]].lampState = LampState::on;
+                        lampData[TRAIL_LAMPS[currentIndex - 3]].rgb.r = 66;
+                        lampData[TRAIL_LAMPS[currentIndex - 3]].rgb.b = 0;
+                        lampData[TRAIL_LAMPS[currentIndex - 3]].rgb.g = 0;
+                        lampData[TRAIL_LAMPS[currentIndex - 3]].lampState = LampState::on;
                     }
                     if (i > 3) {                        
-                        lampData[TRAIL_LAMPS[currentLamp - 4]].lampState = LampState::off;
+                        lampData[TRAIL_LAMPS[currentIndex - 4]].lampState = LampState::off;
                     }
 
                     // tail catches up                    
                     if (i > (trailElements + 1)) {
-                        lampData[TRAIL_LAMPS[currentLamp - 3]].lampState = LampState::off;
+                        lampData[TRAIL_LAMPS[currentIndex - 3]].lampState = LampState::off;
                     }
                     if (i > (trailElements + 2)) {
-                        lampData[TRAIL_LAMPS[currentLamp - 2]].lampState = LampState::off;
+                        lampData[TRAIL_LAMPS[currentIndex - 2]].lampState = LampState::off;
                     }
                     if (i > (trailElements + 3)) {
-                        lampData[TRAIL_LAMPS[currentLamp - 1]].lampState = LampState::off;
+                        lampData[TRAIL_LAMPS[currentIndex - 1]].lampState = LampState::off;
                     }
 
 
                     if (i < trailElements) {
-                        currentLamp++;
+                        currentIndex++;
                     }
 
                     std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
