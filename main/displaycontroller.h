@@ -182,6 +182,9 @@ private:
     void updateLampsTask(void);
     std::unique_ptr<std::thread> blinkLampsThread;
     void blinkLampsTask(void);
+    
+    void rainbowEffect();
+    void chaseEffect();
 };
 
 

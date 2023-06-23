@@ -347,97 +347,23 @@ void DisplayController::attractModeTask() {
     // Show simple rainbow chasing pattern
     ESP_LOGI(TAG, "Animation task started");
 
-    rgb_t rgb_data;
-    hsv_t hsv_data;
-    uint8_t start_rgb = 0;
-
     while (1) {
         if (isAttractMode()) {
 
             this->displayText("       FROZEN       ");
             this->resetLampData();
-            // Rainbow effect (10 repeats)
-            for (int k = 0; k < 10; k++) {
-                for (int i = 0; i < 3; i++) {
-                    for (int j = i; j < LED_COUNT; j += 3) {
 
-                        // Build RGB values
-                        hsv_data.hue = j * 360 / LED_COUNT + start_rgb;
-                        hsv_data.sat = 255;
-                        hsv_data.val = 255;
-                        rgb_data = hsv2rgb_rainbow(hsv_data);
+            this->rainbowEffect();
 
-                        // Write RGB values to strip driver
-                        lampData[j].rgb = rgb_data;
-                        lampData[j].lampState = LampState::on;
-                    }
-
-                    std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
-                }
-                start_rgb += 60;
-            }
-
-            resetLampData();
             std::this_thread::sleep_for(std::chrono::seconds(10));
-
+            
+            resetLampData();
+            
             this->displayText("      PLAY ME       ");
-            // Red trail effect           
-            int currentIndex;
-            int trailElements = (sizeof (TRAIL_LAMPS) / sizeof (TRAIL_LAMPS[0]));
-            for (int j = 0; j < 3; j++) {
-
-                currentIndex = 0;
-
-                for (int i = 0; i < (trailElements + 4); i++) {
-
-                    lampData[TRAIL_LAMPS[currentIndex]].rgb.b = 0;
-                    lampData[TRAIL_LAMPS[currentIndex]].rgb.g = 0;
-                    lampData[TRAIL_LAMPS[currentIndex]].rgb.r = 255;
-                    lampData[TRAIL_LAMPS[currentIndex]].lampState = LampState::on;
-
-                    if (i > 0) {
-                        lampData[TRAIL_LAMPS[currentIndex - 1]].rgb.r = 192;
-                        lampData[TRAIL_LAMPS[currentIndex - 1]].rgb.b = 0;
-                        lampData[TRAIL_LAMPS[currentIndex - 1]].rgb.g = 0;
-                        lampData[TRAIL_LAMPS[currentIndex - 1]].lampState = LampState::on;
-                    }
-                    if (i > 1) {
-                        lampData[TRAIL_LAMPS[currentIndex - 2]].rgb.r = 129;
-                        lampData[TRAIL_LAMPS[currentIndex - 2]].rgb.b = 0;
-                        lampData[TRAIL_LAMPS[currentIndex - 2]].rgb.g = 0;
-                        lampData[TRAIL_LAMPS[currentIndex - 2]].lampState = LampState::on;
-                    }
-                    if (i > 2) {
-                        lampData[TRAIL_LAMPS[currentIndex - 3]].rgb.r = 66;
-                        lampData[TRAIL_LAMPS[currentIndex - 3]].rgb.b = 0;
-                        lampData[TRAIL_LAMPS[currentIndex - 3]].rgb.g = 0;
-                        lampData[TRAIL_LAMPS[currentIndex - 3]].lampState = LampState::on;
-                    }
-                    if (i > 3) {                        
-                        lampData[TRAIL_LAMPS[currentIndex - 4]].lampState = LampState::off;
-                    }
-
-                    // tail catches up                    
-                    if (i > (trailElements + 1)) {
-                        lampData[TRAIL_LAMPS[currentIndex - 3]].lampState = LampState::off;
-                    }
-                    if (i > (trailElements + 2)) {
-                        lampData[TRAIL_LAMPS[currentIndex - 2]].lampState = LampState::off;
-                    }
-                    if (i > (trailElements + 3)) {
-                        lampData[TRAIL_LAMPS[currentIndex - 1]].lampState = LampState::off;
-                    }
-
-
-                    if (i < trailElements) {
-                        currentIndex++;
-                    }
-
-                    std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
-                }
-            }
+            this->chaseEffect();
 
             std::this_thread::sleep_for(std::chrono::seconds(5));
+            
             resetLampData();
 
             this->displayText("     20CT GAME      ");
@@ -451,6 +377,91 @@ void DisplayController::attractModeTask() {
         } else {
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
+    }
+}
+
+void DisplayController::chaseEffect() {
+    // Red trail effect           
+    int currentIndex;
+    int trailElements = (sizeof (TRAIL_LAMPS) / sizeof (TRAIL_LAMPS[0]));
+    for (int j = 0; j < 3; j++) {
+
+        currentIndex = 0;
+
+        for (int i = 0; i < (trailElements + 4); i++) {
+
+            lampData[TRAIL_LAMPS[currentIndex]].rgb.b = 0;
+            lampData[TRAIL_LAMPS[currentIndex]].rgb.g = 0;
+            lampData[TRAIL_LAMPS[currentIndex]].rgb.r = 255;
+            lampData[TRAIL_LAMPS[currentIndex]].lampState = LampState::on;
+
+            if (i > 0) {
+                lampData[TRAIL_LAMPS[currentIndex - 1]].rgb.r = 192;
+                lampData[TRAIL_LAMPS[currentIndex - 1]].rgb.b = 0;
+                lampData[TRAIL_LAMPS[currentIndex - 1]].rgb.g = 0;
+                lampData[TRAIL_LAMPS[currentIndex - 1]].lampState = LampState::on;
+            }
+            if (i > 1) {
+                lampData[TRAIL_LAMPS[currentIndex - 2]].rgb.r = 129;
+                lampData[TRAIL_LAMPS[currentIndex - 2]].rgb.b = 0;
+                lampData[TRAIL_LAMPS[currentIndex - 2]].rgb.g = 0;
+                lampData[TRAIL_LAMPS[currentIndex - 2]].lampState = LampState::on;
+            }
+            if (i > 2) {
+                lampData[TRAIL_LAMPS[currentIndex - 3]].rgb.r = 66;
+                lampData[TRAIL_LAMPS[currentIndex - 3]].rgb.b = 0;
+                lampData[TRAIL_LAMPS[currentIndex - 3]].rgb.g = 0;
+                lampData[TRAIL_LAMPS[currentIndex - 3]].lampState = LampState::on;
+            }
+            if (i > 3) {
+                lampData[TRAIL_LAMPS[currentIndex - 4]].lampState = LampState::off;
+            }
+
+            // tail catches up                    
+            if (i > (trailElements + 1)) {
+                lampData[TRAIL_LAMPS[currentIndex - 3]].lampState = LampState::off;
+            }
+            if (i > (trailElements + 2)) {
+                lampData[TRAIL_LAMPS[currentIndex - 2]].lampState = LampState::off;
+            }
+            if (i > (trailElements + 3)) {
+                lampData[TRAIL_LAMPS[currentIndex - 1]].lampState = LampState::off;
+            }
+
+
+            if (i < trailElements) {
+                currentIndex++;
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
+        }
+    }
+}
+
+void DisplayController::rainbowEffect() {
+    rgb_t rgb_data;
+    hsv_t hsv_data;
+    uint8_t start_rgb = 0;
+
+    // Rainbow effect (10 repeats)
+    for (int k = 0; k < 10; k++) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = i; j < LED_COUNT; j += 3) {
+
+                // Build RGB values
+                hsv_data.hue = j * 360 / LED_COUNT + start_rgb;
+                hsv_data.sat = 255;
+                hsv_data.val = 255;
+                rgb_data = hsv2rgb_rainbow(hsv_data);
+
+                // Write RGB values to strip driver
+                lampData[j].rgb = rgb_data;
+                lampData[j].lampState = LampState::on;
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
+        }
+        start_rgb += 60;
     }
 }
 
