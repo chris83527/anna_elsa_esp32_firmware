@@ -296,7 +296,7 @@ void ReelController::step(reel_event_t& event) {
     if (this->reel_status_data_centre.step_number > 3) this->reel_status_data_centre.step_number = 0;
     if (this->reel_status_data_right.step_number > 3) this->reel_status_data_right.step_number = 0;
 
-    mainController->getDisplayController()->waitForButton(BTN_START); // DEBUG -> check motor is turning correctly
+    mainController->getDisplayController()->waitForButton(BTN_START_MASK_BIT); // DEBUG -> check motor is turning correctly
     ESP_LOGD(TAG, "Writing %d", this->reel_status_data_left.step_data);
 }
 

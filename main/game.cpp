@@ -263,11 +263,11 @@ void Game::playNudges(int nudges) {
 
         uint8_t btnStatus = mainController->getDisplayController()->waitForButton(BTN_HOLD_LO | BTN_HOLD | BTN_HOLD_HI);
 
-        if ((btnStatus & BTN_HOLD_LO) == BTN_HOLD_LO) {
+        if ((btnStatus & BTN_HOLD_LO_MASK_BIT) == BTN_HOLD_LO_MASK_BIT) {
             mainController->getReelController()->nudge(0, 0, 1);
-        } else if ((btnStatus & BTN_HOLD) == BTN_HOLD) {
+        } else if ((btnStatus & BTN_HOLD_MASK_BIT) == BTN_HOLD_MASK_BIT) {
             mainController->getReelController()->nudge(0, 1, 0);
-        } else if ((btnStatus & BTN_HOLD_HI) == BTN_HOLD_HI) {
+        } else if ((btnStatus & BTN_HOLD_HI_MASK_BIT) == BTN_HOLD_HI_MASK_BIT) {
             mainController->getReelController()->nudge(1, 0, 0);
         }
 

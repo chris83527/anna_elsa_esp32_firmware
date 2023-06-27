@@ -86,6 +86,14 @@
 #define BTN_HOLD_HI     (1)
 #define BTN_TRANSFER    (0)
 
+#define BTN_DOOR_MASK_BIT   (1<<BTN_DOOR)
+#define BTN_START_MASK_BIT  (1<<BTN_START)
+#define BTN_COLLECT_MASK_BIT (1<<BTN_MASK)
+#define BTN_HOLD_LO_MASK_BIT (1<<BTN_HOLD_LO)
+#define BTN_HOLD_MASK_BIT (1<<BTN_HOLD)
+#define BTN_HOLD_HI_MASK_BIT (1<<BTN_HOLD_HI)
+#define BTN_TRANSFER_MASK_BIT (1<<BTN_TRANSFER)
+
 #define LMP_START       (LED_COUNT + 0)
 #define LMP_COLLECT     (LED_COUNT + 1)
 #define LMP_HOLD_LO     (LED_COUNT + 2)
