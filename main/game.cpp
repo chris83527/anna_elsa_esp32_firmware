@@ -236,7 +236,7 @@ void Game::playNudges(int nudges) {
 
     std::string nudgeText = "        NUDGE        ";
 
-    mainController->getDisplayController()->displayText(nudgeText);    
+    mainController->getDisplayController()->displayText(nudgeText);
 
     while (nudges > 0) {
 
@@ -259,22 +259,22 @@ void Game::playNudges(int nudges) {
 
         lampData[LMP_HOLD].lampState = LampState::blinkfast;
         lampData[LMP_HOLD_HI].lampState = LampState::blinkfast;
-        lampData[LMP_HOLD_LO].lampState = LampState::blinkfast;      
+        lampData[LMP_HOLD_LO].lampState = LampState::blinkfast;
 
         uint8_t btnStatus = mainController->getDisplayController()->waitForButton(BTN_HOLD_LO | BTN_HOLD | BTN_HOLD_HI);
-                
-        if (btnStatus & BTN_HOLD_LO) {
+
+        if ((btnStatus & BTN_HOLD_LO) == BTN_HOLD_LO) {
             mainController->getReelController()->nudge(0, 0, 1);
-        } else if (btnStatus & BTN_HOLD) {
+        } else if ((btnStatus & BTN_HOLD) == BTN_HOLD) {
             mainController->getReelController()->nudge(0, 1, 0);
-        } else if (btnStatus & BTN_HOLD_HI) {
+        } else if ((btnStatus & BTN_HOLD_HI) == BTN_HOLD_HI) {
             mainController->getReelController()->nudge(1, 0, 0);
         }
 
         // wait for reel controller to finish command
         while (mainController->getReelController()->isCommandInProgress()) {
             std::this_thread::sleep_for(std::chrono::milliseconds(25));
-        }        
+        }
 
         if (isWinningLine()) {
             transferOrGamble();
@@ -372,7 +372,7 @@ void Game::collectOrContinue() {
 
     if (btnStatus.test(BTN_COLLECT)) {
         ESP_LOGI(TAG, "Calling payout...");
-        
+
         this->mainController->getCCTalkController()->hopper.dispenseCoins((this->mainController->getMoneyController()->getBank() / 20), [&](const std::string & error_msg) {
             // TODO: Check status and see how many coins were returned and remove these from bank. For now we will just set bank to 0 (and presume all coins were paid out)
             if (error_msg.size() > 0) {
