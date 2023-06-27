@@ -76,26 +76,18 @@ Step	a+	b+	a-	b-
 3	0	0	1	1
 4	1	0	0	1
  */
-uint8_t ccw_steps[8] = {
+uint8_t ccw_steps[STEPS_PER_STOP] = {
     GPIO_MOTOR_A_PLUS,
-    GPIO_MOTOR_A_PLUS | GPIO_MOTOR_B_PLUS,
     GPIO_MOTOR_B_PLUS,
-    GPIO_MOTOR_B_PLUS | GPIO_MOTOR_A_MINUS,
     GPIO_MOTOR_A_MINUS,
-    GPIO_MOTOR_A_MINUS | GPIO_MOTOR_B_MINUS,
-    GPIO_MOTOR_B_MINUS,
-    GPIO_MOTOR_B_MINUS | GPIO_MOTOR_A_PLUS
+    GPIO_MOTOR_B_MINUS
 };
 
 
-uint8_t cw_steps[8] = {
-    GPIO_MOTOR_B_MINUS | GPIO_MOTOR_A_PLUS
+uint8_t cw_steps[STEPS_PER_STOP] = {
     GPIO_MOTOR_B_MINUS,
-    GPIO_MOTOR_A_MINUS | GPIO_MOTOR_B_MINUS,
     GPIO_MOTOR_A_MINUS,
-    GPIO_MOTOR_B_PLUS | GPIO_MOTOR_A_MINUS,
     GPIO_MOTOR_B_PLUS,
-    GPIO_MOTOR_A_PLUS | GPIO_MOTOR_B_PLUS,
     GPIO_MOTOR_A_PLUS
 };
 
@@ -292,9 +284,9 @@ void ReelController::step(reel_event_t& event) {
         mcp23008_port_write(&reel_left, this->reel_status_data_left.step_data);
     }
 
-    if (this->reel_status_data_left.step_number > 7) this->reel_status_data_left.step_number = 0;
-    if (this->reel_status_data_centre.step_number > 7) this->reel_status_data_centre.step_number = 0;
-    if (this->reel_status_data_right.step_number > 7) this->reel_status_data_right.step_number = 0;
+    if (this->reel_status_data_left.step_number = STEPS_PER_STOP) this->reel_status_data_left.step_number = 0;
+    if (this->reel_status_data_centre.step_number = STEPS_PER_STOP) this->reel_status_data_centre.step_number = 0;
+    if (this->reel_status_data_right.step_number = STEPS_PER_STOP) this->reel_status_data_right.step_number = 0;
 
     ESP_LOGI(TAG, "Written %d", this->reel_status_data_left.step_data);
     mainController->getDisplayController()->waitForButton(BTN_START_MASK_BIT); // DEBUG -> check motor is turning correctly
