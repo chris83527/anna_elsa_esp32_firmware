@@ -259,28 +259,16 @@ void Game::playNudges(int nudges) {
 
         lampData[LMP_HOLD].lampState = LampState::blinkfast;
         lampData[LMP_HOLD_HI].lampState = LampState::blinkfast;
-        lampData[LMP_HOLD_LO].lampState = LampState::blinkfast;
+        lampData[LMP_HOLD_LO].lampState = LampState::blinkfast;      
 
-        std::bitset<8> btnStatus = mainController->getDisplayController()->getButtonStatus();
-
-        // loop waiting for button press.
-        while (
-
-                (!btnStatus.test(BTN_HOLD_LO)) &&
-                (!btnStatus.test(BTN_HOLD)) &&
-                (!btnStatus.test(BTN_HOLD_HI))) {
-
-            btnStatus = mainController->getDisplayController()->getButtonStatus();
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
-
-        if (btnStatus.test(BTN_HOLD_LO)) {
-            mainController->getReelController()->nudge(1, 0, 0);
-        } else if (btnStatus.test(BTN_HOLD)) {
-            mainController->getReelController()->nudge(0, 1, 0);
-        } else if (btnStatus.test(BTN_HOLD_HI)) {
+        uint8_t btnStatus = mainController->getDisplayController()->waitForButton(BTN_HOLD_LO | BTN_HOLD | BTN_HOLD_HI);
+                
+        if (btnStatus & BTN_HOLD_LO) {
             mainController->getReelController()->nudge(0, 0, 1);
+        } else if (btnStatus & BTN_HOLD) {
+            mainController->getReelController()->nudge(0, 1, 0);
+        } else if (btnStatus & BTN_HOLD_HI) {
+            mainController->getReelController()->nudge(1, 0, 0);
         }
 
         // wait for reel controller to finish command

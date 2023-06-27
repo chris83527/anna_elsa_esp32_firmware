@@ -49,6 +49,7 @@
 #include "reelcontroller.h"
 #include "audiocontroller.h"
 #include "esp_pthread.h"
+#include "displaycontroller.h"
 
 #define LEDC_TIMER LEDC_TIMER_1
 #define LEDC_MODE LEDC_LOW_SPEED_MODE
@@ -294,6 +295,8 @@ void ReelController::step(reel_event_t& event) {
     if (this->reel_status_data_left.step_number > 3) this->reel_status_data_left.step_number = 0;
     if (this->reel_status_data_centre.step_number > 3) this->reel_status_data_centre.step_number = 0;
     if (this->reel_status_data_right.step_number > 3) this->reel_status_data_right.step_number = 0;
+    
+    mainController->getDisplayController()->waitForButton(BTN_START); // DEBUG -> check motor is turning correctly
 }
 
 /*

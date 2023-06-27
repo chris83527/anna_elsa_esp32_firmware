@@ -304,6 +304,17 @@ uint8_t DisplayController::getButtonStatus() {
     return this->buttonStatus;
 }
 
+uint8_t DisplayController::waitForButton(uint8_t mask) {
+    uint8_t btnStatus = mainController->getDisplayController()->getButtonStatus();
+    // loop waiting for button press.
+    while ((btnStatus & mask) == 0) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        btnStatus = mainController->getDisplayController()->getButtonStatus();
+    }
+
+    return btnStatus;
+}
+
 void DisplayController::displayText(const string& text) {
 
     // Only update if we need to 
@@ -356,14 +367,14 @@ void DisplayController::attractModeTask() {
             this->rainbowEffect();
 
             std::this_thread::sleep_for(std::chrono::seconds(10));
-            
+
             resetLampData();
-            
+
             this->displayText("      PLAY ME       ");
             this->chaseEffect();
 
             std::this_thread::sleep_for(std::chrono::seconds(5));
-            
+
             resetLampData();
 
             this->displayText("     20CT GAME      ");

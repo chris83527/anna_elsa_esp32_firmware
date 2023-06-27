@@ -93,6 +93,7 @@ public:
     bool isAttractMode();           
 
     uint8_t getButtonStatus(void);
+    uint8_t waitForButton(uint8_t mask);
 
     void test();
     void test2(bool pauseBetweenLamps);
