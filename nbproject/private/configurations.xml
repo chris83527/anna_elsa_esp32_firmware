@@ -260,11 +260,35 @@
                 <in>CMakeCXXCompilerId.cpp</in>
               </df>
             </df>
+            <df name="_project_elf_src.dir">
+            </df>
+            <df name="app.dir">
+            </df>
             <df name="bootloader.elf.dir">
             </df>
             <df name="CMakeTmp">
             </df>
+            <df name="confserver.dir">
+            </df>
+            <df name="erase_flash.dir">
+            </df>
+            <df name="gen_project_binary.dir">
+            </df>
             <df name="git-data">
+            </df>
+            <df name="menuconfig.dir">
+            </df>
+            <df name="monitor.dir">
+            </df>
+            <df name="size-components.dir">
+            </df>
+            <df name="size-files.dir">
+            </df>
+            <df name="size.dir">
+            </df>
+            <df name="uf2-app.dir">
+            </df>
+            <df name="uf2.dir">
             </df>
           </df>
           <df name="config">
@@ -294,6 +318,20 @@
                   </df>
                   <df name="src">
                   </df>
+                </df>
+                <df name="efuse-common-table.dir">
+                </df>
+                <df name="efuse-custom-table.dir">
+                </df>
+                <df name="efuse_common_table.dir">
+                </df>
+                <df name="efuse_custom_table.dir">
+                </df>
+                <df name="efuse_test_table.dir">
+                </df>
+                <df name="show-efuse-table.dir">
+                </df>
+                <df name="show_efuse_table.dir">
                 </df>
               </df>
             </df>
@@ -341,6 +379,8 @@
             </df>
             <df name="esptool_py">
               <df name="CMakeFiles">
+                <df name="bootloader_check_size.dir">
+                </df>
               </df>
             </df>
             <df name="freertos">
@@ -433,13 +473,41 @@
               <in>CMakeCXXCompilerId.cpp</in>
             </df>
           </df>
+          <df name="_project_elf_src.dir">
+          </df>
           <df name="anna_elsa_esp32.elf.dir">
+          </df>
+          <df name="app.dir">
           </df>
           <df name="bootloader.dir">
           </df>
           <df name="CMakeTmp">
           </df>
+          <df name="confserver.dir">
+          </df>
+          <df name="encrypted-flash.dir">
+          </df>
+          <df name="erase_flash.dir">
+          </df>
+          <df name="flash.dir">
+          </df>
+          <df name="gen_project_binary.dir">
+          </df>
           <df name="git-data">
+          </df>
+          <df name="menuconfig.dir">
+          </df>
+          <df name="monitor.dir">
+          </df>
+          <df name="size-components.dir">
+          </df>
+          <df name="size-files.dir">
+          </df>
+          <df name="size.dir">
+          </df>
+          <df name="uf2-app.dir">
+          </df>
+          <df name="uf2.dir">
           </df>
         </df>
         <df name="config">
@@ -471,6 +539,20 @@
           <df name="app_update">
             <df name="CMakeFiles">
               <df name="__idf_app_update.dir">
+              </df>
+              <df name="blank_ota_data.dir">
+              </df>
+              <df name="encrypted-otadata-flash.dir">
+              </df>
+              <df name="erase-otadata.dir">
+              </df>
+              <df name="erase_otadata.dir">
+              </df>
+              <df name="otadata-flash.dir">
+              </df>
+              <df name="read-otadata.dir">
+              </df>
+              <df name="read_otadata.dir">
               </df>
             </df>
           </df>
@@ -566,6 +648,10 @@
           </df>
           <df name="bootloader">
             <df name="CMakeFiles">
+              <df name="bootloader-flash.dir">
+              </df>
+              <df name="encrypted-bootloader-flash.dir">
+              </df>
             </df>
           </df>
           <df name="bootloader_support">
@@ -693,6 +779,20 @@
                 </df>
                 <df name="src">
                 </df>
+              </df>
+              <df name="efuse-common-table.dir">
+              </df>
+              <df name="efuse-custom-table.dir">
+              </df>
+              <df name="efuse_common_table.dir">
+              </df>
+              <df name="efuse_custom_table.dir">
+              </df>
+              <df name="efuse_test_table.dir">
+              </df>
+              <df name="show-efuse-table.dir">
+              </df>
+              <df name="show_efuse_table.dir">
               </df>
             </df>
           </df>
@@ -924,6 +1024,12 @@
                 <df name="src">
                 </df>
               </df>
+              <df name="encrypted-phy-flash.dir">
+              </df>
+              <df name="phy-flash.dir">
+              </df>
+              <df name="phy_init_data.dir">
+              </df>
             </df>
           </df>
           <df name="esp_pm">
@@ -965,6 +1071,10 @@
                     </df>
                   </df>
                 </df>
+              </df>
+              <df name="__ldgen_output_sections.ld.dir">
+              </df>
+              <df name="memory_ld.dir">
               </df>
             </df>
             <df name="ld">
@@ -1018,6 +1128,12 @@
           </df>
           <df name="esptool_py">
             <df name="CMakeFiles">
+              <df name="app-flash.dir">
+              </df>
+              <df name="app_check_size.dir">
+              </df>
+              <df name="encrypted-app-flash.dir">
+              </df>
             </df>
           </df>
           <df name="expat">
@@ -1123,12 +1239,6 @@
           <df name="ht16k33">
             <df name="CMakeFiles">
               <df name="__idf_ht16k33.dir">
-              </df>
-            </df>
-          </df>
-          <df name="httpserver">
-            <df name="CMakeFiles">
-              <df name="__idf_httpserver.dir">
               </df>
             </df>
           </df>
@@ -1426,6 +1536,18 @@
                   </df>
                 </df>
               </df>
+              <df name="audio-flash.dir">
+              </df>
+              <df name="encrypted-audio-flash.dir">
+              </df>
+              <df name="encrypted-httpd-flash.dir">
+              </df>
+              <df name="httpd-flash.dir">
+              </df>
+              <df name="littlefs_httpd_bin.dir">
+              </df>
+              <df name="spiffs_audio_bin.dir">
+              </df>
             </df>
           </df>
           <df name="mbedtls">
@@ -1438,6 +1560,8 @@
                 <df name="esp_crt_bundle">
                 </df>
               </df>
+              <df name="custom_bundle.dir">
+              </df>
             </df>
             <df name="mbedtls">
               <df name="3rdparty">
@@ -1445,6 +1569,8 @@
                 </df>
               </df>
               <df name="CMakeFiles">
+                <df name="apidoc.dir">
+                </df>
               </df>
               <df name="include">
                 <df name="CMakeFiles">
@@ -1452,6 +1578,8 @@
               </df>
               <df name="library">
                 <df name="CMakeFiles">
+                  <df name="lib.dir">
+                  </df>
                   <df name="mbedcrypto.dir">
                     <df name="__">
                       <df name="__">
@@ -1568,6 +1696,18 @@
           </df>
           <df name="partition_table">
             <df name="CMakeFiles">
+              <df name="encrypted-partition-table-flash.dir">
+              </df>
+              <df name="partition-table-flash.dir">
+              </df>
+              <df name="partition-table.dir">
+              </df>
+              <df name="partition_table-flash.dir">
+              </df>
+              <df name="partition_table.dir">
+              </df>
+              <df name="partition_table_bin.dir">
+              </df>
             </df>
           </df>
           <df name="perfmon">
@@ -1815,11 +1955,17 @@
             <df name="CMakeFiles">
               <df name="3.16.3">
                 <df name="CompilerIdC">
+                  <df name="tmp">
+                  </df>
                   <in>CMakeCCompilerId.c</in>
                 </df>
                 <df name="CompilerIdCXX">
+                  <df name="tmp">
+                  </df>
                   <in>CMakeCXXCompilerId.cpp</in>
                 </df>
+              </df>
+              <df name="CMakeTmp">
               </df>
             </df>
           </df>
@@ -3443,11 +3589,17 @@
           <df name="CMakeFiles">
             <df name="3.16.3">
               <df name="CompilerIdC">
+                <df name="tmp">
+                </df>
                 <in>CMakeCCompilerId.c</in>
               </df>
               <df name="CompilerIdCXX">
+                <df name="tmp">
+                </df>
                 <in>CMakeCXXCompilerId.cpp</in>
               </df>
+            </df>
+            <df name="CMakeTmp">
             </df>
           </df>
         </df>
@@ -10337,7 +10489,11 @@
       </df>
       <df name="espcoredump">
         <df name="corefile">
+          <df name="__pycache__">
+          </df>
           <df name="soc_headers">
+            <df name="__pycache__">
+            </df>
           </df>
         </df>
         <df name="include">
@@ -10408,6 +10564,8 @@
             </df>
             <df name="workflows">
             </df>
+          </df>
+          <df name="__pycache__">
           </df>
           <df name="build_tools">
           </df>
