@@ -289,18 +289,23 @@ void ReelController::step(reel_event_t& event) {
     //    if (this->reel_status_data_right.step_number = STEPS_PER_STOP) this->reel_status_data_right.step_number = 0;
 
     uint8_t btnStatus = mainController->getDisplayController()->waitForButton(BTN_START_MASK_BIT | BTN_COLLECT_MASK_BIT | BTN_HOLD_LO_MASK_BIT | BTN_HOLD_MASK_BIT); // DEBUG -> check motor is turning correctly
-    if ((btnStatus & BTN_START_MASK_BIT) == BTN_START_MASK_BIT) {
-        ESP_LOGI(TAG, "Writing %d", (1 << 0));
-        mcp23008_port_write(&reel_right, (1 << 0));
-    } else if ((btnStatus & BTN_START_MASK_BIT) == BTN_COLLECT_MASK_BIT) {
-        ESP_LOGI(TAG, "Writing %d", (1 << 0));
-        mcp23008_port_write(&reel_right, (1 << 2));
-    } else if ((btnStatus & BTN_START_MASK_BIT) == BTN_HOLD_LO_MASK_BIT) {
-        ESP_LOGI(TAG, "Writing %d", (1 << 2));
-        mcp23008_port_write(&reel_right, (1 << 2));
-    } else if ((btnStatus & BTN_START_MASK_BIT) == BTN_HOLD_MASK_BIT) {
-        ESP_LOGI(TAG, "Writing %d", (1 << 3));
-        mcp23008_port_write(&reel_right, (1 << 3));
+    uint8_t mask = 0;
+    if (btnStatus) {
+        
+        if ((btnStatus & BTN_START_MASK_BIT) == BTN_START_MASK_BIT) {
+            mask |= (1<<0);
+        }
+        if ((btnStatus & BTN_COLLECT_MASK_BIT) == BTN_COLLECT_MASK_BIT) {
+            mask |= (1<<1);
+        }
+        if ((btnStatus & BTN_HOLD_LO_MASK_BIT) == BTN_HOLD_LO_MASK_BIT) {
+            mask |= (1<<2);
+        }
+        if ((btnStatus & BTN_HOLD_MASK_BIT) == BTN_HOLD_MASK_BIT) {
+            mask |= (1<<3);
+        }
+        ESP_LOGI(TAG, "Writing %d", mask);
+        mcp23008_port_write(&reel_right, mask);
     }
 }
 
