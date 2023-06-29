@@ -289,7 +289,7 @@ void ReelController::step(reel_event_t& event) {
     //    if (this->reel_status_data_right.step_number = STEPS_PER_STOP) this->reel_status_data_right.step_number = 0;
 
     uint8_t btnStatus = mainController->getDisplayController()->waitForButton(BTN_START_MASK_BIT | BTN_COLLECT_MASK_BIT | BTN_HOLD_LO_MASK_BIT | BTN_HOLD_MASK_BIT); // DEBUG -> check motor is turning correctly
-    uint8_t mask = 0;
+    uint16_t mask = 0;
     if (btnStatus) {
         
         if ((btnStatus & BTN_START_MASK_BIT) == BTN_START_MASK_BIT) {
