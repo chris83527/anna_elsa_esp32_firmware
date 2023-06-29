@@ -271,26 +271,37 @@ void ReelController::step(reel_event_t& event) {
         this->reel_status_data_right.step_number++;
     }
 
-    if (this->reelRightInitOk) {
-        ESP_LOGD(TAG, "Right reel Step data: %d", this->reel_status_data_right.step_data);
-        mcp23008_port_write(&reel_right, this->reel_status_data_right.step_data);
-    }
-    if (this->reelCentreInitOk) {
-        ESP_LOGD(TAG, "Centre reel Step data: %d", this->reel_status_data_centre.step_data);
-        mcp23008_port_write(&reel_centre, this->reel_status_data_centre.step_data);
-    }
-    if (this->reelLeftInitOk) {
-        ESP_LOGD(TAG, "Left reel Step data: %d", this->reel_status_data_left.step_data);
-        mcp23008_port_write(&reel_left, this->reel_status_data_left.step_data);
-    }
+    //    if (this->reelRightInitOk) {
+    //        ESP_LOGD(TAG, "Right reel Step data: %d", this->reel_status_data_right.step_data);
+    //        mcp23008_port_write(&reel_right, this->reel_status_data_right.step_data);
+    //    }
+    //    if (this->reelCentreInitOk) {
+    //        ESP_LOGD(TAG, "Centre reel Step data: %d", this->reel_status_data_centre.step_data);
+    //        mcp23008_port_write(&reel_centre, this->reel_status_data_centre.step_data);
+    //    }
+    //    if (this->reelLeftInitOk) {
+    //        ESP_LOGD(TAG, "Left reel Step data: %d", this->reel_status_data_left.step_data);
+    //        mcp23008_port_write(&reel_left, this->reel_status_data_left.step_data);
+    //    }
 
-    if (this->reel_status_data_left.step_number = STEPS_PER_STOP) this->reel_status_data_left.step_number = 0;
-    if (this->reel_status_data_centre.step_number = STEPS_PER_STOP) this->reel_status_data_centre.step_number = 0;
-    if (this->reel_status_data_right.step_number = STEPS_PER_STOP) this->reel_status_data_right.step_number = 0;
+    //    if (this->reel_status_data_left.step_number = STEPS_PER_STOP) this->reel_status_data_left.step_number = 0;
+    //    if (this->reel_status_data_centre.step_number = STEPS_PER_STOP) this->reel_status_data_centre.step_number = 0;
+    //    if (this->reel_status_data_right.step_number = STEPS_PER_STOP) this->reel_status_data_right.step_number = 0;
 
-    ESP_LOGI(TAG, "Written %d", this->reel_status_data_left.step_data);
-    mainController->getDisplayController()->waitForButton(BTN_START_MASK_BIT); // DEBUG -> check motor is turning correctly
-    
+    uint8_t btnStatus = mainController->getDisplayController()->waitForButton(BTN_START_MASK_BIT | BTN_COLLECT_MASK_BIT | BTN_HOLD_LO_MASK_BIT | BTN_HOLD_MASK_BIT); // DEBUG -> check motor is turning correctly
+    if ((btnStatus & BTN_START_MASK_BIT) == BTN_START_MASK_BIT) {
+        ESP_LOGI(TAG, "Writing %d", (1 << 0));
+        mcp23008_port_write(&reel_right, (1 << 0));
+    } else if ((btnStatus & BTN_START_MASK_BIT) == BTN_COLLECT_MASK_BIT) {
+        ESP_LOGI(TAG, "Writing %d", (1 << 0));
+        mcp23008_port_write(&reel_right, (1 << 2));
+    } else if ((btnStatus & BTN_START_MASK_BIT) == BTN_HOLD_LO_MASK_BIT) {
+        ESP_LOGI(TAG, "Writing %d", (1 << 2));
+        mcp23008_port_write(&reel_right, (1 << 2));
+    } else if ((btnStatus & BTN_START_MASK_BIT) == BTN_HOLD_MASK_BIT) {
+        ESP_LOGI(TAG, "Writing %d", (1 << 3));
+        mcp23008_port_write(&reel_right, (1 << 3));
+    }
 }
 
 /*
@@ -328,7 +339,16 @@ void ReelController::spinToZero() {
 
         int delay = 100;
 
-        for (int counter = 0; counter < ((MAX_STOPS * 2) * STEPS_PER_STOP); counter++) // two spins, multiply by 4 steps
+        while (true) {// DEBUG -> remove
+            event.reels = REEL_LEFT | REEL_CENTRE | REEL_RIGHT;
+                    event.dir_left = Clockwise;
+                    event.dir_centre = Clockwise;
+                    event.dir_right = Clockwise;
+
+                    step(event);
+        }
+
+        for (int counter = 0; counter < ((MAX_STOPS * 2) * STEPS_PER_STOP); counter++) // two spins, multiply by 4 steps        
         {
             //            ESP_LOGD(TAG, "Calling move...");
 
