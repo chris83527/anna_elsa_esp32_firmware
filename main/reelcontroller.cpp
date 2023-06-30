@@ -636,9 +636,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, cons
 
     reel_status_data_left.status = STATUS_INITIAL; // reset status
     reel_status_data_centre.status = STATUS_INITIAL; // reset status
-    reel_status_data_right.status = STATUS_INITIAL; // reset status
-
-    int32_t speed_current = 32;
+    reel_status_data_right.status = STATUS_INITIAL; // reset status    
 
     ESP_LOGD(TAG, "Setting 50pc duty cycle");
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
