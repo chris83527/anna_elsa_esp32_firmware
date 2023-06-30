@@ -165,7 +165,7 @@ bool ReelController::initialise() {
         ESP_LOGE(TAG, "An error occurred initialising left reel");
         return false;
     } else {
-        mcp23008_set_mode(&reel_left, 0, MCP23008_GPIO_OUTPUT);        
+        mcp23008_set_mode(&reel_left, 0, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_left, 1, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_left, 2, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_left, 3, MCP23008_GPIO_OUTPUT);
@@ -190,7 +190,7 @@ bool ReelController::initialise() {
         return false;
     } else {
         // motor outputs to our H-bridge
-        mcp23008_set_mode(&reel_centre, 0, MCP23008_GPIO_OUTPUT);        
+        mcp23008_set_mode(&reel_centre, 0, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_centre, 1, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_centre, 2, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_centre, 3, MCP23008_GPIO_OUTPUT);
@@ -215,7 +215,7 @@ bool ReelController::initialise() {
         //return ESP_FAIL;
     } else {
         mcp23008_set_mode(&reel_right, 0, MCP23008_GPIO_OUTPUT);
-        mcp23008_set_mode(&reel_right, 1, MCP23008_GPIO_OUTPUT);        
+        mcp23008_set_mode(&reel_right, 1, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_right, 2, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_right, 3, MCP23008_GPIO_OUTPUT);
         mcp23008_set_mode(&reel_right, GPIO_PHOTO_INTERRUPTER, MCP23008_GPIO_INPUT);
@@ -265,42 +265,42 @@ void ReelController::step(reel_event_t& event) {
         this->reel_status_data_right.step_number++;
     }
 
-    //    if (this->reelRightInitOk) {
-    //        ESP_LOGD(TAG, "Right reel Step data: %d", this->reel_status_data_right.step_data);
-    //        mcp23008_port_write(&reel_right, this->reel_status_data_right.step_data);
-    //    }
-    //    if (this->reelCentreInitOk) {
-    //        ESP_LOGD(TAG, "Centre reel Step data: %d", this->reel_status_data_centre.step_data);
-    //        mcp23008_port_write(&reel_centre, this->reel_status_data_centre.step_data);
-    //    }
-    //    if (this->reelLeftInitOk) {
-    //        ESP_LOGD(TAG, "Left reel Step data: %d", this->reel_status_data_left.step_data);
-    //        mcp23008_port_write(&reel_left, this->reel_status_data_left.step_data);
-    //    }
-
-    //    if (this->reel_status_data_left.step_number = STEPS_PER_STOP) this->reel_status_data_left.step_number = 0;
-    //    if (this->reel_status_data_centre.step_number = STEPS_PER_STOP) this->reel_status_data_centre.step_number = 0;
-    //    if (this->reel_status_data_right.step_number = STEPS_PER_STOP) this->reel_status_data_right.step_number = 0;
-
-    uint8_t btnStatus = mainController->getDisplayController()->waitForButton(BTN_START_MASK_BIT | BTN_COLLECT_MASK_BIT | BTN_HOLD_LO_MASK_BIT | BTN_HOLD_MASK_BIT); // DEBUG -> check motor is turning correctly
-    uint16_t mask = 0;
-    if (btnStatus) {
-        
-        if ((btnStatus & BTN_START_MASK_BIT) == BTN_START_MASK_BIT) {
-            mask |= (1<<0);
-        }
-        if ((btnStatus & BTN_COLLECT_MASK_BIT) == BTN_COLLECT_MASK_BIT) {
-            mask |= (1<<1);
-        }
-        if ((btnStatus & BTN_HOLD_LO_MASK_BIT) == BTN_HOLD_LO_MASK_BIT) {
-            mask |= (1<<2);
-        }
-        if ((btnStatus & BTN_HOLD_MASK_BIT) == BTN_HOLD_MASK_BIT) {
-            mask |= (1<<3);
-        }
-        ESP_LOGI(TAG, "Writing %d", mask);
-        mcp23008_port_write(&reel_right, mask);
+    if (this->reelRightInitOk) {
+        ESP_LOGD(TAG, "Right reel Step data: %d", this->reel_status_data_right.step_data);
+        mcp23008_port_write(&reel_right, this->reel_status_data_right.step_data);
     }
+    if (this->reelCentreInitOk) {
+        ESP_LOGD(TAG, "Centre reel Step data: %d", this->reel_status_data_centre.step_data);
+        mcp23008_port_write(&reel_centre, this->reel_status_data_centre.step_data);
+    }
+    if (this->reelLeftInitOk) {
+        ESP_LOGD(TAG, "Left reel Step data: %d", this->reel_status_data_left.step_data);
+        mcp23008_port_write(&reel_left, this->reel_status_data_left.step_data);
+    }
+
+    if (this->reel_status_data_left.step_number = STEPS_PER_STOP) this->reel_status_data_left.step_number = 0;
+    if (this->reel_status_data_centre.step_number = STEPS_PER_STOP) this->reel_status_data_centre.step_number = 0;
+    if (this->reel_status_data_right.step_number = STEPS_PER_STOP) this->reel_status_data_right.step_number = 0;
+
+    //    uint8_t btnStatus = mainController->getDisplayController()->waitForButton(BTN_START_MASK_BIT | BTN_COLLECT_MASK_BIT | BTN_HOLD_LO_MASK_BIT | BTN_HOLD_MASK_BIT); // DEBUG -> check motor is turning correctly
+    //    uint16_t mask = 0;
+    //    if (btnStatus) {
+    //        
+    //        if ((btnStatus & BTN_START_MASK_BIT) == BTN_START_MASK_BIT) {
+    //            mask |= (1<<0);
+    //        }
+    //        if ((btnStatus & BTN_COLLECT_MASK_BIT) == BTN_COLLECT_MASK_BIT) {
+    //            mask |= (1<<1);
+    //        }
+    //        if ((btnStatus & BTN_HOLD_LO_MASK_BIT) == BTN_HOLD_LO_MASK_BIT) {
+    //            mask |= (1<<2);
+    //        }
+    //        if ((btnStatus & BTN_HOLD_MASK_BIT) == BTN_HOLD_MASK_BIT) {
+    //            mask |= (1<<3);
+    //        }
+    //        ESP_LOGI(TAG, "Writing %d", mask);
+    //        mcp23008_port_write(&reel_right, mask);
+    //    }
 }
 
 /*
