@@ -1390,14 +1390,14 @@ namespace esp32cc {
 
                 return;
             }
-//            if (responseData.size() > 0) {
-//                // Decode the data
-//                auto fault_code = static_cast<CcFaultCode> (responseData.at(0));
-//                ESP_LOGD(TAG, "Self-check fault code: %s", ccFaultCodeGetDisplayableName(fault_code).c_str());
-//                finish_callback(ccFaultCodeGetDisplayableName(fault_code), fault_code);
-//            } else {
-                finish_callback(ccFaultCodeGetDisplayableName(CcFaultCode::Ok), CcFaultCode::Ok);
-//            }
+            //            if (responseData.size() > 0) {
+            //                // Decode the data
+            //                auto fault_code = static_cast<CcFaultCode> (responseData.at(0));
+            //                ESP_LOGD(TAG, "Self-check fault code: %s", ccFaultCodeGetDisplayableName(fault_code).c_str());
+            //                finish_callback(ccFaultCodeGetDisplayableName(fault_code), fault_code);
+            //            } else {
+            finish_callback(ccFaultCodeGetDisplayableName(CcFaultCode::Ok), CcFaultCode::Ok);
+            //            }
         });
     }
 
@@ -1453,7 +1453,41 @@ namespace esp32cc {
     }
 
     void CctalkDevice::modifyDefaultSorterPath(const uint8_t path, const std::function<void(const std::string& error_msg)>& finish_callback) {
+        std::vector<uint8_t> data;
+        data.push_back(path);
+        this->linkController->ccRequest(CcHeader::ModifyDefaultSorterPath, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
+            if (!error_msg.size() == 0) {
+                ESP_LOGE(TAG, "Error modifying sorter path %d: %s", int(path), error_msg.c_str());
+                finish_callback(error_msg);
+                return;
+            }
+            if (responseData.size() != 0) {
+                std::string error = "Non-empty data received while waiting for ACK.";
+                finish_callback(error);
 
+                return;
+            }
+            ESP_LOGD(TAG, "Sorter override status set to %d", int(overrideStatus));
+        });
+    }
+
+    void CctalkDevice::modifySorterOverrideStatus(const uint8_t overrideStatus, const std::function<void(const std::string& error_msg)>& finish_callback) {
+        std::vector<uint8_t> data;
+        data.push_back(overrideStatus);
+        this->linkController->ccRequest(CcHeader::ModifySorterOverrideStatus, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
+            if (!error_msg.size() == 0) {
+                ESP_LOGE(TAG, "Error modifying sorter path %d: %s", int(path), error_msg.c_str());
+                finish_callback(error_msg);
+                return;
+            }
+            if (responseData.size() != 0) {
+                std::string error = "Non-empty data received while waiting for ACK.";
+                finish_callback(error);
+
+                return;
+            }
+            ESP_LOGD(TAG, "Sorter override status set to %d", int(overrideStatus));
+        });
     }
 
     void CctalkDevice::enableHopper(const std::function<void(const std::string& error_msg)>& finish_callback) {

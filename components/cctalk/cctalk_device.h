@@ -200,6 +200,8 @@ namespace esp32cc {
         void modifySorterPath(const uint8_t coin_id, const uint8_t path, const std::function<void(const std::string& error_msg)>& finish_callback);
 
         void modifyDefaultSorterPath(const uint8_t path, const std::function<void(const std::string& error_msg)>& finish_callback);
+        
+        void modifySorterOverrideStatus(const uint8_t overrideStatus, const std::function<void(const std::string& error_msg)>& finish_callback);
 
         void enableHopper(const std::function<void(const std::string& error_msg)>& finish_callback);
                               
