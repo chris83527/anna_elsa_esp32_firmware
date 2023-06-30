@@ -474,7 +474,7 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
     this->spinReelThread.reset(new std::thread([ & ]() {
         reel_event_t event;
 
-        int delay = 10;
+        int delay = 5;
 
         for (int i = 0; i <= maxSteps; i++) {
 
@@ -600,8 +600,8 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
 
                     step(event);
 
-            if (delay > 10) {
-                delay -= 10;
+            if (delay > 5) {
+                delay -= 5;
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(delay));

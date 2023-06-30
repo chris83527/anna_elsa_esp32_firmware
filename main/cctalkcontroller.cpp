@@ -107,7 +107,7 @@ esp_err_t CCTalkController::initialise() {
     });
 
     // the coin validator automatically sends coins to cash box - stop this.
-    this->coinAcceptor.modifySorterOverrideStatus(255, []&](const std::string & error_msg) {
+    this->coinAcceptor.modifySorterOverrideStatus(255, [&](const std::string & error_msg) {
         if (error_msg.size() > 0) {
             ESP_LOGE(TAG, "%s", error_msg.c_str());
         }

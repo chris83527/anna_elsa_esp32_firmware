@@ -1467,7 +1467,7 @@ namespace esp32cc {
 
                 return;
             }
-            ESP_LOGD(TAG, "Sorter override status set to %d", int(overrideStatus));
+            ESP_LOGD(TAG, "Default sorter path set to %d", int(path));
         });
     }
 
@@ -1476,7 +1476,7 @@ namespace esp32cc {
         data.push_back(overrideStatus);
         this->linkController->ccRequest(CcHeader::ModifySorterOverrideStatus, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
             if (!error_msg.size() == 0) {
-                ESP_LOGE(TAG, "Error modifying sorter path %d: %s", int(path), error_msg.c_str());
+                ESP_LOGE(TAG, "Error modifying sorter override status %d: %s", int(overrideStatus), error_msg.c_str());
                 finish_callback(error_msg);
                 return;
             }
