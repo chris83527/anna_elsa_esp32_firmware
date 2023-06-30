@@ -59,43 +59,59 @@ esp_err_t CCTalkController::initialise() {
 
     // adapter slot D, cctalk sort chute 1
     this->coinAcceptor.modifyDefaultSorterPath(1, [&](const std::string & error_msg) {
-
+        if (error_msg.size() > 0) {
+            ESP_LOGE(TAG, "%s", error_msg.c_str());
+        }
     });
 
     // 5ct  (Kasse - rejected anyway)
     this->coinAcceptor.modifySorterPath(1, 1, [&](const std::string & error_msg) {
-
+        if (error_msg.size() > 0) {
+            ESP_LOGE(TAG, "%s", error_msg.c_str());
+        }
     });
 
     // 10ct (Kasse, adapter slot D, cctalk sort chute 1)
     this->coinAcceptor.modifySorterPath(2, 1, [&](const std::string & error_msg) {
-
+        if (error_msg.size() > 0) {
+            ESP_LOGE(TAG, "%s", error_msg.c_str());
+        }
     });
 
     // 20ct (Hopper, adapter slot C, cctalk sort chute 2)
     this->coinAcceptor.modifySorterPath(3, 2, [&](const std::string & error_msg) {
-
+        if (error_msg.size() > 0) {
+            ESP_LOGE(TAG, "%s", error_msg.c_str());
+        }
     });
 
     // 50ct (Kasse, adapter slot D, cctalk sort chute 1)
     this->coinAcceptor.modifySorterPath(4, 1, [&](const std::string & error_msg) {
-
+        if (error_msg.size() > 0) {
+            ESP_LOGE(TAG, "%s", error_msg.c_str());
+        }
     });
 
     // 1eur (Kasse, adapter slot D, cctalk sort chute 1)
     this->coinAcceptor.modifySorterPath(5, 1, [&](const std::string & error_msg) {
-
+        if (error_msg.size() > 0) {
+            ESP_LOGE(TAG, "%s", error_msg.c_str());
+        }
     });
 
     // 2eur (Kasse, adapter slot D, cctalk sort chute 1)
     this->coinAcceptor.modifySorterPath(6, 1, [&](const std::string & error_msg) {
-
+        if (error_msg.size() > 0) {
+            ESP_LOGE(TAG, "%s", error_msg.c_str());
+        }
     });
 
 
     // Allow all coins except 5ct
     this->coinAcceptor.modifyInhibitStatus(254, 0, [&](const std::string & error_msg) {
-
+        if (error_msg.size() > 0) {
+            ESP_LOGE(TAG, "%s", error_msg.c_str());
+        }
     });
 
     esp32cc::CcDeviceState acceptingState = esp32cc::CcDeviceState::NormalAccepting;

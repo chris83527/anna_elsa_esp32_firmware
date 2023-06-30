@@ -56,8 +56,8 @@
 #define LEDC_CHANNEL LEDC_CHANNEL_0
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
 #define LEDC_DUTY_QUARTER (4095 / 2)        // Set duty to 12,5%
-#define LEDC_DUTY_FULL (4095)           // Set duty to 50%.((2 ** 13) - 1) * 50% = 4095
-#define LEDC_FREQUENCY (75)            // Frequency in Hertz. Set frequency at 150Hz
+#define LEDC_DUTY_FULL (8190)           // Set duty to 50%.((2 ** 13) - 1) * 50% = 4095
+#define LEDC_FREQUENCY (150)            // Frequency in Hertz. Set frequency at 150Hz
 
 static const char *TAG = "ReelController";
 
@@ -89,10 +89,14 @@ uint8_t ccw_steps[STEPS_PER_STOP] = {
 
 
 uint8_t cw_steps[STEPS_PER_STOP] = {
+    GPIO_MOTOR_A_PLUS,
+    GPIO_MOTOR_A_PLUS | GPIO_MOTOR_B_MINUS,
     GPIO_MOTOR_B_MINUS,
+    GPIO_MOTOR_B_MINUS | GPIO_MOTOR_A_MINUS,
     GPIO_MOTOR_A_MINUS,
+    GPIO_MOTOR_A_MINUS | GPIO_MOTOR_B_PLUS,
     GPIO_MOTOR_B_PLUS,
-    GPIO_MOTOR_A_PLUS
+    GPIO_MOTOR_B_PLUS | GPIO_MOTOR_A_PLUS
 };
 
 ReelController::ReelController(MainController *mainController) {
@@ -278,9 +282,9 @@ void ReelController::step(reel_event_t& event) {
         mcp23008_port_write(&reel_left, this->reel_status_data_left.step_data);
     }
 
-    if (this->reel_status_data_left.step_number = STEPS_PER_STOP) this->reel_status_data_left.step_number = 0;
-    if (this->reel_status_data_centre.step_number = STEPS_PER_STOP) this->reel_status_data_centre.step_number = 0;
-    if (this->reel_status_data_right.step_number = STEPS_PER_STOP) this->reel_status_data_right.step_number = 0;
+    if (this->reel_status_data_left.step_number == STEPS_PER_STOP) this->reel_status_data_left.step_number = 0;
+    if (this->reel_status_data_centre.step_number == STEPS_PER_STOP) this->reel_status_data_centre.step_number = 0;
+    if (this->reel_status_data_right.step_number == STEPS_PER_STOP) this->reel_status_data_right.step_number = 0;
 
     //    uint8_t btnStatus = mainController->getDisplayController()->waitForButton(BTN_START_MASK_BIT | BTN_COLLECT_MASK_BIT | BTN_HOLD_LO_MASK_BIT | BTN_HOLD_MASK_BIT); // DEBUG -> check motor is turning correctly
     //    uint16_t mask = 0;
@@ -336,16 +340,16 @@ void ReelController::spinToZero() {
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-        int delay = 100;
+        int delay = 25;
 
-        while (true) {// DEBUG -> remove
-            event.reels = REEL_LEFT | REEL_CENTRE | REEL_RIGHT;
-                    event.dir_left = Clockwise;
-                    event.dir_centre = Clockwise;
-                    event.dir_right = Clockwise;
-
-                    step(event);
-        }
+        //        while (true) {// DEBUG -> remove
+        //            event.reels = REEL_LEFT | REEL_CENTRE | REEL_RIGHT;
+        //                    event.dir_left = Clockwise;
+        //                    event.dir_centre = Clockwise;
+        //                    event.dir_right = Clockwise;
+        //
+        //                    step(event);
+        //        }
 
         for (int counter = 0; counter < ((MAX_STOPS * 2) * STEPS_PER_STOP); counter++) // two spins, multiply by 4 steps        
         {
@@ -470,7 +474,7 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
     this->spinReelThread.reset(new std::thread([ & ]() {
         reel_event_t event;
 
-        int delay = 75;
+        int delay = 10;
 
         for (int i = 0; i <= maxSteps; i++) {
 
@@ -511,8 +515,8 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
 
                     step(event);
 
-            if (delay > 10) {
-                delay -= 10;
+            if (delay > 5) {
+                delay -= 5;
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(delay));
@@ -564,7 +568,7 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
     this->spinReelThread.reset(new std::thread([ & ]() {
         reel_event_t event;
 
-        int delay = 75;
+        int delay = 5;
 
         for (int i = 0; i <= maxSteps; i++) {
 
