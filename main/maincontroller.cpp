@@ -256,8 +256,7 @@ void MainController::start() {
 
     for (;;) {
         if ((!game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
-            ESP_LOGD(TAG, "Starting game...");
-            getDisplayController()->stopAttractMode();
+            ESP_LOGD(TAG, "Starting game...");            
             game->start();
         } else {
             if (!getDisplayController()->isAttractMode()) {

@@ -77,17 +77,15 @@ void Game::start() {
 
     ESP_LOGI(TAG, "Beginning game");
 
-    random16_add_entropy(esp_random() >> 16);
-    random16_add_entropy(esp_random() >> 16);
-
-    mainController->getDisplayController()->resetLampData();
-    if (mainController->getDisplayController()->isAttractMode()) {
-        mainController->getDisplayController()->stopAttractMode();
-    }
-    mainController->getAudioController()->stopPlaying();
-
     this->isInProgress = true;
+    
+    random16_add_entropy(esp_random() >> 16);
+    random16_add_entropy(esp_random() >> 16);
 
+    mainController->getDisplayController()->resetLampData();    
+    mainController->getDisplayController()->stopAttractMode();    
+    mainController->getAudioController()->stopPlaying();
+   
     uint8_t nudges = random8_to(6); // 0 - 5    
     bool hold = offerHold();
 
