@@ -61,8 +61,9 @@
 
 class MainController;
 
-
-enum class LampState {off, blinkslow, blinkfast, on};   
+enum class LampState {
+    off, blinkslow, blinkfast, on
+};
 
 class LampData {
 public:
@@ -70,27 +71,26 @@ public:
     rgb_t activeRgb;
     LampState lampState;
 private:
-    
+
 };
-     
 
 class DisplayController {
 public:
     DisplayController(MainController *mainController);
     DisplayController(const DisplayController &orig);
 
-    esp_err_t initialise(void);    
+    esp_err_t initialise(void);
 
     void setMoves(uint8_t value);
 
     void resetLampData();
 
     LampData* getLampData(void);
-        
+
     void clearText(void);
     void displayText(const std::string &text);
-    
-    bool isAttractMode();           
+
+    bool isAttractMode();
 
     uint8_t getButtonStatus(void);
     uint8_t waitForButton(uint8_t mask);
@@ -99,7 +99,7 @@ public:
     void test2(bool pauseBetweenLamps);
 
     void ledStripHsv2rgb(uint8_t h, uint8_t s, uint8_t v, uint8_t *r, uint8_t *g, uint8_t *b);
-    
+
     void beginAttractMode(void);
     void stopAttractMode(void);
 
@@ -109,18 +109,18 @@ public:
 
     led_strip_t* getLedStrip(void);
     mcp23x17_t* getButtonIO(void);
-       
+
 
     const static uint8_t NUDGE_LAMPS_LENGTH = 6;
     const static uint8_t FEATURE_LAMPS_LENGTH = 12;
     const static uint8_t TRAIL_LAMPS_LENGTH = 17;
 
     const static uint8_t NUDGE_LAMPS[NUDGE_LAMPS_LENGTH];
-    const static uint8_t SEGMENTS[];
+    const static uint8_t SEGMENTS[1];
     const static uint8_t FEATURE_LAMPS[FEATURE_LAMPS_LENGTH];
     const static uint8_t TRAIL_LAMPS[TRAIL_LAMPS_LENGTH];
 
-    
+
 
     /*
 
@@ -145,22 +145,22 @@ private:
     ht16k33_t bankDisplay;
 
     mcp23x17_t buttonIO;
-            
+
     uint8_t buttonStatus;
     bool doorOpen;
 
-    LampData lampData[LED_COUNT + 6];       
+    LampData lampData[LED_COUNT + 6];
 
     MainController *mainController;
 
     void testLamps(void);
-    
+
     uint8_t keyStatus;
 
     //uint32_t lampDataNew[LED_COUNT + 6];
 
-    bool attractMode = false;                
- 
+    bool attractMode = false;
+
     // Arrangement for display
     // )
     //               a = A6
@@ -183,7 +183,7 @@ private:
     void updateLampsTask(void);
     std::unique_ptr<std::thread> blinkLampsThread;
     void blinkLampsTask(void);
-    
+
     void rainbowEffect();
     void chaseEffect();
 };
