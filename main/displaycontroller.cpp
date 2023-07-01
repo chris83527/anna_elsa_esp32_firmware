@@ -394,9 +394,11 @@ void DisplayController::attractModeTask() {
 void DisplayController::chaseEffect() {
     // Red trail effect           
     int currentIndex;
-    int trailElements = (sizeof (TRAIL_LAMPS) / sizeof (TRAIL_LAMPS[0]));
-    for (int j = 0; j < 3; j++) {
-
+    //int trailElements = (sizeof (TRAIL_LAMPS) / sizeof (TRAIL_LAMPS[0]));
+    int trailElements = 17;
+    for (int j = 0; j < 5; j++) {
+        
+        resetLampData();        
         currentIndex = 0;
 
         for (int i = 0; i < (trailElements + 4); i++) {

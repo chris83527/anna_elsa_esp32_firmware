@@ -27,7 +27,7 @@
  */
 
 /**
- * @file reels.c
+ * @file reelcontroller.cpp
  *
  * Higher level routines for controlling MCP23008 based reel driver board
  *
@@ -77,16 +77,15 @@ Step	a+	b+	a-	b-
 4	1	0	0	1
  */
 uint8_t ccw_steps[STEPS_PER_STOP] = {
-    GPIO_MOTOR_A_PLUS,
-    GPIO_MOTOR_A_PLUS | GPIO_MOTOR_B_MINUS,
-    GPIO_MOTOR_B_MINUS,
-    GPIO_MOTOR_B_MINUS | GPIO_MOTOR_A_MINUS,
-    GPIO_MOTOR_A_MINUS,
-    GPIO_MOTOR_A_MINUS | GPIO_MOTOR_B_PLUS,
+    GPIO_MOTOR_B_PLUS | GPIO_MOTOR_A_PLUS,
     GPIO_MOTOR_B_PLUS,
-    GPIO_MOTOR_B_PLUS | GPIO_MOTOR_A_PLUS
+    GPIO_MOTOR_A_MINUS | GPIO_MOTOR_B_PLUS,
+    GPIO_MOTOR_A_MINUS,
+    GPIO_MOTOR_B_MINUS | GPIO_MOTOR_A_MINUS,
+    GPIO_MOTOR_B_MINUS,
+    GPIO_MOTOR_A_PLUS | GPIO_MOTOR_B_MINUS,
+    GPIO_MOTOR_A_PLUS    
 };
-
 
 uint8_t cw_steps[STEPS_PER_STOP] = {
     GPIO_MOTOR_A_PLUS,
@@ -282,9 +281,9 @@ void ReelController::step(reel_event_t& event) {
         mcp23008_port_write(&reel_left, this->reel_status_data_left.step_data);
     }
 
-    if (this->reel_status_data_left.step_number == STEPS_PER_STOP) this->reel_status_data_left.step_number = 0;
-    if (this->reel_status_data_centre.step_number == STEPS_PER_STOP) this->reel_status_data_centre.step_number = 0;
-    if (this->reel_status_data_right.step_number == STEPS_PER_STOP) this->reel_status_data_right.step_number = 0;
+    if (this->reel_status_data_left.step_number == (STEPS_PER_STOP - 1)) this->reel_status_data_left.step_number = 0;
+    if (this->reel_status_data_centre.step_number == (STEPS_PER_STOP - 1)) this->reel_status_data_centre.step_number = 0;
+    if (this->reel_status_data_right.step_number == (STEPS_PER_STOP - 1)) this->reel_status_data_right.step_number = 0;
 
     //    uint8_t btnStatus = mainController->getDisplayController()->waitForButton(BTN_START_MASK_BIT | BTN_COLLECT_MASK_BIT | BTN_HOLD_LO_MASK_BIT | BTN_HOLD_MASK_BIT); // DEBUG -> check motor is turning correctly
     //    uint16_t mask = 0;
