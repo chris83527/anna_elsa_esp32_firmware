@@ -111,14 +111,126 @@ public:
     mcp23x17_t* getButtonIO(void);
 
 
-    const static uint8_t NUDGE_LAMPS_LENGTH = 6;
-    const static uint8_t FEATURE_LAMPS_LENGTH = 12;
-    const static uint8_t TRAIL_LAMPS_LENGTH = 17;
+    constexpr static int NUDGE_LAMPS_LENGTH = 6;
+    constexpr static int FEATURE_LAMPS_LENGTH = 12;
+    constexpr static int TRAIL_LAMPS_LENGTH = 17;
 
-    const static uint8_t NUDGE_LAMPS[NUDGE_LAMPS_LENGTH];
-    const static uint8_t SEGMENTS[1];
-    const static uint8_t FEATURE_LAMPS[FEATURE_LAMPS_LENGTH];
-    const static uint8_t TRAIL_LAMPS[TRAIL_LAMPS_LENGTH];
+    // WS2128B LEDs
+    constexpr static int REEL_LAMP_L1 = 0;
+    constexpr static int REEL_LAMP_L2 = 1;
+    constexpr static int REEL_LAMP_L3 = 2;
+    constexpr static int REEL_LAMP_C1 = 3;
+    constexpr static int REEL_LAMP_C2 = 4;
+    constexpr static int REEL_LAMP_C3 = 5;
+    constexpr static int REEL_LAMP_R1 = 6;
+    constexpr static int REEL_LAMP_R2 = 7;
+    constexpr static int REEL_LAMP_R3 = 8;
+    constexpr static int LAMP_NUDGE_5 = 9;
+    constexpr static int LAMP_NUDGE_4 = 10;
+    constexpr static int LAMP_NUDGE_3 = 11;
+    constexpr static int LAMP_NUDGE_2 = 12;
+    constexpr static int LAMP_NUDGE_1 = 13;
+    constexpr static int LAMP_PRIZE_PALACE = 14;
+    constexpr static int LAMP_PRIZE_ANNA = 15;
+    constexpr static int LAMP_PRIZE_ELSA = 16;
+    constexpr static int LAMP_PRIZE_CHRISTOPH = 17;
+    constexpr static int LAMP_PRIZE_SVEN = 18;
+    constexpr static int LAMP_PRIZE_OLAF_3 = 19;
+    constexpr static int LAMP_PRIZE_OLAF_ANY = 20;
+    constexpr static int LAMP_PRIZE_HANS = 21;
+    constexpr static int LAMP_PRIZE_20_CENT = 22;
+    constexpr static int LAMP_PRIZE_40_CENT = 23;
+    constexpr static int LAMP_PRIZE_80_CENT = 24;
+    constexpr static int LAMP_PRIZE_120_CENT = 25;
+    constexpr static int LAMP_PRIZE_160_CENT = 26;
+    constexpr static int LAMP_PRIZE_200_CENT = 27;
+    constexpr static int LAMP_PRIZE_300_CENT = 28;
+    constexpr static int LAMP_PRIZE_400_CENT = 29;
+    constexpr static int LAMP_HI = 30;
+    constexpr static int LAMP_lO = 31;
+    constexpr static int LAMP_MATRIX_SHUFFLE_1_1 = 32;
+    constexpr static int LAMP_MATRIX_FREE_SPIN_1_2 = 33;
+    constexpr static int LAMP_MATRIX_DOUBLE_MONEY_1_3 = 34;
+    constexpr static int LAMP_MATRIX_PALACE_2_3 = 35;
+    constexpr static int LAMP_MATRIX_LOSE_2_2 = 36;
+    constexpr static int LAMP_MATRIX_PALACE_2_1 = 37;
+    constexpr static int LAMP_MATRIX_FREE_SPIN_3_1 = 38;
+    constexpr static int LAMP_MATRIX_SHUFFLE_3_2 = 39;
+    constexpr static int LAMP_MATRIX_LOSE_3_3 = 40;
+    constexpr static int LAMP_MATRIX_HI_LO_4_2 = 42;
+    constexpr static int LAMP_MATRIX_FREE_SPIN_4_3 = 41;
+    constexpr static int LAMP_MATRIX_PALACE_4_1 = 43;
+    constexpr static int LAMP_TRAIL_20_CENT = 44;
+    constexpr static int LAMP_TRAIL_40_CENT = 45;
+    constexpr static int LAMP_TRAIL_60_CENT = 46;
+    constexpr static int LAMP_TRAIL_80_CENT = 47;
+    constexpr static int LAMP_TRAIL_ONE_EURO = 48;
+    constexpr static int LAMP_TRAIL_ONE_TWENTY = 49;
+    constexpr static int LAMP_TRAIL_ONE_FOURTY = 50;
+    constexpr static int LAMP_TRAIL_ONE_SIXTY = 51;
+    constexpr static int LAMP_TRAIL_ONE_EIGHTY = 52;
+    constexpr static int LAMP_TRAIL_TWO_EURO = 53;
+    constexpr static int LAMP_TRAIL_TWO_FOURTY = 54;
+    constexpr static int LAMP_TRAIL_TWO_EIGHTY = 55;
+    constexpr static int LAMP_TRAIL_THREE_FOURTY = 56;
+    constexpr static int LAMP_TRAIL_THREE_EIGHTY = 57;
+    constexpr static int LAMP_TRAIL_FOUR_TWENTY = 58;
+    constexpr static int LAMP_TRAIL_FOUR_SIXTY = 59;
+    constexpr static int LAMP_TRAIL_FIVE_EURO = 60;
+    constexpr static int LMP_START = 61;
+    constexpr static int LMP_COLLECT = 62;
+    constexpr static int LMP_HOLD_LO = 63;
+    constexpr static int LMP_HOLD = 64;
+    constexpr static int LMP_HOLD_HI = 65;
+    constexpr static int LMP_TRANSFER = 66;
+
+    constexpr static int SEGMENTS[] = {
+
+    };
+
+    constexpr static int NUDGE_LAMPS[] = {
+        LAMP_NUDGE_1,
+        LAMP_NUDGE_2,
+        LAMP_NUDGE_3,
+        LAMP_NUDGE_4,
+        LAMP_NUDGE_5
+    };
+
+    constexpr static int TRAIL_LAMPS[] = {
+        LAMP_TRAIL_20_CENT,
+        LAMP_TRAIL_40_CENT,
+        LAMP_TRAIL_60_CENT,
+        LAMP_TRAIL_80_CENT,
+        LAMP_TRAIL_ONE_EURO,
+        LAMP_TRAIL_ONE_TWENTY,
+        LAMP_TRAIL_ONE_FOURTY,
+        LAMP_TRAIL_ONE_SIXTY,
+        LAMP_TRAIL_ONE_EIGHTY,
+        LAMP_TRAIL_TWO_EURO,
+        LAMP_TRAIL_TWO_FOURTY,
+        LAMP_TRAIL_TWO_EIGHTY,
+        LAMP_TRAIL_THREE_FOURTY,
+        LAMP_TRAIL_THREE_EIGHTY,
+        LAMP_TRAIL_FOUR_TWENTY,
+        LAMP_TRAIL_FOUR_SIXTY,
+        LAMP_TRAIL_FIVE_EURO,
+    };
+
+    constexpr static int FEATURE_LAMPS[] = {
+        LAMP_MATRIX_FREE_SPIN_1_2,
+        LAMP_MATRIX_DOUBLE_MONEY_1_3,
+        LAMP_MATRIX_SHUFFLE_1_1,
+        LAMP_MATRIX_LOSE_2_2,
+        LAMP_MATRIX_PALACE_2_3,
+        LAMP_MATRIX_PALACE_2_1,
+        LAMP_MATRIX_SHUFFLE_3_2,
+        LAMP_MATRIX_LOSE_3_3,
+        LAMP_MATRIX_FREE_SPIN_3_1,
+        LAMP_MATRIX_HI_LO_4_2,
+        LAMP_MATRIX_FREE_SPIN_4_3,
+        LAMP_MATRIX_PALACE_4_1
+    };
+
 
 
 

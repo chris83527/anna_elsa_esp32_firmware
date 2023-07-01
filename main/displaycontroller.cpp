@@ -74,48 +74,10 @@ using namespace std;
 static const char *TAG = "DisplayController";
 static string vfdText;
 
-const uint8_t DisplayController::NUDGE_LAMPS[] = {
-    LAMP_NUDGE_1,
-    LAMP_NUDGE_2,
-    LAMP_NUDGE_3,
-    LAMP_NUDGE_4,
-    LAMP_NUDGE_5
-};
-
-const uint8_t DisplayController::TRAIL_LAMPS[] = {
-    LAMP_TRAIL_20_CENT,
-    LAMP_TRAIL_40_CENT,
-    LAMP_TRAIL_60_CENT,
-    LAMP_TRAIL_80_CENT,
-    LAMP_TRAIL_ONE_EURO,
-    LAMP_TRAIL_ONE_TWENTY,
-    LAMP_TRAIL_ONE_FOURTY,
-    LAMP_TRAIL_ONE_SIXTY,
-    LAMP_TRAIL_ONE_EIGHTY,
-    LAMP_TRAIL_TWO_EURO,
-    LAMP_TRAIL_TWO_FOURTY,
-    LAMP_TRAIL_TWO_EIGHTY,
-    LAMP_TRAIL_THREE_FOURTY,
-    LAMP_TRAIL_THREE_EIGHTY,
-    LAMP_TRAIL_FOUR_TWENTY,
-    LAMP_TRAIL_FOUR_SIXTY,
-    LAMP_TRAIL_FIVE_EURO,
-};
-
-const uint8_t DisplayController::FEATURE_LAMPS[] = {
-    LAMP_MATRIX_FREE_SPIN_1_2,
-    LAMP_MATRIX_DOUBLE_MONEY_1_3,
-    LAMP_MATRIX_SHUFFLE_1_1,
-    LAMP_MATRIX_LOSE_2_2,
-    LAMP_MATRIX_PALACE_2_3,
-    LAMP_MATRIX_PALACE_2_1,
-    LAMP_MATRIX_SHUFFLE_3_2,
-    LAMP_MATRIX_LOSE_3_3,
-    LAMP_MATRIX_FREE_SPIN_3_1,
-    LAMP_MATRIX_HI_LO_4_2,
-    LAMP_MATRIX_FREE_SPIN_4_3,
-    LAMP_MATRIX_PALACE_4_1
-};
+constexpr int DisplayController::SEGMENTS[];
+constexpr int DisplayController::NUDGE_LAMPS[];
+constexpr int DisplayController::TRAIL_LAMPS[];
+constexpr int DisplayController::FEATURE_LAMPS[];
 
 DisplayController::DisplayController(MainController* mainController) {
     ESP_LOGD(TAG, "Entering constructor");
@@ -205,7 +167,7 @@ esp_err_t DisplayController::initialise() {
         ESP_LOGI(TAG, "Button interface initialisation succeeded");
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));    
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     this->resetLampData();
 
@@ -398,8 +360,8 @@ void DisplayController::chaseEffect() {
     //int trailElements = (sizeof (TRAIL_LAMPS) / sizeof (TRAIL_LAMPS[0]));
     int trailElements = 17;
     for (int j = 0; j < 5; j++) {
-        
-        resetLampData();        
+
+        resetLampData();
         currentIndex = 0;
 
         for (int i = 0; i < (trailElements + 4); i++) {
