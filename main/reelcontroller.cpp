@@ -339,7 +339,7 @@ void ReelController::spinToZero() {
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-        int delay = 25;
+        int delay = 75;
 
         //        while (true) {// DEBUG -> remove
         //            event.reels = REEL_LEFT | REEL_CENTRE | REEL_RIGHT;
@@ -392,8 +392,8 @@ void ReelController::spinToZero() {
                 }
             }
 
-            if (delay > 5) {
-                delay -= 5;
+            if (delay > 10) {
+                delay -= 10;
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(delay));
@@ -473,7 +473,7 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
     this->spinReelThread.reset(new std::thread([ & ]() {
         reel_event_t event;
 
-        int delay = 5;
+        int delay = 10;
 
         for (int i = 0; i <= maxSteps; i++) {
 
@@ -514,9 +514,9 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
 
                     step(event);
 
-            if (delay > 5) {
-                delay -= 5;
-            }
+            //if (delay > 5) {
+            //    delay -= 5;
+            //}
 
             std::this_thread::sleep_for(std::chrono::milliseconds(delay));
         }
