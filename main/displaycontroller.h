@@ -287,13 +287,13 @@ private:
 
 
 
-    std::unique_ptr<std::thread> attractModeThread;
+    std::thread attractModeThread;
     void attractModeTask(void);
-    std::unique_ptr<std::thread> updateSevenSegDisplaysThread;
+    std::thread updateSevenSegDisplaysThread;
     void updateSevenSegDisplaysTask(void);
-    std::unique_ptr<std::thread> updateLampsThread;
+    std::thread updateLampsThread;
     void updateLampsTask(void);
-    std::unique_ptr<std::thread> blinkLampsThread;
+    std::thread blinkLampsThread;
     void blinkLampsTask(void);
 
     void rainbowEffect();
