@@ -202,13 +202,6 @@ esp_err_t DisplayController::initialise() {
     this->testLamps();
 
     this->attractMode = false;
-    
-    ESP_LOGD(TAG, "Exiting DisplayController::initialise()");
-    return ESP_OK;
-}
-
-void DisplayController::beginAttractMode() {
-    this->attractMode = true;
     auto cfg = esp_pthread_get_default_config();
     cfg.thread_name = "AttractMode";
     cfg.prio = 4;
@@ -217,12 +210,18 @@ void DisplayController::beginAttractMode() {
     this->attractModeThread = std::thread([this]() {
         attractModeTask();
     });    
+    
+    ESP_LOGD(TAG, "Exiting DisplayController::initialise()");
+    return ESP_OK;
+}
+
+void DisplayController::beginAttractMode() {
+    this->attractMode = true;
+    
 }
 
 void DisplayController::stopAttractMode() {
     this->attractMode = false;
-    this->attractModeThread.detach();
-    this->attractModeThread.~thread();
 }
 
 void DisplayController::resetLampData() {
@@ -322,35 +321,35 @@ ht16k33_t* DisplayController::getMovesDisplay() {
 }
 
 void DisplayController::attractModeTask() {
-    // Show simple rainbow chasing pattern
-    ESP_LOGI(TAG, "Attract mode started");
+    
+    ESP_LOGI(TAG, "Attract mode thread started");
 
     while (1) {
         if (this->isAttractMode()) {
 
-            this->displayText("       FROZEN       ");
-            this->resetLampData();
+            if (this->isAttractMode()) this->displayText("       FROZEN       ");
+            if (this->isAttractMode()) this->resetLampData();
 
-            this->rainbowEffect();
+            if (this->isAttractMode()) this->rainbowEffect();
 
-            std::this_thread::sleep_for(std::chrono::seconds(10));
+            if (this->isAttractMode()) std::this_thread::sleep_for(std::chrono::seconds(10));
 
-            resetLampData();
+            if (this->isAttractMode()) resetLampData();
 
-            this->displayText("      PLAY ME       ");
-            this->chaseEffect();
+            if (this->isAttractMode()) this->displayText("      PLAY ME       ");
+            if (this->isAttractMode()) this->chaseEffect();
 
-            std::this_thread::sleep_for(std::chrono::seconds(5));
+            if (this->isAttractMode()) std::this_thread::sleep_for(std::chrono::seconds(5));
 
-            resetLampData();
+            if (this->isAttractMode()) resetLampData();
 
-            this->displayText("     20CT GAME      ");
+            if (this->isAttractMode()) this->displayText("     20CT GAME      ");
 
-            std::this_thread::sleep_for(std::chrono::seconds(5));
+            if (this->isAttractMode()) std::this_thread::sleep_for(std::chrono::seconds(5));
 
-            this->displayText("    INSERT COINS    ");
+            if (this->isAttractMode()) this->displayText("    INSERT COINS    ");
 
-            std::this_thread::sleep_for(std::chrono::seconds(5));
+            if (this->isAttractMode()) std::this_thread::sleep_for(std::chrono::seconds(5));
 
         } else {
             std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -369,6 +368,11 @@ void DisplayController::chaseEffect() {
         currentIndex = 0;
 
         for (int i = 0; i < (trailElements + 4); i++) {
+            
+            if (!this->attractMode) {
+                    return;
+                }
+            
             lampData[TRAIL_LAMPS[currentIndex]].rgb = rgb_from_code(0x00ff0000);
 //            lampData[TRAIL_LAMPS[currentIndex]].rgb.b = 0;
 //            lampData[TRAIL_LAMPS[currentIndex]].rgb.g = 0;
@@ -431,6 +435,10 @@ void DisplayController::rainbowEffect() {
         for (int i = 0; i < 3; i++) {
             for (int j = i; j < LED_COUNT; j += 3) {
 
+                if (!this->attractMode) {
+                    return;
+                }
+                
                 // Build RGB values
                 hsv_data.hue = j * 360 / LED_COUNT + start_rgb;
                 hsv_data.sat = 255;
