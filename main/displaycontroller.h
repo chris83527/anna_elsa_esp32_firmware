@@ -184,52 +184,10 @@ public:
     constexpr static int LMP_HOLD_HI = 65;
     constexpr static int LMP_TRANSFER = 66;
 
-    constexpr static int SEGMENTS[] = {
-
-    };
-
-    constexpr static int NUDGE_LAMPS[] = {
-        LAMP_NUDGE_1,
-        LAMP_NUDGE_2,
-        LAMP_NUDGE_3,
-        LAMP_NUDGE_4,
-        LAMP_NUDGE_5
-    };
-
-    constexpr static int TRAIL_LAMPS[] = {
-        LAMP_TRAIL_20_CENT,
-        LAMP_TRAIL_40_CENT,
-        LAMP_TRAIL_60_CENT,
-        LAMP_TRAIL_80_CENT,
-        LAMP_TRAIL_ONE_EURO,
-        LAMP_TRAIL_ONE_TWENTY,
-        LAMP_TRAIL_ONE_FOURTY,
-        LAMP_TRAIL_ONE_SIXTY,
-        LAMP_TRAIL_ONE_EIGHTY,
-        LAMP_TRAIL_TWO_EURO,
-        LAMP_TRAIL_TWO_FOURTY,
-        LAMP_TRAIL_TWO_EIGHTY,
-        LAMP_TRAIL_THREE_FOURTY,
-        LAMP_TRAIL_THREE_EIGHTY,
-        LAMP_TRAIL_FOUR_TWENTY,
-        LAMP_TRAIL_FOUR_SIXTY,
-        LAMP_TRAIL_FIVE_EURO,
-    };
-
-    constexpr static int FEATURE_LAMPS[] = {
-        LAMP_MATRIX_FREE_SPIN_1_2,
-        LAMP_MATRIX_DOUBLE_MONEY_1_3,
-        LAMP_MATRIX_SHUFFLE_1_1,
-        LAMP_MATRIX_LOSE_2_2,
-        LAMP_MATRIX_PALACE_2_3,
-        LAMP_MATRIX_PALACE_2_1,
-        LAMP_MATRIX_SHUFFLE_3_2,
-        LAMP_MATRIX_LOSE_3_3,
-        LAMP_MATRIX_FREE_SPIN_3_1,
-        LAMP_MATRIX_HI_LO_4_2,
-        LAMP_MATRIX_FREE_SPIN_4_3,
-        LAMP_MATRIX_PALACE_4_1
-    };
+    static std::array<int, 0> const SEGMENTS;
+    static std::array<int, 5> const NUDGE_LAMPS; 
+    static std::array<int, 17> const TRAIL_LAMPS; 
+    static std::array<int, 12> const FEATURE_LAMPS; 
 
 
 

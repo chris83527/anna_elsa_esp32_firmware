@@ -241,17 +241,17 @@ void Game::playNudges(int nudges) {
         mainController->getDisplayController()->resetLampData();
 
         // have to take off 1, because array is zero-indexed
-        lampData[DisplayController::NUDGE_LAMPS[nudges - 1]].rgb.r = 255;
-        lampData[DisplayController::NUDGE_LAMPS[nudges - 1]].rgb.g = 255;
-        lampData[DisplayController::NUDGE_LAMPS[nudges - 1]].rgb.b = 255;
-        lampData[DisplayController::NUDGE_LAMPS[nudges - 1]].lampState = LampState::blinkfast;
+        lampData[DisplayController::NUDGE_LAMPS.at(nudges - 1)].rgb.r = 255;
+        lampData[DisplayController::NUDGE_LAMPS.at(nudges - 1)].rgb.g = 255;
+        lampData[DisplayController::NUDGE_LAMPS.at(nudges - 1)].rgb.b = 255;
+        lampData[DisplayController::NUDGE_LAMPS.at(nudges - 1)].lampState = LampState::blinkfast;
 
         if (nudges > 1) {
             for (int i = 0; i < (nudges - 1); i++) {
-                lampData[DisplayController::NUDGE_LAMPS[i]].lampState = LampState::on;
-                lampData[DisplayController::NUDGE_LAMPS[i]].rgb.r = 0;
-                lampData[DisplayController::NUDGE_LAMPS[i]].rgb.g = 0;
-                lampData[DisplayController::NUDGE_LAMPS[i]].rgb.b = 255;
+                lampData[DisplayController::NUDGE_LAMPS.at(i)].lampState = LampState::on;
+                lampData[DisplayController::NUDGE_LAMPS.at(i)].rgb.r = 0;
+                lampData[DisplayController::NUDGE_LAMPS.at(i)].rgb.g = 0;
+                lampData[DisplayController::NUDGE_LAMPS.at(i)].rgb.b = 255;
             }
         }
 

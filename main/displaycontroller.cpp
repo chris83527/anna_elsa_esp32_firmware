@@ -74,15 +74,57 @@ using namespace std;
 static const char *TAG = "DisplayController";
 static string vfdText;
 
-// Not needed with c++17
-constexpr int DisplayController::SEGMENTS[];
-constexpr int DisplayController::NUDGE_LAMPS[];
-constexpr int DisplayController::TRAIL_LAMPS[];
-constexpr int DisplayController::FEATURE_LAMPS[];
+std::array<int, 0> const DisplayController::SEGMENTS = {
+
+};
+
+std::array<int, 5> const DisplayController::NUDGE_LAMPS = {
+    LAMP_NUDGE_1,
+    LAMP_NUDGE_2,
+    LAMP_NUDGE_3,
+    LAMP_NUDGE_4,
+    LAMP_NUDGE_5
+};
+
+std::array<int, 17> const DisplayController::TRAIL_LAMPS = {
+    LAMP_TRAIL_20_CENT,
+    LAMP_TRAIL_40_CENT,
+    LAMP_TRAIL_60_CENT,
+    LAMP_TRAIL_80_CENT,
+    LAMP_TRAIL_ONE_EURO,
+    LAMP_TRAIL_ONE_TWENTY,
+    LAMP_TRAIL_ONE_FOURTY,
+    LAMP_TRAIL_ONE_SIXTY,
+    LAMP_TRAIL_ONE_EIGHTY,
+    LAMP_TRAIL_TWO_EURO,
+    LAMP_TRAIL_TWO_FOURTY,
+    LAMP_TRAIL_TWO_EIGHTY,
+    LAMP_TRAIL_THREE_FOURTY,
+    LAMP_TRAIL_THREE_EIGHTY,
+    LAMP_TRAIL_FOUR_TWENTY,
+    LAMP_TRAIL_FOUR_SIXTY,
+    LAMP_TRAIL_FIVE_EURO,
+};
+
+std::array<int, 12> const DisplayController::FEATURE_LAMPS = {
+    LAMP_MATRIX_FREE_SPIN_1_2,
+    LAMP_MATRIX_DOUBLE_MONEY_1_3,
+    LAMP_MATRIX_SHUFFLE_1_1,
+    LAMP_MATRIX_LOSE_2_2,
+    LAMP_MATRIX_PALACE_2_3,
+    LAMP_MATRIX_PALACE_2_1,
+    LAMP_MATRIX_SHUFFLE_3_2,
+    LAMP_MATRIX_LOSE_3_3,
+    LAMP_MATRIX_FREE_SPIN_3_1,
+    LAMP_MATRIX_HI_LO_4_2,
+    LAMP_MATRIX_FREE_SPIN_4_3,
+    LAMP_MATRIX_PALACE_4_1
+};
 
 DisplayController::DisplayController(MainController* mainController) {
     ESP_LOGD(TAG, "Entering constructor");
     this->mainController = mainController;
+
     ESP_LOGD(TAG, "Leaving constructor");
 }
 
@@ -182,6 +224,7 @@ esp_err_t DisplayController::initialise() {
         blinkLampsTask();
     });
 
+    cfg = esp_pthread_get_default_config();
     cfg.thread_name = "UpdateLamps";
     cfg.prio = 4;
     cfg.stack_size = 1024;
@@ -190,6 +233,7 @@ esp_err_t DisplayController::initialise() {
         updateLampsTask();
     });
 
+    cfg = esp_pthread_get_default_config();
     cfg.thread_name = "UpdateSevenSeg";
     cfg.prio = 2;
     cfg.stack_size = 1024;
@@ -202,22 +246,22 @@ esp_err_t DisplayController::initialise() {
     this->testLamps();
 
     this->attractMode = false;
-    auto cfg = esp_pthread_get_default_config();
+    cfg = esp_pthread_get_default_config();
     cfg.thread_name = "AttractMode";
     cfg.prio = 4;
     cfg.stack_size = 4096;
     esp_pthread_set_cfg(&cfg);
     this->attractModeThread = std::thread([this]() {
         attractModeTask();
-    });    
-    
+    });
+
     ESP_LOGD(TAG, "Exiting DisplayController::initialise()");
     return ESP_OK;
 }
 
 void DisplayController::beginAttractMode() {
     this->attractMode = true;
-    
+
 }
 
 void DisplayController::stopAttractMode() {
@@ -233,7 +277,7 @@ void DisplayController::resetLampData() {
         // set lamp colour to white
         lampData[i].rgb.r = 255;
         lampData[i].rgb.g = 255;
-        lampData[i].rgb.b = 255;                
+        lampData[i].rgb.b = 255;
     }
     ESP_LOGD(TAG, "Exiting resetLampData()");
 }
@@ -321,7 +365,7 @@ ht16k33_t* DisplayController::getMovesDisplay() {
 }
 
 void DisplayController::attractModeTask() {
-    
+
     ESP_LOGI(TAG, "Attract mode thread started");
 
     while (1) {
@@ -368,51 +412,39 @@ void DisplayController::chaseEffect() {
         currentIndex = 0;
 
         for (int i = 0; i < (trailElements + 4); i++) {
-            
+
             if (!this->attractMode) {
-                    return;
-                }
-            
-            lampData[TRAIL_LAMPS[currentIndex]].rgb = rgb_from_code(0x00ff0000);
-//            lampData[TRAIL_LAMPS[currentIndex]].rgb.b = 0;
-//            lampData[TRAIL_LAMPS[currentIndex]].rgb.g = 0;
-//            lampData[TRAIL_LAMPS[currentIndex]].rgb.r = 255;
-            lampData[TRAIL_LAMPS[currentIndex]].lampState = LampState::on;
+                return;
+            }
+
+            lampData[TRAIL_LAMPS.at(currentIndex)].rgb = rgb_from_code(0x00ff0000);
+            lampData[TRAIL_LAMPS.at(currentIndex)].lampState = LampState::on;
 
             if (i > 0) {
-                lampData[TRAIL_LAMPS[currentIndex - 1]].rgb = rgb_from_code(0x00c00000);
-//                lampData[TRAIL_LAMPS[currentIndex - 1]].rgb.r = 192;
-//                lampData[TRAIL_LAMPS[currentIndex - 1]].rgb.b = 0;
-//                lampData[TRAIL_LAMPS[currentIndex - 1]].rgb.g = 0;
-                lampData[TRAIL_LAMPS[currentIndex - 1]].lampState = LampState::on;
+                lampData[TRAIL_LAMPS.at(currentIndex - 1)].rgb = rgb_from_code(0x00c00000);
+                lampData[TRAIL_LAMPS.at(currentIndex - 1)].lampState = LampState::on;
             }
             if (i > 1) {
-                lampData[TRAIL_LAMPS[currentIndex - 2]].rgb = rgb_from_code(0x00810000);
-//                lampData[TRAIL_LAMPS[currentIndex - 2]].rgb.r = 129;
-//                lampData[TRAIL_LAMPS[currentIndex - 2]].rgb.b = 0;
-//                lampData[TRAIL_LAMPS[currentIndex - 2]].rgb.g = 0;
-                lampData[TRAIL_LAMPS[currentIndex - 2]].lampState = LampState::on;
+                lampData[TRAIL_LAMPS.at(currentIndex - 2)].rgb = rgb_from_code(0x00810000);
+                lampData[TRAIL_LAMPS.at(currentIndex - 2)].lampState = LampState::on;
             }
             if (i > 2) {
-                lampData[TRAIL_LAMPS[currentIndex - 2]].rgb = rgb_from_code(0x00420000);
-//                lampData[TRAIL_LAMPS[currentIndex - 3]].rgb.r = 66;
-//                lampData[TRAIL_LAMPS[currentIndex - 3]].rgb.b = 0;
-//                lampData[TRAIL_LAMPS[currentIndex - 3]].rgb.g = 0;
-                lampData[TRAIL_LAMPS[currentIndex - 3]].lampState = LampState::on;
+                lampData[TRAIL_LAMPS.at(currentIndex - 2)].rgb = rgb_from_code(0x00420000);
+                lampData[TRAIL_LAMPS.at(currentIndex - 3)].lampState = LampState::on;
             }
             if (i > 3) {
-                lampData[TRAIL_LAMPS[currentIndex - 4]].lampState = LampState::off;
+                lampData[TRAIL_LAMPS.at(currentIndex - 4)].lampState = LampState::off;
             }
 
             // tail catches up                    
             if (i > (trailElements + 1)) {
-                lampData[TRAIL_LAMPS[currentIndex - 3]].lampState = LampState::off;
+                lampData[TRAIL_LAMPS.at(currentIndex - 3)].lampState = LampState::off;
             }
             if (i > (trailElements + 2)) {
-                lampData[TRAIL_LAMPS[currentIndex - 2]].lampState = LampState::off;
+                lampData[TRAIL_LAMPS.at(currentIndex - 2)].lampState = LampState::off;
             }
             if (i > (trailElements + 3)) {
-                lampData[TRAIL_LAMPS[currentIndex - 1]].lampState = LampState::off;
+                lampData[TRAIL_LAMPS.at(currentIndex - 1)].lampState = LampState::off;
             }
 
 
@@ -438,7 +470,7 @@ void DisplayController::rainbowEffect() {
                 if (!this->attractMode) {
                     return;
                 }
-                
+
                 // Build RGB values
                 hsv_data.hue = j * 360 / LED_COUNT + start_rgb;
                 hsv_data.sat = 255;
