@@ -458,7 +458,6 @@ void DisplayController::chaseEffect() {
 }
 
 void DisplayController::rainbowEffect() {
-    rgb_t rgb_data;
     hsv_t hsv_data;
     uint8_t start_rgb = 0;
 
@@ -475,10 +474,9 @@ void DisplayController::rainbowEffect() {
                 hsv_data.hue = j * 360 / LED_COUNT + start_rgb;
                 hsv_data.sat = 255;
                 hsv_data.val = 255;
-                rgb_data = hsv2rgb_rainbow(hsv_data);
 
                 // Write RGB values to strip driver
-                lampData[j].rgb = rgb_data;
+                lampData[j].rgb = hsv2rgb_rainbow(hsv_data);
                 lampData[j].lampState = LampState::on;
             }
 
