@@ -440,16 +440,10 @@ void DisplayController::chaseEffect() {
             }
 
             // tail catches up                    
-            if (i > (j - 1)) {
-                lampData[TRAIL_LAMPS.at(i - 3)].lampState = LampState::off;
+            if (i > j) {
+                lampData[TRAIL_LAMPS.at(i - 4)].lampState = LampState::off;
             }
-            if (i > (j - 2)) {
-                lampData[TRAIL_LAMPS.at(i - 2)].lampState = LampState::off;
-            }
-            if (i > (j - 3)) {
-                lampData[TRAIL_LAMPS.at(i - 1)].lampState = LampState::off;
-            }
-            
+                        
             std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
         }
     }
