@@ -36,6 +36,7 @@
 #define GAME_H
 
 #include <string>
+#include <array>
 
 #include "reelcontroller.h"
 #include "displaycontroller.h"
@@ -71,7 +72,7 @@ private:
 
     MainController* mainController;
 
-    LampData *lampData;
+    std::array<LampData, LED_COUNT+6> lampData;
     
     bool isInProgress = false;
 

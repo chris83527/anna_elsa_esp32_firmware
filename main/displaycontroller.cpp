@@ -277,11 +277,11 @@ void DisplayController::resetLampData() {
     ESP_LOGD(TAG, "Entering resetLampData()");
     // initialise lamps
     for (int i = 0; i < (LED_COUNT + 6); i++) {
-        lampData[i].lampState = LampState::off;
+        lampData.at(i).lampState = LampState::off;
         // set lamp colour to white
-        lampData[i].rgb.r = 255;
-        lampData[i].rgb.g = 255;
-        lampData[i].rgb.b = 255;
+        lampData.at(i).rgb.r = 255;
+        lampData.at(i).rgb.g = 255;
+        lampData.at(i).rgb.b = 255;
     }
     ESP_LOGD(TAG, "Exiting resetLampData()");
 }
@@ -296,7 +296,7 @@ void DisplayController::testLamps() {
     // switch all LEDs on;
     resetLampData();
     for (int i = 0; i < (LED_COUNT + 6); i++) {
-        lampData[i].lampState = LampState::on;
+        lampData.at(i).lampState = LampState::on;
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     resetLampData();
@@ -309,8 +309,8 @@ void DisplayController::setMoves(uint8_t value) {
     ESP_LOGD(TAG, "Exiting setMoves");
 }
 
-LampData* DisplayController::getLampData() {
-    return &this->lampData[0];
+std::array<LampData, LED_COUNT+6> DisplayController::getLampData() {
+    return this->lampData;
 }
 
 uint8_t DisplayController::getButtonStatus() {
@@ -441,9 +441,9 @@ void DisplayController::chaseEffect() {
             }
 
             // tail catches up                    
-            if (j > 4) {
-                lampData.at(TRAIL_LAMPS.at(i - 4)).lampState = LampState::off;
-            }
+//            if (j > 4) {
+//                lampData.at(TRAIL_LAMPS.at(i - 4)).lampState = LampState::off;
+//            }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
         }

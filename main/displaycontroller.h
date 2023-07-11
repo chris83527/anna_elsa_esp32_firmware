@@ -40,6 +40,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string>
+#include <array>
 #include <cstddef>
 #include <bitset>
 #include <thread>
@@ -85,7 +86,7 @@ public:
 
     void resetLampData();
 
-    LampData* getLampData(void);
+    std::array<LampData, LED_COUNT+6> getLampData(void);
 
     void clearText(void);
     void displayText(const std::string &text);
