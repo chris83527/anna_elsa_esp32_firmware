@@ -406,50 +406,49 @@ void DisplayController::chaseEffect() {
     int currentIndex;
     //int trailElements = (sizeof (TRAIL_LAMPS) / sizeof (TRAIL_LAMPS[0]));
     int trailElements = 17;
-    for (int j = 0; j < 5; j++) {
+    for (int j = trailElements; j > 0; j--) {
 
         resetLampData();
         currentIndex = 0;
 
-        for (int i = 0; i < (trailElements + 4); i++) {
+        for (int i = 0; i < (j + 3); i++) {
 
             if (!this->attractMode) {
                 return;
             }
 
-            lampData[TRAIL_LAMPS.at(currentIndex)].rgb = rgb_from_code(0x00ff0000);
-            lampData[TRAIL_LAMPS.at(currentIndex)].lampState = LampState::on;
+            ESP_LOGI(TAG, "j = %d, i = %d, trailElements = %d", j, i, trailElements);
 
-            if (i > 0) {
-                lampData[TRAIL_LAMPS.at(currentIndex - 1)].rgb = rgb_from_code(0x00c00000);
-                lampData[TRAIL_LAMPS.at(currentIndex - 1)].lampState = LampState::on;
-            }
-            if (i > 1) {
-                lampData[TRAIL_LAMPS.at(currentIndex - 2)].rgb = rgb_from_code(0x00810000);
-                lampData[TRAIL_LAMPS.at(currentIndex - 2)].lampState = LampState::on;
-            }
-            if (i > 2) {
-                lampData[TRAIL_LAMPS.at(currentIndex - 2)].rgb = rgb_from_code(0x00420000);
-                lampData[TRAIL_LAMPS.at(currentIndex - 3)].lampState = LampState::on;
-            }
-            if (i > 3) {
-                lampData[TRAIL_LAMPS.at(currentIndex - 4)].lampState = LampState::off;
+            if (i < j) {
+                lampData[TRAIL_LAMPS.at(i)].rgb = rgb_from_code(0x00ff0000);
+                lampData[TRAIL_LAMPS.at(i)].lampState = LampState::on;
+
+                if (i > 0) {
+                    lampData[TRAIL_LAMPS.at(i - 1)].rgb = rgb_from_code(0x00c00000);
+                    lampData[TRAIL_LAMPS.at(i - 1)].lampState = LampState::on;
+                }
+                if (i > 1) {
+                    lampData[TRAIL_LAMPS.at(i - 2)].rgb = rgb_from_code(0x00810000);
+                    lampData[TRAIL_LAMPS.at(i - 2)].lampState = LampState::on;
+                }
+                if (i > 2) {
+                    lampData[TRAIL_LAMPS.at(i - 3)].rgb = rgb_from_code(0x00420000);
+                    lampData[TRAIL_LAMPS.at(i - 3)].lampState = LampState::on;
+                }
+                if (i > 3) {
+                    lampData[TRAIL_LAMPS.at(i - 4)].lampState = LampState::off;
+                }
             }
 
             // tail catches up                    
-            if (i > (trailElements + 1)) {
-                lampData[TRAIL_LAMPS.at(currentIndex - 3)].lampState = LampState::off;
+            if (i > (j - 1)) {
+                lampData[TRAIL_LAMPS.at(i - 3)].lampState = LampState::off;
             }
-            if (i > (trailElements + 2)) {
-                lampData[TRAIL_LAMPS.at(currentIndex - 2)].lampState = LampState::off;
+            if (i > (j - 2)) {
+                lampData[TRAIL_LAMPS.at(i - 2)].lampState = LampState::off;
             }
-            if (i > (trailElements + 3)) {
-                lampData[TRAIL_LAMPS.at(currentIndex - 1)].lampState = LampState::off;
-            }
-
-
-            if (i < trailElements) {
-                currentIndex++;
+            if (i > (j - 3)) {
+                lampData[TRAIL_LAMPS.at(i - 1)].lampState = LampState::off;
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));

@@ -428,13 +428,13 @@ void Game::playFeatureMatrix() {
     while (!btnStatus.test(BTN_START)) {
         featureIndex = random8_to(13); // number of features
 
-        lampData[DisplayController::FEATURE_LAMPS[featureIndex]].lampState = LampState::on;
+        lampData[DisplayController::FEATURE_LAMPS.at(featureIndex)].lampState = LampState::on;
 
         btnStatus = mainController->getDisplayController()->getButtonStatus();
 
         // TODO: do something here.
 
-        lampData[DisplayController::FEATURE_LAMPS[featureIndex]].lampState = LampState::off;
+        lampData[DisplayController::FEATURE_LAMPS.at(featureIndex)].lampState = LampState::off;
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
