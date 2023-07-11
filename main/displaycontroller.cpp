@@ -416,7 +416,7 @@ void DisplayController::chaseEffect() {
                 return;
             }
 
-            ESP_LOGI(TAG, "j = %d, i = %d, trailElements = %d", j, i, trailElements);
+            ESP_LOGI(TAG, "j = %d, i = %d, lamp = %d, trailElements = %d", j, i, i < j ? TRAIL_LAMPS.at(i) : TRAIL_LAMPS.at(16), trailElements);
 
             if (i < j) {
                 lampData.at(TRAIL_LAMPS.at(i)).rgb = rgb_from_code(0x00ff0000);
@@ -437,6 +437,7 @@ void DisplayController::chaseEffect() {
             }
 
             // tail catches up                    
+
             if (j > 4) {
                 lampData.at(TRAIL_LAMPS.at(i - 4)).lampState = LampState::off;
             }
