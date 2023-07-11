@@ -211,6 +211,10 @@ esp_err_t DisplayController::initialise() {
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    
+    for (int i = 0 ; i < LED_COUNT + 6 ; i++) {
+        lampData[i] = LampData();
+    }
 
     this->resetLampData();
 
@@ -437,7 +441,6 @@ void DisplayController::chaseEffect() {
             }
 
             // tail catches up                    
-
             if (j > 4) {
                 lampData.at(TRAIL_LAMPS.at(i - 4)).lampState = LampState::off;
             }
