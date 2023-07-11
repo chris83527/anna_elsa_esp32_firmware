@@ -219,7 +219,7 @@ private:
     uint8_t buttonStatus;
     bool doorOpen;
 
-    LampData lampData[LED_COUNT + 6];
+    std::array<LampData, LED_COUNT+6> lampData;
 
     MainController *mainController;
 

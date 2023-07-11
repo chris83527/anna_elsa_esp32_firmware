@@ -403,7 +403,7 @@ void DisplayController::attractModeTask() {
 
 void DisplayController::chaseEffect() {
     // Red trail effect           
-    
+
     //int trailElements = (sizeof (TRAIL_LAMPS) / sizeof (TRAIL_LAMPS[0]));
     int trailElements = 17;
     for (int j = trailElements; j > 0; j--) {
@@ -419,28 +419,28 @@ void DisplayController::chaseEffect() {
             ESP_LOGI(TAG, "j = %d, i = %d, trailElements = %d", j, i, trailElements);
 
             if (i < j) {
-                lampData[TRAIL_LAMPS.at(i)].rgb = rgb_from_code(0x00ff0000);
-                lampData[TRAIL_LAMPS.at(i)].lampState = LampState::on;
+                lampData.at(TRAIL_LAMPS.at(i)).rgb = rgb_from_code(0x00ff0000);
+                lampData.at(TRAIL_LAMPS.at(i)).lampState = LampState::on;
 
                 if (i > 0) {
-                    lampData[TRAIL_LAMPS.at(i - 1)].rgb = rgb_from_code(0x00c00000);
-                    lampData[TRAIL_LAMPS.at(i - 1)].lampState = LampState::on;
+                    lampData.at(TRAIL_LAMPS.at(i - 1)).rgb = rgb_from_code(0x00c00000);
+                    lampData.at(TRAIL_LAMPS.at(i - 1)).lampState = LampState::on;
                 }
                 if (i > 1) {
-                    lampData[TRAIL_LAMPS.at(i - 2)].rgb = rgb_from_code(0x00810000);
-                    lampData[TRAIL_LAMPS.at(i - 2)].lampState = LampState::on;
+                    lampData.at(TRAIL_LAMPS.at(i - 2)).rgb = rgb_from_code(0x00810000);
+                    lampData.at(TRAIL_LAMPS.at(i - 2)).lampState = LampState::on;
                 }
                 if (i > 2) {
-                    lampData[TRAIL_LAMPS.at(i - 3)].rgb = rgb_from_code(0x00420000);
-                    lampData[TRAIL_LAMPS.at(i - 3)].lampState = LampState::on;
-                }               
+                    lampData.at(TRAIL_LAMPS.at(i - 3)).rgb = rgb_from_code(0x00420000);
+                    lampData.at(TRAIL_LAMPS.at(i - 3)).lampState = LampState::on;
+                }
             }
 
             // tail catches up                    
-            if (i > j) {
-                lampData[TRAIL_LAMPS.at(i - 4)].lampState = LampState::off;
+            if (j > 4) {
+                lampData.at(TRAIL_LAMPS.at(i - 4)).lampState = LampState::off;
             }
-                        
+
             std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
         }
     }
@@ -603,7 +603,7 @@ void DisplayController::updateLampsTask() {
         led_strip_flush(&ledStrip);
         mcp23x17_port_write(this->getButtonIO(), buttonVal);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(25));
 
     }
 }
