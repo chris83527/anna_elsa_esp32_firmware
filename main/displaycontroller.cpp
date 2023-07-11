@@ -449,7 +449,7 @@ void DisplayController::chaseEffect() {
             if (i > (j - 3)) {
                 lampData[TRAIL_LAMPS.at(i - 1)].lampState = LampState::off;
             }
-
+            
             std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
         }
     }
