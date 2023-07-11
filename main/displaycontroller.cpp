@@ -417,6 +417,8 @@ void DisplayController::chaseEffect() {
                 return;
             }
 
+            ESP_LOGI(TAG, "i = %d, currentIndex = %d, trailElements = %d", i, currentIndex, trailElements);
+            
             lampData[TRAIL_LAMPS.at(currentIndex)].rgb = rgb_from_code(0x00ff0000);
             lampData[TRAIL_LAMPS.at(currentIndex)].lampState = LampState::on;
 
@@ -448,7 +450,7 @@ void DisplayController::chaseEffect() {
             }
 
 
-            if (i < trailElements) {
+            if (i < TRAIL_LAMPS.size()) {
                 currentIndex++;
             }
 
