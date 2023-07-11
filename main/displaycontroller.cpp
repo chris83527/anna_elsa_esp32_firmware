@@ -433,10 +433,7 @@ void DisplayController::chaseEffect() {
                 if (i > 2) {
                     lampData[TRAIL_LAMPS.at(i - 3)].rgb = rgb_from_code(0x00420000);
                     lampData[TRAIL_LAMPS.at(i - 3)].lampState = LampState::on;
-                }
-                if (i > 3) {
-                    lampData[TRAIL_LAMPS.at(i - 4)].lampState = LampState::off;
-                }
+                }               
             }
 
             // tail catches up                    
