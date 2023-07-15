@@ -221,7 +221,7 @@ esp_err_t DisplayController::initialise() {
     // Start a new thread to update the lamps
     auto cfg = esp_pthread_get_default_config();
     cfg.thread_name = "BlinkLamps";
-    cfg.prio = 3;
+    cfg.prio = 4;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
     this->blinkLampsThread = std::thread([this]() {
@@ -230,7 +230,7 @@ esp_err_t DisplayController::initialise() {
 
     cfg = esp_pthread_get_default_config();
     cfg.thread_name = "UpdateLamps";
-    cfg.prio = 4;
+    cfg.prio = 3;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
     this->updateLampsThread = std::thread([this]() {
@@ -410,18 +410,22 @@ void DisplayController::chaseEffect() {
     resetLampData();
 
     for (int j = 0; j < 5; j++) {
-        for (int i = 0; i < TRAIL_LAMPS.size(); i++) {
-            lampData.at(TRAIL_LAMPS.at(i)).rgb.r = 255;
-            lampData.at(TRAIL_LAMPS.at(i)).rgb.g = 0;
-            lampData.at(TRAIL_LAMPS.at(i)).rgb.b = 0;
+        
+        for (int i = 44; i < 60; i++) {
+            lampData[i].rgb.r = 255;
+            lampData[i].rgb.g = 0;
+            lampData[i].rgb.b = 0;
+            lampData[i].activeRgb.r = 255;
+            lampData[i].activeRgb.g = 0;
+            lampData[i].activeRgb.b = 0;
+            lampData[i].lampState = LampState::on;
             std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
 
         }
 
-        for (int i = 0; i < TRAIL_LAMPS.size(); i++) {
-            lampData.at(TRAIL_LAMPS.at(i)).rgb.r = 0;
-            lampData.at(TRAIL_LAMPS.at(i)).rgb.g = 0;
-            lampData.at(TRAIL_LAMPS.at(i)).rgb.b = 0;
+        for (int i = 44; i < 60; i++) {
+            lampData[i].lampState = LampState::off;
+          
             std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
         }
     }
@@ -543,7 +547,7 @@ void DisplayController::updateLampsTask() {
 
         } else {
             ESP_LOGE(TAG, "An error occurred getting button status");
-            esp_backtrace_print(100);
+            //esp_backtrace_print
         }
 
         // set leds
