@@ -84,7 +84,7 @@ uint8_t ccw_steps[STEPS_PER_STOP] = {
     GPIO_MOTOR_B_MINUS | GPIO_MOTOR_A_MINUS,
     GPIO_MOTOR_B_MINUS,
     GPIO_MOTOR_A_PLUS | GPIO_MOTOR_B_MINUS,
-    GPIO_MOTOR_A_PLUS    
+    GPIO_MOTOR_A_PLUS
 };
 
 uint8_t cw_steps[STEPS_PER_STOP] = {
@@ -514,11 +514,11 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
 
                     step(event);
 
-            //if (delay > 5) {
-            //    delay -= 5;
-            //}
+                    //if (delay > 5) {
+                    //    delay -= 5;
+                    //}
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
         }
     }));
 
