@@ -396,6 +396,8 @@ void DisplayController::attractModeTask() {
             if (this->isAttractMode()) resetLampData();
 
             if (this->isAttractMode()) this->displayText("     20CT GAME      ");
+            if (this->isAttractMode()) this->fadeInOutEffect();
+
 
             if (this->isAttractMode()) std::this_thread::sleep_for(std::chrono::seconds(5));
 
@@ -409,6 +411,27 @@ void DisplayController::attractModeTask() {
     }
 }
 
+void DisplayController::fadeInOutEffect() {
+
+    for (int i = 0; i < 256; i++) {
+        for (int j = 0; j < LED_COUNT; j++) {
+            lampData[j].rgb.r = (uint8_t) (i / 256.0)*0xff;
+            lampData[j].rgb.g = (uint8_t) (i / 256.0)*0x77;
+            lampData[j].rgb.b = (uint8_t) (i / 256.0)*0x06;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+
+    for (int i = 255; i >= 0; i -= 2) {
+        for (int j = 0; j < LED_COUNT; j++) {
+            lampData[j].rgb.r = (uint8_t) (i / 256.0)*0xff;
+            lampData[j].rgb.g = (uint8_t) (i / 256.0)*0x77;
+            lampData[j].rgb.b = (uint8_t) (i / 256.0)*0x06;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+}
+
 void DisplayController::chaseEffect() {
     // Red trail effect           
     resetLampData();
@@ -418,15 +441,15 @@ void DisplayController::chaseEffect() {
         for (int i = 0; i < TRAIL_LAMPS.size(); i++) {
             lampData[TRAIL_LAMPS[i]].rgb.r = 255;
             lampData[TRAIL_LAMPS[i]].rgb.g = 0;
-            lampData[TRAIL_LAMPS[i]].rgb.b = 0;          
+            lampData[TRAIL_LAMPS[i]].rgb.b = 0;
             lampData[TRAIL_LAMPS[i]].lampState = LampState::on;
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::this_thread::sleep_for(std::chrono::milliseconds(25));
 
         }
 
         for (int i = 0; i < TRAIL_LAMPS.size(); i++) {
             lampData[TRAIL_LAMPS[i]].lampState = LampState::off;
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }
     }
 }

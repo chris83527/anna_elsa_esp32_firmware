@@ -116,8 +116,8 @@ private:
         PAYING_OUT
     };
 
-    std::unique_ptr<std::thread> updateStatisticsThread;
-    std::unique_ptr<std::thread> blinkCPUStatusLEDThread;    
+    std::thread updateStatisticsThread;
+    std::thread blinkCPUStatusLEDThread;    
 };
 
 

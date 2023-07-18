@@ -84,9 +84,10 @@ void MainController::start() {
     cfg.prio = 1;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
-    this->blinkCPUStatusLEDThread.reset(new std::thread([this]() {
+    this->blinkCPUStatusLEDThread = std::thread([this]() {
         blinkCPUStatusLEDTask();
-    }));
+    });
+    this->blinkCPUStatusLEDThread.detach();
 
     ESP_LOGD(TAG, "Calling i2cdev_init()");
     ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());
@@ -250,9 +251,10 @@ void MainController::start() {
     cfg.prio = 1;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
-    updateStatisticsThread.reset(new std::thread([this]() {
+    this->updateStatisticsThread = std::thread([this]() {
         updateStatisticsDisplayTask();
-    }));
+    });
+    this->updateStatisticsThread.detach();
 
     for (;;) {
         if ((!game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
