@@ -411,18 +411,18 @@ void DisplayController::chaseEffect() {
 
     for (int j = 0; j < 5; j++) {
 
-        for (int i = 44; i < 60; i++) {
-            lampData[i].rgb.r = 255;
-            lampData[i].rgb.g = 0;
-            lampData[i].rgb.b = 0;          
-            lampData[i].lampState = LampState::on;
-            std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
+        for (int i = 0; i < TRAIL_LAMPS.size(); i++) {
+            lampData[TRAIL_LAMPS[i]].rgb.r = 255;
+            lampData[TRAIL_LAMPS[i]].rgb.g = 0;
+            lampData[TRAIL_LAMPS[i]].rgb.b = 0;          
+            lampData[TRAIL_LAMPS[i]].lampState = LampState::on;
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
         }
 
-        for (int i = 44; i < 60; i++) {
-            lampData[i].lampState = LampState::off;
-            std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
+        for (int i = 0; i < TRAIL_LAMPS.size(); i++) {
+            lampData[TRAIL_LAMPS[i]].lampState = LampState::off;
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
     }
 }
