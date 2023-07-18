@@ -584,7 +584,7 @@ void DisplayController::updateLampsTask() {
         led_strip_flush(&ledStrip);
         mcp23x17_port_write(this->getButtonIO(), buttonVal);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     }
 }
