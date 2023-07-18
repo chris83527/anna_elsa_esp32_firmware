@@ -227,6 +227,7 @@ esp_err_t DisplayController::initialise() {
     this->blinkLampsThread = std::thread([this]() {
         blinkLampsTask();
     });
+    this->blinkLampsThread.detach();
 
     cfg = esp_pthread_get_default_config();
     cfg.thread_name = "UpdateLamps";
@@ -236,6 +237,7 @@ esp_err_t DisplayController::initialise() {
     this->updateLampsThread = std::thread([this]() {
         updateLampsTask();
     });
+    this->updateLampsThread.detach();
 
     cfg = esp_pthread_get_default_config();
     cfg.thread_name = "UpdateSevenSeg";
@@ -246,6 +248,7 @@ esp_err_t DisplayController::initialise() {
     this->updateSevenSegDisplaysThread = std::thread([this]() {
         updateSevenSegDisplaysTask();
     });
+    this->updateSevenSegDisplaysThread.detach();
 
     this->testLamps();
 
@@ -258,6 +261,7 @@ esp_err_t DisplayController::initialise() {
     this->attractModeThread = std::thread([this]() {
         attractModeTask();
     });
+    this->attractModeThread.detach();
 
     ESP_LOGD(TAG, "Exiting DisplayController::initialise()");
     return ESP_OK;
