@@ -336,8 +336,7 @@ void ReelController::spinToZero(bool stopAfterSpin) {
         reel_event_t event;
 
         ESP_LOGD(TAG, "Setting 50pc duty cycle");
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
 
         int delay = 75;
 
@@ -427,8 +426,7 @@ void ReelController::spinToZero(bool stopAfterSpin) {
 
     if (stopAfterSpin) {
         ESP_LOGD(TAG, "Setting 25pc duty cycle");
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER, 0);
     }
 
     ESP_LOGD(TAG, "spinToZero end");
@@ -471,8 +469,7 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
     this->spinReelThread = std::thread([ & ]() {
 
         ESP_LOGD(TAG, "Setting 50pc duty cycle");
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
 
         reel_event_t event;
 
@@ -528,8 +525,8 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
     this->spinReelThread.join();
 
     ESP_LOGD(TAG, "Setting 25pc duty cycle");
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER, 0);
+
 
     this->commandInProgress = false;
 }
