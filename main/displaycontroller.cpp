@@ -144,11 +144,11 @@ esp_err_t DisplayController::initialise() {
     memset(&buttonIO, 0, sizeof (mcp23x17_t));
     memset(&ledStrip, 0, sizeof (led_strip_t));
 
-    ledStrip.is_rgbw = true;
+    //ledStrip.is_rgbw = true;
     ledStrip.type = LED_STRIP_WS2812;
     ledStrip.length = LED_COUNT;
     ledStrip.gpio = LED_GPIO;
-    ledStrip.buf = NULL;
+    //ledStrip.buf = NULL;
     ledStrip.brightness = 255;
     ledStrip.channel = RMT_TX_CHANNEL;
 
@@ -230,7 +230,7 @@ esp_err_t DisplayController::initialise() {
 
     cfg = esp_pthread_get_default_config();
     cfg.thread_name = "UpdateLamps";
-    cfg.prio = 3;
+    cfg.prio = 4;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
     this->updateLampsThread = std::thread([this]() {
@@ -410,14 +410,11 @@ void DisplayController::chaseEffect() {
     resetLampData();
 
     for (int j = 0; j < 5; j++) {
-        
+
         for (int i = 44; i < 60; i++) {
             lampData[i].rgb.r = 255;
             lampData[i].rgb.g = 0;
-            lampData[i].rgb.b = 0;
-            lampData[i].activeRgb.r = 255;
-            lampData[i].activeRgb.g = 0;
-            lampData[i].activeRgb.b = 0;
+            lampData[i].rgb.b = 0;          
             lampData[i].lampState = LampState::on;
             std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
 
@@ -425,7 +422,6 @@ void DisplayController::chaseEffect() {
 
         for (int i = 44; i < 60; i++) {
             lampData[i].lampState = LampState::off;
-          
             std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
         }
     }

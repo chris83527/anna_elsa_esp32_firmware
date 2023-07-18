@@ -141,7 +141,7 @@ bool ReelController::initialise() {
     ledc_timer.duty_resolution = LEDC_DUTY_RES;
     ledc_timer.freq_hz = LEDC_FREQUENCY; // Set output frequency at 100Hz
     ledc_timer.clk_cfg = LEDC_AUTO_CLK;
-    ledc_timer.timer_num = LEDC_TIMER_1;
+    ledc_timer.timer_num = LEDC_TIMER_0;
 
 
     // Prepare and then apply the LEDC PWM channel configuration
@@ -232,7 +232,7 @@ bool ReelController::initialise() {
         ESP_LOGD(TAG, "Right reel initialised ok.");
     }
 
-    spinToZero();
+    spinToZero(true);
 
     return true;
 }
@@ -312,7 +312,7 @@ void ReelController::step(reel_event_t& event) {
  * Performs maximum two complete spins of the reels and stops when at the null position. If no null position is detected then the reel error is set.
  * 
  */
-void ReelController::spinToZero() {
+void ReelController::spinToZero(bool stopAfterSpin) {
     ESP_LOGD(TAG, "spinToZero begin");
 
     int reels = REEL_LEFT | REEL_CENTRE | REEL_RIGHT;
@@ -332,7 +332,7 @@ void ReelController::spinToZero() {
     cfg.prio = 10;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
-    this->spinReelThread.reset(new std::thread([ & ]() {
+    this->spinReelThread = std::thread([ & ]() {
         reel_event_t event;
 
         ESP_LOGD(TAG, "Setting 50pc duty cycle");
@@ -399,9 +399,9 @@ void ReelController::spinToZero() {
             std::this_thread::sleep_for(std::chrono::milliseconds(delay));
 
         }
-    }));
+    });
 
-    this->spinReelThread->join();
+    this->spinReelThread.join();
 
     if (leftOk) {
         reel_status_data_left.status = STATUS_OK;
@@ -425,9 +425,11 @@ void ReelController::spinToZero() {
         reel_status_data_right.status = STATUS_ERR_REEL_OPTIC;
     }
 
-    ESP_LOGD(TAG, "Setting 25pc duty cycle");
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    if (stopAfterSpin) {
+        ESP_LOGD(TAG, "Setting 25pc duty cycle");
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    }
 
     ESP_LOGD(TAG, "spinToZero end");
 }
@@ -459,18 +461,19 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
     reel_status_data_centre.status = STATUS_INITIAL; // reset status
     reel_status_data_right.status = STATUS_INITIAL; // reset status
 
-    spinToZero(); // get us back to a known position
-
-    ESP_LOGD(TAG, "Setting 50pc duty cycle");
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    spinToZero(false); // get us back to a known position
 
     auto cfg = esp_pthread_get_default_config();
     cfg.thread_name = "SpinReelThread";
     cfg.prio = 10;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
-    this->spinReelThread.reset(new std::thread([ & ]() {
+    this->spinReelThread = std::thread([ & ]() {
+
+        ESP_LOGD(TAG, "Setting 50pc duty cycle");
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+
         reel_event_t event;
 
         int delay = 10;
@@ -520,9 +523,9 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
 
                     std::this_thread::sleep_for(std::chrono::milliseconds(delay));
         }
-    }));
+    });
 
-    this->spinReelThread->join();
+    this->spinReelThread.join();
 
     ESP_LOGD(TAG, "Setting 25pc duty cycle");
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
@@ -557,14 +560,14 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
     reel_status_data_centre.status = STATUS_INITIAL; // reset status
     reel_status_data_right.status = STATUS_INITIAL; // reset status
 
-    spinToZero(); // get us back to a known position
+    spinToZero(false); // get us back to a known position
 
     ESP_LOGD(TAG, "Setting 50pc duty cycle");
 
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-    this->spinReelThread.reset(new std::thread([ & ]() {
+    this->spinReelThread = std::thread([ & ]() {
         reel_event_t event;
 
         int delay = 5;
@@ -605,9 +608,9 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
 
             std::this_thread::sleep_for(std::chrono::milliseconds(delay));
         }
-    }));
+    });
 
-    this->spinReelThread->join();
+    this->spinReelThread.join();
 
     ESP_LOGD(TAG, "Setting 25pc duty cycle");
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
@@ -650,7 +653,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, cons
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
 
-    this->spinReelThread.reset(new std::thread([ & ]() {
+    this->spinReelThread = std::thread([ & ]() {
         reel_event_t event;
 
         for (int i = 0; i < maxSteps; i++) {
@@ -685,9 +688,9 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t midStops, cons
 
                     std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
-    }));
+    });
 
-    this->spinReelThread->join();
+    this->spinReelThread.join();
 
     ESP_LOGD(TAG, "Setting 25pc duty cycle");
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);

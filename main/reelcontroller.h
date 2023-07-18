@@ -132,10 +132,10 @@ private:
     
     MainController* mainController;
 
-    std::unique_ptr<std::thread> spinReelThread;
+    std::thread spinReelThread;
     
     void step(reel_event_t& event);
-    void spinToZero(void);
+    void spinToZero(bool stopAfterSpin);
 };
 
 #endif /* __WAVE_H__ */
