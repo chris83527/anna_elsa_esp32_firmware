@@ -393,8 +393,7 @@ void DisplayController::attractModeTask() {
 
             if (this->isAttractMode()) std::this_thread::sleep_for(std::chrono::seconds(5));
 
-            if (this->isAttractMode()) resetLampData();
-
+   
             if (this->isAttractMode()) this->displayText("     20CT GAME      ");
             if (this->isAttractMode()) this->fadeInOutEffect();
 
@@ -413,23 +412,25 @@ void DisplayController::attractModeTask() {
 
 void DisplayController::fadeInOutEffect() {
 
-    for (int i = 0; i < 256; i++) {
-        for (int j = 0; j < LED_COUNT; j++) {
-            lampData[j].rgb.r = (uint8_t) (i / 256.0)*0xff;
-            lampData[j].rgb.g = (uint8_t) (i / 256.0)*0x77;
-            lampData[j].rgb.b = (uint8_t) (i / 256.0)*0x06;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    }
-
+    resetLampData();
+    
     for (int i = 255; i >= 0; i -= 2) {
         for (int j = 0; j < LED_COUNT; j++) {
-            lampData[j].rgb.r = (uint8_t) (i / 256.0)*0xff;
-            lampData[j].rgb.g = (uint8_t) (i / 256.0)*0x77;
-            lampData[j].rgb.b = (uint8_t) (i / 256.0)*0x06;
+            lampData[j].lampState = LampState::on;
+            lampData[j].rgb = rgb_fade_light(rgb_from_code(0x00ffffff), i);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(12));
     }
+    
+    for (int i = 0; i < 256; i++) {
+        for (int j = 0; j < LED_COUNT; j++) {
+            lampData[j].lampState = LampState::on;
+            lampData[j].rgb = rgb_fade_light(rgb_from_code(0x00ffffff), i);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(12));
+    }
+
+    
 }
 
 void DisplayController::chaseEffect() {
