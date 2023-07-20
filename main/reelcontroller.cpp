@@ -140,9 +140,7 @@ bool ReelController::initialise() {
     ledc_timer.timer_num = LEDC_TIMER;
     ledc_timer.duty_resolution = LEDC_DUTY_RES;
     ledc_timer.freq_hz = LEDC_FREQUENCY; // Set output frequency at 100Hz
-    ledc_timer.clk_cfg = LEDC_AUTO_CLK;
-    ledc_timer.timer_num = LEDC_TIMER_0;
-
+    ledc_timer.clk_cfg = LEDC_AUTO_CLK;    
 
     // Prepare and then apply the LEDC PWM channel configuration
     ledc_channel.speed_mode = LEDC_MODE;
