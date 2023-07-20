@@ -461,7 +461,7 @@ void ReelController::spin(const uint8_t leftPos, const uint8_t midPos, const uin
     reel_status_data_centre.status = STATUS_INITIAL; // reset status
     reel_status_data_right.status = STATUS_INITIAL; // reset status
 
-    spinToZero(false); // get us back to a known position
+    spinToZero(false); // get us back to a known position and don't stop after spin
 
     auto cfg = esp_pthread_get_default_config();
     cfg.thread_name = "SpinReelThread";
@@ -560,14 +560,14 @@ void ReelController::shuffle(const uint8_t leftPos, const uint8_t midPos, const 
     reel_status_data_centre.status = STATUS_INITIAL; // reset status
     reel_status_data_right.status = STATUS_INITIAL; // reset status
 
-    spinToZero(false); // get us back to a known position
-
-    ESP_LOGD(TAG, "Setting 50pc duty cycle");
-
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    spinToZero(false); // get us back to a known position    
 
     this->spinReelThread = std::thread([ & ]() {
+
+        ESP_LOGD(TAG, "Setting 50pc duty cycle");
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+
         reel_event_t event;
 
         int delay = 5;
