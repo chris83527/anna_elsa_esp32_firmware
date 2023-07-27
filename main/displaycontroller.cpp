@@ -415,7 +415,7 @@ void DisplayController::fadeInOutEffect() {
     resetLampData();
 
     // Trail lamps fade in
-    for (int i = 255; i >= 0; i -= 2) {
+    for (int i = 0; i < 256; i++) {
         for (int j = 0; j < TRAIL_LAMPS.size(); j++) {
             lampData[TRAIL_LAMPS[j]].rgb.r = (uint8_t) (i / 256.0)*0xff;
             lampData[TRAIL_LAMPS[j]].rgb.g = (uint8_t) (i / 256.0)*0x77;
@@ -498,7 +498,6 @@ void DisplayController::chaseEffect() {
 
         }
 
-
         for (int i = 0; i < TRAIL_LAMPS.size(); i++) {
             lampData[TRAIL_LAMPS[i]].lampState = LampState::off;
             std::this_thread::sleep_for(std::chrono::milliseconds(25));
@@ -537,13 +536,14 @@ void DisplayController::rainbowEffect() {
     // Trail lamps fade out
     for (int i = 255; i >= 0; i -= 2) {
         for (int j = 0; j < LED_COUNT; j++) {
-            lampData[j].rgb.r = (uint8_t) (i / 256.0) * lampData[j].rgb.r;
-            lampData[j].rgb.g = (uint8_t) (i / 256.0) * lampData[j].rgb.g;
-            lampData[j].rgb.b = (uint8_t) (i / 256.0) * lampData[j].rgb.b;
-            lampData[j].lampState = LampState::on;
+            lampData[j].rgb.r = (uint8_t) (i / 256.0) * lampData[j].activeRgb.r;
+            lampData[j].rgb.g = (uint8_t) (i / 256.0) * lampData[j].activeRgb.g;
+            lampData[j].rgb.b = (uint8_t) (i / 256.0) * lampData[j].activeRgb.b;            
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
+    
+    resetLampData();
 }
 
 void DisplayController::blinkLampsTask() {
