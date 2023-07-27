@@ -40,6 +40,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_enums.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/displaycontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/newfile</file>
+            <file>file:/home/chris/esp/esp-idf-v4.4/components/driver/include/driver/ledc.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/audiocontroller.h</file>
         </group>
     </open-files>

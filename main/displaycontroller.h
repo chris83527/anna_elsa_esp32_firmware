@@ -126,11 +126,13 @@ public:
     constexpr static int REEL_LAMP_R1 = 6;
     constexpr static int REEL_LAMP_R2 = 7;
     constexpr static int REEL_LAMP_R3 = 8;
+    
     constexpr static int LAMP_NUDGE_5 = 9;
     constexpr static int LAMP_NUDGE_4 = 10;
     constexpr static int LAMP_NUDGE_3 = 11;
     constexpr static int LAMP_NUDGE_2 = 12;
     constexpr static int LAMP_NUDGE_1 = 13;
+    
     constexpr static int LAMP_PRIZE_PALACE = 14;
     constexpr static int LAMP_PRIZE_ANNA = 15;
     constexpr static int LAMP_PRIZE_ELSA = 16;
@@ -147,8 +149,10 @@ public:
     constexpr static int LAMP_PRIZE_200_CENT = 27;
     constexpr static int LAMP_PRIZE_300_CENT = 28;
     constexpr static int LAMP_PRIZE_400_CENT = 29;
+    
     constexpr static int LAMP_HI = 30;
     constexpr static int LAMP_lO = 31;
+    
     constexpr static int LAMP_MATRIX_SHUFFLE_1_1 = 32;
     constexpr static int LAMP_MATRIX_FREE_SPIN_1_2 = 33;
     constexpr static int LAMP_MATRIX_DOUBLE_MONEY_1_3 = 34;
@@ -161,6 +165,7 @@ public:
     constexpr static int LAMP_MATRIX_HI_LO_4_2 = 42;
     constexpr static int LAMP_MATRIX_FREE_SPIN_4_3 = 41;
     constexpr static int LAMP_MATRIX_PALACE_4_1 = 43;
+    
     constexpr static int LAMP_TRAIL_20_CENT = 44;
     constexpr static int LAMP_TRAIL_40_CENT = 45;
     constexpr static int LAMP_TRAIL_60_CENT = 46;
@@ -178,6 +183,7 @@ public:
     constexpr static int LAMP_TRAIL_FOUR_TWENTY = 58;
     constexpr static int LAMP_TRAIL_FOUR_SIXTY = 59;
     constexpr static int LAMP_TRAIL_FIVE_EURO = 60;
+    
     constexpr static int LMP_START = 61;
     constexpr static int LMP_COLLECT = 62;
     constexpr static int LMP_HOLD_LO = 63;

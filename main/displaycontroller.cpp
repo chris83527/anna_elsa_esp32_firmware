@@ -413,22 +413,69 @@ void DisplayController::attractModeTask() {
 
 void DisplayController::fadeInOutEffect() {
 
+    // Trail lamps fade in
     for (int i = 0; i < 256; i++) {
-        for (int j = 0; j < LED_COUNT; j++) {
-            lampData[j].rgb.r = (uint8_t) (i / 256.0)*0xff;
-            lampData[j].rgb.g = (uint8_t) (i / 256.0)*0x77;
-            lampData[j].rgb.b = (uint8_t) (i / 256.0)*0x06;
+        for (int j = 0; j < TRAIL_LAMPS.size(); j++) {
+            lampData[TRAIL_LAMPS[j]].rgb.r = (uint8_t) (i / 256.0)*0xff;
+            lampData[TRAIL_LAMPS[j]].rgb.g = (uint8_t) (i / 256.0)*0x77;
+            lampData[TRAIL_LAMPS[j]].rgb.b = (uint8_t) (i / 256.0)*0x06;
+            lampData[TRAIL_LAMPS[j]].lampState = LampState::on;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+    }
+    // Feature lamps fade in
+    for (int i = 0; i < 256; i++) {
+        for (int j = 0; j < FEATURE_LAMPS.size(); j++) {
+            lampData[FEATURE_LAMPS[j]].rgb.r = (uint8_t) (i / 256.0)*0xff;
+            lampData[FEATURE_LAMPS[j]].rgb.g = (uint8_t) (i / 256.0)*0x77;
+            lampData[FEATURE_LAMPS[j]].rgb.b = (uint8_t) (i / 256.0)*0x06;
+            lampData[FEATURE_LAMPS[j]].lampState = LampState::on;
+            std::this_thread::sleep_for(std::chrono::milliseconds(25));
+        }
     }
 
+    // Trail lamps fade out
     for (int i = 255; i >= 0; i -= 2) {
-        for (int j = 0; j < LED_COUNT; j++) {
-            lampData[j].rgb.r = (uint8_t) (i / 256.0)*0xff;
-            lampData[j].rgb.g = (uint8_t) (i / 256.0)*0x77;
-            lampData[j].rgb.b = (uint8_t) (i / 256.0)*0x06;
+        for (int j = 0; j < TRAIL_LAMPS.size(); j++) {
+            lampData[TRAIL_LAMPS[j]].rgb.r = (uint8_t) (i / 256.0)*0xff;
+            lampData[TRAIL_LAMPS[j]].rgb.g = (uint8_t) (i / 256.0)*0x77;
+            lampData[TRAIL_LAMPS[j]].rgb.b = (uint8_t) (i / 256.0)*0x06;
+            lampData[TRAIL_LAMPS[j]].lampState = LampState::on;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+    }
+
+    // Nudge lamps fade in
+    for (int i = 0; i < 256; i++) {
+        for (int j = 0; j < NUDGE_LAMPS.size(); j++) {
+            lampData[NUDGE_LAMPS[j]].rgb.r = (uint8_t) (i / 256.0)*0xff;
+            lampData[NUDGE_LAMPS[j]].rgb.g = (uint8_t) (i / 256.0)*0x77;
+            lampData[NUDGE_LAMPS[j]].rgb.b = (uint8_t) (i / 256.0)*0x06;
+            lampData[NUDGE_LAMPS[j]].lampState = LampState::on;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+    }
+
+    // Feature lamps fade out
+    for (int i = 255; i >= 0; i -= 2) {
+        for (int j = 0; j < FEATURE_LAMPS.size(); j++) {
+            lampData[FEATURE_LAMPS[j]].rgb.r = (uint8_t) (i / 256.0)*0xff;
+            lampData[FEATURE_LAMPS[j]].rgb.g = (uint8_t) (i / 256.0)*0x77;
+            lampData[FEATURE_LAMPS[j]].rgb.b = (uint8_t) (i / 256.0)*0x06;
+            lampData[FEATURE_LAMPS[j]].lampState = LampState::on;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+    }
+
+    // Nudge lamps fade out
+    for (int i = 255; i >= 0; i -= 2) {
+        for (int j = 0; j < NUDGE_LAMPS.size(); j++) {
+            lampData[NUDGE_LAMPS[j]].rgb.r = (uint8_t) (i / 256.0)*0xff;
+            lampData[NUDGE_LAMPS[j]].rgb.g = (uint8_t) (i / 256.0)*0x77;
+            lampData[NUDGE_LAMPS[j]].rgb.b = (uint8_t) (i / 256.0)*0x06;
+            lampData[NUDGE_LAMPS[j]].lampState = LampState::on;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(25));
     }
 }
 
@@ -438,6 +485,7 @@ void DisplayController::chaseEffect() {
 
     for (int j = 0; j < 5; j++) {
 
+        // Trail
         for (int i = 0; i < TRAIL_LAMPS.size(); i++) {
             lampData[TRAIL_LAMPS[i]].rgb.r = 0;
             lampData[TRAIL_LAMPS[i]].rgb.g = 255;
@@ -446,6 +494,7 @@ void DisplayController::chaseEffect() {
             std::this_thread::sleep_for(std::chrono::milliseconds(25));
 
         }
+
 
         for (int i = 0; i < TRAIL_LAMPS.size(); i++) {
             lampData[TRAIL_LAMPS[i]].lampState = LampState::off;
