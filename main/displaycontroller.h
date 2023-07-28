@@ -232,9 +232,7 @@ private:
 
     void testLamps(void);
 
-    uint8_t keyStatus;
-
-    //uint32_t lampDataNew[LED_COUNT + 6];
+    uint8_t keyStatus;    
 
     bool attractMode = false;
 

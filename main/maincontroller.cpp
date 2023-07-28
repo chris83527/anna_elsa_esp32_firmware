@@ -237,6 +237,7 @@ void MainController::start() {
         moneyController->addToCredit(COIN_VALUES[coin_id]);
     });
 
+    this->displayController->displayText("INITIALISING 0F");
     if (cctalkController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
         oledController->scrollText("  -> failed");
@@ -244,7 +245,7 @@ void MainController::start() {
         oledController->scrollText("  -> ok");
     }
 
-    this->displayController->displayText("INITIALISING 0F");
+        this->displayController->displayText("INITIALISING 10");
     oledController->scrollText("Init reels");
     if (!reelController->initialise()) {
         oledController->scrollText("  -> failed");
@@ -256,11 +257,11 @@ void MainController::start() {
 
     blinkDelay = 1000;
 
-    this->displayController->displayText("INITIALISING 10");
+    this->displayController->displayText("INITIALISING 11");
     oledController->scrollText("Init game");
     game->initialise();
 
-    this->displayController->displayText("INITIALISING 11");
+    this->displayController->displayText("INITIALISING 12");
     cfg = esp_pthread_get_default_config();
     cfg.thread_name = "UpdateStatistics";
     cfg.prio = 1;
@@ -271,7 +272,7 @@ void MainController::start() {
     });
     this->updateStatisticsThread.detach();
 
-    this->displayController->displayText("INITIALISING 12");
+    this->displayController->displayText("INITIALISING 13");
     for (;;) {
         if ((!game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
             ESP_LOGD(TAG, "Starting game...");            
