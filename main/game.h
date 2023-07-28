@@ -70,9 +70,7 @@ public:
 
 private:
 
-    MainController* mainController;
-
-    std::array<LampData, LED_COUNT+6> lampData;
+    MainController* mainController;    
     
     bool isInProgress = false;
 

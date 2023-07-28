@@ -70,7 +70,7 @@ Game::Game(const Game &orig) {
 }
 
 void Game::initialise() {
-    this->lampData = mainController->getDisplayController()->getLampData();
+    
 }
 
 void Game::start() {
@@ -89,19 +89,17 @@ void Game::start() {
     uint8_t nudges = random8_to(6); // 0 - 5    
     bool hold = offerHold();
 
-    lampData[DisplayController::REEL_LAMP_L2].lampState = LampState::on;
-    lampData[DisplayController::REEL_LAMP_C2].lampState = LampState::on;
-    lampData[DisplayController::REEL_LAMP_R2].lampState = LampState::on;
+    mainController->getDisplayController()->getLampData().at(DisplayController::REEL_LAMP_L2).lampState = LampState::on;
+    mainController->getDisplayController()->getLampData().at(DisplayController::REEL_LAMP_C2).lampState = LampState::on;
+    mainController->getDisplayController()->getLampData().at(DisplayController::REEL_LAMP_R2).lampState = LampState::on;
 
-    if (hold) {
-        lampData[DisplayController::LMP_START].lampState = LampState::blinkslow;
-        lampData[DisplayController::LMP_HOLD_LO].lampState = LampState::blinkslow;
-        lampData[DisplayController::LMP_HOLD].lampState = LampState::blinkslow;
-        lampData[DisplayController::LMP_HOLD_HI].lampState = LampState::blinkslow;
-    } else {
-        lampData[DisplayController::LMP_START].lampState = LampState::blinkslow;
+    if (hold) {        
+        mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_LO).lampState = LampState::blinkslow;
+        mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD).lampState = LampState::blinkslow;
+        mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_HI).lampState = LampState::blinkslow;
     }
-
+    
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).lampState = LampState::blinkslow;   
     mainController->getDisplayController()->displayText("PRESS START TO BEGIN");
 
     // loop waiting for button press.
@@ -117,23 +115,23 @@ void Game::start() {
         if (hold) {
             if (btnStatus.test(BTN_HOLD)) {
                 holdCentre = true;
-                lampData[DisplayController::LMP_HOLD].lampState = LampState::on;
-                lampData[DisplayController::LMP_COLLECT].lampState = LampState::blinkslow;
+                mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD).lampState = LampState::on;
+                mainController->getDisplayController()->getLampData().at(DisplayController::LMP_COLLECT).lampState = LampState::blinkslow;
             } else if (btnStatus.test(BTN_HOLD_HI)) {
                 holdLeft = true;
-                lampData[DisplayController::LMP_HOLD_HI].lampState = LampState::on;
-                lampData[DisplayController::LMP_COLLECT].lampState = LampState::blinkslow;
+                mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_HI).lampState = LampState::on;
+                mainController->getDisplayController()->getLampData().at(DisplayController::LMP_COLLECT).lampState = LampState::blinkslow;
             } else if (btnStatus.test(BTN_HOLD_LO)) {
                 holdRight = true;
-                lampData[DisplayController::LMP_HOLD_LO].lampState = LampState::on;
-                lampData[DisplayController::LMP_COLLECT].lampState = LampState::blinkslow;
+                mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_LO).lampState = LampState::on;
+                mainController->getDisplayController()->getLampData().at(DisplayController::LMP_COLLECT).lampState = LampState::blinkslow;
             }
 
             if (btnStatus.test(BTN_COLLECT)) { // Cancel
-                lampData[DisplayController::LMP_COLLECT].lampState = LampState::off;
-                lampData[DisplayController::LMP_HOLD_LO].lampState = LampState::blinkslow;
-                lampData[DisplayController::LMP_HOLD].lampState = LampState::blinkslow;
-                lampData[DisplayController::LMP_HOLD_HI].lampState = LampState::blinkslow;
+                mainController->getDisplayController()->getLampData().at(DisplayController::LMP_COLLECT).lampState = LampState::off;
+                mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_LO).lampState = LampState::blinkslow;
+                mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD).lampState = LampState::blinkslow;
+                mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_HI).lampState = LampState::blinkslow;
                 holdLeft = false;
                 holdCentre = false;
                 holdRight = false;
@@ -143,11 +141,11 @@ void Game::start() {
     }
 
     // Switch off hold lights for reels that are not held
-    if (!holdLeft) lampData[DisplayController::LMP_HOLD_HI].lampState = LampState::off;
-    if (!holdCentre) lampData[DisplayController::LMP_HOLD].lampState = LampState::off;
-    if (!holdRight) lampData[DisplayController::LMP_HOLD_LO].lampState = LampState::off;
-    lampData[DisplayController::LMP_COLLECT].lampState = LampState::off;
-    lampData[DisplayController::LMP_START].lampState = LampState::off;
+    if (!holdLeft) mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_HI).lampState = LampState::off;
+    if (!holdCentre) mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD).lampState = LampState::off;
+    if (!holdRight) mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_LO).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_COLLECT).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).lampState = LampState::off;
 
     mainController->getMoneyController()->incrementGameCount();
     mainController->getMoneyController()->removeFromCredit(20);
@@ -164,12 +162,12 @@ void Game::start() {
         mainController->getAudioController()->playAudioFile(Sounds::SND_LOSE);
     }
 
-    lampData[DisplayController::LMP_START].lampState = LampState::off;
-    lampData[DisplayController::LMP_COLLECT].lampState = LampState::off;
-    lampData[DisplayController::LMP_HOLD_HI].lampState = LampState::off;
-    lampData[DisplayController::LMP_HOLD].lampState = LampState::off;
-    lampData[DisplayController::LMP_HOLD_LO].lampState = LampState::off;
-    lampData[DisplayController::LMP_TRANSFER].lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_COLLECT).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_HI).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_LO).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_TRANSFER).lampState = LampState::off;
 
     // payout
     if ((mainController->getMoneyController()->getBank() > 0) && (mainController->getMoneyController()->getCredit() < 20)) {
@@ -195,7 +193,7 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
     if (!holdCentre) reelStopCentre = random8_to(26);
     if (!holdRight) reelStopRight = random8_to(26);
 
-    lampData[DisplayController::LMP_START].lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).lampState = LampState::off;
 
     this->mainController->getDisplayController()->displayText("    LET IT GO!!     ");
 
@@ -216,7 +214,7 @@ void Game::shuffleReels() {
     uint8_t reelStopRight = random8_to(26);
 
     mainController->getMoneyController()->removeFromCredit(20);
-    lampData[DisplayController::LMP_START].lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).lampState = LampState::off;
 
     this->mainController->getDisplayController()->displayText("    LET IT GO!!     ");
 
@@ -241,23 +239,23 @@ void Game::playNudges(int nudges) {
         mainController->getDisplayController()->resetLampData();
 
         // have to take off 1, because array is zero-indexed
-        lampData[DisplayController::NUDGE_LAMPS.at(nudges - 1)].rgb.r = 255;
-        lampData[DisplayController::NUDGE_LAMPS.at(nudges - 1)].rgb.g = 255;
-        lampData[DisplayController::NUDGE_LAMPS.at(nudges - 1)].rgb.b = 255;
-        lampData[DisplayController::NUDGE_LAMPS.at(nudges - 1)].lampState = LampState::blinkfast;
+        mainController->getDisplayController()->getLampData().at(DisplayController::NUDGE_LAMPS.at(nudges - 1)).rgb.r = 255;
+        mainController->getDisplayController()->getLampData().at(DisplayController::NUDGE_LAMPS.at(nudges - 1)).rgb.g = 255;
+        mainController->getDisplayController()->getLampData().at(DisplayController::NUDGE_LAMPS.at(nudges - 1)).rgb.b = 255;
+        mainController->getDisplayController()->getLampData().at(DisplayController::NUDGE_LAMPS.at(nudges - 1)).lampState = LampState::blinkfast;
 
         if (nudges > 1) {
             for (int i = 0; i < (nudges - 1); i++) {
-                lampData[DisplayController::NUDGE_LAMPS.at(i)].lampState = LampState::on;
-                lampData[DisplayController::NUDGE_LAMPS.at(i)].rgb.r = 0;
-                lampData[DisplayController::NUDGE_LAMPS.at(i)].rgb.g = 0;
-                lampData[DisplayController::NUDGE_LAMPS.at(i)].rgb.b = 255;
+                mainController->getDisplayController()->getLampData().at(DisplayController::NUDGE_LAMPS.at(i)).lampState = LampState::on;
+                mainController->getDisplayController()->getLampData().at(DisplayController::NUDGE_LAMPS.at(i)).rgb.r = 0;
+                mainController->getDisplayController()->getLampData().at(DisplayController::NUDGE_LAMPS.at(i)).rgb.g = 0;
+                mainController->getDisplayController()->getLampData().at(DisplayController::NUDGE_LAMPS.at(i)).rgb.b = 255;
             }
         }
 
-        lampData[DisplayController::LMP_HOLD].lampState = LampState::blinkfast;
-        lampData[DisplayController::LMP_HOLD_HI].lampState = LampState::blinkfast;
-        lampData[DisplayController::LMP_HOLD_LO].lampState = LampState::blinkfast;
+        mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD).lampState = LampState::blinkfast;
+        mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_HI).lampState = LampState::blinkfast;
+        mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_LO).lampState = LampState::blinkfast;
 
         uint8_t btnStatus = mainController->getDisplayController()->waitForButton(BTN_HOLD_LO | BTN_HOLD | BTN_HOLD_HI);
 
@@ -321,8 +319,8 @@ bool Game::offerHold() {
 void Game::transferOrGamble() {
     ESP_LOGD(TAG, "Entering transferOrGamble()");
 
-    lampData[DisplayController::LMP_TRANSFER].lampState = LampState::blinkfast;
-    lampData[DisplayController::LMP_START].lampState = LampState::blinkslow;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_TRANSFER).lampState = LampState::blinkfast;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).lampState = LampState::blinkslow;
 
     std::bitset<8> btnStatus = mainController->getDisplayController()->getButtonStatus();
 
@@ -332,12 +330,12 @@ void Game::transferOrGamble() {
         std::this_thread::sleep_for(std::chrono::milliseconds(75));
     }
 
-    lampData[DisplayController::LMP_START].lampState = LampState::off;
-    lampData[DisplayController::LMP_COLLECT].lampState = LampState::off;
-    lampData[DisplayController::LMP_TRANSFER].lampState = LampState::off;
-    lampData[DisplayController::LMP_HOLD_LO].lampState = LampState::off;
-    lampData[DisplayController::LMP_HOLD].lampState = LampState::off;
-    lampData[DisplayController::LMP_HOLD_HI].lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_COLLECT).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_TRANSFER).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_LO).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_HI).lampState = LampState::off;
 
 
     if (btnStatus.test(BTN_TRANSFER)) {
@@ -354,8 +352,8 @@ void Game::collectOrContinue() {
 
     ESP_LOGD(TAG, "Entering collectOrContinue()");
 
-    lampData[DisplayController::LMP_START].lampState = LampState::blinkfast;
-    lampData[DisplayController::LMP_COLLECT].lampState = LampState::blinkslow;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).lampState = LampState::blinkfast;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_COLLECT).lampState = LampState::blinkslow;
 
     std::bitset<8> btnStatus = mainController->getDisplayController()->getButtonStatus();
 
@@ -365,8 +363,8 @@ void Game::collectOrContinue() {
         std::this_thread::sleep_for(std::chrono::milliseconds(75));
     }
 
-    lampData[DisplayController::LMP_START].lampState = LampState::off;
-    lampData[DisplayController::LMP_COLLECT].lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_COLLECT).lampState = LampState::off;
 
     if (btnStatus.test(BTN_COLLECT)) {
         ESP_LOGI(TAG, "Calling payout...");
@@ -419,22 +417,21 @@ bool Game::isWinningLine() {
 
 void Game::playFeatureMatrix() {
     uint8_t featureIndex = 0;
-    mainController->getAudioController()->playAudioFile(Sounds::SND_LET_IT_GO);
-    lampData = mainController->getDisplayController()->getLampData();
-    lampData[DisplayController::LMP_START].lampState = LampState::blinkslow;
+    mainController->getAudioController()->playAudioFile(Sounds::SND_LET_IT_GO);    
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).lampState = LampState::blinkslow;
 
     // loop waiting for button press.
     std::bitset<8> btnStatus = mainController->getDisplayController()->getButtonStatus();
     while (!btnStatus.test(BTN_START)) {
         featureIndex = random8_to(13); // number of features
 
-        lampData[DisplayController::FEATURE_LAMPS.at(featureIndex)].lampState = LampState::on;
+        mainController->getDisplayController()->getLampData().at(DisplayController::FEATURE_LAMPS.at(featureIndex)).lampState = LampState::on;
 
         btnStatus = mainController->getDisplayController()->getButtonStatus();
 
         // TODO: do something here.
 
-        lampData[DisplayController::FEATURE_LAMPS.at(featureIndex)].lampState = LampState::off;
+        mainController->getDisplayController()->getLampData().at(DisplayController::FEATURE_LAMPS.at(featureIndex)).lampState = LampState::off;
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
@@ -504,13 +501,12 @@ void Game::playShuffle() {
     } else {
         mainController->getAudioController()->playAudioFile(Sounds::SND_LOSE);
     }
-
-    lampData = mainController->getDisplayController()->getLampData();
-    lampData[DisplayController::LMP_START].lampState = LampState::off;
-    lampData[DisplayController::LMP_COLLECT].lampState = LampState::off;
-    lampData[DisplayController::LMP_HOLD_LO].lampState = LampState::off;
-    lampData[DisplayController::LMP_HOLD].lampState = LampState::off;
-    lampData[DisplayController::LMP_HOLD_HI].lampState = LampState::off;
+    
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_COLLECT).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_LO).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_HI).lampState = LampState::off;
 }
 
 void Game::playFreeSpin() {
@@ -533,14 +529,13 @@ void Game::playFreeSpin() {
     } else {
         mainController->getAudioController()->playAudioFile(Sounds::SND_LOSE);
     }
-
-    lampData = mainController->getDisplayController()->getLampData();
-    lampData[DisplayController::LMP_START].lampState = LampState::off;
-    lampData[DisplayController::LMP_COLLECT].lampState = LampState::off;
-    lampData[DisplayController::LMP_TRANSFER].lampState = LampState::off;
-    lampData[DisplayController::LMP_HOLD_LO].lampState = LampState::off;
-    lampData[DisplayController::LMP_HOLD].lampState = LampState::off;
-    lampData[DisplayController::LMP_HOLD_HI].lampState = LampState::off;
+    
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_COLLECT).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_TRANSFER).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_LO).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD).lampState = LampState::off;
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_HI).lampState = LampState::off;
 }
 
 bool Game::isGameInProgress() {
