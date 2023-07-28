@@ -105,9 +105,7 @@ void Game::start() {
     // loop waiting for button press.
     std::bitset<8> btnStatus = mainController->getDisplayController()->getButtonStatus();
     while (!btnStatus.test(BTN_START)) {
-        btnStatus = this->mainController->getDisplayController()->getButtonStatus();
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
+        
         holdLeft = false;
         holdCentre = false;
         holdRight = false;
@@ -138,6 +136,8 @@ void Game::start() {
             }
         }
 
+        btnStatus = this->mainController->getDisplayController()->getButtonStatus();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     // Switch off hold lights for reels that are not held
