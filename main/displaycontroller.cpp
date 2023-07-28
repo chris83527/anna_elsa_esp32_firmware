@@ -40,6 +40,7 @@
 #include <cstddef>
 #include <bitset>
 #include <chrono>
+#include <vector>
 
 #include "../config/sdkconfig.h"
 
@@ -74,56 +75,51 @@ using namespace std;
 static const char *TAG = "DisplayController";
 static string vfdText;
 
-std::array<int, 0> const DisplayController::SEGMENTS = {
-
-};
-
-std::array<int, 5> const DisplayController::NUDGE_LAMPS = {
-    LAMP_NUDGE_1,
-    LAMP_NUDGE_2,
-    LAMP_NUDGE_3,
-    LAMP_NUDGE_4,
-    LAMP_NUDGE_5
-};
-
-std::array<int, 17> const DisplayController::TRAIL_LAMPS = {
-    LAMP_TRAIL_20_CENT,
-    LAMP_TRAIL_40_CENT,
-    LAMP_TRAIL_60_CENT,
-    LAMP_TRAIL_80_CENT,
-    LAMP_TRAIL_ONE_EURO,
-    LAMP_TRAIL_ONE_TWENTY,
-    LAMP_TRAIL_ONE_FOURTY,
-    LAMP_TRAIL_ONE_SIXTY,
-    LAMP_TRAIL_ONE_EIGHTY,
-    LAMP_TRAIL_TWO_EURO,
-    LAMP_TRAIL_TWO_FOURTY,
-    LAMP_TRAIL_TWO_EIGHTY,
-    LAMP_TRAIL_THREE_FOURTY,
-    LAMP_TRAIL_THREE_EIGHTY,
-    LAMP_TRAIL_FOUR_TWENTY,
-    LAMP_TRAIL_FOUR_SIXTY,
-    LAMP_TRAIL_FIVE_EURO,
-};
-
-std::array<int, 12> const DisplayController::FEATURE_LAMPS = {
-    LAMP_MATRIX_FREE_SPIN_1_2,
-    LAMP_MATRIX_DOUBLE_MONEY_1_3,
-    LAMP_MATRIX_SHUFFLE_1_1,
-    LAMP_MATRIX_LOSE_2_2,
-    LAMP_MATRIX_PALACE_2_3,
-    LAMP_MATRIX_PALACE_2_1,
-    LAMP_MATRIX_SHUFFLE_3_2,
-    LAMP_MATRIX_LOSE_3_3,
-    LAMP_MATRIX_FREE_SPIN_3_1,
-    LAMP_MATRIX_HI_LO_4_2,
-    LAMP_MATRIX_FREE_SPIN_4_3,
-    LAMP_MATRIX_PALACE_4_1
-};
+std::array<int, 0> DisplayController::SEGMENTS;
+std::array<int, DisplayController::NUDGE_LAMPS_LENGTH> DisplayController::NUDGE_LAMPS;
+std::array<int, DisplayController::TRAIL_LAMPS_LENGTH> DisplayController::TRAIL_LAMPS;
+std::array<int, DisplayController::FEATURE_LAMPS_LENGTH> DisplayController::FEATURE_LAMPS;
 
 DisplayController::DisplayController(MainController* mainController) {
     ESP_LOGD(TAG, "Entering constructor");
     this->mainController = mainController;
+
+    DisplayController::NUDGE_LAMPS[0] = LAMP_NUDGE_1;
+    DisplayController::NUDGE_LAMPS[1] = LAMP_NUDGE_2;
+    DisplayController::NUDGE_LAMPS[2] = LAMP_NUDGE_3;
+    DisplayController::NUDGE_LAMPS[3] = LAMP_NUDGE_4;
+    DisplayController::NUDGE_LAMPS[4] = LAMP_NUDGE_5;
+
+    DisplayController::TRAIL_LAMPS[0] = LAMP_TRAIL_20_CENT;
+    DisplayController::TRAIL_LAMPS[1] = LAMP_TRAIL_40_CENT;
+    DisplayController::TRAIL_LAMPS[2] = LAMP_TRAIL_60_CENT;
+    DisplayController::TRAIL_LAMPS[3] = LAMP_TRAIL_80_CENT;
+    DisplayController::TRAIL_LAMPS[4] = LAMP_TRAIL_ONE_EURO;
+    DisplayController::TRAIL_LAMPS[5] = LAMP_TRAIL_ONE_TWENTY;
+    DisplayController::TRAIL_LAMPS[6] = LAMP_TRAIL_ONE_FOURTY;
+    DisplayController::TRAIL_LAMPS[7] = LAMP_TRAIL_ONE_SIXTY;
+    DisplayController::TRAIL_LAMPS[8] = LAMP_TRAIL_ONE_EIGHTY;
+    DisplayController::TRAIL_LAMPS[9] = LAMP_TRAIL_TWO_EURO;
+    DisplayController::TRAIL_LAMPS[10] = LAMP_TRAIL_TWO_FOURTY;
+    DisplayController::TRAIL_LAMPS[11] = LAMP_TRAIL_TWO_EIGHTY;
+    DisplayController::TRAIL_LAMPS[12] = LAMP_TRAIL_THREE_FOURTY;
+    DisplayController::TRAIL_LAMPS[13] = LAMP_TRAIL_THREE_EIGHTY;
+    DisplayController::TRAIL_LAMPS[14] = LAMP_TRAIL_FOUR_TWENTY;
+    DisplayController::TRAIL_LAMPS[15] = LAMP_TRAIL_FOUR_SIXTY;
+    DisplayController::TRAIL_LAMPS[16] = LAMP_TRAIL_FIVE_EURO;
+
+    DisplayController::FEATURE_LAMPS[0] = LAMP_MATRIX_FREE_SPIN_1_2;
+    DisplayController::FEATURE_LAMPS[1] = LAMP_MATRIX_DOUBLE_MONEY_1_3;
+    DisplayController::FEATURE_LAMPS[2] = LAMP_MATRIX_SHUFFLE_1_1;
+    DisplayController::FEATURE_LAMPS[3] = LAMP_MATRIX_LOSE_2_2;
+    DisplayController::FEATURE_LAMPS[4] = LAMP_MATRIX_PALACE_2_3;
+    DisplayController::FEATURE_LAMPS[5] = LAMP_MATRIX_PALACE_2_1;
+    DisplayController::FEATURE_LAMPS[6] = LAMP_MATRIX_SHUFFLE_3_2;
+    DisplayController::FEATURE_LAMPS[7] = LAMP_MATRIX_LOSE_3_3;
+    DisplayController::FEATURE_LAMPS[8] = LAMP_MATRIX_FREE_SPIN_3_1;
+    DisplayController::FEATURE_LAMPS[9] = LAMP_MATRIX_HI_LO_4_2;
+    DisplayController::FEATURE_LAMPS[10] = LAMP_MATRIX_FREE_SPIN_4_3;
+    DisplayController::FEATURE_LAMPS[11] = LAMP_MATRIX_PALACE_4_1;
 
     ESP_LOGD(TAG, "Leaving constructor");
 }
@@ -538,11 +534,11 @@ void DisplayController::rainbowEffect() {
         for (int j = 0; j < LED_COUNT; j++) {
             lampData[j].rgb.r = (uint8_t) (i / 256.0) * lampData[j].activeRgb.r;
             lampData[j].rgb.g = (uint8_t) (i / 256.0) * lampData[j].activeRgb.g;
-            lampData[j].rgb.b = (uint8_t) (i / 256.0) * lampData[j].activeRgb.b;            
+            lampData[j].rgb.b = (uint8_t) (i / 256.0) * lampData[j].activeRgb.b;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
-    
+
     resetLampData();
 }
 
