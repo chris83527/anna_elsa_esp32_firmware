@@ -532,9 +532,9 @@ void DisplayController::rainbowEffect() {
     // Trail lamps fade out
     for (int i = 255; i >= 0; i -= 2) {
         for (int j = 0; j < LED_COUNT; j++) {
-            lampData[j].rgb.r = (uint8_t) (i / 256.0) * lampData[j].activeRgb.r;
-            lampData[j].rgb.g = (uint8_t) (i / 256.0) * lampData[j].activeRgb.g;
-            lampData[j].rgb.b = (uint8_t) (i / 256.0) * lampData[j].activeRgb.b;
+            lampData[j].rgb.r = (uint8_t) (i / 256.0) * lampData[j].rgb.r;
+            lampData[j].rgb.g = (uint8_t) (i / 256.0) * lampData[j].rgb.g;
+            lampData[j].rgb.b = (uint8_t) (i / 256.0) * lampData[j].rgb.b;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
@@ -549,7 +549,13 @@ void DisplayController::blinkLampsTask() {
         for (int i = 0; i < LED_COUNT + 6; i++) {
 
             if (this->lampData[i].lampState == LampState::on || this->lampData[i].lampState == LampState::blinkfast || this->lampData[i].lampState == LampState::blinkslow) {
-                this->lampData[i].activeRgb = this->lampData[i].rgb;
+                if (i < LED_COUNT) {
+                    this->lampData[i].activeRgb = this->lampData[i].rgb;
+                } else {
+                    this->lampData[i].activeRgb.r = 255;
+                    this->lampData[i].activeRgb.g = 255;
+                    this->lampData[i].activeRgb.b = 255;
+                }
             } else {
                 // Set active rgb value to 0 (off or black)
                 this->lampData[i].activeRgb.blue = 0;
@@ -562,7 +568,13 @@ void DisplayController::blinkLampsTask() {
 
         for (int i = 0; i < LED_COUNT + 6; i++) {
             if (this->lampData[i].lampState == LampState::on || this->lampData[i].lampState == LampState::blinkslow) {
-                this->lampData[i].activeRgb = this->lampData[i].rgb;
+                if (i < LED_COUNT) {
+                    this->lampData[i].activeRgb = this->lampData[i].rgb;
+                } else {
+                    this->lampData[i].activeRgb.r = 255;
+                    this->lampData[i].activeRgb.g = 255;
+                    this->lampData[i].activeRgb.b = 255;
+                }
             } else {
                 // Set active rgb value to 0 (off or black)
                 this->lampData[i].activeRgb.blue = 0;
@@ -575,7 +587,13 @@ void DisplayController::blinkLampsTask() {
 
         for (int i = 0; i < LED_COUNT + 6; i++) {
             if (this->lampData[i].lampState == LampState::on) {
-                this->lampData[i].activeRgb = this->lampData[i].rgb;
+                if (i < LED_COUNT) {
+                    this->lampData[i].activeRgb = this->lampData[i].rgb;
+                } else {
+                    this->lampData[i].activeRgb.r = 255;
+                    this->lampData[i].activeRgb.g = 255;
+                    this->lampData[i].activeRgb.b = 255;
+                }
             } else {
                 // Set active rgb value to 0 (off or black)
                 this->lampData[i].activeRgb.blue = 0;
@@ -588,7 +606,13 @@ void DisplayController::blinkLampsTask() {
 
         for (int i = 0; i < LED_COUNT + 6; i++) {
             if (this->lampData[i].lampState == LampState::on || this->lampData[i].lampState == LampState::blinkfast) {
-                this->lampData[i].activeRgb = this->lampData[i].rgb;
+                if (i < LED_COUNT) {
+                    this->lampData[i].activeRgb = this->lampData[i].rgb;
+                } else {
+                    this->lampData[i].activeRgb.r = 255;
+                    this->lampData[i].activeRgb.g = 255;
+                    this->lampData[i].activeRgb.b = 255;
+                }
             } else {
                 // Set active rgb value to 0 (off or black)
                 this->lampData[i].activeRgb.blue = 0;

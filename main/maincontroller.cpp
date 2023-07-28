@@ -76,7 +76,7 @@ void MainController::start() {
     if (m20ly02z_init(MD_STROBE, MD_OE, MD_CLK, MD_DATA) != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise VFD display");
     } else {
-        this->displayController->displayText("INITIALISING");
+        this->displayController->displayText("INITIALISING 01");
     }
 
     auto cfg = esp_pthread_get_default_config();
@@ -89,17 +89,21 @@ void MainController::start() {
     });
     this->blinkCPUStatusLEDThread.detach();
 
+    this->displayController->displayText("INITIALISING 02");
     ESP_LOGD(TAG, "Calling i2cdev_init()");
     ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());
 
+    this->displayController->displayText("INITIALISING 03");
     // start outputting to status oled
     oledController->initialise();
 
+    this->displayController->displayText("INITIALISING 04");
     // Initialize NVS
     ESP_LOGD(TAG, "Setting up NVS");
     oledController->scrollText("Init NVS");
 
     // Initialize NVS
+    this->displayController->displayText("INITIALISING 05");
     err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         // NVS partition was truncated and needs to be erased
@@ -109,6 +113,7 @@ void MainController::start() {
     }
     ESP_ERROR_CHECK(err);
 
+    this->displayController->displayText("INITIALISING 06");
     err = nvs_flash_init_partition(NVS_PARTITION_SETTINGS);
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         // NVS partition was truncated and needs to be erased
@@ -118,6 +123,7 @@ void MainController::start() {
     }
     ESP_ERROR_CHECK(err);
 
+    this->displayController->displayText("INITIALISING 07");
     nvs_handle = nvs::open_nvs_handle_from_partition(NVS_PARTITION_SETTINGS, NVS_PARTITION_SETTINGS, NVS_READWRITE, &err);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(err));
@@ -132,6 +138,7 @@ void MainController::start() {
 
 
     // initialise ds3231 RTC
+    this->displayController->displayText("INITIALISING 08");
     oledController->scrollText("Init RTC");
     memset(&ds3231, 0, sizeof (i2c_dev_t));
 
@@ -145,8 +152,8 @@ void MainController::start() {
         oledController->scrollText("  -> ok");
     }
 
+    this->displayController->displayText("INITIALISING 09");
     oledController->scrollText("Init LittleFS");
-
     esp_vfs_littlefs_conf_t conf = {
         .base_path = "/httpd",
         .partition_label = "httpd",
@@ -169,6 +176,7 @@ void MainController::start() {
         return;
     }
 
+    this->displayController->displayText("INITIALISING 0A");
     oledController->scrollText("Init Webserver");
     this->httpController->initialise(80, "/httpd", "INNUENDO", "woodsamusements");
 
@@ -183,7 +191,8 @@ void MainController::start() {
         }
     }
 
-    // initialise audio subsystem    
+    // initialise audio subsystem   
+    this->displayController->displayText("INITIALISING 0B");
     oledController->scrollText("Init Audio");
     audioController->initialise();
 
@@ -207,6 +216,7 @@ void MainController::start() {
     }
     printf("\n\n");
 
+    this->displayController->displayText("INITIALISING 0C");
     oledController->scrollText("Init Display");
     if (displayController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise tableau subsystem");
@@ -216,9 +226,11 @@ void MainController::start() {
         oledController->scrollText("  -> ok");
     }
 
+    this->displayController->displayText("INITIALISING 0D");
     oledController->scrollText("Load stats");
     moneyController->initialise();
 
+    this->displayController->displayText("INITIALISING 0E");
     oledController->scrollText("Init cctalk");
     cctalkController->setCreditAcceptedCallback([&](uint8_t coin_id, const esp32cc::CcIdentifier & identifier) {
         ESP_LOGI(TAG, "Credit accepted: Coin id: %d, Identifier: %s", coin_id, identifier.id_string.c_str());
@@ -232,6 +244,7 @@ void MainController::start() {
         oledController->scrollText("  -> ok");
     }
 
+    this->displayController->displayText("INITIALISING 0F");
     oledController->scrollText("Init reels");
     if (!reelController->initialise()) {
         oledController->scrollText("  -> failed");
@@ -243,9 +256,11 @@ void MainController::start() {
 
     blinkDelay = 1000;
 
+    this->displayController->displayText("INITIALISING 10");
     oledController->scrollText("Init game");
     game->initialise();
 
+    this->displayController->displayText("INITIALISING 11");
     cfg = esp_pthread_get_default_config();
     cfg.thread_name = "UpdateStatistics";
     cfg.prio = 1;
@@ -256,6 +271,7 @@ void MainController::start() {
     });
     this->updateStatisticsThread.detach();
 
+    this->displayController->displayText("INITIALISING 12");
     for (;;) {
         if ((!game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
             ESP_LOGD(TAG, "Starting game...");            
