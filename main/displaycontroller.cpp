@@ -42,8 +42,6 @@
 #include <chrono>
 #include <vector>
 
-#include "../config/sdkconfig.h"
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_err.h"
@@ -355,12 +353,12 @@ uint8_t DisplayController::getButtonStatus() {
 }
 
 uint8_t DisplayController::waitForButton(uint8_t mask) {
-    uint8_t btnStatus = mainController->getDisplayController()->getButtonStatus();
+    uint8_t btnStatus = getButtonStatus();
     // loop waiting for button press.
     while ((btnStatus & mask) == 0) {
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(75));
-        btnStatus = mainController->getDisplayController()->getButtonStatus();
+        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+        btnStatus = getButtonStatus();
     }
 
     return btnStatus;

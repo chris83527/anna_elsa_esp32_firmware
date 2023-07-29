@@ -199,6 +199,7 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
 
     mainController->getReelController()->spin(reelStopLeft, reelStopCentre, reelStopRight);
 
+    // FIXME: this is never called, because spin waits for the reels to stop so the loop never executes
     while (mainController->getReelController()->isCommandInProgress()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
         this->moves = random8_to(13);
@@ -220,6 +221,7 @@ void Game::shuffleReels() {
 
     mainController->getReelController()->shuffle(reelStopLeft, reelStopCentre, reelStopRight);
 
+    // FIXME: this is never called, because spin waits for the reels to stop so the loop never executes
     while (mainController->getReelController()->isCommandInProgress()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
         this->moves = random8_to(12);
