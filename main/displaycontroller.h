@@ -69,11 +69,18 @@ enum class LampState {
 class LampData {
 public:
     LampData();
-    rgb_t rgb;
+        
+    void setLampState(LampState lampState);
+    LampState getLampState();
+    void setRgb(rgb_t rgb);    
+    void setActiveRgb(rgb_t rgb);
+    rgb_t getRgb();
+    rgb_t getActiveRgb();
+    
+private:
+    rgb_t rgb;  
     rgb_t activeRgb;
     LampState lampState;
-private:
-
 };
 
 class DisplayController {
@@ -87,7 +94,7 @@ public:
 
     void resetLampData();
 
-    std::array<LampData, LED_COUNT + 6 > getLampData(void);
+    std::array<LampData, LED_COUNT + 6 >& getLampData(void);
 
     void clearText(void);
     void displayText(const std::string &text);
