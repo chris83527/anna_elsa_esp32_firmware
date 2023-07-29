@@ -80,6 +80,16 @@ std::array<int, DisplayController::NUDGE_LAMPS_LENGTH> DisplayController::NUDGE_
 std::array<int, DisplayController::TRAIL_LAMPS_LENGTH> DisplayController::TRAIL_LAMPS;
 std::array<int, DisplayController::FEATURE_LAMPS_LENGTH> DisplayController::FEATURE_LAMPS;
 
+LampData::LampData() {
+    this->lampState = LampState::off;
+    this->rgb.r = 255;
+    this->rgb.g = 255;
+    this->rgb.b = 255;
+    this->activeRgb.r = 255;
+    this->activeRgb.g = 255;
+    this->activeRgb.b = 255;
+}
+
 DisplayController::DisplayController(MainController* mainController) {
     ESP_LOGD(TAG, "Entering constructor");
     this->mainController = mainController;

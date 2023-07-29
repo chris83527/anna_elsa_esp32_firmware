@@ -68,6 +68,7 @@ enum class LampState {
 
 class LampData {
 public:
+    LampData();
     rgb_t rgb;
     rgb_t activeRgb;
     LampState lampState;
