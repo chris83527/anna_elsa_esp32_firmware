@@ -253,7 +253,7 @@ void Game::playNudges(int nudges) {
         mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_HI).setLampState(LampState::blinkfast);
         mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_LO).setLampState(LampState::blinkfast);
 
-        uint8_t btnStatus = mainController->getDisplayController()->waitForButton(BTN_HOLD_LO | BTN_HOLD | BTN_HOLD_HI);
+        uint8_t btnStatus = mainController->getDisplayController()->waitForButton(BTN_HOLD_LO_MASK_BIT | BTN_HOLD_MASK_BIT | BTN_HOLD_HI_MASK_BIT);
 
         if ((btnStatus & BTN_HOLD_LO_MASK_BIT) == BTN_HOLD_LO_MASK_BIT) {
             mainController->getReelController()->nudge(0, 0, 1);

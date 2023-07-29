@@ -87,7 +87,7 @@ LampData::LampData() {
 }
 
 rgb_t LampData::getActiveRgb() {
-    return this->getActiveRgb();
+    return this->activeRgb;
 }
 
 void LampData::setActiveRgb(rgb_t rgb) {
