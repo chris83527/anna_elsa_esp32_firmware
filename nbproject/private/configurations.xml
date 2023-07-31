@@ -3451,6 +3451,8 @@
             </df>
           </df>
         </df>
+        <in>HttpServer.cpp</in>
+        <in>HttpServer.h</in>
         <in>audiocontroller.cpp</in>
         <in>audiocontroller.h</in>
         <in>cctalkcontroller.cpp</in>

@@ -239,7 +239,7 @@ void ReelController::step(reel_event_t& event) {
 
     ESP_LOGD(TAG, "Step event: reels=%d, direction (left)=%d, direction (centre)=%d, direction (Right)=%d", event.reels, event.dir_left, event.dir_centre, event.dir_right);
 
-    if (event.reels & REEL_LEFT) {
+    if ((event.reels & REEL_LEFT) == REEL_LEFT) {
         if (event.dir_left == Clockwise) {
             this->reel_status_data_left.step_data = (cw_steps[this->reel_status_data_left.step_number]);
         } else {
@@ -248,7 +248,7 @@ void ReelController::step(reel_event_t& event) {
         this->reel_status_data_left.step_number++;
     }
 
-    if (event.reels & REEL_CENTRE) {
+    if ((event.reels & REEL_CENTRE) == REEL_CENTRE) {
         if (event.dir_centre == Clockwise) {
             this->reel_status_data_centre.step_data = (cw_steps[this->reel_status_data_centre.step_number]);
         } else {
@@ -257,7 +257,7 @@ void ReelController::step(reel_event_t& event) {
         this->reel_status_data_centre.step_number++;
     }
 
-    if (event.reels & REEL_RIGHT) {
+    if ((event.reels & REEL_RIGHT) == REEL_RIGHT) {
         if (event.dir_right == Clockwise) {
             this->reel_status_data_right.step_data = (cw_steps[this->reel_status_data_right.step_number]);
         } else {
@@ -279,9 +279,9 @@ void ReelController::step(reel_event_t& event) {
         mcp23008_port_write(&reel_left, this->reel_status_data_left.step_data);
     }
 
-    if (this->reel_status_data_left.step_number == (STEPS_PER_STOP - 1)) this->reel_status_data_left.step_number = 0;
-    if (this->reel_status_data_centre.step_number == (STEPS_PER_STOP - 1)) this->reel_status_data_centre.step_number = 0;
-    if (this->reel_status_data_right.step_number == (STEPS_PER_STOP - 1)) this->reel_status_data_right.step_number = 0;
+    if (this->reel_status_data_left.step_number > STEPS_PER_STOP) this->reel_status_data_left.step_number = 0;
+    if (this->reel_status_data_centre.step_number > STEPS_PER_STOP) this->reel_status_data_centre.step_number = 0;
+    if (this->reel_status_data_right.step_number > STEPS_PER_STOP) this->reel_status_data_right.step_number = 0;
 
     //    uint8_t btnStatus = mainController->getDisplayController()->waitForButton(BTN_START_MASK_BIT | BTN_COLLECT_MASK_BIT | BTN_HOLD_LO_MASK_BIT | BTN_HOLD_MASK_BIT); // DEBUG -> check motor is turning correctly
     //    uint16_t mask = 0;
