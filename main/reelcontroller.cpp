@@ -310,7 +310,7 @@ void ReelController::step(reel_event_t& event) {
  * Performs maximum two complete spins of the reels and stops when at the null position. If no null position is detected then the reel error is set.
  * 
  */
-void ReelController::spinToZero(bool stopAfterSpin) {
+void ReelController::spinToZero(bool stopAfterSpin, int reels) {
     ESP_LOGD(TAG, "spinToZero begin");
 
     int reels = REEL_LEFT | REEL_CENTRE | REEL_RIGHT;
