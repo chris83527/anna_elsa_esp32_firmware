@@ -1570,6 +1570,12 @@
             <df name="CMakeFiles">
             </df>
           </df>
+          <df name="pca9629a">
+            <df name="CMakeFiles">
+              <df name="__idf_pca9629a.dir">
+              </df>
+            </df>
+          </df>
           <df name="perfmon">
             <df name="CMakeFiles">
               <df name="__idf_perfmon.dir">
@@ -1928,6 +1934,10 @@
             <in>m20ly02z.h</in>
           </df>
           <in>m20ly02z.c</in>
+        </df>
+        <df name="pca9629a">
+          <in>pca9629a.cpp</in>
+          <in>pca9629a.h</in>
         </df>
         <df name="ssd1306">
           <df name="include">
@@ -3451,8 +3461,6 @@
             </df>
           </df>
         </df>
-        <in>HttpServer.cpp</in>
-        <in>HttpServer.h</in>
         <in>audiocontroller.cpp</in>
         <in>audiocontroller.h</in>
         <in>cctalkcontroller.cpp</in>

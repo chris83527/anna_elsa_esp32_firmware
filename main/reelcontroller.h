@@ -43,7 +43,7 @@
 #include "esp_pthread.h"
 
 #include "driver/gpio.h"
-#include "driver/ledc.h"
+#include "pca9629a.h"
 
 #include "maincontroller.h"
 
@@ -66,76 +66,42 @@
 class ReelController {
 public:
     ReelController(MainController *mainController);
-    ReelController(const ReelController &orig);
+    ReelController(const ReelController &orig);  
 
     typedef struct {
-        int stop; // 1 - 25
-        int status;
-        uint8_t step_data;
-        int step_number; // 0 - 3 - index into stepper output configuration
-        bool photo_interrupter_set;
-    } reel_status_data_t;
-
-    typedef enum {
-        Clockwise = 0,
-        CounterClockwise,
-    } direction_t;
-
-    typedef struct {
-        int reels;
-        direction_t dir_left;
-        direction_t dir_centre;
-        direction_t dir_right;
-    } reel_event_t;
-
+        uint8_t leftStop = 0;
+        uint8_t centreStop = 0;
+        uint8_t rightStop = 0;
+    } reel_stop_info_t;
+    
     bool reelLeftInitOk;
     bool reelCentreInitOk;
     bool reelRightInitOk;
 
     bool initialise(void);
 
-    void spin(const uint8_t leftStops, const uint8_t midStops, const uint8_t rightStops);
-    void nudge(const uint8_t leftStops, const uint8_t midStops, const uint8_t rightStops);
-    void shuffle(const uint8_t leftStops, const uint8_t midStops, const uint8_t rightStops);   
+    void spin(const uint8_t leftStop, const uint8_t midStop, const uint8_t rightStop);
+    void nudge(const uint8_t leftStop, const uint8_t midStop, const uint8_t rightStop);
+    void shuffle(const uint8_t leftStop, const uint8_t midStop, const uint8_t rightStop);
 
-    void getReelPositions(uint8_t & lefPos, uint8_t & centrePos, uint8_t & rightPos);
-    reel_status_data_t getReelStatus(uint8_t reel);
-
+    reel_stop_info_t getReelStopInfo(void);
+    
     bool isCommandInProgress(void);
 
 
 private:
+    const int MAX_STOPS = 25; // total number of stops (i.e. symbols)    
     
-    int _position;
-
-    uint8_t _reelPosLeft = 0;
-    uint8_t _reelPosCentre = 0;
-    uint8_t _reelPosRight = 0;
-
-    int _leftState = 0;
-    int _midState = 0;
-    int _rightState = 0;
-
-    const int MAX_STATES = 4;
-    const int MAX_STOPS = 25; // total number of stops (i.e. symbols)
-
-    // Prepare and then apply the LEDC PWM timer configuration
-    ledc_timer_config_t ledc_timer;
-    ledc_channel_config_t ledc_channel;
-
-    reel_status_data_t reel_status_data_left;
-    reel_status_data_t reel_status_data_centre;
-    reel_status_data_t reel_status_data_right;
-
+    reel_stop_info_t reelStopInfo;
+    
     uint8_t status;
     bool commandInProgress;
-    
-    MainController* mainController;
 
-    std::thread spinReelThread;
-    
-    void step(reel_event_t& event);
-    void spinToZero(bool stopAfterSpin);
+    MainController* mainController;    
+
+    PCA9629A leftReel = PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, 0x40, I2C_FREQ_HZ);
+    PCA9629A centreReel = PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, 0x42, I2C_FREQ_HZ);
+    PCA9629A rightReel = PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, 0x44, I2C_FREQ_HZ);
 };
 
 #endif /* __WAVE_H__ */

@@ -183,11 +183,9 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
 
     ESP_LOGI(TAG, "Entering spinReels()");
 
-    uint8_t reelStopLeft;
-    uint8_t reelStopCentre;
-    uint8_t reelStopRight;
-
-    mainController->getReelController()->getReelPositions(reelStopLeft, reelStopCentre, reelStopRight);
+    uint8_t reelStopLeft = mainController->getReelController()->getReelStopInfo().leftStop;
+    uint8_t reelStopCentre = mainController->getReelController()->getReelStopInfo().centreStop;
+    uint8_t reelStopRight = mainController->getReelController()->getReelStopInfo().rightStop; 
 
     if (!holdLeft) reelStopLeft = random8_to(26);
     if (!holdCentre) reelStopCentre = random8_to(26);
@@ -301,7 +299,9 @@ bool Game::offerHold() {
 
     uint8_t hold = random8_to(2); //0 or 1
 
-    mainController->getReelController()->getReelPositions(leftPos, centrePos, rightPos);
+    leftPos = mainController->getReelController()->getReelStopInfo().leftStop;
+    centrePos = mainController->getReelController()->getReelStopInfo().centreStop;
+    rightPos = mainController->getReelController()->getReelStopInfo().rightStop;
 
     uint8_t leftSymbolId = symbolsLeftReel[leftPos];
     uint8_t centreSymbolId = symbolsCentreReel[centrePos];
@@ -384,13 +384,12 @@ void Game::collectOrContinue() {
 
 bool Game::isWinningLine() {
     ESP_LOGI(TAG, "Entering isWinningLine()");
-    uint8_t leftPos;
-    uint8_t centrePos;
-    uint8_t rightPos;
-
+    
     bool isWin = false;
 
-    mainController->getReelController()->getReelPositions(leftPos, centrePos, rightPos);
+    uint8_t leftPos = mainController->getReelController()->getReelStopInfo().leftStop;
+    uint8_t centrePos = mainController->getReelController()->getReelStopInfo().centreStop;
+    uint8_t rightPos = mainController->getReelController()->getReelStopInfo().rightStop;
 
     uint8_t leftSymbolId = symbolsLeftReel[leftPos];
     uint8_t centreSymbolId = symbolsCentreReel[centrePos];

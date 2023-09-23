@@ -53,6 +53,10 @@
         <df name="m20ly02z">
           <in>m20ly02z.c</in>
         </df>
+        <df name="pca9629a">
+          <in>pca9629a.cpp</in>
+          <in>pca9629a.h</in>
+        </df>
         <df name="ssd1306">
           <df name="include">
             <in>font8x8_basic.h</in>
@@ -62,8 +66,6 @@
         </df>
       </df>
       <df name="main">
-        <in>HttpServer.cpp</in>
-        <in>HttpServer.h</in>
         <in>audiocontroller.cpp</in>
         <in>displaycontroller.cpp</in>
         <in>game.cpp</in>
@@ -60245,6 +60247,10 @@
         <cTool flags="1">
         </cTool>
       </item>
+      <item path="components/pca9629a/pca9629a.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="components/pca9629a/pca9629a.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="components/ssd1306/Kconfig" ex="false" tool="3" flavor2="0">
       </item>
       <item path="components/ssd1306/include/font8x8_basic.h"
@@ -60253,10 +60259,6 @@
             flavor2="0">
       </item>
       <item path="components/ssd1306/ssd1306_i2c.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="main/HttpServer.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="main/HttpServer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main/audiocontroller.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
