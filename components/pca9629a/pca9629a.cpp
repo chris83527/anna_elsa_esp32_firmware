@@ -31,6 +31,8 @@
 #include "i2cdev.h"
 #include "config.h"
 
+#include <cstring>
+
 static const char *TAG = "pca9629a";
 
 const char *reg_name[] = {
@@ -79,20 +81,30 @@ PCA9629A::PCA9629A(
         const uint32_t clock_speed
         ) {
 
+    this->port = port;
+    this->i2c_sda = i2c_sda;
+    this->i2c_scl = i2c_scl;
+    this->i2c_address = i2c_address;
+    this->clock_speed = clock_speed;
+       
+}
+
+void PCA9629A::initialise(void) {
     memset(&i2c_dev, 0, sizeof(i2c_dev_t));
-    i2c_dev.port = port;
-    i2c_dev.addr = i2c_address;
+    i2c_dev.port = this->port;
+    i2c_dev.addr = this->i2c_address;
     i2c_dev.cfg.mode = I2C_MODE_MASTER;
-    i2c_dev.cfg.sda_io_num = i2c_sda;
-    i2c_dev.cfg.scl_io_num = i2c_scl;
+    i2c_dev.cfg.sda_io_num = this->i2c_sda;
+    i2c_dev.cfg.scl_io_num = this->i2c_scl;
     i2c_dev.cfg.clk_flags = 0;
-    i2c_dev.cfg.master.clk_speed = clock_speed;
+    i2c_dev.cfg.master.clk_speed = this->clock_speed;
 
     i2c_dev_create_mutex(&i2c_dev);
 
     software_reset();
     init_registers();
 }
+
 
 esp_err_t PCA9629A::software_reset(void) {
     uint8_t data = 0x06;

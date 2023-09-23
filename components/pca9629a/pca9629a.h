@@ -108,7 +108,7 @@ public:
         CW = 0, /**< Clockwise direction */
         CCW /**< ConterClockwise direction */
     } Direction;
-    
+
     /** Create a PCA9629 instance connected to specified I2C pins with specified address
      *
      * @param I2C_sda I2C-bus SDA pin
@@ -123,6 +123,8 @@ public:
             const uint32_t clock_speed = I2C_FREQ_HZ
             );
 
+    void initialise(void);
+    
     /** Software reset
      *
      *  Performs software reset through I2C bus
@@ -227,7 +229,14 @@ private:
         PRESCALER_FROM_0_32_TO_2604, /*< Prescaler range from 384us(  2604pps) to 3145.728ms( 0.32pps) */
     } PrescalerRange;
 
-    i2c_dev_t i2c_dev;    
+
+    i2c_port_t port;
+    gpio_num_t i2c_sda;
+    gpio_num_t i2c_scl;
+    uint8_t i2c_address;
+    uint32_t clock_speed;
+    
+    i2c_dev_t i2c_dev;
 };
 
 
