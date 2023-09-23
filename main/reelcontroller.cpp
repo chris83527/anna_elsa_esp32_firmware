@@ -81,6 +81,13 @@ bool ReelController::initialise() {
     reelCentreInitOk = false;
     reelRightInitOk = false;                    
 
+    // MOTOR_EN is on a GPIO
+    gpio_pad_select_gpio(GPIO_MOTOR_EN);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(GPIO_MOTOR_EN, GPIO_MODE_OUTPUT);
+    /* Switch off to start */
+    gpio_set_level(GPIO_MOTOR_EN, 1);
+    
     this->leftReel.startWithHome(PCA9629A::Direction::CW, 0, 0); // return to home
     this->centreReel.startWithHome(PCA9629A::Direction::CW, 0, 0); // return to home
     this->rightReel.startWithHome(PCA9629A::Direction::CW, 0, 0); // return to home

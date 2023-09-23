@@ -108,8 +108,7 @@ public:
         CW = 0, /**< Clockwise direction */
         CCW /**< ConterClockwise direction */
     } Direction;
-
-    PCA9629A(){}
+    
     /** Create a PCA9629 instance connected to specified I2C pins with specified address
      *
      * @param I2C_sda I2C-bus SDA pin
@@ -228,8 +227,7 @@ private:
         PRESCALER_FROM_0_32_TO_2604, /*< Prescaler range from 384us(  2604pps) to 3145.728ms( 0.32pps) */
     } PrescalerRange;
 
-    i2c_dev_t i2c_dev;
-    uint8_t i2c_addr;
+    i2c_dev_t i2c_dev;    
 };
 
 

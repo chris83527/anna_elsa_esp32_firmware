@@ -76,7 +76,7 @@
 #define AUDIO_DOUT GPIO_NUM_27
 
 // reels
-#define GPIO_MOTOR_PWM_EN GPIO_NUM_23
+#define GPIO_MOTOR_EN GPIO_NUM_23
 
 
 // Buttons and button lamps (interfaced via MCP23017)

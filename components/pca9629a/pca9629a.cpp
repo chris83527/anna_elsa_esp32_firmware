@@ -79,6 +79,7 @@ PCA9629A::PCA9629A(
         const uint32_t clock_speed
         ) {
 
+    memset(&i2c_dev, 0, sizeof(i2c_dev_t));
     i2c_dev.port = port;
     i2c_dev.addr = i2c_address;
     i2c_dev.cfg.mode = I2C_MODE_MASTER;
