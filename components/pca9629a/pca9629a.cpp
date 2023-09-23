@@ -105,7 +105,7 @@ esp_err_t PCA9629A::software_reset(void) {
     uint8_t data = 0x06;
 
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, static_cast<uint8_t>REG_MODE, &data, 1));
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, static_cast<uint8_t>(REG_MODE), &data, 1));
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
     
     return ESP_OK;
@@ -156,7 +156,7 @@ esp_err_t PCA9629A::write(RegisterName register_name, uint8_t value) {
     uint8_t cmd[1];
     cmd[1] = value;
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, static_cast<uint8_t>register_name, cmd, 1));
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, static_cast<uint8_t>(register_name), cmd, 1));
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
 
     return ESP_OK;
@@ -170,7 +170,7 @@ esp_err_t PCA9629A::write16(RegisterName register_name, uint16_t value) {
     cmd[ 1 ] = value >> 8;
 
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, static_cast<uint8_t>register_name, cmd, 2));
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, static_cast<uint8_t>(register_name), cmd, 2));
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
 
     return ESP_OK;
@@ -180,7 +180,7 @@ esp_err_t PCA9629A::read(RegisterName register_name, uint8_t& result) {
     uint8_t data;
     
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_read_reg(&i2c_dev, static_cast<uint8_t>register_name, &data, 1));
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_read_reg(&i2c_dev, static_cast<uint8_t>(register_name), &data, 1));
     I2C_DEV_GIVE_MUTEX(&i2c_dev);    
     
     result = data;
@@ -193,7 +193,7 @@ esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t& result) {
     uint8_t data[ 2 ];
 
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_read_reg(&i2c_dev, static_cast<uint8_t>register_name, data, 2));
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_read_reg(&i2c_dev, static_cast<uint8_t>(register_name), data, 2));
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
 
     result = (data[ 1 ] << 8 | data[ 0 ]);
