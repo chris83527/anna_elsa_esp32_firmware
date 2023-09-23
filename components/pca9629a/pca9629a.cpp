@@ -154,9 +154,9 @@ esp_err_t PCA9629A::set_all_registers(uint8_t *data, uint8_t size) {
 
 esp_err_t PCA9629A::write(RegisterName register_name, uint8_t value) {
     uint8_t cmd[1];
-    cmd[1] = value;
+    cmd[0] = value;
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, static_cast<uint8_t>(register_name), cmd, 1));
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, static_cast<uint8_t>(register_name), &cmd[0], 1));
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
 
     return ESP_OK;
@@ -170,7 +170,7 @@ esp_err_t PCA9629A::write16(RegisterName register_name, uint16_t value) {
     cmd[ 1 ] = value >> 8;
 
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, static_cast<uint8_t>(register_name), cmd, 2));
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, static_cast<uint8_t>(register_name), &cmd[0], 2));
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
 
     return ESP_OK;
@@ -205,7 +205,7 @@ void PCA9629A::start(Direction dir, uint16_t step_count, uint8_t repeats) {
     write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
     write(REG_PMA, repeats);
     //    write(REG_MCNTL, 0xA8 | dir);
-    write(REG_MCNTL, 0x80 | dir);
+    write(REG_MCNTL, 0x80 | static_cast<uint8_t>(dir));
 }
 
 void PCA9629A::startWithHome(Direction dir, uint16_t step_count, uint8_t repeats) {
@@ -214,7 +214,7 @@ void PCA9629A::startWithHome(Direction dir, uint16_t step_count, uint8_t repeats
     write(REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register 
     write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
     write(REG_PMA, repeats);
-    write(REG_MCNTL, 0x90 | dir);
+    write(REG_MCNTL, 0x90 | static_cast<uint8_t>(dir));
 }
 
 void PCA9629A::stop(void) {
