@@ -40,7 +40,7 @@
 #include "i2cdev.h"
 
 #define PCA_9629A_DEFAULT_STEPS_PER_ROTATION  48
-#define PCA9629A_I2C_ADDR_BASE        0x40
+#define PCA9629A_I2C_ADDR_BASE        0x20
 #define I2C_FREQ_HZ 100000
 
 /** PCA9629A class

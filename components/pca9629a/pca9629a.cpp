@@ -101,16 +101,18 @@ void PCA9629A::initialise() {
 }
 
 esp_err_t PCA9629A::software_reset(void) {
+    ESP_LOGI(TAG, "pca9629a software_reset");
     uint8_t data = 0x06;
 
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x00, &data, 1));
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, static_cast<uint8_t>REG_MODE, &data, 1));
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
     
     return ESP_OK;
 }
 
 void PCA9629A::init_registers(void) {
+    ESP_LOGI(TAG, "pca9629a init_registers");
     uint8_t init_array[] = {0x80, //  register access start address (0x00) with incremental access flag (MSB)
         0x10, // MODE
         0xFF, // WDTOI
@@ -154,7 +156,7 @@ esp_err_t PCA9629A::write(RegisterName register_name, uint8_t value) {
     uint8_t cmd[1];
     cmd[1] = value;
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, (uint8_t)register_name, cmd, 1));
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, static_cast<uint8_t>register_name, cmd, 1));
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
 
     return ESP_OK;
@@ -168,7 +170,7 @@ esp_err_t PCA9629A::write16(RegisterName register_name, uint16_t value) {
     cmd[ 1 ] = value >> 8;
 
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, (uint8_t)register_name, cmd, 2));
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, static_cast<uint8_t>register_name, cmd, 2));
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
 
     return ESP_OK;
@@ -178,7 +180,7 @@ esp_err_t PCA9629A::read(RegisterName register_name, uint8_t& result) {
     uint8_t data;
     
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_read_reg(&i2c_dev, (uint8_t)register_name, &data, 1));
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_read_reg(&i2c_dev, static_cast<uint8_t>register_name, &data, 1));
     I2C_DEV_GIVE_MUTEX(&i2c_dev);    
     
     result = data;
@@ -191,7 +193,7 @@ esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t& result) {
     uint8_t data[ 2 ];
 
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_read_reg(&i2c_dev, (uint8_t)register_name, data, 2));
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_read_reg(&i2c_dev, static_cast<uint8_t>register_name, data, 2));
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
 
     result = (data[ 1 ] << 8 | data[ 0 ]);
