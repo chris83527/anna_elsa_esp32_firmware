@@ -126,18 +126,18 @@ void PCA9629A::init_registers(void) {
         0x00, 0x00, // EXTRASTEPS0, EXTRASTEPS1
         0x50, // OP_CFG_PHS (two-phase drive outputs, OUT[3:0] configured as motor drive outputs)
         0x00, // OP_STAT_TO (default values)
-        0x00, // RUCNTL (default values)
-        0x00, // RDCNTL (default values)
+        0x09, // RUCNTL (default values)
+        0x09, // RDCNTL (default values)
         0x01, // PMA (perform specified motor action once)
-        0x00, // LOOPDLY_CW (default value)
-        0x00, // LOOPDLY_CCW (default value)
-        0x00, 0x00, // CCWSCOUNTL, CCWSCOUNTH
-        0x00, 0x00, // CCWSCOUNTL, CCWSCOUNTH
-        0x00, 0x00, // CWPWL, CWPWH
-        0x00, 0x00, // CCWPWL, CCWPWH
+        0x7D, // LOOPDLY_CW (default value)
+        0x7D, // LOOPDLY_CCW (default value)
+        0xFF, 0x01, // CCWSCOUNTL, CCWSCOUNTH
+        0xFF, 0x01, // CCWSCOUNTL, CCWSCOUNTH
+        0x05, 0x0D, // CWPWL, CWPWH
+        0x05, 0x0D, // CCWPWL, CCWPWH
         0x00, // MCNTL
-        0xE2, 0xE4, 0xE8, // SUBADR1 - SUBADR3
-        0x1E, // ALLCALLADR
+        0xE2, 0xE4, 0xE6, // SUBADR1 - SUBADR3
+        0xE0, // ALLCALLADR
         0x00,0x00,0x00,0x00//STEPCOUNT0 - STEPCOUNT3            
     };
 
