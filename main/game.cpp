@@ -70,7 +70,7 @@ Game::Game(const Game &orig) {
 }
 
 void Game::initialise() {
-    
+
 }
 
 void Game::start() {
@@ -78,14 +78,14 @@ void Game::start() {
     ESP_LOGI(TAG, "Beginning game");
 
     this->isInProgress = true;
-    
+
     random16_add_entropy(esp_random() >> 16);
     random16_add_entropy(esp_random() >> 16);
 
-    mainController->getDisplayController()->resetLampData();    
-    mainController->getDisplayController()->stopAttractMode();    
+    mainController->getDisplayController()->resetLampData();
+    mainController->getDisplayController()->stopAttractMode();
     mainController->getAudioController()->stopPlaying();
-   
+
     uint8_t nudges = random8_to(6); // 0 - 5    
     bool hold = offerHold();
 
@@ -93,35 +93,38 @@ void Game::start() {
     mainController->getDisplayController()->getLampData().at(DisplayController::REEL_LAMP_C2).setLampState(LampState::on);
     mainController->getDisplayController()->getLampData().at(DisplayController::REEL_LAMP_R2).setLampState(LampState::on);
 
-    if (hold) {        
+    if (hold) {
         mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_LO).setLampState(LampState::blinkslow);
         mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD).setLampState(LampState::blinkslow);
         mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_HI).setLampState(LampState::blinkslow);
     }
-    
-    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).setLampState(LampState::blinkslow);   
+
+    mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).setLampState(LampState::blinkslow);
     mainController->getDisplayController()->displayText("PRESS START TO BEGIN");
 
     // loop waiting for button press.
+    holdLeft = false;
+    holdCentre = false;
+    holdRight = false;
+
     std::bitset<8> btnStatus = mainController->getDisplayController()->getButtonStatus();
     while (!btnStatus.test(BTN_START)) {
-        
-        holdLeft = false;
-        holdCentre = false;
-        holdRight = false;
 
         if (hold) {
             if (btnStatus.test(BTN_HOLD)) {
                 holdCentre = true;
                 mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD).setLampState(LampState::on);
+                mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
                 mainController->getDisplayController()->getLampData().at(DisplayController::LMP_COLLECT).setLampState(LampState::blinkslow);
             } else if (btnStatus.test(BTN_HOLD_HI)) {
                 holdLeft = true;
                 mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_HI).setLampState(LampState::on);
+                mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
                 mainController->getDisplayController()->getLampData().at(DisplayController::LMP_COLLECT).setLampState(LampState::blinkslow);
             } else if (btnStatus.test(BTN_HOLD_LO)) {
                 holdRight = true;
                 mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_LO).setLampState(LampState::on);
+                mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
                 mainController->getDisplayController()->getLampData().at(DisplayController::LMP_COLLECT).setLampState(LampState::blinkslow);
             }
 
@@ -187,9 +190,9 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
     uint8_t reelStopCentre = mainController->getReelController()->getReelStopInfo().centreStop;
     uint8_t reelStopRight = mainController->getReelController()->getReelStopInfo().rightStop; 
 
-    if (!holdLeft) reelStopLeft = random8_to(26);
-    if (!holdCentre) reelStopCentre = random8_to(26);
-    if (!holdRight) reelStopRight = random8_to(26);
+    reelStopLeft = holdLeft ? 0 : random8_to(26);
+    reelStopCentre = holdCentre ? 0 : random8_to(26);
+    reelStopRight = holdRight ? 0 : random8_to(26);
 
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).setLampState(LampState::off);
 
@@ -239,13 +242,13 @@ void Game::playNudges(int nudges) {
         mainController->getDisplayController()->resetLampData();
 
         // have to take off 1, because array is zero-indexed        
-        mainController->getDisplayController()->getLampData().at(DisplayController::NUDGE_LAMPS.at(nudges - 1)).setRgb(rgb_from_values(255,255,255));
+        mainController->getDisplayController()->getLampData().at(DisplayController::NUDGE_LAMPS.at(nudges - 1)).setRgb(rgb_from_values(255, 255, 255));
         mainController->getDisplayController()->getLampData().at(DisplayController::NUDGE_LAMPS.at(nudges - 1)).setLampState(LampState::blinkfast);
 
         if (nudges > 1) {
             for (int i = 0; i < (nudges - 1); i++) {
                 mainController->getDisplayController()->getLampData().at(DisplayController::NUDGE_LAMPS.at(i)).setLampState(LampState::on);
-                mainController->getDisplayController()->getLampData().at(DisplayController::NUDGE_LAMPS.at(nudges - 1)).setRgb(rgb_from_values(0,0,255));
+                mainController->getDisplayController()->getLampData().at(DisplayController::NUDGE_LAMPS.at(nudges - 1)).setRgb(rgb_from_values(0, 0, 255));
             }
         }
 
@@ -414,7 +417,7 @@ bool Game::isWinningLine() {
 
 void Game::playFeatureMatrix() {
     uint8_t featureIndex = 0;
-    mainController->getAudioController()->playAudioFile(Sounds::SND_LET_IT_GO);    
+    mainController->getAudioController()->playAudioFile(Sounds::SND_LET_IT_GO);
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).setLampState(LampState::blinkslow);
 
     // loop waiting for button press.
@@ -498,7 +501,7 @@ void Game::playShuffle() {
     } else {
         mainController->getAudioController()->playAudioFile(Sounds::SND_LOSE);
     }
-    
+
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).setLampState(LampState::off);
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_COLLECT).setLampState(LampState::off);
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_HOLD_LO).setLampState(LampState::off);
@@ -526,7 +529,7 @@ void Game::playFreeSpin() {
     } else {
         mainController->getAudioController()->playAudioFile(Sounds::SND_LOSE);
     }
-    
+
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).setLampState(LampState::off);
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_COLLECT).setLampState(LampState::off);
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_TRANSFER).setLampState(LampState::off);
