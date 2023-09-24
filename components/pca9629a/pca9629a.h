@@ -122,6 +122,8 @@ public:
             const uint8_t i2c_address = PCA9629A_I2C_ADDR_BASE,
             const uint32_t clock_speed = I2C_FREQ_HZ
             );
+    
+    ~PCA9629A();
 
     void initialise(void);
     
