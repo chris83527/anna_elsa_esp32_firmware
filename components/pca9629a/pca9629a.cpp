@@ -90,7 +90,7 @@ PCA9629A::~PCA9629A() {
 }
 
 void PCA9629A::initialise() {
-    i2cdev_init();
+    ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());
 
     memset(&i2c_dev, 0, sizeof (i2c_dev_t));
     this->i2c_dev.addr = this->i2c_address;
@@ -106,10 +106,10 @@ void PCA9629A::initialise() {
     if (i2c_dev_create_mutex(&i2c_dev) != ESP_OK) {
         ESP_LOGE(TAG, "failed to create i2c mutex");
         //return ESP_FAIL;
+    } else {
+        //software_reset();
+        init_registers();
     }
-
-    //software_reset();
-    init_registers();
 }
 
 esp_err_t PCA9629A::software_reset(void) {
