@@ -83,17 +83,6 @@ PCA9629A::PCA9629A(
 
     ESP_LOGE(TAG, "Port: %d, sda: %d, scl: %d, i2c_addr: %d, clock speed: %dl", port, i2c_sda, i2c_scl, i2c_address, clock_speed);
 
-    memset(&i2c_dev, 0, sizeof (i2c_dev_t));
-
-    i2c_dev.port = this->port;
-    i2c_dev.addr = this->i2c_address;
-    i2c_dev.cfg.mode = I2C_MODE_MASTER;
-    i2c_dev.cfg.sda_io_num = this->i2c_sda;
-    i2c_dev.cfg.scl_io_num = this->i2c_scl;
-    i2c_dev.cfg.clk_flags = 0;
-    i2c_dev.cfg.master.clk_speed = this->clock_speed;
-
-    i2c_dev_create_mutex(&i2c_dev);
 }
 
 PCA9629A::~PCA9629A() {
@@ -101,6 +90,24 @@ PCA9629A::~PCA9629A() {
 }
 
 void PCA9629A::initialise() {
+    i2cdev_init();
+
+    memset(&i2c_dev, 0, sizeof (i2c_dev_t));
+    this->i2c_dev.addr = this->i2c_address;
+    this->i2c_dev.cfg.mode = I2C_MODE_MASTER;
+    this->i2c_dev.cfg.sda_io_num = this->i2c_sda;
+    this->i2c_dev.cfg.scl_io_num = this->i2c_scl;
+    this->i2c_dev.cfg.sda_pullup_en = GPIO_PULLUP_DISABLE;
+    this->i2c_dev.cfg.scl_pullup_en = GPIO_PULLUP_DISABLE;
+    this->i2c_dev.cfg.clk_flags = 0;
+    this->i2c_dev.cfg.master.clk_speed = this->clock_speed;
+    this->i2c_dev.port = this->port;
+
+    if (i2c_dev_create_mutex(&i2c_dev) != ESP_OK) {
+        ESP_LOGE(TAG, "failed to create i2c mutex");
+        //return ESP_FAIL;
+    }
+
     //software_reset();
     init_registers();
 }
@@ -146,7 +153,7 @@ void PCA9629A::init_registers(void) {
         0x00, 0x00, 0x00, 0x00//STEPCOUNT0 - STEPCOUNT3            
     };
 
-    set_all_registers(init_array, sizeof ( init_array));
+    set_all_registers(init_array, sizeof ( init_array) / sizeof (init_array[0]));
 }
 
 esp_err_t PCA9629A::set_all_registers(uint8_t *data, uint8_t size) {
