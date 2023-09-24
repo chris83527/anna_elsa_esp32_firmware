@@ -230,7 +230,8 @@ void PCA9629A::start(Direction dir, uint16_t step_count, uint8_t repeats) {
 void PCA9629A::startWithHome(Direction dir, uint16_t step_count, uint8_t repeats) {    
     write(REG_MSK, 0x1E); // Enable P0 interrupt
     write(REG_INTSTAT, 0x00); // reset interrupt status register
-    write(REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register 
+    //write(REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register 
+    write(REG_INT_MTR_ACT, 0x81); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register 
     write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
     write(REG_PMA, repeats);
     write(REG_MCNTL, 0x90 | static_cast<uint8_t> (dir));
