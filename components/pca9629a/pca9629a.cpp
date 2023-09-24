@@ -81,7 +81,7 @@ PCA9629A::PCA9629A(
         const uint32_t clock_speed
         ) {
 
-    ESP_LOGE(TAG, "Port: %d, sda: %d, scl: %d, i2c_addr: %d, clock speed: %dl", port, i2c_sda, i2c_scl, i2c_address, clock_speed);
+    ESP_LOGD(TAG, "Port: %d, sda: %d, scl: %d, i2c_addr: %d, clock speed: %dl", port, i2c_sda, i2c_scl, i2c_address, clock_speed);
     this->port = port;
     this->i2c_sda = i2c_sda;
     this->i2c_scl = i2c_scl;

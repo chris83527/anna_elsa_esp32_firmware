@@ -93,12 +93,12 @@ bool ReelController::initialise() {
     rightReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_RIGHT_I2C_ADDRESS, I2C_FREQ_HZ);
     
     this->leftReel->initialise();
-    //this->centreReel.initialise();
-    //this->rightReel.initialise();
+    this->centreReel.initialise();
+    this->rightReel.initialise();
     
     this->leftReel->startWithHome(PCA9629A::Direction::CW, 0, 0); // return to home
-    //this->centreReel.startWithHome(PCA9629A::Direction::CW, 0, 0); // return to home
-    //this->rightReel.startWithHome(PCA9629A::Direction::CW, 0, 0); // return to home
+    this->centreReel.startWithHome(PCA9629A::Direction::CW, 0, 0); // return to home
+    this->rightReel.startWithHome(PCA9629A::Direction::CW, 0, 0); // return to home
     
     return true;
 }
