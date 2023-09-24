@@ -141,8 +141,8 @@ void PCA9629A::init_registers(void) {
         0x00, 0x00, // EXTRASTEPS0, EXTRASTEPS1
         0x50, // OP_CFG_PHS (two-phase drive outputs, OUT[3:0] configured as motor drive outputs)
         0x00, // OP_STAT_TO (default values)
-        0x09, // RUCNTL (default values)
-        0x09, // RDCNTL (default values)
+        0x00, // RUCNTL (default values)
+        0x00, // RDCNTL (default values)
         0x01, // PMA (perform specified motor action once)
         0x7D, // LOOPDLY_CW (default value)
         0x7D, // LOOPDLY_CCW (default value)
