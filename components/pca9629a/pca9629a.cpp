@@ -148,8 +148,8 @@ void PCA9629A::init_registers(void) {
         0x7D, // LOOPDLY_CCW (default value)
         0xFF, 0x01, // CCWSCOUNTL, CCWSCOUNTH
         0xFF, 0x01, // CCWSCOUNTL, CCWSCOUNTH
-        0x05, 0x0D, // CWPWL, CWPWH
-        0x05, 0x0D, // CCWPWL, CCWPWH
+        0x05, 0x1f, // CWPWL, CWPWH
+        0x05, 0x1f, // CCWPWL, CCWPWH
         0x00, // MCNTL
         0xE2, 0xE4, 0xE6, // SUBADR1 - SUBADR3
         0xE0, // ALLCALLADR
