@@ -86,6 +86,7 @@ PCA9629A::PCA9629A(
 
 void PCA9629A::initialise() {
     memset(&i2c_dev, 0, sizeof(i2c_dev_t));
+    
     i2c_dev.port = this->port;
     i2c_dev.addr = this->i2c_address;
     i2c_dev.cfg.mode = I2C_MODE_MASTER;
@@ -152,9 +153,10 @@ esp_err_t PCA9629A::set_all_registers(uint8_t *data, uint8_t size) {
     return ESP_OK;
 }
 
-esp_err_t PCA9629A::write(RegisterName register_name, uint8_t value) {
+esp_err_t PCA9629A::write(RegisterName register_name, const uint8_t value) {
     uint8_t cmd[1];
     cmd[0] = value;
+    
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
     I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, static_cast<uint8_t>(register_name), cmd, 1));
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
@@ -162,7 +164,7 @@ esp_err_t PCA9629A::write(RegisterName register_name, uint8_t value) {
     return ESP_OK;
 }
 
-esp_err_t PCA9629A::write16(RegisterName register_name, uint16_t value) {
+esp_err_t PCA9629A::write16(RegisterName register_name, const uint16_t value) {
 
     uint8_t cmd[ 2 ];
 

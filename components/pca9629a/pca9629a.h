@@ -188,7 +188,7 @@ private:
      *  @param register_name the register name: data writing into
      *  @param value 8 bits writing data
      */
-    esp_err_t write(RegisterName register_name, uint8_t value);
+    esp_err_t write(RegisterName register_name, const uint8_t value);
 
     /** Write 2 bytes data into a register
      *
@@ -197,7 +197,7 @@ private:
      *  @param register_name the register name: data writing into (it can be "SROTN_", "CWPW_", "CCWPW_", "CWRCOUNT_", "CCWSCOUNT_", "CWRCOUNT_" or "CCWRCOUNT_" )
      *  @param value 16 bits writing data
      */
-    esp_err_t write16(RegisterName register_name, uint16_t value);
+    esp_err_t write16(RegisterName register_name, const uint16_t value);
 
     /** Read 1 byte data from a register
      *
