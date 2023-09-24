@@ -127,7 +127,8 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
 }
 
 void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, const uint8_t rightStop) {
-
+    ESP_LOGI(TAG, "shuffle() called: leftStop: %d, centreStop: %d, rightStop: %d", leftStop, centreStop, rightStop);
+    
     this->commandInProgress = true;
     this->reelStopInfo.leftStop = leftStop;
     this->reelStopInfo.centreStop = centreStop;
@@ -136,6 +137,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     int leftSteps = ((this->reelStopInfo.leftStop + 75) * STEPS_PER_STOP);
     int centreSteps = ((this->reelStopInfo.centreStop + 50) * STEPS_PER_STOP);
     int rightSteps = ((this->reelStopInfo.rightStop + 25) * STEPS_PER_STOP);
+       
        
     leftReel->startWithHome(PCA9629A::Direction::CW, leftSteps, 0);
     centreReel->startWithHome(PCA9629A::Direction::CCW, centreSteps, 0);
@@ -149,7 +151,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
 void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, const uint8_t rightStops) {
 
     this->commandInProgress = true;
-    //ESP_LOGD(TAG, "nudge() called: leftStops: %d, midStops: %d, rightStops: %d", leftStops, midStops, rightStops);
+    ESP_LOGI(TAG, "nudge() called: leftStops: %d, centreStops: %d, rightStops: %d", leftStops, centreStops, rightStops);
 
     this->reelStopInfo.leftStop += leftStops;
     this->reelStopInfo.centreStop += centreStops;
@@ -158,10 +160,14 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     int leftSteps = leftStops * STEPS_PER_STOP;
     int centreSteps = centreStops * STEPS_PER_STOP;
     int rightSteps = rightStops * STEPS_PER_STOP;
+    
+    ESP_LOGI(TAG, "nudge: leftSteps: %d, centreSteps: %d, rightSteps: %d", leftSteps, centreSteps, rightSteps);
 
     leftReel->start(PCA9629A::Direction::CW, leftSteps, 0);
     centreReel->start(PCA9629A::Direction::CW, centreSteps, 0);
     rightReel->start(PCA9629A::Direction::CW, rightSteps, 0);
+    
+    // TODO - Poll registers to see when motors have finished
 
     this->commandInProgress = false;
 }
