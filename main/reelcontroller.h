@@ -99,9 +99,9 @@ private:
 
     MainController* mainController;    
 
-    PCA9629A leftReel = PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_LEFT_I2C_ADDRESS, I2C_FREQ_HZ);
-   // PCA9629A centreReel = PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_CENTRE_I2C_ADDRESS, I2C_FREQ_HZ);
-   // PCA9629A rightReel = PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_RIGHT_I2C_ADDRESS, I2C_FREQ_HZ);
+    PCA9629A leftReel;
+    PCA9629A centreReel; 
+    PCA9629A rightReel;
 };
 
 #endif /* __WAVE_H__ */

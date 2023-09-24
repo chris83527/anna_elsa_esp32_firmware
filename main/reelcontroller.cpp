@@ -88,6 +88,10 @@ bool ReelController::initialise() {
     /* Switch off to start */
     gpio_set_level(GPIO_MOTOR_EN, 1);
     
+    leftReel = PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_LEFT_I2C_ADDRESS, I2C_FREQ_HZ);
+    centreReel = PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_CENTRE_I2C_ADDRESS, I2C_FREQ_HZ);
+    rightReel = PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_RIGHT_I2C_ADDRESS, I2C_FREQ_HZ);
+    
     this->leftReel.initialise();
     //this->centreReel.initialise();
     //this->rightReel.initialise();
