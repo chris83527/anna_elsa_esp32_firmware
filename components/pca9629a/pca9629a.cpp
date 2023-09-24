@@ -180,14 +180,14 @@ esp_err_t PCA9629A::write(RegisterName register_name, const uint8_t value) {
 
 esp_err_t PCA9629A::write16(RegisterName register_name, const uint16_t value) {
 
-    uint8_t cmd[ 3 ];
-
-    cmd[ 0 ] = static_cast<uint8_t> (register_name);
-    cmd[ 1 ] = value & 0xFF;
-    cmd[ 2 ] = value >> 8;
+    uint8_t cmd[ 2 ];
+    
+    cmd[ 0 ] = value & 0xFF;
+    cmd[ 1 ] = value >> 8;
 
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write(&i2c_dev, NULL, 0, cmd, 3));
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, (static_cast<uint8_t> (register_name)), cmd, 1));
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, (static_cast<uint8_t> (register_name)) + 1, cmd + 1, 1));
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
 
     return ESP_OK;
@@ -220,6 +220,7 @@ esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t& result) {
 
 void PCA9629A::start(Direction dir, uint16_t step_count, uint8_t repeats) {
     write(REG_INT_MTR_ACT, 0x00);
+    write(REG_INTSTAT, 0x00); // reset interrupt status register
     write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
     write(REG_PMA, repeats);
     //    write(REG_MCNTL, 0xA8 | dir);
