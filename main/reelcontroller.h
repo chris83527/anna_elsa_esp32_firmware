@@ -99,9 +99,9 @@ private:
 
     MainController* mainController;    
 
-    PCA9629A leftReel;
-    PCA9629A centreReel; 
-    PCA9629A rightReel;
+    PCA9629A* leftReel;
+    PCA9629A* centreReel; 
+    PCA9629A* rightReel;
 };
 
 #endif /* __WAVE_H__ */

@@ -88,15 +88,15 @@ bool ReelController::initialise() {
     /* Switch off to start */
     gpio_set_level(GPIO_MOTOR_EN, 1);
     
-    leftReel = PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_LEFT_I2C_ADDRESS, I2C_FREQ_HZ);
-    centreReel = PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_CENTRE_I2C_ADDRESS, I2C_FREQ_HZ);
-    rightReel = PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_RIGHT_I2C_ADDRESS, I2C_FREQ_HZ);
+    leftReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_LEFT_I2C_ADDRESS, I2C_FREQ_HZ);
+    centreReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_CENTRE_I2C_ADDRESS, I2C_FREQ_HZ);
+    rightReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_RIGHT_I2C_ADDRESS, I2C_FREQ_HZ);
     
-    this->leftReel.initialise();
+    this->leftReel->initialise();
     //this->centreReel.initialise();
     //this->rightReel.initialise();
     
-    this->leftReel.startWithHome(PCA9629A::Direction::CW, 0, 0); // return to home
+    this->leftReel->startWithHome(PCA9629A::Direction::CW, 0, 0); // return to home
     //this->centreReel.startWithHome(PCA9629A::Direction::CW, 0, 0); // return to home
     //this->rightReel.startWithHome(PCA9629A::Direction::CW, 0, 0); // return to home
     
@@ -117,7 +117,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     int centreSteps = ((this->reelStopInfo.centreStop + 50) * STEPS_PER_STOP);
     int rightSteps = ((this->reelStopInfo.rightStop + 25) * STEPS_PER_STOP);
        
-    leftReel.startWithHome(PCA9629A::Direction::CW, leftSteps, 0);
+    leftReel->startWithHome(PCA9629A::Direction::CW, leftSteps, 0);
     //centreReel.startWithHome(PCA9629A::Direction::CW, centreSteps, 0);
    // rightReel.startWithHome(PCA9629A::Direction::CW, rightSteps, 0);
     
@@ -137,7 +137,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     int centreSteps = ((this->reelStopInfo.centreStop + 50) * STEPS_PER_STOP);
     int rightSteps = ((this->reelStopInfo.rightStop + 25) * STEPS_PER_STOP);
        
-    leftReel.startWithHome(PCA9629A::Direction::CW, leftSteps, 0);
+    leftReel->startWithHome(PCA9629A::Direction::CW, leftSteps, 0);
     //centreReel.startWithHome(PCA9629A::Direction::CCW, centreSteps, 0);
     //rightReel.startWithHome(PCA9629A::Direction::CW, rightSteps, 0);
     
@@ -159,7 +159,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     int centreSteps = centreStops * STEPS_PER_STOP;
     int rightSteps = rightStops * STEPS_PER_STOP;
 
-    leftReel.start(PCA9629A::Direction::CW, leftSteps, 0);
+    leftReel->start(PCA9629A::Direction::CW, leftSteps, 0);
     //centreReel.start(PCA9629A::Direction::CW, centreSteps, 0);
     //rightReel.start(PCA9629A::Direction::CW, rightSteps, 0);
 
