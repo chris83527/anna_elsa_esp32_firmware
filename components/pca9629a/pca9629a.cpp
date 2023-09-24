@@ -82,7 +82,11 @@ PCA9629A::PCA9629A(
         ) {
 
     ESP_LOGE(TAG, "Port: %d, sda: %d, scl: %d, i2c_addr: %d, clock speed: %dl", port, i2c_sda, i2c_scl, i2c_address, clock_speed);
-
+    this->port = port;
+    this->i2c_sda = i2c_sda;
+    this->i2c_scl = i2c_scl;
+    this->i2c_address = i2c_address;
+    this->clock_speed = clock_speed;
 }
 
 PCA9629A::~PCA9629A() {
