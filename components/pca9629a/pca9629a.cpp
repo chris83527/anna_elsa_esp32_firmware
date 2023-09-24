@@ -93,8 +93,7 @@ PCA9629A::~PCA9629A() {
     i2c_dev_delete_mutex(&i2c_dev);
 }
 
-void PCA9629A::initialise() {
-    ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());
+void PCA9629A::initialise() {    
 
     memset(&i2c_dev, 0, sizeof (i2c_dev_t));
     this->i2c_dev.addr = this->i2c_address;
@@ -130,7 +129,7 @@ esp_err_t PCA9629A::software_reset(void) {
 void PCA9629A::init_registers(void) {
     ESP_LOGI(TAG, "pca9629a init_registers");
     uint8_t init_array[] = {0x80, //  register access start address (0x00) with incremental access flag (MSB)
-        0x10, // MODE
+        0x20, // MODE
         0xFF, // WDTOI
         0x00, // WDCNTL
         0x01, // IO_CFG (P0 configured as input)

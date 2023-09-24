@@ -245,7 +245,7 @@ void MainController::start() {
         oledController->scrollText("  -> ok");
     }
 
-        this->displayController->displayText("INITIALISING 10");
+    this->displayController->displayText("INITIALISING 10");
     oledController->scrollText("Init reels");
     if (!reelController->initialise()) {
         oledController->scrollText("  -> failed");
@@ -275,7 +275,7 @@ void MainController::start() {
     this->displayController->displayText("INITIALISING 13");
     for (;;) {
         if ((!game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
-            ESP_LOGD(TAG, "Starting game...");            
+            ESP_LOGD(TAG, "Starting game...");
             game->start();
         } else {
             if (!getDisplayController()->isAttractMode()) {
