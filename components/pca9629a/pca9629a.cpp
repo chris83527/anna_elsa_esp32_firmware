@@ -130,14 +130,14 @@ void PCA9629A::init_registers(void) {
     ESP_LOGI(TAG, "pca9629a init_registers");
     uint8_t init_array[] = {0x80, //  register access start address (0x00) with incremental access flag (MSB)
         0x20, // MODE
-        0xFF, // WDTOI
+        0x0A, // WDTOI (10 second timeout)
         0x00, // WDCNTL
         0x01, // IO_CFG (P0 configured as input)
         0x21, // INTMODE (interrupt on falling edge for P0, 1ms noise suppression)
         0x1E, // MSK (Enable interrupt for I/O P0)
         0x00, // INTSTAT (Clears interrupt status register)
         0x00, // IP (read only register, writes to this register have no effect)
-        0x01, // INT_MTR_ACT (stop motor on interrupt caused by P0)
+        0x81, // INT_MTR_ACT (stop motor on interrupt caused by P0)
         0x00, 0x00, // EXTRASTEPS0, EXTRASTEPS1
         0x50, // OP_CFG_PHS (two-phase drive outputs, OUT[3:0] configured as motor drive outputs)
         0x05, // OP_STAT_TO (output pins = HOLD)
@@ -148,12 +148,11 @@ void PCA9629A::init_registers(void) {
         0x7D, // LOOPDLY_CCW (default value)
         0xFF, 0x01, // CCWSCOUNTL, CCWSCOUNTH
         0xFF, 0x01, // CCWSCOUNTL, CCWSCOUNTH
-        0x05, 0x1f, // CWPWL, CWPWH
-        0x05, 0x1f, // CCWPWL, CCWPWH
-        0x00, // MCNTL
+        0x05, 0x0F, // CWPWL, CWPWH
+        0x05, 0x0F, // CCWPWL, CCWPWH
+        0x20, // MCNTL
         0xE2, 0xE4, 0xE6, // SUBADR1 - SUBADR3
         0xE0, // ALLCALLADR
-//        0x00, 0x00, 0x00, 0x00//STEPCOUNT0 - STEPCOUNT3            
     };
 
     set_all_registers(init_array, sizeof ( init_array) / sizeof (init_array[0]));
@@ -234,7 +233,7 @@ void PCA9629A::startWithHome(Direction dir, uint16_t step_count, uint8_t repeats
     write(REG_INT_MTR_ACT, 0x81); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register 
     write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
     write(REG_PMA, repeats);
-    write(REG_MCNTL, 0x80 | static_cast<uint8_t> (dir));
+    write(REG_MCNTL, 0x90 | static_cast<uint8_t> (dir));
 }
 
 void PCA9629A::stop(void) {
