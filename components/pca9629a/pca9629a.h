@@ -154,7 +154,7 @@ public:
      * @param steps
      * @param repeats 
      */
-    void startWithHome(Direction dir, uint16_t steps, uint8_t repeats);
+    void home(Direction dir);
 
     /** Motor stop
      *

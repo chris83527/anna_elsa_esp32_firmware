@@ -96,9 +96,9 @@ bool ReelController::initialise() {
     this->centreReel->initialise();
     this->rightReel->initialise();
     
-    this->leftReel->startWithHome(PCA9629A::Direction::CW, 0, 0); // return to home
-    this->centreReel->startWithHome(PCA9629A::Direction::CW, 0, 0); // return to home
-    this->rightReel->startWithHome(PCA9629A::Direction::CW, 0, 0); // return to home
+    this->leftReel->home(PCA9629A::Direction::CW); // return to home
+    this->centreReel->home(PCA9629A::Direction::CCW); // return to home
+    this->rightReel->home(PCA9629A::Direction::CW); // return to home
     
     return true;
 }
@@ -117,9 +117,9 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     int centreSteps = ((this->reelStopInfo.centreStop + 50) * STEPS_PER_STOP);
     int rightSteps = ((this->reelStopInfo.rightStop + 25) * STEPS_PER_STOP);
        
-    leftReel->startWithHome(PCA9629A::Direction::CW, leftSteps, 0);
-    centreReel->startWithHome(PCA9629A::Direction::CW, centreSteps, 0);
-    rightReel->startWithHome(PCA9629A::Direction::CW, rightSteps, 0);
+    leftReel->home(PCA9629A::Direction::CW);
+    centreReel->home(PCA9629A::Direction::CW);
+    rightReel->home(PCA9629A::Direction::CW);
     
     // TODO - Poll registers to see when motors have finished
     
@@ -139,9 +139,9 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     int rightSteps = ((this->reelStopInfo.rightStop + 25) * STEPS_PER_STOP);
        
        
-    leftReel->startWithHome(PCA9629A::Direction::CW, leftSteps, 0);
-    centreReel->startWithHome(PCA9629A::Direction::CCW, centreSteps, 0);
-    rightReel->startWithHome(PCA9629A::Direction::CW, rightSteps, 0);
+    leftReel->home(PCA9629A::Direction::CW);
+    centreReel->home(PCA9629A::Direction::CCW);
+    rightReel->home(PCA9629A::Direction::CW);
     
     // TODO - Poll registers to see when motors have finished
     
