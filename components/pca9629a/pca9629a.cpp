@@ -242,7 +242,7 @@ bool PCA9629A::isStopped() {
     I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_read(&i2c_dev, NULL, 0, data, sizeof (data)), "An error occurred reading registers");
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
     
-    return data[0] & 0x80 == 0;
+    return ((data[0] & 0x80) == 0);
 }
 
 void PCA9629A::stop(void) {
