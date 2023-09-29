@@ -117,18 +117,18 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     int centreSteps = ((this->reelStopInfo.centreStop + 50) * STEPS_PER_STOP);
     int rightSteps = ((this->reelStopInfo.rightStop + 25) * STEPS_PER_STOP);
        
-   leftReel->home(PCA9629A::Direction::CW);
-    centreReel->home(PCA9629A::Direction::CW);
-    rightReel->home(PCA9629A::Direction::CW);
+//   leftReel->home(PCA9629A::Direction::CW);
+//    centreReel->home(PCA9629A::Direction::CW);
+//    rightReel->home(PCA9629A::Direction::CW);
+//    
+//    // Loop waiting for reels to home
+//    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
+//        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+//    }
     
-    // Loop waiting for reels to home
-    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
-    }
-    
-    leftReel->start(PCA9629A::Direction::CW, leftSteps, 1);
-    centreReel->start(PCA9629A::Direction::CW, centreSteps, 1);
-    rightReel->start(PCA9629A::Direction::CW, rightSteps, 1);
+    leftReel->start(PCA9629A::Direction::CW, leftSteps, 1, true);
+    centreReel->start(PCA9629A::Direction::CW, centreSteps, 1, true);
+    rightReel->start(PCA9629A::Direction::CW, rightSteps, 1, true);
     
     // Loop waiting for reels to stop    
     bool leftFinished = false;
@@ -170,18 +170,18 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     int rightSteps = ((this->reelStopInfo.rightStop + 25) * STEPS_PER_STOP);
        
        
-    leftReel->home(PCA9629A::Direction::CW);
-    centreReel->home(PCA9629A::Direction::CCW);
-    rightReel->home(PCA9629A::Direction::CW);
+//    leftReel->home(PCA9629A::Direction::CW);
+//    centreReel->home(PCA9629A::Direction::CCW);
+//    rightReel->home(PCA9629A::Direction::CW);
+//    
+//    // Loop waiting for reels to home
+//    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
+//        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+//    }
     
-    // Loop waiting for reels to home
-    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
-    }
-    
-    leftReel->start(PCA9629A::Direction::CW, leftSteps, 1);
-    centreReel->start(PCA9629A::Direction::CCW, centreSteps, 1);
-    rightReel->start(PCA9629A::Direction::CW, rightSteps, 1);
+    leftReel->start(PCA9629A::Direction::CW, leftSteps, 1, true);
+    centreReel->start(PCA9629A::Direction::CCW, centreSteps, 1, true);
+    rightReel->start(PCA9629A::Direction::CW, rightSteps, 1, true);
     
     // Loop waiting for reels to stop    
     bool leftFinished = false;
@@ -225,9 +225,9 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     
     ESP_LOGI(TAG, "nudge: leftSteps: %d, centreSteps: %d, rightSteps: %d", leftSteps, centreSteps, rightSteps);
 
-    leftReel->start(PCA9629A::Direction::CW, leftSteps, 1);
-    centreReel->start(PCA9629A::Direction::CW, centreSteps, 1);
-    rightReel->start(PCA9629A::Direction::CW, rightSteps, 1);
+    leftReel->start(PCA9629A::Direction::CW, leftSteps, 1, false);
+    centreReel->start(PCA9629A::Direction::CW, centreSteps, 1, false);
+    rightReel->start(PCA9629A::Direction::CW, rightSteps, 1, false);
     
     // Loop waiting for reels to stop    
     bool leftFinished = false;
