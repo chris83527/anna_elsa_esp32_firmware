@@ -239,7 +239,7 @@ bool PCA9629A::isStopped() {
     uint8_t data[1];
     
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_read(&i2c_dev, REG_MNCTL, 1, data, sizeof (data)), "An error occurred reading registers");
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_read(&i2c_dev, static_cast<uint8_t>(REG_MNCTL), 1, data, sizeof (data)), "An error occurred reading registers");
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
     
     return ((data[0] & 0x80) == 0);
