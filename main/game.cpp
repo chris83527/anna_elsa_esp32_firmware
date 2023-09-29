@@ -198,14 +198,7 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
 
     this->mainController->getDisplayController()->displayText("    LET IT GO!!     ");
 
-    mainController->getReelController()->spin(reelStopLeft, reelStopCentre, reelStopRight);
-
-    // FIXME: this is never called, because spin waits for the reels to stop so the loop never executes
-    while (mainController->getReelController()->isCommandInProgress()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        this->moves = random8_to(13);
-        this->mainController->getDisplayController()->setMoves(this->moves); // TODO: fix this
-    }
+    mainController->getReelController()->spin(reelStopLeft, reelStopCentre, reelStopRight);    
 
     ESP_LOGI(TAG, "Exiting spinReels()");
 }
@@ -398,7 +391,7 @@ bool Game::isWinningLine() {
     uint8_t centreSymbolId = symbolsCentreReel[centrePos];
     uint8_t rightSymbolId = symbolsRightReel[rightPos];
 
-    //ESP_LOGI(TAG, "Reel positions: %s - %s - %s", this->symbolMap[leftSymbolId].c_str(), this->symbolMap[centreSymbolId].c_str(), this->symbolMap[rightSymbolId].c_str());
+    ESP_LOGI(TAG, "Reel positions: %s - %s - %s", this->symbolMap[leftSymbolId].c_str(), this->symbolMap[centreSymbolId].c_str(), this->symbolMap[rightSymbolId].c_str());
 
     for (int i = 0; i < 7; i++) {
 

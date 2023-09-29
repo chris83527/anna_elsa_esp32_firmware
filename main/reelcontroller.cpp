@@ -83,9 +83,9 @@ bool ReelController::initialise() {
 
     // MOTOR_EN is on a GPIO
     gpio_pad_select_gpio(GPIO_MOTOR_EN);
-    /* Set the GPIO as a push/pull output */
+    // Set the GPIO as a push/pull output
     gpio_set_direction(GPIO_MOTOR_EN, GPIO_MODE_OUTPUT);
-    /* Switch off to start */
+    // Switch on
     gpio_set_level(GPIO_MOTOR_EN, 1);
     
     leftReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_LEFT_I2C_ADDRESS, I2C_FREQ_HZ);
@@ -100,6 +100,11 @@ bool ReelController::initialise() {
     this->centreReel->home(PCA9629A::Direction::CCW); // return to home
     this->rightReel->home(PCA9629A::Direction::CW); // return to home
     
+    // Wait for reels to stop
+    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+    
     return true;
 }
 
@@ -111,20 +116,10 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     this->reelStopInfo.leftStop = leftStop;
     this->reelStopInfo.centreStop = centreStop;
     this->reelStopInfo.rightStop = rightStop;
-      
-    
+          
     int leftSteps = ((this->reelStopInfo.leftStop + 75) * STEPS_PER_STOP);
     int centreSteps = ((this->reelStopInfo.centreStop + 50) * STEPS_PER_STOP);
-    int rightSteps = ((this->reelStopInfo.rightStop + 25) * STEPS_PER_STOP);
-       
-//   leftReel->home(PCA9629A::Direction::CW);
-//    centreReel->home(PCA9629A::Direction::CW);
-//    rightReel->home(PCA9629A::Direction::CW);
-//    
-//    // Loop waiting for reels to home
-//    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
-//        std::this_thread::sleep_for(std::chrono::milliseconds(20));
-//    }
+    int rightSteps = ((this->reelStopInfo.rightStop + 25) * STEPS_PER_STOP);       
     
     leftReel->start(PCA9629A::Direction::CW, leftSteps, 1, true);
     centreReel->start(PCA9629A::Direction::CW, centreSteps, 1, true);
@@ -134,8 +129,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     bool leftFinished = false;
     bool centreFinished = false;
     bool rightFinished = false;
-    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {        
         
         if (leftReel->isStopped() && !leftFinished) {
             this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
@@ -152,6 +146,10 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
             rightFinished = true;
         }
         
+        uint8_t moves = random8_to(13);
+        this->mainController->getDisplayController()->setMoves(moves);
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
     
     this->commandInProgress = false;
@@ -168,17 +166,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     int leftSteps = ((this->reelStopInfo.leftStop + 75) * STEPS_PER_STOP);
     int centreSteps = ((this->reelStopInfo.centreStop + 50) * STEPS_PER_STOP);
     int rightSteps = ((this->reelStopInfo.rightStop + 25) * STEPS_PER_STOP);
-       
-       
-//    leftReel->home(PCA9629A::Direction::CW);
-//    centreReel->home(PCA9629A::Direction::CCW);
-//    rightReel->home(PCA9629A::Direction::CW);
-//    
-//    // Loop waiting for reels to home
-//    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
-//        std::this_thread::sleep_for(std::chrono::milliseconds(20));
-//    }
-    
+                
     leftReel->start(PCA9629A::Direction::CW, leftSteps, 1, true);
     centreReel->start(PCA9629A::Direction::CCW, centreSteps, 1, true);
     rightReel->start(PCA9629A::Direction::CW, rightSteps, 1, true);
@@ -187,8 +175,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     bool leftFinished = false;
     bool centreFinished = false;
     bool rightFinished = false;
-    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {        
         
         if (leftReel->isStopped() && !leftFinished) {
             this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
@@ -205,6 +192,10 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
             rightFinished = true;
         }
         
+        uint8_t moves = random8_to(13);
+        this->mainController->getDisplayController()->setMoves(moves);
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }            
     
     this->commandInProgress = false;
