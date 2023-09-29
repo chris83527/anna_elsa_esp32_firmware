@@ -96,9 +96,9 @@ bool ReelController::initialise() {
     this->centreReel->initialise();
     this->rightReel->initialise();
     
-    this->leftReel->home(PCA9629A::Direction::CW); // return to home
-    this->centreReel->home(PCA9629A::Direction::CCW); // return to home
-    this->rightReel->home(PCA9629A::Direction::CW); // return to home
+    this->leftReel->home(PCA9629A::Direction::CCW); // return to home
+    this->centreReel->home(PCA9629A::Direction::CW); // return to home
+    this->rightReel->home(PCA9629A::Direction::CCW); // return to home
     
     // Wait for reels to stop
     while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
@@ -117,13 +117,13 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     this->reelStopInfo.centreStop = centreStop;
     this->reelStopInfo.rightStop = rightStop;
           
-    int leftSteps = ((this->reelStopInfo.leftStop + 75) * STEPS_PER_STOP);
-    int centreSteps = ((this->reelStopInfo.centreStop + 50) * STEPS_PER_STOP);
-    int rightSteps = ((this->reelStopInfo.rightStop + 25) * STEPS_PER_STOP);       
+    int leftSteps = ((this->reelStopInfo.leftStop) * STEPS_PER_STOP);
+    int centreSteps = ((this->reelStopInfo.centreStop) * STEPS_PER_STOP);
+    int rightSteps = ((this->reelStopInfo.rightStop) * STEPS_PER_STOP);       
     
-    leftReel->start(PCA9629A::Direction::CW, leftSteps, 1, true);
-    centreReel->start(PCA9629A::Direction::CW, centreSteps, 1, true);
-    rightReel->start(PCA9629A::Direction::CW, rightSteps, 1, true);
+    leftReel->start(PCA9629A::Direction::CCW, leftSteps, 1, true);
+    centreReel->start(PCA9629A::Direction::CCW, centreSteps, 1, true);
+    rightReel->start(PCA9629A::Direction::CCW, rightSteps, 1, true);
     
     // Loop waiting for reels to stop    
     bool leftFinished = false;
@@ -163,13 +163,13 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     this->reelStopInfo.centreStop = centreStop;
     this->reelStopInfo.rightStop = rightStop;
 
-    int leftSteps = ((this->reelStopInfo.leftStop + 75) * STEPS_PER_STOP);
-    int centreSteps = ((this->reelStopInfo.centreStop + 50) * STEPS_PER_STOP);
-    int rightSteps = ((this->reelStopInfo.rightStop + 25) * STEPS_PER_STOP);
+    int leftSteps = ((this->reelStopInfo.leftStop) * STEPS_PER_STOP);
+    int centreSteps = ((this->reelStopInfo.centreStop) * STEPS_PER_STOP);
+    int rightSteps = ((this->reelStopInfo.rightStop) * STEPS_PER_STOP);
                 
-    leftReel->start(PCA9629A::Direction::CW, leftSteps, 1, true);
-    centreReel->start(PCA9629A::Direction::CCW, centreSteps, 1, true);
-    rightReel->start(PCA9629A::Direction::CW, rightSteps, 1, true);
+    leftReel->start(PCA9629A::Direction::CCW, leftSteps, 1, true);
+    centreReel->start(PCA9629A::Direction::CW, centreSteps, 1, true);
+    rightReel->start(PCA9629A::Direction::CCW, rightSteps, 1, true);
     
     // Loop waiting for reels to stop    
     bool leftFinished = false;
