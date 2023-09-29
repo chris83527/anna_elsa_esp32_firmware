@@ -126,9 +126,9 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
     
-    leftReel->start(PCA9629A::Direction::CW, leftSteps, 0);
-    centreReel->start(PCA9629A::Direction::CW, centreSteps, 0);
-    rightReel->start(PCA9629A::Direction::CW, rightSteps, 0);
+    leftReel->start(PCA9629A::Direction::CW, leftSteps, 1);
+    centreReel->start(PCA9629A::Direction::CW, centreSteps, 1);
+    rightReel->start(PCA9629A::Direction::CW, rightSteps, 1);
     
     // Loop waiting for reels to stop    
     bool leftFinished = false;
@@ -179,9 +179,9 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
     
-    leftReel->start(PCA9629A::Direction::CW, leftSteps, 0);
-    centreReel->start(PCA9629A::Direction::CCW, centreSteps, 0);
-    rightReel->start(PCA9629A::Direction::CW, rightSteps, 0);
+    leftReel->start(PCA9629A::Direction::CW, leftSteps, 1);
+    centreReel->start(PCA9629A::Direction::CCW, centreSteps, 1);
+    rightReel->start(PCA9629A::Direction::CW, rightSteps, 1);
     
     // Loop waiting for reels to stop    
     bool leftFinished = false;
@@ -225,9 +225,9 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     
     ESP_LOGI(TAG, "nudge: leftSteps: %d, centreSteps: %d, rightSteps: %d", leftSteps, centreSteps, rightSteps);
 
-    leftReel->start(PCA9629A::Direction::CW, leftSteps, 0);
-    centreReel->start(PCA9629A::Direction::CW, centreSteps, 0);
-    rightReel->start(PCA9629A::Direction::CW, rightSteps, 0);
+    leftReel->start(PCA9629A::Direction::CW, leftSteps, 1);
+    centreReel->start(PCA9629A::Direction::CW, centreSteps, 1);
+    rightReel->start(PCA9629A::Direction::CW, rightSteps, 1);
     
     // Loop waiting for reels to stop    
     bool leftFinished = false;
