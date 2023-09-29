@@ -185,8 +185,8 @@ esp_err_t PCA9629A::write16(RegisterName register_name, const uint16_t value) {
     cmd[ 1 ] = value >> 8;
 
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, (static_cast<uint8_t> (register_name)), cmd, 1));
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, (static_cast<uint8_t> (register_name)) + 1, cmd + 1, 1));
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, (static_cast<uint8_t> (register_name)), &cmd[0], 1));
+    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, (static_cast<uint8_t> (register_name)) + 1, &cmd[1], 1));
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
 
     return ESP_OK;
@@ -212,7 +212,7 @@ esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t& result) {
     I2C_DEV_CHECK(&i2c_dev, i2c_dev_read_reg(&i2c_dev, static_cast<uint8_t> (register_name), data, 2));
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
 
-    result = (data[ 1 ] << 8 | data[ 0 ]);
+    result = (data[ 0 ] << 8 | data[ 1 ]);
 
     return ESP_OK;
 }
@@ -236,7 +236,7 @@ void PCA9629A::home(Direction dir) {
 }
 
 bool PCA9629A::isStopped() {
-    uint8_t data[0];
+    uint8_t data[1];
     
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
     I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_read(&i2c_dev, REG_MNCTL, 1, data, sizeof (data)), "An error occurred reading registers");
