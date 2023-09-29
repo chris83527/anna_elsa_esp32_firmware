@@ -117,11 +117,42 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     int centreSteps = ((this->reelStopInfo.centreStop + 50) * STEPS_PER_STOP);
     int rightSteps = ((this->reelStopInfo.rightStop + 25) * STEPS_PER_STOP);
        
-    leftReel->home(PCA9629A::Direction::CW);
+   leftReel->home(PCA9629A::Direction::CW);
     centreReel->home(PCA9629A::Direction::CW);
     rightReel->home(PCA9629A::Direction::CW);
     
-    // TODO - Poll registers to see when motors have finished
+    // Loop waiting for reels to home
+    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+    
+    leftReel->start(PCA9629A::Direction::CW, leftSteps, 0);
+    centreReel->start(PCA9629A::Direction::CW, centreSteps, 0);
+    rightReel->start(PCA9629A::Direction::CW, rightSteps, 0);
+    
+    // Loop waiting for reels to stop    
+    bool leftFinished = false;
+    bool centreFinished = false;
+    bool rightFinished = false;
+    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        
+        if (leftReel->isStopped() && !leftFinished) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
+            leftFinished = true;
+        }
+        
+        if (centreReel->isStopped() && !leftFinished) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
+            centreFinished = true;
+        }
+        
+        if (rightReel->isStopped() && !leftFinished) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
+            rightFinished = true;
+        }
+        
+    }
     
     this->commandInProgress = false;
 }
@@ -143,7 +174,38 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     centreReel->home(PCA9629A::Direction::CCW);
     rightReel->home(PCA9629A::Direction::CW);
     
-    // TODO - Poll registers to see when motors have finished
+    // Loop waiting for reels to home
+    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+    
+    leftReel->start(PCA9629A::Direction::CW, leftSteps, 0);
+    centreReel->start(PCA9629A::Direction::CCW, centreSteps, 0);
+    rightReel->start(PCA9629A::Direction::CW, rightSteps, 0);
+    
+    // Loop waiting for reels to stop    
+    bool leftFinished = false;
+    bool centreFinished = false;
+    bool rightFinished = false;
+    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        
+        if (leftReel->isStopped() && !leftFinished) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
+            leftFinished = true;
+        }
+        
+        if (centreReel->isStopped() && !leftFinished) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
+            centreFinished = true;
+        }
+        
+        if (rightReel->isStopped() && !leftFinished) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
+            rightFinished = true;
+        }
+        
+    }            
     
     this->commandInProgress = false;
 }
@@ -167,7 +229,29 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     centreReel->start(PCA9629A::Direction::CW, centreSteps, 0);
     rightReel->start(PCA9629A::Direction::CW, rightSteps, 0);
     
-    // TODO - Poll registers to see when motors have finished
+    // Loop waiting for reels to stop    
+    bool leftFinished = false;
+    bool centreFinished = false;
+    bool rightFinished = false;
+    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        
+        if (leftReel->isStopped() && !leftFinished) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
+            leftFinished = true;
+        }
+        
+        if (centreReel->isStopped() && !leftFinished) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
+            centreFinished = true;
+        }
+        
+        if (rightReel->isStopped() && !leftFinished) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
+            rightFinished = true;
+        }
+        
+    }     
 
     this->commandInProgress = false;
 }

@@ -162,6 +162,12 @@ public:
      *
      */
     void stop(void);
+    
+    /**
+     * Reads the MCNTL register and returns true if bit 7 is 0
+     * @return 
+     */
+    bool isStopped(void);
 
     /** Register dump
      *
