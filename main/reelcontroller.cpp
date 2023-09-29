@@ -142,12 +142,12 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
             leftFinished = true;
         }
         
-        if (centreReel->isStopped() && !leftFinished) {
+        if (centreReel->isStopped() && !centreFinished) {
             this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
             centreFinished = true;
         }
         
-        if (rightReel->isStopped() && !leftFinished) {
+        if (rightReel->isStopped() && !rightFinished) {
             this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
             rightFinished = true;
         }
@@ -195,12 +195,12 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
             leftFinished = true;
         }
         
-        if (centreReel->isStopped() && !leftFinished) {
+        if (centreReel->isStopped() && !centreFinished) {
             this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
             centreFinished = true;
         }
         
-        if (rightReel->isStopped() && !leftFinished) {
+        if (rightReel->isStopped() && !rightFinished) {
             this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
             rightFinished = true;
         }
@@ -241,12 +241,12 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
             leftFinished = true;
         }
         
-        if (centreReel->isStopped() && !leftFinished) {
+        if (centreReel->isStopped() && !centreFinished) {
             this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
             centreFinished = true;
         }
         
-        if (rightReel->isStopped() && !leftFinished) {
+        if (rightReel->isStopped() && !rightFinished) {
             this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
             rightFinished = true;
         }
