@@ -219,8 +219,10 @@ esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t& result) {
 
 void PCA9629A::start(Direction dir, uint16_t step_count, uint8_t repeats, bool home) {
     if (home) {
-        write(REG_MSK, 0x0E);
-        write(REG_INT_MTR_ACT, 0x81);  // Set enable interrupt based control of motor and restart motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register    
+        home(dir);
+        while (!isStopped()) {
+               std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        }
     } else {
         write(REG_MSK, 0x1F);  // Disable all interrupts
         write(REG_INT_MTR_ACT, 0x00);    
