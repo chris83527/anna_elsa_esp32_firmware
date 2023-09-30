@@ -219,10 +219,10 @@ esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t& result) {
 
 void PCA9629A::start(Direction dir, uint16_t step_count, uint8_t repeats, bool home) {
     if (home) {
-        write(REG_MSK, 0x1E);
-        write(REG_INT_MTR_ACT, 0x81);    
+        write(REG_MSK, 0x0E);
+        write(REG_INT_MTR_ACT, 0x81);  // Set enable interrupt based control of motor and restart motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register    
     } else {
-        write(REG_MSK, 0x00);
+        write(REG_MSK, 0x1F);  // Disable all interrupts
         write(REG_INT_MTR_ACT, 0x00);    
     }
     write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
@@ -233,9 +233,8 @@ void PCA9629A::start(Direction dir, uint16_t step_count, uint8_t repeats, bool h
 }
 
 void PCA9629A::home(Direction dir) {    
-    write(REG_MSK, 0x1E); // Enable P0 interrupt    
-    //write(REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register 
-    write(REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and restart motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register 
+    write(REG_MSK, 0x0E); // Enable P0 interrupt    
+    write(REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register     
     write(REG_INTSTAT, 0x00); // reset interrupt status register
     write(REG_MCNTL, 0x80 | static_cast<uint8_t> (dir));
 }
