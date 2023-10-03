@@ -299,7 +299,7 @@ void ReelController::calibrate() {
             this->mainController->getDisplayController()->displayText(std::string("LEFT CW: ").append(std::to_string(leftCwCorrection)));
             leftReel->start(PCA9629A::Direction::CW, 1, 1, false);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::this_thread::sleep_for(std::chrono::milliseconds(75));
         btnStatus = mainController->getDisplayController()->getButtonStatus();
     }
 
@@ -316,7 +316,7 @@ void ReelController::calibrate() {
             this->mainController->getDisplayController()->displayText(std::string("LEFT CCW: ").append(std::to_string(leftCcwCorrection)));
             leftReel->start(PCA9629A::Direction::CCW, 1, 1, false);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::this_thread::sleep_for(std::chrono::milliseconds(75));
         btnStatus = mainController->getDisplayController()->getButtonStatus();
     }
 
@@ -333,7 +333,7 @@ void ReelController::calibrate() {
             this->mainController->getDisplayController()->displayText(std::string("CENTRE CW: ").append(std::to_string(centreCwCorrection)));
             centreReel->start(PCA9629A::Direction::CW, 1, 1, false);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::this_thread::sleep_for(std::chrono::milliseconds(75));
         btnStatus = mainController->getDisplayController()->getButtonStatus();
     }
 
@@ -350,7 +350,7 @@ void ReelController::calibrate() {
             this->mainController->getDisplayController()->displayText(std::string("CENTRE CCW: ").append(std::to_string(rightCcwCorrection)));
             centreReel->start(PCA9629A::Direction::CCW, 1, 1, false);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::this_thread::sleep_for(std::chrono::milliseconds(75));
         btnStatus = mainController->getDisplayController()->getButtonStatus();
     }
 
@@ -367,7 +367,7 @@ void ReelController::calibrate() {
             this->mainController->getDisplayController()->displayText(std::string("RIGHT CW: ").append(std::to_string(rightCwCorrection)));
             rightReel->start(PCA9629A::Direction::CW, 1, 1, false);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::this_thread::sleep_for(std::chrono::milliseconds(75));
         btnStatus = mainController->getDisplayController()->getButtonStatus();
     }
 
@@ -384,7 +384,7 @@ void ReelController::calibrate() {
             this->mainController->getDisplayController()->displayText(std::string("RIGHT CCW: ").append(std::to_string(rightCcwCorrection)));
             rightReel->start(PCA9629A::Direction::CCW, 1, 1, false);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::this_thread::sleep_for(std::chrono::milliseconds(75));
         btnStatus = mainController->getDisplayController()->getButtonStatus();
     }
 
