@@ -228,11 +228,11 @@ void PCA9629A::start(Direction dir, uint16_t step_count, uint8_t repeats, bool h
     write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
     write(REG_PMA, repeats);    
     write(REG_INTSTAT, 0x00); // reset interrupt status register
-    if (home) {
-        write(REG_MCNTL, 0x90 | static_cast<uint8_t> (dir));
-    } else {        
+    //if (home) {
+    //    write(REG_MCNTL, 0x90 | static_cast<uint8_t> (dir));
+    //} else {        
         write(REG_MCNTL, 0x80 | static_cast<uint8_t> (dir));
-    }
+    //}
 }
 
 void PCA9629A::home(Direction dir) {    
