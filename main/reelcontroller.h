@@ -87,6 +87,8 @@ public:
     reel_stop_info_t getReelStopInfo(void);
     
     bool isCommandInProgress(void);
+    
+    void calibrate(void);
 
 
 private:

@@ -174,7 +174,7 @@ public:
      *  Dumping all register data to serial console
      *
      */
-    esp_err_t register_dump(void);
+    esp_err_t register_dump(void);       
 
 private:
     /** Initialize all registers
