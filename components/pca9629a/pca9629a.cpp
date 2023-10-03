@@ -219,7 +219,7 @@ esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t& result) {
 
 void PCA9629A::start(Direction dir, uint16_t step_count, uint8_t repeats, bool home) {
     if (home) {
-        home(dir);
+        this->home(dir);
         while (!isStopped()) {
                std::this_thread::sleep_for(std::chrono::milliseconds(20));
         }
