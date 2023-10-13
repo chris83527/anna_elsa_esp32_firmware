@@ -81,18 +81,11 @@ bool ReelController::initialise() {
 
     reelLeftInitOk = false;
     reelCentreInitOk = false;
-    reelRightInitOk = false;
+    reelRightInitOk = false;       
 
-    // MOTOR_EN is on a GPIO
-    gpio_pad_select_gpio(GPIO_MOTOR_EN);
-    // Set the GPIO as a push/pull output
-    gpio_set_direction(GPIO_MOTOR_EN, GPIO_MODE_OUTPUT);
-    // Switch on
-    gpio_set_level(GPIO_MOTOR_EN, 1);
-
-    leftReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_LEFT_I2C_ADDRESS, I2C_FREQ_HZ);
-    centreReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_CENTRE_I2C_ADDRESS, I2C_FREQ_HZ);
-    rightReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_RIGHT_I2C_ADDRESS, I2C_FREQ_HZ);
+    leftReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, GPIO_MOTOR_EN, REEL_LEFT_I2C_ADDRESS, I2C_FREQ_HZ);
+    centreReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, GPIO_MOTOR_EN, REEL_CENTRE_I2C_ADDRESS, I2C_FREQ_HZ);
+    rightReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, GPIO_MOTOR_EN, REEL_RIGHT_I2C_ADDRESS, I2C_FREQ_HZ);
 
     this->leftReel->initialise();
     this->centreReel->initialise();
