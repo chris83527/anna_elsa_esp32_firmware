@@ -19,6 +19,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_link_controller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/pca9629a/CMakeLists.txt</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/config.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/oledcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/m20ly02z/CMakeLists.txt</file>
