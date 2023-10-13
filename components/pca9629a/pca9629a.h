@@ -244,7 +244,6 @@ private:
     i2c_port_t port;
     gpio_num_t i2c_sda;
     gpio_num_t i2c_scl;
-    gpio_num_t motor_en;
     uint8_t i2c_address;
     uint32_t clock_speed;
     
