@@ -77,7 +77,6 @@ PCA9629A::PCA9629A(
         const i2c_port_t port,
         const gpio_num_t i2c_sda,
         const gpio_num_t i2c_scl,
-        const gpio_num_t motor_en,
         const uint8_t i2c_address,
         const uint32_t clock_speed
         ) {
@@ -86,7 +85,6 @@ PCA9629A::PCA9629A(
     this->port = port;
     this->i2c_sda = i2c_sda;
     this->i2c_scl = i2c_scl;
-    this->motor_en = motor_en;
     this->i2c_address = i2c_address;
     this->clock_speed = clock_speed;
 }
@@ -97,11 +95,6 @@ PCA9629A::~PCA9629A() {
 
 void PCA9629A::initialise() {
 
-    // MOTOR_EN is on a GPIO
-    gpio_pad_select_gpio(this->motor_en);
-    // Set the GPIO as a push/pull output
-    gpio_set_direction(this->motor_en, GPIO_MODE_OUTPUT);    
-    
     memset(&i2c_dev, 0, sizeof (i2c_dev_t));
     this->i2c_dev.addr = this->i2c_address;
     this->i2c_dev.cfg.mode = I2C_MODE_MASTER;
@@ -224,54 +217,36 @@ esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t& result) {
     return ESP_OK;
 }
 
-void PCA9629A::start(Direction dir, uint16_t step_count, uint8_t repeats) {    
-    // Switch on
-    gpio_set_level(this->motor_en, 1);
-    
+void PCA9629A::start(Direction dir, uint16_t step_count, uint8_t repeats) {
+
     write(REG_MSK, 0x1F); // Disable all interrupts
     write(REG_INT_MTR_ACT, 0x00);
     write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
     write(REG_PMA, repeats);
     write(REG_INTSTAT, 0x00); // reset interrupt status register    
-    write(REG_MCNTL, 0x80 | static_cast<uint8_t> (dir));    
-    
-    while (!isStopped()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(25));
-    }
-    
-    // Switch off
-    gpio_set_level(this->motor_en, 0);
+    write(REG_MCNTL, 0x80 | static_cast<uint8_t> (dir));
+   
 }
 
 void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t repeats) {
-    // Switch on
-    gpio_set_level(this->motor_en, 1);
-    
+
     home(direction);
-    
+
     while (!isStopped()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(25));
     }
-    
+
     write(REG_MSK, 0x1F); // Disable all interrupts
     write(REG_INT_MTR_ACT, 0x00);
     write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
     write(REG_PMA, repeats);
     write(REG_INTSTAT, 0x00); // reset interrupt status register
-    write(REG_MCNTL, 0x90 | static_cast<uint8_t> (direction));
+    write(REG_MCNTL, 0x90 | static_cast<uint8_t> (direction));    
     
-    while (!isStopped()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(25));
-    }
-    
-    // Switch off
-    gpio_set_level(this->motor_en, 0);
 }
 
 void PCA9629A::home(Direction dir) {
-    // Switch on
-    gpio_set_level(this->motor_en, 1);
-    
+
     write(REG_MSK, 0x0E); // Enable P0 interrupt    
     write(REG_PMA, 1);
     write(REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register     
@@ -279,8 +254,6 @@ void PCA9629A::home(Direction dir) {
     write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 100);
     write(REG_MCNTL, 0x80 | static_cast<uint8_t> (dir));
     
-    // Switch off
-    gpio_set_level(this->motor_en, 0);
 }
 
 bool PCA9629A::isStopped() {
@@ -295,7 +268,7 @@ bool PCA9629A::isStopped() {
 
 void PCA9629A::stop(void) {
     write(REG_MCNTL, 0x00);
-    
+
     // Switch off
     gpio_set_level(this->motor_en, 0);
 }

@@ -77,15 +77,21 @@ ReelController::reel_stop_info_t ReelController::getReelStopInfo() {
 }
 
 bool ReelController::initialise() {
+
     ESP_LOGI(TAG, "ReelController::initialise() called");
+
+    // MOTOR_EN is on a GPIO
+    gpio_pad_select_gpio(GPIO_MOTOR_EN);
+    // Set the GPIO as a push/pull output
+    gpio_set_direction(GPIO_MOTOR_EN, GPIO_MODE_OUTPUT);
 
     reelLeftInitOk = false;
     reelCentreInitOk = false;
-    reelRightInitOk = false;       
+    reelRightInitOk = false;
 
-    leftReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, GPIO_MOTOR_EN, REEL_LEFT_I2C_ADDRESS, I2C_FREQ_HZ);
-    centreReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, GPIO_MOTOR_EN, REEL_CENTRE_I2C_ADDRESS, I2C_FREQ_HZ);
-    rightReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, GPIO_MOTOR_EN, REEL_RIGHT_I2C_ADDRESS, I2C_FREQ_HZ);
+    leftReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_LEFT_I2C_ADDRESS, I2C_FREQ_HZ);
+    centreReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_CENTRE_I2C_ADDRESS, I2C_FREQ_HZ);
+    rightReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_RIGHT_I2C_ADDRESS, I2C_FREQ_HZ);
 
     this->leftReel->initialise();
     this->centreReel->initialise();
@@ -119,6 +125,9 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     int centreSteps = ((this->reelStopInfo.centreStop) * STEPS_PER_STOP) + 200;
     int rightSteps = ((this->reelStopInfo.rightStop) * STEPS_PER_STOP) + 100;
 
+    // Switch on
+    gpio_set_level(GPIO_MOTOR_EN, 1);
+    
     auto leftReelThread = std::thread([this, &leftSteps]() {
         leftReel->startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
     });
@@ -159,6 +168,9 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 
+    // Switch off
+    gpio_set_level(GPIO_MOTOR_EN, 0);
+    
     this->commandInProgress = false;
 }
 
@@ -174,6 +186,9 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     int centreSteps = ((this->reelStopInfo.centreStop) * STEPS_PER_STOP);
     int rightSteps = ((this->reelStopInfo.rightStop) * STEPS_PER_STOP);
 
+    // Switch on
+    gpio_set_level(GPIO_MOTOR_EN, 1);
+    
     auto leftReelThread = std::thread([this, &leftSteps]() {
         leftReel->startAfterHome(PCA9629A::Direction::CCW, leftSteps, 1);
     });
@@ -213,6 +228,9 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
 
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
+    
+    // Switch off
+    gpio_set_level(GPIO_MOTOR_EN, 0);
 
     this->commandInProgress = false;
 }
@@ -232,6 +250,9 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
 
     ESP_LOGI(TAG, "nudge: leftSteps: %d, centreSteps: %d, rightSteps: %d", leftSteps, centreSteps, rightSteps);
 
+    // Switch on
+    gpio_set_level(GPIO_MOTOR_EN, 1);
+    
     auto leftReelThread = std::thread([this, &leftSteps]() {
         leftReel->start(PCA9629A::Direction::CCW, leftSteps, 1);
     });
@@ -269,6 +290,9 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 
+    // Switch on
+    gpio_set_level(GPIO_MOTOR_EN, 0);
+    
     this->commandInProgress = false;
 }
 
@@ -281,6 +305,9 @@ void ReelController::calibrate() {
     int rightCwCorrection = 0;
     int rightCcwCorrection = 0;
 
+    // Switch on
+    gpio_set_level(GPIO_MOTOR_EN, 1);
+    
     this->mainController->getDisplayController()->displayText("LEFT CW: 00");
     this->leftReel->home(PCA9629A::Direction::CW);
     std::bitset<8> btnStatus = 0;
@@ -383,15 +410,24 @@ void ReelController::calibrate() {
         btnStatus = mainController->getDisplayController()->getButtonStatus();
     }
 
+    // Switch on
+    gpio_set_level(GPIO_MOTOR_EN, 0);
 }
 
 void ReelController::test() {
     ESP_LOGI(TAG, "Entering test mode");
 
-    for (int i = 0; i <= 25; i++) {      
+    for (int i = 0; i <= 25; i++) {
+
+        // Switch on
+    gpio_set_level(GPIO_MOTOR_EN, 1);
+        
         leftReel->startAfterHome(PCA9629A::Direction::CW, i * 4, 1);
         centreReel->startAfterHome(PCA9629A::Direction::CW, i * 4, 1);
         rightReel->startAfterHome(PCA9629A::Direction::CW, i * 4, 1);
+        
+        // Switch on
+    gpio_set_level(GPIO_MOTOR_EN, 0);
 
         uint8_t leftSymbolId = mainController->getGame()->symbolsLeftReel[i];
         uint8_t centreSymbolId = mainController->getGame()->symbolsCentreReel[i];

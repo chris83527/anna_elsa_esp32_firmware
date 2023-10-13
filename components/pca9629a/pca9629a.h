@@ -112,16 +112,14 @@ public:
     /** Create a PCA9629 instance connected to specified I2C pins with specified address
      *
      * @param I2C_sda I2C-bus SDA pin
-     * @param I2C_scl I2C-bus SCL pin     
-     * @param motor_en GPIO pin that is used to enable/disable l297d
+     * @param I2C_scl I2C-bus SCL pin          
      * @param i2c_address I2C-bus address (default: 0x20)
      * @param clock_speed
      */
     PCA9629A(
             const i2c_port_t port,
             const gpio_num_t i2c_sda,
-            const gpio_num_t i2c_scl,
-            const gpio_num_t motor_en,
+            const gpio_num_t i2c_scl,            
             const uint8_t i2c_address = PCA9629A_I2C_ADDR_BASE,
             const uint32_t clock_speed = I2C_FREQ_HZ
             );
