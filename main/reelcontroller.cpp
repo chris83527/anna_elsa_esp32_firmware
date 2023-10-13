@@ -395,16 +395,23 @@ void ReelController::calibrate() {
 void ReelController::test() {
     ESP_LOGI(TAG, "Entering test mode");
 
-    for (int i = 1; i <= 25; i++) {
-        this->leftReel->conditionalStart(PCA9629A::Direction::CW, 1, 1);
-        this->centreReel->conditionalStart(PCA9629A::Direction::CW, 1, 1);
-        this->rightReel->conditionalStart(PCA9629A::Direction::CW, 1, 1);
+    for (int i = 0; i <= 25; i++) {
+        leftReel->home(PCA9629A::Direction::CW);
+        centreReel->home(PCA9629A::Direction::CW);
+        rightReel->home(PCA9629A::Direction::CW);
+        
+        leftReel->start(PCA9629A::Direction::CW, i * 4, 1);
+        centreReel->start(PCA9629A::Direction::CW, i * 4, 1);
+        rightReel->start(PCA9629A::Direction::CW, i * 4, 1);
 
         uint8_t leftSymbolId = mainController->getGame()->symbolsLeftReel[i];
         uint8_t centreSymbolId = mainController->getGame()->symbolsCentreReel[i];
         uint8_t rightSymbolId = mainController->getGame()->symbolsRightReel[i];
 
         ESP_LOGI(TAG, "Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(75));
+
         this->mainController->getDisplayController()->waitForButton(BTN_START_MASK_BIT);
     }
 }

@@ -237,8 +237,10 @@ void PCA9629A::conditionalStart(Direction dir, uint16_t step_count, uint8_t repe
 
 void PCA9629A::home(Direction dir) {
     write(REG_MSK, 0x0E); // Enable P0 interrupt    
+    write(REG_PMA, 1);
     write(REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register     
     write(REG_INTSTAT, 0x00); // reset interrupt status register
+    write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 100);
     write(REG_MCNTL, 0x80 | static_cast<uint8_t> (dir));
 }
 
