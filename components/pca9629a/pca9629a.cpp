@@ -217,14 +217,14 @@ esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t& result) {
     return ESP_OK;
 }
 
-void PCA9629A::start(Direction dir, uint16_t step_count, uint8_t repeats) {
+void PCA9629A::start(Direction direction, uint16_t step_count, uint8_t repeats) {
 
     write(REG_MSK, 0x1F); // Disable all interrupts
     write(REG_INT_MTR_ACT, 0x00);
-    write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
+    write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
     write(REG_PMA, repeats);
     write(REG_INTSTAT, 0x00); // reset interrupt status register    
-    write(REG_MCNTL, 0x80 | static_cast<uint8_t> (dir));
+    write(REG_MCNTL, 0x80 | static_cast<uint8_t> (direction));
 
 }
 
@@ -236,12 +236,13 @@ void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t 
         std::this_thread::sleep_for(std::chrono::milliseconds(25));
     }
 
-    write(REG_MSK, 0x1F); // Disable all interrupts
-    write(REG_INT_MTR_ACT, 0x00);
-    write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
-    write(REG_PMA, repeats);
-    write(REG_INTSTAT, 0x00); // reset interrupt status register
-    write(REG_MCNTL, 0x90 | static_cast<uint8_t> (direction));
+    //    write(REG_MSK, 0x1F); // Disable all interrupts
+    //    write(REG_INT_MTR_ACT, 0x00);
+    //    write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
+    //    write(REG_PMA, repeats);
+    //    write(REG_INTSTAT, 0x00); // reset interrupt status register
+    //    write(REG_MCNTL, 0x90 | static_cast<uint8_t> (direction));
+    start(direction, step_count, repeats);
 
 }
 
