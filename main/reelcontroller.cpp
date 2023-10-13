@@ -125,15 +125,15 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     int rightSteps = ((this->reelStopInfo.rightStop) * STEPS_PER_STOP) + 100;
 
     auto leftReelThread = std::thread([this, &leftSteps]() {
-        leftReel->start(PCA9629A::Direction::CCW, leftSteps, 1, false);
+        leftReel->start(PCA9629A::Direction::CW, leftSteps, 1, false);
     });
     leftReelThread.detach();
     auto centreReelThread = std::thread([this, &centreSteps]() {
-        centreReel->start(PCA9629A::Direction::CCW, centreSteps, 1, false);
+        centreReel->start(PCA9629A::Direction::CW, centreSteps, 1, false);
     });
     centreReelThread.detach();
     auto rightReelThread = std::thread([this, &rightSteps]() {
-        rightReel->start(PCA9629A::Direction::CCW, rightSteps, 1, false);
+        rightReel->start(PCA9629A::Direction::CW, rightSteps, 1, false);
     });
     rightReelThread.detach();
 

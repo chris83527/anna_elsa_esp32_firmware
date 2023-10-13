@@ -142,8 +142,10 @@ public:
      *
      *  @param dir rotate direction ("CW" or "CCW")
      */
-    void start(Direction dir, uint16_t steps, uint8_t repeats, bool home);
+    void start(Direction dir, uint16_t steps, uint8_t repeats);
 
+    void conditionalStart(Direction dir, uint16_t steps, uint8_t repeats);
+    
     /** Motor start (with home-position control)
      *
      *  Start command

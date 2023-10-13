@@ -93,7 +93,7 @@ PCA9629A::~PCA9629A() {
     i2c_dev_delete_mutex(&i2c_dev);
 }
 
-void PCA9629A::initialise() {    
+void PCA9629A::initialise() {
 
     memset(&i2c_dev, 0, sizeof (i2c_dev_t));
     this->i2c_dev.addr = this->i2c_address;
@@ -180,7 +180,7 @@ esp_err_t PCA9629A::write(RegisterName register_name, const uint8_t value) {
 esp_err_t PCA9629A::write16(RegisterName register_name, const uint16_t value) {
 
     uint8_t cmd[ 2 ];
-    
+
     cmd[ 0 ] = value & 0xFF;
     cmd[ 1 ] = value >> 8;
 
@@ -217,29 +217,25 @@ esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t& result) {
     return ESP_OK;
 }
 
-void PCA9629A::start(Direction dir, uint16_t step_count, uint8_t repeats, bool home) {
-//    if (home) {
-//        write(REG_MSK, 0x0E); // Enable P0 interrupt    
-//        write(REG_INT_MTR_ACT, 0x00); // Set enable interrupt based control of motor and restart motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register     
-//    } else {
-//        write(REG_MSK, 0x1F);  // Disable all interrupts
-//        write(REG_INT_MTR_ACT, 0x00);    
-//    }
-    
-       write(REG_MSK, 0x1F);  // Disable all interrupts
-        write(REG_INT_MTR_ACT, 0x00);    
-    
+void PCA9629A::start(Direction dir, uint16_t step_count, uint8_t repeats) {    
+    write(REG_MSK, 0x1F); // Disable all interrupts
+    write(REG_INT_MTR_ACT, 0x00);
     write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
-    write(REG_PMA, repeats);    
-    write(REG_INTSTAT, 0x00); // reset interrupt status register
-    if (home) {
-        write(REG_MCNTL, 0x90 | static_cast<uint8_t> (dir));
-    } else {        
-        write(REG_MCNTL, 0x80 | static_cast<uint8_t> (dir));
-    }
+    write(REG_PMA, repeats);
+    write(REG_INTSTAT, 0x00); // reset interrupt status register    
+    write(REG_MCNTL, 0x80 | static_cast<uint8_t> (dir));    
 }
 
-void PCA9629A::home(Direction dir) {    
+void PCA9629A::conditionalStart(Direction dir, uint16_t step_count, uint8_t repeats) {
+    write(REG_MSK, 0x1F); // Disable all interrupts
+    write(REG_INT_MTR_ACT, 0x00);
+    write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
+    write(REG_PMA, repeats);
+    write(REG_INTSTAT, 0x00); // reset interrupt status register
+    write(REG_MCNTL, 0x90 | static_cast<uint8_t> (dir));
+}
+
+void PCA9629A::home(Direction dir) {
     write(REG_MSK, 0x0E); // Enable P0 interrupt    
     write(REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register     
     write(REG_INTSTAT, 0x00); // reset interrupt status register
@@ -248,11 +244,11 @@ void PCA9629A::home(Direction dir) {
 
 bool PCA9629A::isStopped() {
     uint8_t data[1];
-    
+
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_read_reg(&i2c_dev, static_cast<uint8_t>(REG_MCNTL), data, sizeof (data)), "An error occurred reading registers");
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_read_reg(&i2c_dev, static_cast<uint8_t> (REG_MCNTL), data, sizeof (data)), "An error occurred reading registers");
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
-    
+
     return ((data[0] & 0x80) == 0);
 }
 
