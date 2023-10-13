@@ -120,15 +120,15 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     int rightSteps = ((this->reelStopInfo.rightStop) * STEPS_PER_STOP) + 100;
 
     auto leftReelThread = std::thread([this, &leftSteps]() {
-        leftReel->conditionalStart(PCA9629A::Direction::CW, leftSteps, 1);
+        leftReel->startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
     });
     leftReelThread.detach();
     auto centreReelThread = std::thread([this, &centreSteps]() {
-        centreReel->conditionalStart(PCA9629A::Direction::CW, centreSteps, 1);
+        centreReel->startAfterHome(PCA9629A::Direction::CW, centreSteps, 1);
     });
     centreReelThread.detach();
     auto rightReelThread = std::thread([this, &rightSteps]() {
-        rightReel->conditionalStart(PCA9629A::Direction::CW, rightSteps, 1);
+        rightReel->startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
     });
     rightReelThread.detach();
 
@@ -175,15 +175,15 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     int rightSteps = ((this->reelStopInfo.rightStop) * STEPS_PER_STOP);
 
     auto leftReelThread = std::thread([this, &leftSteps]() {
-        leftReel->conditionalStart(PCA9629A::Direction::CCW, leftSteps, 1);
+        leftReel->startAfterHome(PCA9629A::Direction::CCW, leftSteps, 1);
     });
     leftReelThread.detach();
     auto centreReelThread = std::thread([this, &centreSteps]() {
-        centreReel->conditionalStart(PCA9629A::Direction::CW, centreSteps, 1);
+        centreReel->startAfterHome(PCA9629A::Direction::CW, centreSteps, 1);
     });
     centreReelThread.detach();
     auto rightReelThread = std::thread([this, &rightSteps]() {
-        rightReel->conditionalStart(PCA9629A::Direction::CCW, rightSteps, 1);
+        rightReel->startAfterHome(PCA9629A::Direction::CCW, rightSteps, 1);
     });
     rightReelThread.detach();
 
@@ -388,14 +388,10 @@ void ReelController::calibrate() {
 void ReelController::test() {
     ESP_LOGI(TAG, "Entering test mode");
 
-    for (int i = 0; i <= 25; i++) {
-        leftReel->home(PCA9629A::Direction::CW);
-        centreReel->home(PCA9629A::Direction::CW);
-        rightReel->home(PCA9629A::Direction::CW);
-        
-        leftReel->start(PCA9629A::Direction::CW, i * 4, 1);
-        centreReel->start(PCA9629A::Direction::CW, i * 4, 1);
-        rightReel->start(PCA9629A::Direction::CW, i * 4, 1);
+    for (int i = 0; i <= 25; i++) {      
+        leftReel->startAfterHome(PCA9629A::Direction::CW, i * 4, 1);
+        centreReel->startAfterHome(PCA9629A::Direction::CW, i * 4, 1);
+        rightReel->startAfterHome(PCA9629A::Direction::CW, i * 4, 1);
 
         uint8_t leftSymbolId = mainController->getGame()->symbolsLeftReel[i];
         uint8_t centreSymbolId = mainController->getGame()->symbolsCentreReel[i];

@@ -243,7 +243,7 @@ void PCA9629A::start(Direction dir, uint16_t step_count, uint8_t repeats) {
     gpio_set_level(this->motor_en, 0);
 }
 
-void PCA9629A::conditionalStart(Direction direction, uint16_t step_count, uint8_t repeats) {
+void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t repeats) {
     // Switch on
     gpio_set_level(this->motor_en, 1);
     

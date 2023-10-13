@@ -147,7 +147,7 @@ public:
      */
     void start(Direction dir, uint16_t steps, uint8_t repeats);
 
-    void conditionalStart(Direction dir, uint16_t steps, uint8_t repeats);
+    void startAfterHome(Direction dir, uint16_t steps, uint8_t repeats);
     
     /** Motor start (with home-position control)
      *
