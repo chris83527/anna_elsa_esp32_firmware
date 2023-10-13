@@ -125,15 +125,15 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     int rightSteps = ((this->reelStopInfo.rightStop) * STEPS_PER_STOP) + 100;
 
     auto leftReelThread = std::thread([this, &leftSteps]() {
-        leftReel->start(PCA9629A::Direction::CW, leftSteps, 1, false);
+        leftReel->conditionalStart(PCA9629A::Direction::CW, leftSteps, 1);
     });
     leftReelThread.detach();
     auto centreReelThread = std::thread([this, &centreSteps]() {
-        centreReel->start(PCA9629A::Direction::CW, centreSteps, 1, false);
+        centreReel->conditionalStart(PCA9629A::Direction::CW, centreSteps, 1);
     });
     centreReelThread.detach();
     auto rightReelThread = std::thread([this, &rightSteps]() {
-        rightReel->start(PCA9629A::Direction::CW, rightSteps, 1, false);
+        rightReel->conditionalStart(PCA9629A::Direction::CW, rightSteps, 1);
     });
     rightReelThread.detach();
 
@@ -180,15 +180,15 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     int rightSteps = ((this->reelStopInfo.rightStop) * STEPS_PER_STOP);
 
     auto leftReelThread = std::thread([this, &leftSteps]() {
-        leftReel->start(PCA9629A::Direction::CCW, leftSteps, 1, false);
+        leftReel->conditionalStart(PCA9629A::Direction::CCW, leftSteps, 1);
     });
     leftReelThread.detach();
     auto centreReelThread = std::thread([this, &centreSteps]() {
-        centreReel->start(PCA9629A::Direction::CW, centreSteps, 1, false);
+        centreReel->conditionalStart(PCA9629A::Direction::CW, centreSteps, 1);
     });
     centreReelThread.detach();
     auto rightReelThread = std::thread([this, &rightSteps]() {
-        rightReel->start(PCA9629A::Direction::CCW, rightSteps, 1, false);
+        rightReel->conditionalStart(PCA9629A::Direction::CCW, rightSteps, 1);
     });
     rightReelThread.detach();
 
@@ -238,15 +238,15 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     ESP_LOGI(TAG, "nudge: leftSteps: %d, centreSteps: %d, rightSteps: %d", leftSteps, centreSteps, rightSteps);
 
     auto leftReelThread = std::thread([this, &leftSteps]() {
-        leftReel->start(PCA9629A::Direction::CCW, leftSteps, 1, false);
+        leftReel->start(PCA9629A::Direction::CCW, leftSteps, 1);
     });
     leftReelThread.detach();
     auto centreReelThread = std::thread([this, &centreSteps]() {
-        centreReel->start(PCA9629A::Direction::CCW, centreSteps, 1, false);
+        centreReel->start(PCA9629A::Direction::CCW, centreSteps, 1);
     });
     centreReelThread.detach();
     auto rightReelThread = std::thread([this, &rightSteps]() {
-        rightReel->start(PCA9629A::Direction::CCW, rightSteps, 1, false);
+        rightReel->start(PCA9629A::Direction::CCW, rightSteps, 1);
     });
     rightReelThread.detach();
 
@@ -293,11 +293,11 @@ void ReelController::calibrate() {
         if (btnStatus.test(BTN_HOLD_HI)) {
             leftCwCorrection--;
             this->mainController->getDisplayController()->displayText(std::string("LEFT CW: ").append(std::to_string(leftCwCorrection)));
-            leftReel->start(PCA9629A::Direction::CCW, 1, 1, false);
+            leftReel->start(PCA9629A::Direction::CCW, 1, 1);
         } else if (btnStatus.test(BTN_HOLD_LO)) {
             leftCwCorrection++;
             this->mainController->getDisplayController()->displayText(std::string("LEFT CW: ").append(std::to_string(leftCwCorrection)));
-            leftReel->start(PCA9629A::Direction::CW, 1, 1, false);
+            leftReel->start(PCA9629A::Direction::CW, 1, 1);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(75));
         btnStatus = mainController->getDisplayController()->getButtonStatus();
@@ -310,11 +310,11 @@ void ReelController::calibrate() {
         if (btnStatus.test(BTN_HOLD_HI)) {
             leftCcwCorrection--;
             this->mainController->getDisplayController()->displayText(std::string("LEFT CCW: ").append(std::to_string(leftCcwCorrection)));
-            leftReel->start(PCA9629A::Direction::CW, 1, 1, false);
+            leftReel->start(PCA9629A::Direction::CW, 1, 1);
         } else if (btnStatus.test(BTN_HOLD_LO)) {
             leftCcwCorrection++;
             this->mainController->getDisplayController()->displayText(std::string("LEFT CCW: ").append(std::to_string(leftCcwCorrection)));
-            leftReel->start(PCA9629A::Direction::CCW, 1, 1, false);
+            leftReel->start(PCA9629A::Direction::CCW, 1, 1);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(75));
         btnStatus = mainController->getDisplayController()->getButtonStatus();
@@ -327,11 +327,11 @@ void ReelController::calibrate() {
         if (btnStatus.test(BTN_HOLD_HI)) {
             centreCwCorrection--;
             this->mainController->getDisplayController()->displayText(std::string("CENTRE CW: ").append(std::to_string(centreCwCorrection)));
-            centreReel->start(PCA9629A::Direction::CCW, 1, 1, false);
+            centreReel->start(PCA9629A::Direction::CCW, 1, 1);
         } else if (btnStatus.test(BTN_HOLD_LO)) {
             centreCwCorrection++;
             this->mainController->getDisplayController()->displayText(std::string("CENTRE CW: ").append(std::to_string(centreCwCorrection)));
-            centreReel->start(PCA9629A::Direction::CW, 1, 1, false);
+            centreReel->start(PCA9629A::Direction::CW, 1, 1);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(75));
         btnStatus = mainController->getDisplayController()->getButtonStatus();
@@ -344,11 +344,11 @@ void ReelController::calibrate() {
         if (btnStatus.test(BTN_HOLD_HI)) {
             centreCcwCorrection--;
             this->mainController->getDisplayController()->displayText(std::string("CENTRE CCW: ").append(std::to_string(rightCcwCorrection)));
-            centreReel->start(PCA9629A::Direction::CW, 1, 1, false);
+            centreReel->start(PCA9629A::Direction::CW, 1, 1);
         } else if (btnStatus.test(BTN_HOLD_LO)) {
             centreCcwCorrection++;
             this->mainController->getDisplayController()->displayText(std::string("CENTRE CCW: ").append(std::to_string(rightCcwCorrection)));
-            centreReel->start(PCA9629A::Direction::CCW, 1, 1, false);
+            centreReel->start(PCA9629A::Direction::CCW, 1, 1);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(75));
         btnStatus = mainController->getDisplayController()->getButtonStatus();
@@ -361,11 +361,11 @@ void ReelController::calibrate() {
         if (btnStatus.test(BTN_HOLD_HI)) {
             rightCwCorrection--;
             this->mainController->getDisplayController()->displayText(std::string("RIGHT CW: ").append(std::to_string(rightCwCorrection)));
-            rightReel->start(PCA9629A::Direction::CCW, 1, 1, false);
+            rightReel->start(PCA9629A::Direction::CCW, 1, 1);
         } else if (btnStatus.test(BTN_HOLD_LO)) {
             rightCwCorrection++;
             this->mainController->getDisplayController()->displayText(std::string("RIGHT CW: ").append(std::to_string(rightCwCorrection)));
-            rightReel->start(PCA9629A::Direction::CW, 1, 1, false);
+            rightReel->start(PCA9629A::Direction::CW, 1, 1);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(75));
         btnStatus = mainController->getDisplayController()->getButtonStatus();
@@ -378,11 +378,11 @@ void ReelController::calibrate() {
         if (btnStatus.test(BTN_HOLD_HI)) {
             rightCcwCorrection--;
             this->mainController->getDisplayController()->displayText(std::string("RIGHT CCW: ").append(std::to_string(rightCcwCorrection)));
-            rightReel->start(PCA9629A::Direction::CW, 1, 1, false);
+            rightReel->start(PCA9629A::Direction::CW, 1, 1);
         } else if (btnStatus.test(BTN_HOLD_LO)) {
             rightCcwCorrection++;
             this->mainController->getDisplayController()->displayText(std::string("RIGHT CCW: ").append(std::to_string(rightCcwCorrection)));
-            rightReel->start(PCA9629A::Direction::CCW, 1, 1, false);
+            rightReel->start(PCA9629A::Direction::CCW, 1, 1);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(75));
         btnStatus = mainController->getDisplayController()->getButtonStatus();
