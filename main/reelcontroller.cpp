@@ -437,9 +437,7 @@ void ReelController::test() {
         auto rightReelThread = std::thread([this, rightSteps]() {
             rightReel->startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
         });
-        rightReelThread.detach();
-
-        
+        rightReelThread.detach();        
 
         uint8_t leftSymbolId = mainController->getGame()->symbolsLeftReel[i];
         uint8_t centreSymbolId = mainController->getGame()->symbolsCentreReel[i];

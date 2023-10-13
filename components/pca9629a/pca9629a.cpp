@@ -139,7 +139,8 @@ void PCA9629A::init_registers(void) {
         0x00, // IP (read only register, writes to this register have no effect)
         0x81, // INT_MTR_ACT (stop motor on interrupt caused by P0)
         0x00, 0x00, // EXTRASTEPS0, EXTRASTEPS1
-        0x50, // OP_CFG_PHS (two-phase drive outputs, OUT[3:0] configured as motor drive outputs)
+//        0x50, // OP_CFG_PHS (two-phase drive outputs, OUT[3:0] configured as motor drive outputs)
+    0xD0, // OP_CFG_PHS (half-step drive outputs, OUT[3:0] configured as motor drive outputs)
         0x05, // OP_STAT_TO (output pins = HOLD)
         0x00, // RUCNTL (default values)
         0x00, // RDCNTL (default values)
