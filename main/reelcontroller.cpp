@@ -439,8 +439,7 @@ void ReelController::test() {
         });
         rightReelThread.detach();
 
-        // Switch on
-        gpio_set_level(GPIO_MOTOR_EN, 0);
+        
 
         uint8_t leftSymbolId = mainController->getGame()->symbolsLeftReel[i];
         uint8_t centreSymbolId = mainController->getGame()->symbolsCentreReel[i];
