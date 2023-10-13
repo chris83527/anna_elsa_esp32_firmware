@@ -225,7 +225,7 @@ void PCA9629A::start(Direction dir, uint16_t step_count, uint8_t repeats) {
     write(REG_PMA, repeats);
     write(REG_INTSTAT, 0x00); // reset interrupt status register    
     write(REG_MCNTL, 0x80 | static_cast<uint8_t> (dir));
-   
+
 }
 
 void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t repeats) {
@@ -241,8 +241,8 @@ void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t 
     write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
     write(REG_PMA, repeats);
     write(REG_INTSTAT, 0x00); // reset interrupt status register
-    write(REG_MCNTL, 0x90 | static_cast<uint8_t> (direction));    
-    
+    write(REG_MCNTL, 0x90 | static_cast<uint8_t> (direction));
+
 }
 
 void PCA9629A::home(Direction dir) {
@@ -253,7 +253,7 @@ void PCA9629A::home(Direction dir) {
     write(REG_INTSTAT, 0x00); // reset interrupt status register
     write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 100);
     write(REG_MCNTL, 0x80 | static_cast<uint8_t> (dir));
-    
+
 }
 
 bool PCA9629A::isStopped() {
@@ -268,9 +268,6 @@ bool PCA9629A::isStopped() {
 
 void PCA9629A::stop(void) {
     write(REG_MCNTL, 0x00);
-
-    // Switch off
-    gpio_set_level(this->motor_en, 0);
 }
 
 esp_err_t PCA9629A::register_dump(void) {
