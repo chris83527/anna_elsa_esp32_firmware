@@ -89,6 +89,7 @@ public:
     bool isCommandInProgress(void);
     
     void calibrate(void);
+    void test(void);
 
 
 private:

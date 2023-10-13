@@ -51,6 +51,7 @@
 #include "audiocontroller.h"
 #include "esp_pthread.h"
 #include "displaycontroller.h"
+#include "game.h"
 
 static const char *TAG = "ReelController";
 
@@ -107,7 +108,8 @@ bool ReelController::initialise() {
     }
 
     //calibrate();
-    
+    test();
+
     return true;
 }
 
@@ -388,4 +390,21 @@ void ReelController::calibrate() {
         btnStatus = mainController->getDisplayController()->getButtonStatus();
     }
 
+}
+
+void ReelController::test() {
+    ESP_LOGI(TAG, "Entering test mode");
+
+    for (int i = 1; i <= 25; i++) {
+        this->leftReel->conditionalStart(PCA9629A::Direction::CW, 1, 1);
+        this->centreReel->conditionalStart(PCA9629A::Direction::CW, 1, 1);
+        this->rightReel->conditionalStart(PCA9629A::Direction::CW, 1, 1);
+
+        uint8_t leftSymbolId = mainController->getGame()->symbolsLeftReel[i];
+        uint8_t centreSymbolId = mainController->getGame()->symbolsCentreReel[i];
+        uint8_t rightSymbolId = mainController->getGame()->symbolsRightReel[i];
+
+        ESP_LOGI(TAG, "Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
+        this->mainController->getDisplayController()->waitForButton(BTN_START_MASK_BIT);
+    }
 }

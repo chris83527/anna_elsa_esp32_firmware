@@ -185,14 +185,14 @@ void Game::start() {
 void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
 
     ESP_LOGI(TAG, "Entering spinReels()");
-    
-    uint8_t reelStopLeft = holdLeft ? 0 : random8_to(26);
-    uint8_t reelStopCentre = holdCentre ? 0 : random8_to(26);
-    uint8_t reelStopRight = holdRight ? 0 : random8_to(26);
-      
-    uint8_t leftSymbolId = symbolsLeftReel[reelStopLeft];
-    uint8_t centreSymbolId = symbolsCentreReel[reelStopCentre];
-    uint8_t rightSymbolId = symbolsRightReel[reelStopRight];
+
+    uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
+    uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 25);
+    uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 25);
+
+    uint8_t leftSymbolId = symbolsLeftReel[reelStopLeft - 1];
+    uint8_t centreSymbolId = symbolsCentreReel[reelStopCentre - 1];
+    uint8_t rightSymbolId = symbolsRightReel[reelStopRight - 1];
 
     ESP_LOGI(TAG, "Calculated reel positions: %s - %s - %s", this->symbolMap[leftSymbolId].c_str(), this->symbolMap[centreSymbolId].c_str(), this->symbolMap[rightSymbolId].c_str());
 
@@ -200,15 +200,15 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
 
     this->mainController->getDisplayController()->displayText("    LET IT GO!!     ");
 
-    mainController->getReelController()->spin(reelStopLeft, reelStopCentre, reelStopRight);    
+    mainController->getReelController()->spin(reelStopLeft, reelStopCentre, reelStopRight);
 
     ESP_LOGI(TAG, "Exiting spinReels()");
 }
 
 void Game::shuffleReels() {
-    uint8_t reelStopLeft = random8_to(26);
-    uint8_t reelStopCentre = random8_to(26);
-    uint8_t reelStopRight = random8_to(26);
+    uint8_t reelStopLeft = random8_between(1, 25);
+    uint8_t reelStopCentre = random8_between(1, 25);
+    uint8_t reelStopRight = random8_between(1, 25);
 
     mainController->getMoneyController()->removeFromCredit(20);
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).setLampState(LampState::off);
@@ -382,12 +382,12 @@ void Game::collectOrContinue() {
 
 bool Game::isWinningLine() {
     ESP_LOGI(TAG, "Entering isWinningLine()");
-    
+
     bool isWin = false;
 
-    uint8_t leftPos = mainController->getReelController()->getReelStopInfo().leftStop;
-    uint8_t centrePos = mainController->getReelController()->getReelStopInfo().centreStop;
-    uint8_t rightPos = mainController->getReelController()->getReelStopInfo().rightStop;
+    uint8_t leftPos = mainController->getReelController()->getReelStopInfo().leftStop - 1;
+    uint8_t centrePos = mainController->getReelController()->getReelStopInfo().centreStop - 1;
+    uint8_t rightPos = mainController->getReelController()->getReelStopInfo().rightStop - 1;
 
     uint8_t leftSymbolId = symbolsLeftReel[leftPos];
     uint8_t centreSymbolId = symbolsCentreReel[centrePos];
