@@ -422,9 +422,9 @@ void ReelController::test() {
         // Switch on
         gpio_set_level(GPIO_MOTOR_EN, 1);
 
-        uint8_t leftSteps = i * 4;
-        uint8_t centreSteps = i * 4;
-        uint8_t rightSteps = i * 4;
+        uint8_t leftSteps = i * STEPS_PER_STOP;
+        uint8_t centreSteps = i * STEPS_PER_STOP;
+        uint8_t rightSteps = i * STEPS_PER_STOP;
 
         auto leftReelThread = std::thread([this, leftSteps]() {
             leftReel->startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);

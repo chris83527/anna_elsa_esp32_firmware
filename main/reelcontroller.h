@@ -61,7 +61,7 @@
 #define STATUS_ERR_REEL_OPTIC 1
 #define STATUS_INITIAL 255
 
-#define STEPS_PER_STOP 4
+#define STEPS_PER_STOP 8 // half-step drive)
 
 class ReelController {
 public:
