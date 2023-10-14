@@ -249,7 +249,7 @@ void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t 
 
 void PCA9629A::home(Direction dir) {
 
-    write(REG_MSK, 0x1F); // Enable P0 interrupt    
+    write(REG_MSK, 0x1F); // Disable all interrupts   
     write(REG_PMA, 1);
     write(REG_INT_MTR_ACT, 0x00); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register     
     write(REG_INTSTAT, 0x00); // reset interrupt status register
