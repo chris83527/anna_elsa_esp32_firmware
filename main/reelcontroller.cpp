@@ -435,15 +435,17 @@ void ReelController::test() {
         auto leftReelThread = std::thread([this, leftSteps]() {
             leftReel->startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
         });
-        leftReelThread.detach();
+        
         auto centreReelThread = std::thread([this, centreSteps]() {
             centreReel->startAfterHome(PCA9629A::Direction::CW, centreSteps, 1);
         });
-        centreReelThread.detach();
+        
         auto rightReelThread = std::thread([this, rightSteps]() {
             rightReel->startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
         });
-        rightReelThread.detach();                
+        leftReelThread.join();
+        centreReelThread.join();
+        rightReelThread.join();                
 
         while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
             std::this_thread::sleep_for(std::chrono::milliseconds(25));   

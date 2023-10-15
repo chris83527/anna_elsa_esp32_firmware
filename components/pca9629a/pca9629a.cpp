@@ -129,7 +129,7 @@ esp_err_t PCA9629A::software_reset(void) {
 void PCA9629A::init_registers(void) {
     ESP_LOGI(TAG, "pca9629a init_registers");
     uint8_t init_array[] = {0x80, //  register access start address (0x00) with incremental access flag (MSB)
-        0x20, // MODE
+        0x21, // MODE
         0x0A, // WDTOI (10 second timeout)
         0x00, // WDCNTL
         0x01, // IO_CFG (P0 configured as input)
@@ -249,9 +249,9 @@ void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t 
 
 void PCA9629A::home(Direction dir) {
 
-    write(REG_MSK, 0x1F); // Disable all interrupts   
+    write(REG_MSK, 0x1E); // Enable interrupt on P0
     write(REG_PMA, 1);
-    write(REG_INT_MTR_ACT, 0x00); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register     
+    write(REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register     
     write(REG_INTSTAT, 0x00); // reset interrupt status register
     //write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 100);
     write(REG_MCNTL, 0x90 | static_cast<uint8_t> (dir));
@@ -264,6 +264,8 @@ bool PCA9629A::isStopped() {
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
     I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_read_reg(&i2c_dev, static_cast<uint8_t> (REG_MCNTL), data, sizeof (data)), "An error occurred reading registers");
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
+    
+    ESP_LOGI(TAG, "MCNTL register: %d", data[0]);
 
     return ((data[0] & 0x80) == 0);
 }
