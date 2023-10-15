@@ -137,7 +137,7 @@ void PCA9629A::init_registers(void) {
         0x1E, // MSK (Enable interrupt for I/O P0)
         0x00, // INTSTAT (Clears interrupt status register)
         0x00, // IP (read only register, writes to this register have no effect)
-        0x81, // INT_MTR_ACT (stop motor on interrupt caused by P0)
+        0x01, // INT_MTR_ACT (stop motor on interrupt caused by P0)
         0x00, 0x00, // EXTRASTEPS0, EXTRASTEPS1
 //        0x50, // OP_CFG_PHS (two-phase drive outputs, OUT[3:0] configured as motor drive outputs)
     0xD0, // OP_CFG_PHS (half-step drive outputs, OUT[3:0] configured as motor drive outputs)
@@ -145,8 +145,8 @@ void PCA9629A::init_registers(void) {
         0x00, // RUCNTL (default values)
         0x00, // RDCNTL (default values)
         0x01, // PMA (perform specified motor action once)
-        0x7D, // LOOPDLY_CW (default value)
-        0x7D, // LOOPDLY_CCW (default value)
+        0x00, // LOOPDLY_CW (default value)
+        0x00, // LOOPDLY_CCW (default value)
         0xFF, 0x01, // CCWSCOUNTL, CCWSCOUNTH
         0xFF, 0x01, // CCWSCOUNTL, CCWSCOUNTH
         0x05, 0x1F, // CWPWL, CWPWH
@@ -231,20 +231,27 @@ void PCA9629A::start(Direction direction, uint16_t step_count, uint8_t repeats) 
 
 void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t repeats) {
 
-    home(direction);
+//    home(direction);
+//
+//    while (!isStopped()) {
+//        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+//    }
+//
+//    //    write(REG_MSK, 0x1F); // Disable all interrupts
+//    //    write(REG_INT_MTR_ACT, 0x00);
+//    //    write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
+//    //    write(REG_PMA, repeats);
+//    //    write(REG_INTSTAT, 0x00); // reset interrupt status register
+//    //    write(REG_MCNTL, 0x90 | static_cast<uint8_t> (direction));
+//    start(direction, step_count, repeats);
 
-    while (!isStopped()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(25));
-    }
-
-    //    write(REG_MSK, 0x1F); // Disable all interrupts
-    //    write(REG_INT_MTR_ACT, 0x00);
-    //    write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
-    //    write(REG_PMA, repeats);
-    //    write(REG_INTSTAT, 0x00); // reset interrupt status register
-    //    write(REG_MCNTL, 0x90 | static_cast<uint8_t> (direction));
-    start(direction, step_count, repeats);
-
+    write(REG_MSK, 0x1E); // Enable interrupt on P0
+    write(REG_PMA, 1);
+    write(REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register     
+    write(REG_INTSTAT, 0x00); // reset interrupt status register
+    write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
+    write(REG_MCNTL, 0x90 | static_cast<uint8_t> (direction));
+    
 }
 
 void PCA9629A::home(Direction dir) {
@@ -253,7 +260,7 @@ void PCA9629A::home(Direction dir) {
     write(REG_PMA, 1);
     write(REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register     
     write(REG_INTSTAT, 0x00); // reset interrupt status register
-    //write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 100);
+    write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 0);
     write(REG_MCNTL, 0x90 | static_cast<uint8_t> (dir));
 
 }
