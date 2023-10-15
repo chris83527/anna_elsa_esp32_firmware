@@ -231,11 +231,11 @@ void PCA9629A::start(Direction direction, uint16_t step_count, uint8_t repeats) 
 
 void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t repeats) {
 
-//    home(direction);
-//
-//    while (!isStopped()) {
-//        std::this_thread::sleep_for(std::chrono::milliseconds(25));
-//    }
+    home(direction);
+
+    while (!isStopped()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+    }
 //
 //    //    write(REG_MSK, 0x1F); // Disable all interrupts
 //    //    write(REG_INT_MTR_ACT, 0x00);
@@ -243,15 +243,7 @@ void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t 
 //    //    write(REG_PMA, repeats);
 //    //    write(REG_INTSTAT, 0x00); // reset interrupt status register
 //    //    write(REG_MCNTL, 0x90 | static_cast<uint8_t> (direction));
-//    start(direction, step_count, repeats);
-
-    write(REG_MSK, 0x1E); // Enable interrupt on P0
-    write(REG_PMA, 1);
-    write(REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register     
-    write(REG_INTSTAT, 0x00); // reset interrupt status register
-    write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
-    write(REG_MCNTL, 0x90 | static_cast<uint8_t> (direction));
-    
+    start(direction, step_count, repeats); 
 }
 
 void PCA9629A::home(Direction dir) {
@@ -260,7 +252,7 @@ void PCA9629A::home(Direction dir) {
     write(REG_PMA, 1);
     write(REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and stop motor on interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register     
     write(REG_INTSTAT, 0x00); // reset interrupt status register
-    write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 0);
+    write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 255);
     write(REG_MCNTL, 0x90 | static_cast<uint8_t> (dir));
 
 }

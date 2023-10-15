@@ -97,9 +97,11 @@ bool ReelController::initialise() {
     this->centreReel->initialise();
     this->rightReel->initialise();
 
+    gpio_set_level(GPIO_MOTOR_EN, 1);
     this->leftReel->home(PCA9629A::Direction::CCW); // return to home
     this->centreReel->home(PCA9629A::Direction::CW); // return to home
     this->rightReel->home(PCA9629A::Direction::CCW); // return to home
+    gpio_set_level(GPIO_MOTOR_EN, 0);
 
     // Wait for reels to stop
     while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
