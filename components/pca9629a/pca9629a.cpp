@@ -238,8 +238,11 @@ void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t 
 
     home(direction);
 
-    while (!isStopped()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+    uint8_t data[1];
+    read(REG_MCNTL, &data);
+    while ((data[0] & 0x80) != 0) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(15));
+        read(REG_MCNTL, &data);
     }
 
     start(direction, step_count, repeats);
@@ -260,10 +263,7 @@ void PCA9629A::home(Direction dir) {
 
 bool PCA9629A::isStopped() {
     uint8_t data[1];
-
-    I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_read_reg(&i2c_dev, static_cast<uint8_t> (REG_MCNTL), data, sizeof (data)), "An error occurred reading registers");
-    I2C_DEV_GIVE_MUTEX(&i2c_dev);
+    read(REG_MCNTL, &data);
 
     ESP_LOGD(TAG, "MCNTL register: %d", data[0]);
 
