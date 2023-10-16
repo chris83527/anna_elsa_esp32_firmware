@@ -98,16 +98,17 @@ bool ReelController::initialise() {
     this->rightReel->initialise();
 
     gpio_set_level(GPIO_MOTOR_EN, 1);
-    this->leftReel->home(PCA9629A::Direction::CCW); // return to home
+    this->leftReel->home(PCA9629A::Direction::CW); // return to home
     this->centreReel->home(PCA9629A::Direction::CW); // return to home
-    this->rightReel->home(PCA9629A::Direction::CCW); // return to home
-    
+    this->rightReel->home(PCA9629A::Direction::CW); // return to home
+
 
     // Wait for reels to stop
     while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
-gpio_set_level(GPIO_MOTOR_EN, 0);
+
+    gpio_set_level(GPIO_MOTOR_EN, 0);
     //calibrate();
     //test();
 
@@ -117,6 +118,13 @@ gpio_set_level(GPIO_MOTOR_EN, 0);
 void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, const uint8_t rightStop) {
 
     ESP_LOGI(TAG, "spin called: left stop: %d, centre stop: %d, right stop: %d", leftStop, centreStop, rightStop);
+
+    uint8_t leftSymbolId = mainController->getGame()->symbolsLeftReel[leftStop];
+    uint8_t centreSymbolId = mainController->getGame()->symbolsCentreReel[centreStop];
+    uint8_t rightSymbolId = mainController->getGame()->symbolsRightReel[rightStop];
+
+    ESP_LOGI(TAG, "Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
+
 
     this->commandInProgress = true;
     this->reelStopInfo.leftStop = leftStop;
@@ -132,10 +140,10 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
 
     auto leftReelThread = std::thread([this, &leftSteps]() {
         leftReel->startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
-    });    
+    });
     auto centreReelThread = std::thread([this, &centreSteps]() {
         centreReel->startAfterHome(PCA9629A::Direction::CW, centreSteps, 1);
-    });    
+    });
     auto rightReelThread = std::thread([this, &rightSteps]() {
         rightReel->startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
     });
@@ -147,6 +155,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     bool leftFinished = false;
     bool centreFinished = false;
     bool rightFinished = false;
+    
     while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
 
         if (leftReel->isStopped() && !leftFinished) {
@@ -167,9 +176,11 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
         uint8_t moves = random8_to(13);
         this->mainController->getDisplayController()->setMoves(moves);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::this_thread::sleep_for(std::chrono::milliseconds(25));
     }
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(25)); // DEBUG
+        
     // Switch off
     gpio_set_level(GPIO_MOTOR_EN, 0);
 
@@ -178,6 +189,13 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
 
 void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, const uint8_t rightStop) {
     ESP_LOGI(TAG, "shuffle() called: leftStop: %d, centreStop: %d, rightStop: %d", leftStop, centreStop, rightStop);
+
+    uint8_t leftSymbolId = mainController->getGame()->symbolsLeftReel[leftStop];
+    uint8_t centreSymbolId = mainController->getGame()->symbolsCentreReel[centreStop];
+    uint8_t rightSymbolId = mainController->getGame()->symbolsRightReel[rightStop];
+
+    ESP_LOGI(TAG, "Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
+
 
     this->commandInProgress = true;
     this->reelStopInfo.leftStop = leftStop;
@@ -426,7 +444,7 @@ void ReelController::test() {
         uint8_t rightSymbolId = mainController->getGame()->symbolsRightReel[i];
 
         ESP_LOGI(TAG, "Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
-        
+
         // Switch on
         gpio_set_level(GPIO_MOTOR_EN, 1);
 
@@ -437,21 +455,21 @@ void ReelController::test() {
         auto leftReelThread = std::thread([this, leftSteps]() {
             leftReel->startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
         });
-        
+
         auto centreReelThread = std::thread([this, centreSteps]() {
             centreReel->startAfterHome(PCA9629A::Direction::CW, centreSteps, 1);
         });
-        
+
         auto rightReelThread = std::thread([this, rightSteps]() {
             rightReel->startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
         });
         leftReelThread.join();
         centreReelThread.join();
-        rightReelThread.join();                
+        rightReelThread.join();
 
         while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(25));   
-        }               
+            std::this_thread::sleep_for(std::chrono::milliseconds(25));
+        }
 
         this->mainController->getDisplayController()->waitForButton(BTN_START_MASK_BIT);
     }
