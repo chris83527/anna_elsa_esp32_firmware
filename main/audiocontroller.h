@@ -54,14 +54,14 @@ public:
     static constexpr const char* SND_NOW_THATS_ICE = "spiffs/nowthatsice.ogg";
     static constexpr const char* SND_COME_ON_BUDDY = "spiffs/come-on-buddy-faster.ogg";
     static constexpr const char* SND_DO_THE_MAGIC = "spiffs/do-the-magic.ogg";
-    static constexpr const char* SND_CANT_RUN_FROM_THIS = "spiffs/elsa-you-cant-run-from-this.ogg";
+    static constexpr const char* SND_CANT_RUN_FROM_THIS = "spiffs/you-cant-run-from-this.ogg";
     static constexpr const char* SND_BRING_BACK_SUMMER = "spiffs/bring-back-summer.ogg";
     static constexpr const char* SND_COLDER_BY_THE_MINUTE = "spiffs/colder-by-the-minute.ogg";
     static constexpr const char* SND_MAYBE_NOT_RIGHT_THIS_SECOND = "spiffs/not-right-this-second.ogg";
     static constexpr const char* SND_PRINCE_HANS = "spiffs/prince_hans.ogg";
     static constexpr const char* SND_STAY_OUT_OF_SIGHT = "spiffs/stay-out-of-sight-olaf.ogg";
     static constexpr const char* SND_SUPPLY_AND_DEMAND = "spiffs/supply-and-demand.ogg";
-    static constexpr const char* SND_WONT_GET_AWAY_WITH_THIS = "spiffs/you-wont-get-away-with-this.ogg";
+    static constexpr const char* SND_WONT_GET_AWAY_WITH_THIS = "spiffs/wont-get-away-with-this.ogg";
     static constexpr const char* SND_LET_IT_GO = "spiffs/letitgo.ogg";
     static constexpr const char* SND_THEYRE_TROLLES = "spiffs/theyretrolls.ogg";
     static constexpr const char* SND_CANT_FEEL_LEGS = "spiffs/cantfeellegs.ogg";
