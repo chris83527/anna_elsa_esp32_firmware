@@ -4,12 +4,12 @@ dependencies:
     source:
       type: idf
     version: 4.4.4
-  joltwallet__littlefs:
-    component_hash: null
+  joltwallet/littlefs:
+    component_hash: 2fa0ef8823451b00cec4eec1a18f810e9267b1f588513a64526be456c8a9d59a
     source:
-      path: /home/chris/anna_elsa_esp32_firmware/components/joltwallet__littlefs
-      type: local
+      service_url: https://api.components.espressif.com/
+      type: service
     version: 1.5.1
-manifest_hash: 6b7663de05c6eaf48061009794aa78bdf371a9d4e3ee22aaa54bf3aa73c524c4
+manifest_hash: d5c354b0b9d54048d139701041877b4f7d45f6246588ada78f6646347735746c
 target: esp32
 version: 1.0.0

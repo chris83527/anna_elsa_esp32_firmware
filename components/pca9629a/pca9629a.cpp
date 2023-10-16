@@ -238,11 +238,11 @@ void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t 
 
     home(direction);
 
-    uint8_t data[1];
-    read(REG_MCNTL, &data);
-    while ((data[0] & 0x80) != 0) {
+    uint8_t data;
+    read(REG_MCNTL, data);
+    while ((data & 0x80) != 0) {
         std::this_thread::sleep_for(std::chrono::milliseconds(15));
-        read(REG_MCNTL, &data);
+        read(REG_MCNTL, data);
     }
 
     start(direction, step_count, repeats);
@@ -262,12 +262,12 @@ void PCA9629A::home(Direction dir) {
 }
 
 bool PCA9629A::isStopped() {
-    uint8_t data[1];
-    read(REG_MCNTL, &data);
+    uint8_t data;
+    read(REG_MCNTL, data);
 
-    ESP_LOGD(TAG, "MCNTL register: %d", data[0]);
+    ESP_LOGD(TAG, "MCNTL register: %d", data);
 
-    return (!performingAction && ((data[0] & 0x80) == 0));
+    return (!performingAction && ((data & 0x80) == 0));
 }
 
 void PCA9629A::stop(void) {
