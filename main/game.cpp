@@ -162,7 +162,7 @@ void Game::start() {
         playNudges(nudges);
     } else {
         ESP_LOGI(TAG, "Returning from game to main loop");
-        mainController->getAudioController()->playAudioFile(Sounds::SND_LOSE);
+        mainController->getAudioController()->playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
     }
 
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).setLampState(LampState::off);
@@ -282,7 +282,7 @@ void Game::playNudges(int nudges) {
     if (isWinningLine()) {
         transferOrGamble();
     } else {
-        mainController->getAudioController()->playAudioFileSync(Sounds::SND_LOSE);
+        mainController->getAudioController()->playAudioFileSync(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
     }
 
     ESP_LOGD(TAG, "Exiting nudges()");
@@ -494,7 +494,7 @@ void Game::playShuffle() {
     if (isWinningLine()) {
         transferOrGamble();
     } else {
-        mainController->getAudioController()->playAudioFile(Sounds::SND_LOSE);
+        mainController->getAudioController()->playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
     }
 
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).setLampState(LampState::off);
@@ -522,7 +522,7 @@ void Game::playFreeSpin() {
     if (isWinningLine()) {
         transferOrGamble();
     } else {
-        mainController->getAudioController()->playAudioFile(Sounds::SND_LOSE);
+        mainController->getAudioController()->playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
     }
 
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).setLampState(LampState::off);

@@ -256,15 +256,15 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     gpio_set_level(GPIO_MOTOR_EN, 1);
 
     auto leftReelThread = std::thread([this, &leftSteps]() {
-        leftReel->start(PCA9629A::Direction::CCW, leftSteps, 1);
+        leftReel->start(PCA9629A::Direction::CW, leftSteps, 1);
     });
     leftReelThread.detach();
     auto centreReelThread = std::thread([this, &centreSteps]() {
-        centreReel->start(PCA9629A::Direction::CCW, centreSteps, 1);
+        centreReel->start(PCA9629A::Direction::CW, centreSteps, 1);
     });
     centreReelThread.detach();
     auto rightReelThread = std::thread([this, &rightSteps]() {
-        rightReel->start(PCA9629A::Direction::CCW, rightSteps, 1);
+        rightReel->start(PCA9629A::Direction::CW, rightSteps, 1);
     });
     rightReelThread.detach();
 

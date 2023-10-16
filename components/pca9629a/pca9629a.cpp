@@ -139,7 +139,7 @@ void PCA9629A::init_registers(void) {
         0x00, // IP (read only register, writes to this register have no effect)
         0x01, // INT_MTR_ACT (stop motor on interrupt caused by P0)
         0x00, 0x00, // EXTRASTEPS0, EXTRASTEPS1
-//        0x50, // OP_CFG_PHS (two-phase drive outputs, OUT[3:0] configured as motor drive outputs)
+        //        0x50, // OP_CFG_PHS (two-phase drive outputs, OUT[3:0] configured as motor drive outputs)
         0xD0, // OP_CFG_PHS (half-step drive outputs, OUT[3:0] configured as motor drive outputs)
         0x05, // OP_STAT_TO (output pins = HOLD)
         0x00, // RUCNTL (default values)
@@ -151,8 +151,8 @@ void PCA9629A::init_registers(void) {
         0x00, 0x00, // CCWSCOUNTL, CCWSCOUNTH
         //0x05, 0x1F, // CWPWL, CWPWH
         //0x05, 0x1F, // CCWPWL, CCWPWH
-    0x82,0x10,
-    0x82,0x10,
+        0x82, 0x10,
+        0x82, 0x10,
         0x20, // MCNTL
         0xE2, 0xE4, 0xE6, // SUBADR1 - SUBADR3
         0xE0, // ALLCALLADR
@@ -222,16 +222,19 @@ esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t& result) {
 
 void PCA9629A::start(Direction direction, uint16_t step_count, uint8_t repeats) {
 
+    performingAction = true;
     write(REG_MSK, 0x1F); // Disable all interrupts
     write(REG_INT_MTR_ACT, 0x00);
     write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
     write(REG_PMA, repeats);
     write(REG_INTSTAT, 0x00); // reset interrupt status register    
     write(REG_MCNTL, 0x80 | static_cast<uint8_t> (direction));
-
+    performingAction = false;
 }
 
 void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t repeats) {
+
+    performingAction = true;
 
     home(direction);
 
@@ -239,10 +242,12 @@ void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t 
         std::this_thread::sleep_for(std::chrono::milliseconds(25));
     }
 
-    start(direction, step_count, repeats); 
+    start(direction, step_count, repeats);
+    performingAction = false;
 }
 
 void PCA9629A::home(Direction dir) {
+    performingAction = true;
 
     write(REG_MSK, 0x1E); // Enable interrupt on P0
     write(REG_PMA, 1);
@@ -250,7 +255,7 @@ void PCA9629A::home(Direction dir) {
     write(REG_INTSTAT, 0x00); // reset interrupt status register
     write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 255);
     write(REG_MCNTL, 0x90 | static_cast<uint8_t> (dir));
-
+    performingAction = false;
 }
 
 bool PCA9629A::isStopped() {
@@ -259,10 +264,10 @@ bool PCA9629A::isStopped() {
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
     I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_read_reg(&i2c_dev, static_cast<uint8_t> (REG_MCNTL), data, sizeof (data)), "An error occurred reading registers");
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
-    
+
     ESP_LOGD(TAG, "MCNTL register: %d", data[0]);
 
-    return ((data[0] & 0x80) == 0);
+    return (!performingAction && ((data[0] & 0x80) == 0));
 }
 
 void PCA9629A::stop(void) {

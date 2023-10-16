@@ -248,6 +248,8 @@ private:
     uint32_t clock_speed;
     
     i2c_dev_t i2c_dev;
+    
+    bool performingAction;
 };
 
 
