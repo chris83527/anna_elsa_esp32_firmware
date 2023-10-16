@@ -43,6 +43,7 @@
 #include "esp_pthread.h"
 
 #include "driver/gpio.h"
+#include "driver/ledc.h"
 #include "pca9629a.h"
 
 #include "maincontroller.h"
@@ -105,6 +106,11 @@ private:
     PCA9629A* leftReel;
     PCA9629A* centreReel; 
     PCA9629A* rightReel;
+    
+     // Prepare and then apply the LEDC PWM timer configuration
+    ledc_timer_config_t ledc_timer;
+    ledc_channel_config_t ledc_channel;
+    
 };
 
 #endif /* __WAVE_H__ */

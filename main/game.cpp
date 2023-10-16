@@ -383,9 +383,9 @@ bool Game::isWinningLine() {
     uint8_t centrePos = mainController->getReelController()->getReelStopInfo().centreStop;
     uint8_t rightPos = mainController->getReelController()->getReelStopInfo().rightStop;
 
-    uint8_t leftSymbolId = symbolsLeftReel[leftPos + 1];
-    uint8_t centreSymbolId = symbolsCentreReel[centrePos + 1];
-    uint8_t rightSymbolId = symbolsRightReel[rightPos + 1];
+    uint8_t leftSymbolId = symbolsLeftReel[leftPos - 1];
+    uint8_t centreSymbolId = symbolsCentreReel[centrePos - 1];
+    uint8_t rightSymbolId = symbolsRightReel[rightPos - 1];
 
     ESP_LOGI(TAG, "Reel positions: %s - %s - %s", this->symbolMap[leftSymbolId].c_str(), this->symbolMap[centreSymbolId].c_str(), this->symbolMap[rightSymbolId].c_str());
 
