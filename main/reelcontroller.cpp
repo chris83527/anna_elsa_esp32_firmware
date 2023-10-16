@@ -101,15 +101,15 @@ bool ReelController::initialise() {
     this->leftReel->home(PCA9629A::Direction::CCW); // return to home
     this->centreReel->home(PCA9629A::Direction::CW); // return to home
     this->rightReel->home(PCA9629A::Direction::CCW); // return to home
-    gpio_set_level(GPIO_MOTOR_EN, 0);
+    
 
     // Wait for reels to stop
     while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
-
+gpio_set_level(GPIO_MOTOR_EN, 0);
     //calibrate();
-    test();
+    //test();
 
     return true;
 }
@@ -123,9 +123,9 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     this->reelStopInfo.centreStop = centreStop;
     this->reelStopInfo.rightStop = rightStop;
 
-    int leftSteps = ((this->reelStopInfo.leftStop) * STEPS_PER_STOP) + 300;
-    int centreSteps = ((this->reelStopInfo.centreStop) * STEPS_PER_STOP) + 200;
-    int rightSteps = ((this->reelStopInfo.rightStop) * STEPS_PER_STOP) + 100;
+    int leftSteps = ((this->reelStopInfo.leftStop) * STEPS_PER_STOP);
+    int centreSteps = ((this->reelStopInfo.centreStop) * STEPS_PER_STOP);
+    int rightSteps = ((this->reelStopInfo.rightStop) * STEPS_PER_STOP);
 
     // Switch on
     gpio_set_level(GPIO_MOTOR_EN, 1);
@@ -184,23 +184,23 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     this->reelStopInfo.centreStop = centreStop;
     this->reelStopInfo.rightStop = rightStop;
 
-    int leftSteps = ((this->reelStopInfo.leftStop) * STEPS_PER_STOP);
-    int centreSteps = ((this->reelStopInfo.centreStop) * STEPS_PER_STOP);
-    int rightSteps = ((this->reelStopInfo.rightStop) * STEPS_PER_STOP);
+    int leftSteps = ((this->reelStopInfo.leftStop + 75) * STEPS_PER_STOP);
+    int centreSteps = ((this->reelStopInfo.centreStop + 50) * STEPS_PER_STOP);
+    int rightSteps = ((this->reelStopInfo.rightStop + 25) * STEPS_PER_STOP);
 
     // Switch on
     gpio_set_level(GPIO_MOTOR_EN, 1);
 
     auto leftReelThread = std::thread([this, &leftSteps]() {
-        leftReel->startAfterHome(PCA9629A::Direction::CCW, leftSteps, 1);
+        leftReel->startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
     });
     leftReelThread.detach();
     auto centreReelThread = std::thread([this, &centreSteps]() {
-        centreReel->startAfterHome(PCA9629A::Direction::CW, centreSteps, 1);
+        centreReel->startAfterHome(PCA9629A::Direction::CCW, centreSteps, 1);
     });
     centreReelThread.detach();
     auto rightReelThread = std::thread([this, &rightSteps]() {
-        rightReel->startAfterHome(PCA9629A::Direction::CCW, rightSteps, 1);
+        rightReel->startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
     });
     rightReelThread.detach();
 
@@ -419,7 +419,7 @@ void ReelController::calibrate() {
 void ReelController::test() {
     ESP_LOGI(TAG, "Entering test mode");
 
-    for (int i = 0; i <= 25; i++) {
+    for (int i = 0; i < 25; i++) {
 
         uint8_t leftSymbolId = mainController->getGame()->symbolsLeftReel[i];
         uint8_t centreSymbolId = mainController->getGame()->symbolsCentreReel[i];
