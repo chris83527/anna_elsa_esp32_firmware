@@ -181,7 +181,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     std::this_thread::sleep_for(std::chrono::milliseconds(50)); // DEBUG
 
     // Switch off
-    gpio_set_level(GPIO_MOTOR_EN, 0);
+    //gpio_set_level(GPIO_MOTOR_EN, 1);
 
     this->commandInProgress = false;
 }
@@ -321,7 +321,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     
     // Switch on
-    gpio_set_level(GPIO_MOTOR_EN, 0);
+    //gpio_set_level(GPIO_MOTOR_EN, 0);
 
     this->commandInProgress = false;
 }
