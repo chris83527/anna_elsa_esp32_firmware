@@ -109,6 +109,8 @@ bool ReelController::initialise() {
     ledc_channel.duty = 0;
     ledc_channel.hpoint = 0;
 
+    ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
+    
     if (ledc_channel_config(&ledc_channel) != ESP_OK) {
         ESP_LOGE(TAG, "An error occurred initialising PWM subsystem for reels");
         return ESP_FAIL;
