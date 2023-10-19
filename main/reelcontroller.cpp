@@ -93,32 +93,32 @@ bool ReelController::initialise() {
     // Set the GPIO as a push/pull output
     gpio_set_direction(GPIO_MOTOR_EN, GPIO_MODE_OUTPUT);
 
-    // Prepare and then apply the LEDC PWM channel configuration
-    ledc_channel.gpio_num = GPIO_MOTOR_EN;
-    ledc_channel.speed_mode = LEDC_MODE;
-    ledc_channel.channel = LEDC_CHANNEL;
-    ledc_channel.intr_type = LEDC_INTR_DISABLE;
-    ledc_channel.timer_sel = LEDC_TIMER;
-    ledc_channel.duty = 0;
-    ledc_channel.hpoint = 0;
-
-    // Prepare and then apply the LEDC PWM timer configuration
-    ledc_timer.speed_mode = LEDC_MODE;
-    ledc_timer.timer_num = LEDC_TIMER;
-    ledc_timer.duty_resolution = LEDC_DUTY_RES;
-    ledc_timer.freq_hz = LEDC_FREQUENCY; // Set output frequency at 100Hz
-    ledc_timer.clk_cfg = LEDC_AUTO_CLK;
-
-
-    if (ledc_channel_config(&ledc_channel) != ESP_OK) {
-        ESP_LOGE(TAG, "An error occurred initialising PWM subsystem for reels (channel config)");
-        return ESP_FAIL;
-    }
-
-    if (ledc_timer_config(&ledc_timer) != ESP_OK) {
-        ESP_LOGE(TAG, "An error occurred initialising PWM subsystem for reels (timer config)");
-        return ESP_FAIL;
-    }
+    //    // Prepare and then apply the LEDC PWM channel configuration
+    //    ledc_channel.gpio_num = GPIO_MOTOR_EN;
+    //    ledc_channel.speed_mode = LEDC_MODE;
+    //    ledc_channel.channel = LEDC_CHANNEL;
+    //    ledc_channel.intr_type = LEDC_INTR_DISABLE;
+    //    ledc_channel.timer_sel = LEDC_TIMER;
+    //    ledc_channel.duty = 0;
+    //    ledc_channel.hpoint = 0;
+    //
+    //    // Prepare and then apply the LEDC PWM timer configuration
+    //    ledc_timer.speed_mode = LEDC_MODE;
+    //    ledc_timer.timer_num = LEDC_TIMER;
+    //    ledc_timer.duty_resolution = LEDC_DUTY_RES;
+    //    ledc_timer.freq_hz = LEDC_FREQUENCY; // Set output frequency at 100Hz
+    //    ledc_timer.clk_cfg = LEDC_AUTO_CLK;
+    //
+    //
+    //    if (ledc_channel_config(&ledc_channel) != ESP_OK) {
+    //        ESP_LOGE(TAG, "An error occurred initialising PWM subsystem for reels (channel config)");
+    //        return ESP_FAIL;
+    //    }
+    //
+    //    if (ledc_timer_config(&ledc_timer) != ESP_OK) {
+    //        ESP_LOGE(TAG, "An error occurred initialising PWM subsystem for reels (timer config)");
+    //        return ESP_FAIL;
+    //    }
 
 
     reelLeftInitOk = false;
@@ -133,8 +133,10 @@ bool ReelController::initialise() {
     this->centreReel->initialise();
     this->rightReel->initialise();
 
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    //ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
+    //ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    gpio_set_level(GPIO_MOTOR_EN, 1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     this->leftReel->home(PCA9629A::Direction::CW); // return to home
     this->centreReel->home(PCA9629A::Direction::CW); // return to home
@@ -146,8 +148,11 @@ bool ReelController::initialise() {
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    gpio_set_level(GPIO_MOTOR_EN, 0);
+
+    //ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+    //ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     //calibrate();
     //test();
 
@@ -174,8 +179,11 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     int rightSteps = ((this->reelStopInfo.rightStop - 1) * STEPS_PER_STOP);
 
     // Switch on
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    //ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
+    //ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+
+    gpio_set_level(GPIO_MOTOR_EN, 1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     auto leftReelThread = std::thread([this, &leftSteps]() {
         leftReel->startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
@@ -219,8 +227,10 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     }
 
     // Switch off
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    //ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+    //ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    gpio_set_level(GPIO_MOTOR_EN, 0);
 
     this->commandInProgress = false;
 }
@@ -245,8 +255,11 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     int rightSteps = (((this->reelStopInfo.rightStop - 1) + 25) * STEPS_PER_STOP);
 
     // Switch on
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    //ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
+    //ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+
+    gpio_set_level(GPIO_MOTOR_EN, 1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     auto leftReelThread = std::thread([this, &leftSteps]() {
         leftReel->startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
@@ -290,8 +303,11 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     }
 
     // Switch off    
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    //ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+    //ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    gpio_set_level(GPIO_MOTOR_EN, 0);
+
 
     this->commandInProgress = false;
 }
@@ -319,8 +335,10 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     ESP_LOGI(TAG, "nudge: leftSteps: %d, centreSteps: %d, rightSteps: %d", leftSteps, centreSteps, rightSteps);
 
     // Switch on
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    //ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
+    //ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    gpio_set_level(GPIO_MOTOR_EN, 1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     auto leftReelThread = std::thread([this, &leftSteps]() {
         leftReel->start(PCA9629A::Direction::CW, leftSteps, 1);
@@ -360,8 +378,11 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     }
 
     // Switch off
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    //ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+    //ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    gpio_set_level(GPIO_MOTOR_EN, 0);
+
 
     this->commandInProgress = false;
 }
@@ -376,8 +397,11 @@ void ReelController::calibrate() {
     int rightCcwCorrection = 0;
 
     // Switch on
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    //ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
+    //ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);    
+    gpio_set_level(GPIO_MOTOR_EN, 1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
 
     this->mainController->getDisplayController()->displayText("LEFT CW: 00");
     this->leftReel->home(PCA9629A::Direction::CW);
@@ -482,8 +506,11 @@ void ReelController::calibrate() {
     }
 
     // Switch off
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    //ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+    //ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    gpio_set_level(GPIO_MOTOR_EN, 0);
+
 
 }
 
@@ -499,8 +526,10 @@ void ReelController::test() {
         ESP_LOGI(TAG, "Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
 
         // Switch off
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        //ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
+        //ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        gpio_set_level(GPIO_MOTOR_EN, 1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
         uint8_t leftSteps = i * STEPS_PER_STOP;
         uint8_t centreSteps = i * STEPS_PER_STOP;
@@ -528,8 +557,10 @@ void ReelController::test() {
         this->mainController->getDisplayController()->waitForButton(BTN_START_MASK_BIT);
 
         // Switch off
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        //ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+        //ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        gpio_set_level(GPIO_MOTOR_EN, 0);
 
     }
 }
