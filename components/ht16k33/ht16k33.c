@@ -40,7 +40,7 @@
 #include <esp_idf_lib_helpers.h>
 #include "ht16k33.h"
 
-#define I2C_FREQ_HZ 100000
+#define I2C_FREQ_HZ 400000
 
 #define HT16K33_ON              0x21  // Commands
 #define HT16K33_STANDBY         0x20
