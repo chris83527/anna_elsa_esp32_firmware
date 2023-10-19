@@ -51,6 +51,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/webserver.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/tas5731m.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/pca9629a/pca9629a.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/audiocontroller.h</file>
         </group>
     </open-files>
     <preferences xmlns="http://www.netbeans.org/ns/auxiliary-configuration-preferences/1">

@@ -3193,6 +3193,7 @@
               <in>error.c</in>
               <in>psa_crypto_driver_wrappers.c</in>
               <in>ssl_debug_helpers_generated.c</in>
+              <in>version_features.c</in>
             </df>
           </df>
         </df>
