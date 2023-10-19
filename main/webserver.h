@@ -44,7 +44,7 @@
 #include "nvs_flash.h"
 #include "sys/param.h"
 #include "esp_netif.h"
-#include "esp_eth.h"
+//#include "esp_eth.h"
 
 #include <esp_https_server.h>
 

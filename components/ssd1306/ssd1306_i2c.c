@@ -37,22 +37,22 @@
 
 #define I2C_NUM I2C_NUM_0
 
-#define I2C_MASTER_FREQ_HZ 400000 /*!< I2C clock of SSD1306 can run at 400 kHz max. */
+#define I2C_MASTER_FREQ_HZ 100000 /*!< I2C clock of SSD1306 can run at 400 kHz max. */
 
 i2c_dev_t i2cdev;
 
+static const char *TAG = "ssd1306_i2c";
+
 esp_err_t i2c_master_init(SSD1306_t * dev, const i2c_port_t port, const uint8_t addr, const gpio_num_t sda_gpio, const gpio_num_t scl_gpio) {
 
-    i2cdev = (i2c_dev_t) {
-        .addr = addr,
-        .cfg.mode = I2C_MODE_MASTER,
-        .cfg.sda_io_num = sda_gpio,
-        .cfg.scl_io_num = scl_gpio,
-        .cfg.sda_pullup_en = GPIO_PULLUP_DISABLE,
-        .cfg.scl_pullup_en = GPIO_PULLUP_DISABLE,
-        .cfg.master.clk_speed = I2C_MASTER_FREQ_HZ,                
-        .port = port,
-    };
+    i2cdev.addr = addr;
+    i2cdev.cfg.mode = I2C_MODE_MASTER;
+    i2cdev.cfg.sda_io_num = sda_gpio;
+    i2cdev.cfg.scl_io_num = scl_gpio;
+    i2cdev.cfg.sda_pullup_en = GPIO_PULLUP_DISABLE;
+    i2cdev.cfg.scl_pullup_en = GPIO_PULLUP_DISABLE;
+    i2cdev.cfg.master.clk_speed = I2C_MASTER_FREQ_HZ;
+    i2cdev.port = port;
 
     dev->_address = addr;
     dev->_flip = false;
@@ -155,7 +155,7 @@ void i2c_contrast(SSD1306_t * dev, int contrast) {
     uint8_t data[3] = {
         OLED_CONTROL_BYTE_CMD_STREAM,
         OLED_CMD_SET_CONTRAST,
-        (uint8_t)_contrast,
+        (uint8_t) _contrast,
     };
 
     i2c_write_bytes(&i2cdev, &data[0], 3);
@@ -251,7 +251,7 @@ void i2c_contrast(SSD1306_t * dev, int contrast) {
  */
 esp_err_t i2c_write_bytes(i2c_dev_t * dev, uint8_t* bytesToWrite, size_t len) {
     I2C_DEV_TAKE_MUTEX(dev);
-    I2C_DEV_CHECK(dev, i2c_dev_write(dev, NULL, 0, bytesToWrite, len));
+    I2C_DEV_CHECK_LOGE(dev, i2c_dev_write(dev, NULL, 0, bytesToWrite, len), "An error occurred in i2c_write_bytes writing i2c data");
     I2C_DEV_GIVE_MUTEX(dev);
 
     return ESP_OK;

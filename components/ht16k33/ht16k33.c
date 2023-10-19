@@ -190,7 +190,7 @@ esp_err_t ht16k33_write_cmd(ht16k33_t *dev, const uint8_t cmd)
     CHECK_ARG(dev);
 
     I2C_DEV_TAKE_MUTEX(dev);
-    I2C_DEV_CHECK(dev, i2c_dev_write(dev, NULL, 0, &cmd, 1));
+    I2C_DEV_CHECK_LOGE(dev, i2c_dev_write(dev, NULL, 0, &cmd, 1), "An error occurred in ht16k33_write_cmd writing i2c data");
     I2C_DEV_GIVE_MUTEX(dev);
 
     return ESP_OK;
@@ -206,7 +206,7 @@ esp_err_t ht16k33_write_pos(ht16k33_t *dev, const uint8_t pos, const uint8_t mas
     }
 
     I2C_DEV_TAKE_MUTEX(dev);    
-    I2C_DEV_CHECK(dev, i2c_dev_write_reg(dev, pos * 2, &new_mask, 1));
+    I2C_DEV_CHECK_LOGE(dev, i2c_dev_write_reg(dev, pos * 2, &new_mask, 1),"An error occurred in ht16k33_write_pos writing i2c data");
     I2C_DEV_GIVE_MUTEX(dev);
 
     return ESP_OK;

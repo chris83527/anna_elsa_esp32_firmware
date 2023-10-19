@@ -70,7 +70,7 @@ audio_hal_func_t AUDIO_CODEC_TAS5731M_DEFAULT_HANDLE = {
 };
 
 static esp_err_t tas5731m_transmit_registers() {
-    int i = 0;
+
     esp_err_t ret = ESP_OK;
 
     ESP_LOGD(TAG, "Taking mutex");
@@ -78,93 +78,93 @@ static esp_err_t tas5731m_transmit_registers() {
     uint8_t buf[10];
     buf[0] = 0x00;
     // init sequence
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x1b, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x1b, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     vTaskDelay(50 / portTICK_RATE_MS);
     buf[0] = 0x03;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x04, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x04, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     buf[0] = 0x00;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x06, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x06, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     buf[0] = 0x30;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x0a, &buf[0], 1));
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x09, &buf[0], 1));
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x08, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x0a, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x09, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x08, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     buf[0] = 0x54;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x14, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x14, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     buf[0] = 0xac;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x13, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x13, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     buf[0] = 0x54;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x12, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x12, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     buf[0] = 0xac;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x11, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x11, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     buf[0] = 0x91;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x0e, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x0e, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     buf[0] = 0x00;
     buf[1] = 0x01;
     buf[2] = 0x77;
     buf[3] = 0x72;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x20, &buf[0], 4));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x20, &buf[0], 4), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     buf[0] = 0x02;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x10, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x10, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     buf[0] = 0x00;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x0b, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x0b, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     buf[0] = 0x02;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x10, &buf[0], 1));
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x1c, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x10, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x1c, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     buf[0] = 0x30;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x19, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x19, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     buf[0] = 0x01;
     buf[1] = 0x02;
     buf[2] = 0x13;
     buf[3] = 0x45;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x25, &buf[0], 4));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x25, &buf[0], 4), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     buf[0] = 0xff;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x07, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x07, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     buf[0] = 0x00;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x05, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x05, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     buf[0] = 0x60;
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x07, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x07, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     ESP_LOGD(TAG, "Releasing mutex");
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
-    
+
     // Read error status register
     I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK(&i2c_dev, i2c_dev_read_reg(&i2c_dev, 0x02, &buf[0], 1));
+    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_read_reg(&i2c_dev, 0x02, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
     I2C_DEV_GIVE_MUTEX(&i2c_dev);
 
     if (buf[0] & 2) {
         ESP_LOGW(TAG, "Overcurrent, overtemperature or undervoltage errors");
     }
-    
+
     if (buf[0] & 4) {
-        ESP_LOGW(TAG, "Clip indicator");        
+        ESP_LOGW(TAG, "Clip indicator");
     }
-    
+
     if (buf[0] & 8) {
-        ESP_LOGW(TAG, "Frame slip");        
+        ESP_LOGW(TAG, "Frame slip");
     }
-    
+
     if (buf[0] & 16) {
-        ESP_LOGW(TAG, "LRCLK error");        
+        ESP_LOGW(TAG, "LRCLK error");
     }
-    
+
     if (buf[0] & 32) {
-        ESP_LOGW(TAG, "SCLK error");        
+        ESP_LOGW(TAG, "SCLK error");
     }
-    
+
     if (buf[0] & 64) {
-        ESP_LOGW(TAG, "PLL autolock error");        
+        ESP_LOGW(TAG, "PLL autolock error");
     }
-    
+
     if (buf[0] & 128) {
-        ESP_LOGW(TAG, "MCLK error");        
+        ESP_LOGW(TAG, "MCLK error");
     }
-    
-    
+
+
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Fail to load configuration to TAS5731M");
         return ESP_FAIL;
     }
-    
+
     return ret;
 }
 
@@ -176,41 +176,39 @@ esp_err_t tas5731m_init(audio_hal_codec_config_t *codec_cfg) {
     gpio_pad_select_gpio(TAS5731M_PDWN_GPIO);
 
     gpio_set_direction(TAS5731M_RST_GPIO, GPIO_MODE_OUTPUT);
-    gpio_set_direction(TAS5731M_PDWN_GPIO, GPIO_MODE_OUTPUT);    
-    
+    gpio_set_direction(TAS5731M_PDWN_GPIO, GPIO_MODE_OUTPUT);
+
     uint32_t reg_val = REG_READ(PIN_CTRL);
     ESP_LOGD(TAG, "PIN_CTRL before:%x", reg_val);
     REG_WRITE(PIN_CTRL, 0xFFFFFFF0);
     reg_val = REG_READ(PIN_CTRL);
     ESP_LOGD(TAG, "PIN_CTRL after:%x", reg_val);
     PIN_FUNC_SELECT(GPIO_PIN_REG_0, 1); //GPIO0 as CLK_OUT1
-        
+
     // See TI TAS5731M Datasheet page 63
-    gpio_set_level(TAS5731M_RST_GPIO, 0);// Drive /RESET = 0
-    gpio_set_level(TAS5731M_PDWN_GPIO, 0); 
+    gpio_set_level(TAS5731M_RST_GPIO, 0); // Drive /RESET = 0
+    gpio_set_level(TAS5731M_PDWN_GPIO, 0);
     vTaskDelay(200 / portTICK_RATE_MS);
-    gpio_set_level(TAS5731M_PDWN_GPIO, 1); 
+    gpio_set_level(TAS5731M_PDWN_GPIO, 1);
     vTaskDelay(200 / portTICK_RATE_MS);
     gpio_set_level(TAS5731M_RST_GPIO, 1);
-    vTaskDelay(500 / portTICK_RATE_MS);   
-   
-    
-    memset(&i2c_dev, 0, sizeof(i2c_dev_t));
-    i2c_dev = (i2c_dev_t){        
-        .addr = TAS5731M_ADDRESS,
-        .cfg.mode = I2C_MODE_MASTER,
-        .cfg.sda_io_num = GPIO_I2C_SDA,
-        .cfg.scl_io_num = GPIO_I2C_SCL,
-        .cfg.sda_pullup_en = GPIO_PULLUP_DISABLE,
-        .cfg.scl_pullup_en = GPIO_PULLUP_DISABLE,
-        .cfg.clk_flags = 0,
-        .cfg.master.clk_speed = I2C_MASTER_FREQ_HZ,
-        .port = I2C_NUM_0,
-    };
+    vTaskDelay(500 / portTICK_RATE_MS);
 
 
-    ret |= i2c_dev_create_mutex(&i2c_dev);    
-    
+    memset(&i2c_dev, 0, sizeof (i2c_dev_t));
+
+    i2c_dev.addr = TAS5731M_ADDRESS;
+    i2c_dev.cfg.mode = I2C_MODE_MASTER;
+    i2c_dev.cfg.sda_io_num = GPIO_I2C_SDA;
+    i2c_dev.cfg.scl_io_num = GPIO_I2C_SCL;
+    i2c_dev.cfg.sda_pullup_en = GPIO_PULLUP_DISABLE;
+    i2c_dev.cfg.scl_pullup_en = GPIO_PULLUP_DISABLE;
+    i2c_dev.cfg.clk_flags = 0;
+    i2c_dev.cfg.master.clk_speed = I2C_MASTER_FREQ_HZ;
+    i2c_dev.port = I2C_NUM_0;
+
+    ret |= i2c_dev_create_mutex(&i2c_dev);
+
     if (ret != ESP_OK) {
         ESP_LOGW(TAG, "failed to create i2c mutex");
         return ESP_FAIL;
@@ -221,7 +219,7 @@ esp_err_t tas5731m_init(audio_hal_codec_config_t *codec_cfg) {
     if (ret != ESP_OK) {
         ESP_LOGW(TAG, "failed to transmit register");
         return ESP_FAIL;
-    }       
+    }
 
     TAS5731M_ASSERT(ret, "Fail to initialise TAS5731M PA", ESP_FAIL);
     return ret;
