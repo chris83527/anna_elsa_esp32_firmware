@@ -205,7 +205,7 @@ esp_err_t tas5731m_init(audio_hal_codec_config_t *codec_cfg) {
     i2c_dev.cfg.scl_pullup_en = GPIO_PULLUP_DISABLE;
     i2c_dev.cfg.clk_flags = 0;
     i2c_dev.cfg.master.clk_speed = I2C_MASTER_FREQ_HZ;
-    i2c_dev.port = I2C_NUM_0;
+    i2c_dev.port = I2C_NUM_0;               
 
     ret |= i2c_dev_create_mutex(&i2c_dev);
 

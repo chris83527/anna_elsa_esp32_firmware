@@ -121,15 +121,17 @@ esp_err_t ht16k33_init_desc(ht16k33_t *dev, const i2c_port_t port, const uint8_t
         ESP_LOGE(TAG, "Invalid device address: 0x%02x", addr);
         return ESP_ERR_INVALID_ARG;
     }
-
+    
     dev->port = port;
     dev->addr = addr;
     dev->cfg.mode = I2C_MODE_MASTER;
     dev->cfg.sda_io_num = sda_gpio;
     dev->cfg.scl_io_num = scl_gpio;
+    dev->cfg.sda_pullup_en = GPIO_PULLUP_DISABLE;
+    dev->cfg.scl_pullup_en = GPIO_PULLUP_DISABLE;
     dev->cfg.clk_flags = 0;
     dev->cfg.master.clk_speed = I2C_FREQ_HZ;
-
+   
     return i2c_dev_create_mutex(dev);
 }
 

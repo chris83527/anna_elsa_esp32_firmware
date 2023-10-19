@@ -45,12 +45,14 @@ static const char *TAG = "ssd1306_i2c";
 
 esp_err_t i2c_master_init(SSD1306_t * dev, const i2c_port_t port, const uint8_t addr, const gpio_num_t sda_gpio, const gpio_num_t scl_gpio) {
 
+    memset(&i2cdev, 0, sizeof (i2c_dev_t));
     i2cdev.addr = addr;
     i2cdev.cfg.mode = I2C_MODE_MASTER;
     i2cdev.cfg.sda_io_num = sda_gpio;
     i2cdev.cfg.scl_io_num = scl_gpio;
     i2cdev.cfg.sda_pullup_en = GPIO_PULLUP_DISABLE;
     i2cdev.cfg.scl_pullup_en = GPIO_PULLUP_DISABLE;
+    i2cdev.cfg.clk_flags = 0;
     i2cdev.cfg.master.clk_speed = I2C_MASTER_FREQ_HZ;
     i2cdev.port = port;
 

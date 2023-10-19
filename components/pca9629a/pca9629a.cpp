@@ -104,8 +104,8 @@ void PCA9629A::initialise() {
     this->i2c_dev.cfg.scl_pullup_en = GPIO_PULLUP_DISABLE;
     this->i2c_dev.cfg.clk_flags = 0;
     this->i2c_dev.cfg.master.clk_speed = this->clock_speed;
-    this->i2c_dev.port = this->port;
-
+    this->i2c_dev.port = this->port;  
+    
     if (i2c_dev_create_mutex(&i2c_dev) != ESP_OK) {
         ESP_LOGE(TAG, "failed to create i2c mutex");
         //return ESP_FAIL;
