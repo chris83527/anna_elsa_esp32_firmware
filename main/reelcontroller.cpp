@@ -215,7 +215,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
         uint8_t moves = random8_to(13);
         this->mainController->getDisplayController()->setMoves(moves);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
     // Switch off
@@ -233,7 +233,6 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     uint8_t rightSymbolId = mainController->getGame()->symbolsRightReel[rightStop - 1];
 
     ESP_LOGI(TAG, "Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
-
 
     this->commandInProgress = true;
     this->reelStopInfo.leftStop = leftStop;
@@ -289,7 +288,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
         uint8_t moves = random8_to(13);
         this->mainController->getDisplayController()->setMoves(moves);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
     // Switch off    
@@ -361,7 +360,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
             rightFinished = true;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
     // Switch off

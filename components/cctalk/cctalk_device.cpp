@@ -86,9 +86,10 @@ namespace esp32cc {
             cfg.prio = 9;
             cfg.stack_size = 8192;
             esp_pthread_set_cfg(&cfg);
-            pollThread.reset(new std::thread([this] {
+            auto pollThread = std::thread([this] {
                 devicePollTask();
-            }));
+            });
+            pollThread.detach();
         }
 
     }
@@ -96,9 +97,7 @@ namespace esp32cc {
     void CctalkDevice::stopPolling() {
         ESP_LOGD(TAG, "Stopping poll timer.");
 
-        this->isPolling = false;
-        pollThread.get()->join();
-
+        this->isPolling = false;       
     }
 
     void CctalkDevice::devicePollTask() {

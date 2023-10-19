@@ -327,7 +327,7 @@ namespace esp32cc {
         uint8_t lastEventNumber = 0; ///< Last event number returned by ReadBufferedCredit command.
 
         TaskHandle_t pollTaskHandle;
-        std::unique_ptr<std::thread> pollThread;
+        std::thread pollThread;
         int pollingInterval = defaultNormalPollingIntervalMsec;
         bool isPolling = false;
 
