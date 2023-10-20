@@ -142,6 +142,7 @@ void AudioController::initialise() {
 }
 
 void AudioController::playAudioFile(const char* filepath) {
+    stopPlaying();
     std::string uri = "spiffs://";
     uri = uri.append(filepath);
     ESP_LOGI(TAG, "Playing %s", uri.c_str());
@@ -149,6 +150,7 @@ void AudioController::playAudioFile(const char* filepath) {
 }
 
 void AudioController::playAudioFileSync(const char* filepath) {
+    stopPlaying();
     std::string uri = "spiffs://";
     uri = uri.append(filepath);
     ESP_LOGI(TAG, "Playing %s", uri.c_str());
