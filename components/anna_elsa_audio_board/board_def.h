@@ -32,11 +32,12 @@
 #ifndef BOARD_DEF_H
 #define BOARD_DEF_H
 
-
 #define GPIO_I2C_SDA GPIO_NUM_21
 #define GPIO_I2C_SCL GPIO_NUM_22
 
 #define GPIO_AUDIO_PDWN GPIO_NUM_2
+
+#define BOARD_PA_GAIN 0
 
 #ifdef __cplusplus
 extern "C" {
