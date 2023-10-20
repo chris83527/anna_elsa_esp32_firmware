@@ -109,7 +109,6 @@ bool ReelController::initialise() {
     ledc_timer.freq_hz = LEDC_FREQUENCY; // Set output frequency at 100Hz
     ledc_timer.clk_cfg = LEDC_AUTO_CLK;
 
-
     if (ledc_channel_config(&ledc_channel) != ESP_OK) {
         ESP_LOGE(TAG, "An error occurred initialising PWM subsystem for reels (channel config)");
         return ESP_FAIL;
@@ -138,7 +137,6 @@ bool ReelController::initialise() {
     this->leftReel->home(PCA9629A::Direction::CW); // return to home
     this->centreReel->home(PCA9629A::Direction::CW); // return to home
     this->rightReel->home(PCA9629A::Direction::CW); // return to home
-
 
     // Wait for reels to stop
     while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
@@ -169,9 +167,9 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     this->reelStopInfo.centreStop = centreStop;
     this->reelStopInfo.rightStop = rightStop;
 
-    int leftSteps = ((this->reelStopInfo.leftStop - 1) * STEPS_PER_STOP);
-    int centreSteps = ((this->reelStopInfo.centreStop - 1) * STEPS_PER_STOP);
-    int rightSteps = ((this->reelStopInfo.rightStop - 1) * STEPS_PER_STOP);
+    int leftSteps = (((this->reelStopInfo.leftStop - 1) + 75) * STEPS_PER_STOP);
+    int centreSteps = (((this->reelStopInfo.centreStop - 1) + 50) * STEPS_PER_STOP);
+    int rightSteps = (((this->reelStopInfo.rightStop - 1) + 25) * STEPS_PER_STOP);
 
     // Switch on
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
@@ -215,7 +213,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
         uint8_t moves = random8_to(13);
         this->mainController->getDisplayController()->setMoves(moves);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(25));
     }
 
     // Switch off
@@ -295,8 +293,6 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-
-
     this->commandInProgress = false;
 }
 
@@ -313,14 +309,13 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     uint8_t centreSymbolId = mainController->getGame()->symbolsCentreReel[this->reelStopInfo.centreStop - 1];
     uint8_t rightSymbolId = mainController->getGame()->symbolsRightReel[this->reelStopInfo.rightStop - 1];
 
-    ESP_LOGI(TAG, "Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
-
+    ESP_LOGD(TAG, "Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
 
     int leftSteps = leftStops * STEPS_PER_STOP;
     int centreSteps = centreStops * STEPS_PER_STOP;
     int rightSteps = rightStops * STEPS_PER_STOP;
 
-    ESP_LOGI(TAG, "nudge: leftSteps: %d, centreSteps: %d, rightSteps: %d", leftSteps, centreSteps, rightSteps);
+    ESP_LOGD(TAG, "nudge: leftSteps: %d, centreSteps: %d, rightSteps: %d", leftSteps, centreSteps, rightSteps);
 
     // Switch on
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
