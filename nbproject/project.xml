@@ -6,13 +6,13 @@
             <name>anna_elsa_esp32_firmware</name>
             <c-extensions>c</c-extensions>
             <cpp-extensions>cc,cpp</cpp-extensions>
-            <header-extensions>cstub,h,hpp,inc</header-extensions>
+            <header-extensions>cstub,def,h,hpp,inc</header-extensions>
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects/>
             <sourceRootList>
                 <sourceRootElem>.</sourceRootElem>
                 <sourceRootElem>../esp/esp-idf-lib/components</sourceRootElem>
-                <sourceRootElem>../esp/esp-idf-v4.4/components</sourceRootElem>
+                <sourceRootElem>../esp/esp-idf-v4.4.6/components</sourceRootElem>
                 <sourceRootElem>../esp/esp-adf/components</sourceRootElem>
             </sourceRootList>
             <confList>

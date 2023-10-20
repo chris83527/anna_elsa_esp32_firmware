@@ -10,46 +10,54 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/coin_acceptor_device.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/component.mk</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/httpcontroller.cpp</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/components/pca9629a/component.mk</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/moneycontroller.h</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/tas5731m.h</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/displaycontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board.c</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/audiocontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/m20ly02z/m20ly02z.c</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/cctalkcontroller.h</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.cpp</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/components/pca9629a/pca9629a.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/CMakeLists.txt</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/components/ht16k33/ht16k33.c</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/serial_worker.h</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/tas5731m_reg_cfg.h</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/main.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_link_controller.cpp</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/components/ssd1306/ssd1306.c</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/cctalkcontroller.cpp</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_pins_config.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/pca9629a/CMakeLists.txt</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/components/ssd1306/ssd1306_i2c.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/oledcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/m20ly02z/CMakeLists.txt</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_def.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_device.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/moneycontroller.cpp</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_link_controller.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/CMakeLists.txt</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/config/sdkconfig.h</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_pins_config.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_device.cpp</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/httpcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/m20ly02z/component.mk</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/ht16k33/component.mk</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/pca9629a/component.mk</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/moneycontroller.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/tas5731m.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/displaycontroller.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/audiocontroller.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/coin_hopper_device.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/cctalkcontroller.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/pca9629a/pca9629a.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/ht16k33/ht16k33.c</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/serial_worker.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/tas5731m_reg_cfg.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/main.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/ssd1306/ssd1306.c</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/cctalkcontroller.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_pins_config.c</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/CMakeLists.txt</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/ssd1306/ssd1306_i2c.c</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_pins_config.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/webserver.c</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/nbproject/private/launcher.properties</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/tas5731m.c</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/webserver.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/serial_worker.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_enums.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/pca9629a/pca9629a.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/audiocontroller.h</file>
         </group>
