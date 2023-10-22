@@ -37,7 +37,7 @@
 
 #define I2C_NUM I2C_NUM_0
 
-#define I2C_MASTER_FREQ_HZ 50000 /*!< I2C clock of SSD1306 can run at 400 kHz max. */
+#define I2C_MASTER_FREQ_HZ 200000 /*!< I2C clock of SSD1306 can run at 400 kHz max. */
 
 i2c_dev_t i2cdev;
 

@@ -40,7 +40,7 @@ static const char *TAG = "TAS5731M";
 #define TAS5731M_VOLUME_MAX 100
 #define TAS5731M_VOLUME_MIN 100
 
-#define I2C_MASTER_FREQ_HZ 50000
+#define I2C_MASTER_FREQ_HZ 200000
 
 #define TAS5731M_ASSERT(a, format, b, ...) \
     if ((a) != 0) { \
