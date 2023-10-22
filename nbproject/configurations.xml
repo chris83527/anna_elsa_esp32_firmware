@@ -67,7 +67,7 @@
         <in>wifi.cpp</in>
       </df>
     </df>
-    <df root="../esp/esp-idf-v4.4.6/components" name="2">
+    <df root="../esp/esp-idf-v4.4.6/components" name="1">
       <df name="app_trace">
         <df name="gcov">
           <in>gcov_rtio.c</in>
