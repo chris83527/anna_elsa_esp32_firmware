@@ -44,7 +44,7 @@
 #include "pca9629a.h"
 #include "mcp23x17.h"
 
-#define I2C_FREQ_HZ 400000
+#define I2C_FREQ_HZ 100000
 
 // Running LED
 #define CPU_LED_GPIO GPIO_NUM_19
