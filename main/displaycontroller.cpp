@@ -186,11 +186,8 @@ esp_err_t DisplayController::initialise() {
         ESP_LOGD(TAG, "WS2812 driver installation succeeded");
     }
 
-    creditDisplay.cfg.master.clk_speed = I2C_FREQ_HZ;
-    creditDisplay.cfg.mode = I2C_MODE_MASTER;
-    creditDisplay.cfg.scl_pullup_en = false;
-    creditDisplay.cfg.sda_pullup_en = false;
-    if (ht16k33_init_desc(&creditDisplay, 0, CREDIT_DISPLAY_ADDRESS, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
+    
+    if (ht16k33_init_desc(&creditDisplay)) {
         ESP_LOGE(TAG, "Could not initialise credit display");
     } else {
         ht16k33_display_on(&creditDisplay);

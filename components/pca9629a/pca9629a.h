@@ -37,11 +37,10 @@
 #include <thread>
 #include <chrono>
 
-#include "i2cdev.h"
+#include "i2c_manager.h"
 
 #define PCA_9629A_DEFAULT_STEPS_PER_ROTATION  48
 #define PCA9629A_I2C_ADDR_BASE        0x20
-#define I2C_FREQ_HZ 100000
 
 /** PCA9629A class
  *
@@ -110,24 +109,16 @@ public:
     } Direction;
 
     /** Create a PCA9629 instance connected to specified I2C pins with specified address
-     *
-     * @param I2C_sda I2C-bus SDA pin
-     * @param I2C_scl I2C-bus SCL pin          
-     * @param i2c_address I2C-bus address (default: 0x20)
-     * @param clock_speed
+     *            
+     * @param i2c_port The I2C port to use (default: 0)
+     * @param i2c_address I2C-bus address (default: 0x20)     
      */
-    PCA9629A(
-            const i2c_port_t port,
-            const gpio_num_t i2c_sda,
-            const gpio_num_t i2c_scl,            
-            const uint8_t i2c_address = PCA9629A_I2C_ADDR_BASE,
-            const uint32_t clock_speed = I2C_FREQ_HZ
-            );
-    
+    PCA9629A(const i2c_port_t i2c_port = I2C_NUM_0, const uint8_t i2c_address = PCA9629A_I2C_ADDR_BASE);
+
     ~PCA9629A();
 
     void initialise(void);
-    
+
     /** Software reset
      *
      *  Performs software reset through I2C bus
@@ -146,7 +137,7 @@ public:
     void start(Direction dir, uint16_t steps, uint8_t repeats);
 
     void startAfterHome(Direction dir, uint16_t steps, uint8_t repeats);
-    
+
     /** Motor start (with home-position control)
      *
      *  Start command
@@ -165,7 +156,7 @@ public:
      *
      */
     void stop(void);
-    
+
     /**
      * Reads the MCNTL register and returns true if bit 7 is 0
      * @return 
@@ -177,7 +168,7 @@ public:
      *  Dumping all register data to serial console
      *
      */
-    esp_err_t register_dump(void);       
+    esp_err_t register_dump(void);
 
 private:
     /** Initialize all registers
@@ -241,14 +232,9 @@ private:
     } PrescalerRange;
 
 
-    i2c_port_t port;
-    gpio_num_t i2c_sda;
-    gpio_num_t i2c_scl;
+    i2c_port_t i2c_port;
     uint8_t i2c_address;
-    uint32_t clock_speed;
-    
-    i2c_dev_t i2c_dev;
-    
+
     bool performingAction;
 };
 

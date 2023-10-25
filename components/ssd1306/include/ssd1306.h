@@ -1,7 +1,7 @@
 #ifndef MAIN_SSD1306_H_
 #define MAIN_SSD1306_H_
 
-#include "i2cdev.h"
+#include "driver/i2c.h"
 
 // Following definitions are borrowed from 
 // http://robotcantalk.blogspot.com/2015/03/interfacing-arduino-with-ssd1306-driven.html
@@ -68,8 +68,6 @@ Usage:
 #define OLED_CMD_ACTIVE_SCROLL          0x2F
 #define OLED_CMD_VERTICAL               0xA3
 
-#define I2CAddress 0x3C
-
 typedef enum {
 	SCROLL_RIGHT = 1,
 	SCROLL_LEFT = 2,
@@ -85,6 +83,7 @@ typedef struct {
 } PAGE_t;
 
 typedef struct {
+        i2c_port_t _port;
 	int _address;
 	int _width;
 	int _height;
@@ -104,7 +103,7 @@ extern "C"
 {
 #endif
     
-void ssd1306_init(SSD1306_t * dev, int width, int height);
+void ssd1306_init(SSD1306_t * dev, const i2c_port_t port, const uint8_t addr, const int width, const int height);
 int ssd1306_get_width(SSD1306_t * dev);
 int ssd1306_get_height(SSD1306_t * dev);
 int ssd1306_get_pages(SSD1306_t * dev);
@@ -133,14 +132,11 @@ void ssd1306_fadeout(SSD1306_t * dev);
 void ssd1306_dump(SSD1306_t dev);
 void ssd1306_dump_page(SSD1306_t * dev, int page, int seg);
 
-esp_err_t i2c_master_init(SSD1306_t * dev, const i2c_port_t port, const uint8_t addr, const gpio_num_t sda_gpio, const gpio_num_t scl_gpio);
-//void i2c_master_init(SSD1306_t * dev, int16_t sda, int16_t scl, int16_t reset);
-void i2c_init(SSD1306_t * dev, int width, int height);
+void i2c_init(SSD1306_t * dev, const int width, const int height);
 void i2c_display_image(SSD1306_t * dev, int page, int seg, uint8_t * images, int width);
 void i2c_contrast(SSD1306_t * dev, int contrast);
 void i2c_hardware_scroll(SSD1306_t * dev, ssd1306_scroll_type_t scroll);
 
-esp_err_t i2c_write_bytes(i2c_dev_t * dev, uint8_t* bytesToWrite, size_t len);
 
 #ifdef __cplusplus
 }

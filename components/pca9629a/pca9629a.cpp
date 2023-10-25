@@ -75,55 +75,34 @@ const char *reg_name[] = {
 
 PCA9629A::PCA9629A(
         const i2c_port_t port,
-        const gpio_num_t i2c_sda,
-        const gpio_num_t i2c_scl,
-        const uint8_t i2c_address,
-        const uint32_t clock_speed
+        const uint8_t i2c_address
         ) {
 
-    ESP_LOGD(TAG, "Port: %d, sda: %d, scl: %d, i2c_addr: %d, clock speed: %dl", port, i2c_sda, i2c_scl, i2c_address, clock_speed);
-    this->port = port;
-    this->i2c_sda = i2c_sda;
-    this->i2c_scl = i2c_scl;
+    ESP_LOGD(TAG, "i2c_port: %d, i2c_address: %d", i2c_port, i2c_address);
+    this->i2c_port = port;
     this->i2c_address = i2c_address;
-    this->clock_speed = clock_speed;
 }
 
 PCA9629A::~PCA9629A() {
-    i2c_dev_delete_mutex(&i2c_dev);
+
 }
 
 void PCA9629A::initialise() {
-
-    memset(&i2c_dev, 0, sizeof (i2c_dev_t));
-    this->i2c_dev.addr = this->i2c_address;
-    this->i2c_dev.cfg.mode = I2C_MODE_MASTER;
-    this->i2c_dev.cfg.sda_io_num = this->i2c_sda;
-    this->i2c_dev.cfg.scl_io_num = this->i2c_scl;
-    this->i2c_dev.cfg.sda_pullup_en = GPIO_PULLUP_DISABLE;
-    this->i2c_dev.cfg.scl_pullup_en = GPIO_PULLUP_DISABLE;
-    this->i2c_dev.cfg.clk_flags = 0;
-    this->i2c_dev.cfg.master.clk_speed = this->clock_speed;
-    this->i2c_dev.port = this->port;  
-    
-    if (i2c_dev_create_mutex(&i2c_dev) != ESP_OK) {
-        ESP_LOGE(TAG, "failed to create i2c mutex");
-        //return ESP_FAIL;
-    } else {
-        //software_reset();
-        init_registers();
-    }
+    //software_reset();
+    init_registers();
 }
 
 esp_err_t PCA9629A::software_reset(void) {
     ESP_LOGI(TAG, "pca9629a software_reset");
     uint8_t data = 0x06;
 
-    I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, static_cast<uint8_t> (REG_MODE), &data, 1), "An error occurred in PCA9629A::software_reset writing i2c data");
-    I2C_DEV_GIVE_MUTEX(&i2c_dev);
+    esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, static_cast<uint8_t> (REG_MODE), &data, 1);
 
-    return ESP_OK;
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "An error occurred in PCA9629A::software_reset writing i2c data");
+    }
+
+    return ret;
 }
 
 void PCA9629A::init_registers(void) {
@@ -161,23 +140,28 @@ void PCA9629A::init_registers(void) {
     set_all_registers(init_array, sizeof ( init_array) / sizeof (init_array[0]));
 }
 
-esp_err_t PCA9629A::set_all_registers(uint8_t *data, uint8_t size) {
-    I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write(&i2c_dev, NULL, 0, data, size), "An error occurred in PCA9629A::set_all_registers writing i2c data");
-    I2C_DEV_GIVE_MUTEX(&i2c_dev);
+esp_err_t PCA9629A::set_all_registers(uint8_t* data, uint8_t size) {
 
-    return ESP_OK;
+    esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, I2C_NO_REG, data, size);
+
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "An error occurred in PCA9629A::set_all_registers writing i2c data");
+    }
+
+    return ret;
 }
 
 esp_err_t PCA9629A::write(RegisterName register_name, const uint8_t value) {
     uint8_t cmd[1];
     cmd[0] = value;
 
-    I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, static_cast<uint8_t> (register_name), cmd, 1), "An error occurred in PCA9629A::write writing i2c data");
-    I2C_DEV_GIVE_MUTEX(&i2c_dev);
+    esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, static_cast<uint8_t> (register_name), cmd, 1);
 
-    return ESP_OK;
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "An error occurred in PCA9629A::write writing i2c data");
+    }
+
+    return ret;
 }
 
 esp_err_t PCA9629A::write16(RegisterName register_name, const uint16_t value) {
@@ -187,37 +171,43 @@ esp_err_t PCA9629A::write16(RegisterName register_name, const uint16_t value) {
     cmd[ 0 ] = value & 0xFF;
     cmd[ 1 ] = value >> 8;
 
-    I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, (static_cast<uint8_t> (register_name)), &cmd[0], 1), "An error occurred in PCA9629A::write16 writing i2c data");
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, (static_cast<uint8_t> (register_name)) + 1, &cmd[1], 1), "An error occurred in PCA9629A::write16 writing i2c data");
-    I2C_DEV_GIVE_MUTEX(&i2c_dev);
+    esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, static_cast<uint8_t> (register_name), cmd, 1);
+    ret |= i2c_manager_write(this->i2c_port, this->i2c_address, static_cast<uint8_t> (register_name) + 1, &cmd[1], 1);
 
-    return ESP_OK;
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "An error occurred in PCA9629A::write16 writing i2c data");
+    }
+
+    return ret;
 }
 
 esp_err_t PCA9629A::read(RegisterName register_name, uint8_t& result) {
     uint8_t data;
 
-    I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_read_reg(&i2c_dev, static_cast<uint8_t> (register_name), &data, 1), "An error occurred in PCA9629A::read reading i2c data");
-    I2C_DEV_GIVE_MUTEX(&i2c_dev);
+    esp_err_t ret = i2c_manager_read(this->i2c_port, this->i2c_address, static_cast<uint8_t> (register_name), &data, 1);
+
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "An error occurred in PCA9629A::read reading i2c data");
+    }
 
     result = data;
 
-    return ESP_OK;
+    return ret;
 }
 
 esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t& result) {
 
     uint8_t data[ 2 ];
 
-    I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_read_reg(&i2c_dev, static_cast<uint8_t> (register_name), data, 2), "An error occurred in PCA9629A::read16 reading i2c data");
-    I2C_DEV_GIVE_MUTEX(&i2c_dev);
+    esp_err_t ret = i2c_manager_read(this->i2c_port, this->i2c_address, static_cast<uint8_t> (register_name), data, 2);
+
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "An error occurred in PCA9629A::read16 reading i2c data");
+    }
 
     result = (data[ 0 ] << 8 | data[ 1 ]);
 
-    return ESP_OK;
+    return ret;
 }
 
 void PCA9629A::start(Direction direction, uint16_t step_count, uint8_t repeats) {
@@ -277,14 +267,18 @@ void PCA9629A::stop(void) {
 esp_err_t PCA9629A::register_dump(void) {
     uint8_t data[ 34 ]; // number of registers
     uint8_t cmd = 0x80;
+   
+    esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, I2C_NO_REG, &cmd, 1);
+    
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "An error occurred in PCA9629A::register_dump writing i2c data");
+    }
 
-    I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write(&i2c_dev, NULL, 0, &cmd, 1), "An error occurred in PCA9629A::register_dump writing i2c data");
-    I2C_DEV_GIVE_MUTEX(&i2c_dev);
-
-    I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_read(&i2c_dev, NULL, 0, data, sizeof (data)), "An error occurred reading registers");
-    I2C_DEV_GIVE_MUTEX(&i2c_dev);
+    ret |= i2c_manager_read(this->i2c_port, this->i2c_address, I2C_NO_REG, data, sizeof(data));
+    
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "An error occurred in PCA9629A::register_dump reading i2c data");
+    }
 
     ESP_LOGI(TAG, "PCA9629 register dump");
     //
@@ -294,7 +288,7 @@ esp_err_t PCA9629A::register_dump(void) {
     //
     //    ESP_LOGI(TAG, "  %-13s (0x%02X): 0x%02X", reg_name[ 0x13 ], 0x13, data[ 0x13 ]);
 
-    return ESP_OK;
+    return ret;
 }
 
 

@@ -37,10 +37,8 @@
 #include <esp_log.h>
 #include <string.h>
 #include <math.h>
-#include <esp_idf_lib_helpers.h>
+#include <i2c_manager.h>
 #include "ht16k33.h"
-
-#define I2C_FREQ_HZ 100000
 
 #define HT16K33_ON              0x21  // Commands
 #define HT16K33_STANDBY         0x20
@@ -112,34 +110,9 @@ static const uint8_t charmap[] = {
     SEG_A | SEG_F | SEG_G | SEG_C | SEG_D // S = 31
 };
 
-
-esp_err_t ht16k33_init_desc(ht16k33_t *dev, const i2c_port_t port, const uint8_t addr, const gpio_num_t sda_gpio, const gpio_num_t scl_gpio)
-{
-    CHECK_ARG(dev);
-    if (addr < HT16K33_ADDR_BASE || addr > HT16K33_ADDR_BASE + 7)
-    {
-        ESP_LOGE(TAG, "Invalid device address: 0x%02x", addr);
-        return ESP_ERR_INVALID_ARG;
-    }
-    
-    dev->port = port;
-    dev->addr = addr;
-    dev->cfg.mode = I2C_MODE_MASTER;
-    dev->cfg.sda_io_num = sda_gpio;
-    dev->cfg.scl_io_num = scl_gpio;
-    dev->cfg.sda_pullup_en = GPIO_PULLUP_DISABLE;
-    dev->cfg.scl_pullup_en = GPIO_PULLUP_DISABLE;
-    dev->cfg.clk_flags = 0;
-    dev->cfg.master.clk_speed = I2C_FREQ_HZ;
-   
-    return i2c_dev_create_mutex(dev);
-}
-
-esp_err_t ht16k33_free_desc(ht16k33_t *dev)
-{
-    CHECK_ARG(dev);
-
-    return i2c_dev_delete_mutex(dev);
+void ht16k33_init(ht16k33_t *dev, const i2c_port_t port, const uint8_t addr) {
+    dev->_address = addr;
+    dev->_port = port;
 }
 
 esp_err_t ht16k33_display_on(ht16k33_t *dev)
@@ -189,27 +162,29 @@ esp_err_t ht16k33_write_value(ht16k33_t *dev, const char* fmt, const int value) 
 
 esp_err_t ht16k33_write_cmd(ht16k33_t *dev, const uint8_t cmd)
 {
-    CHECK_ARG(dev);
-
-    I2C_DEV_TAKE_MUTEX(dev);
-    I2C_DEV_CHECK_LOGE(dev, i2c_dev_write(dev, NULL, 0, &cmd, 1), "An error occurred in ht16k33_write_cmd writing i2c data");
-    I2C_DEV_GIVE_MUTEX(dev);
-
-    return ESP_OK;
+    esp_err_t ret = i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, &cmd, 1);
+    
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "An error occurred in ht16k33_write_cmd writing i2c data");
+    }
+    
+    return ret;
 }
 
 esp_err_t ht16k33_write_pos(ht16k33_t *dev, const uint8_t pos, const uint8_t mask, const bool dp)
 {
-    CHECK_ARG(dev);
+    
     uint8_t new_mask = mask;
     if (dp) 
     {
         new_mask |= SEG_DP; // dp
     }
+                
+    esp_err_t ret = i2c_manager_write(dev->_port, dev->_address, pos * 2, &new_mask, 1);
+    
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "An error occurred in ht16k33_write_pos writing i2c data");
+    }
 
-    I2C_DEV_TAKE_MUTEX(dev);    
-    I2C_DEV_CHECK_LOGE(dev, i2c_dev_write_reg(dev, pos * 2, &new_mask, 1),"An error occurred in ht16k33_write_pos writing i2c data");
-    I2C_DEV_GIVE_MUTEX(dev);
-
-    return ESP_OK;
+    return ret;
 }

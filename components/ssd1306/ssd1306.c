@@ -17,8 +17,10 @@ typedef union out_column_t {
     uint8_t u8[4];
 } PACK8 out_column_t;
 
-void ssd1306_init(SSD1306_t * dev, int width, int height) {
-
+void ssd1306_init(SSD1306_t * dev, const i2c_port_t port, const uint8_t addr, int width, int height) {
+    dev->_port = port;
+    dev->_address = addr;
+    
     i2c_init(dev, width, height);
 
     // Initialize internal buffer
@@ -131,12 +133,12 @@ void ssd1306_display_text_x3(SSD1306_t * dev, int page, const char * text, int t
             }
             if (invert) ssd1306_invert(image, 24);
             if (dev->_flip) ssd1306_flip(image, 24);
-            if (dev->_address == I2CAddress) {
+//            if (dev->_address == I2CAddress) {
 
                 i2c_display_image(dev, page + yy, seg, image, 24);
 
                 memcpy(&dev->_page[page + yy]._segs[seg], image, 24);
-            }
+  //          }
             seg = seg + 24;
         }
     }

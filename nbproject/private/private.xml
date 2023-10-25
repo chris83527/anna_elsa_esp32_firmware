@@ -11,9 +11,11 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/component.mk</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/httpcontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board.c</file>
+            <file>file:/home/chris/esp/esp-idf-lib/components/i2cdev/i2cdev.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/m20ly02z/m20ly02z.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/CMakeLists.txt</file>
+            <file>file:/home/chris/esp/esp-idf-v4.4.6/components/driver/test/test_i2c.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/.gitmodules</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_link_controller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.cpp</file>
@@ -61,6 +63,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/webserver.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/serial_worker.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_enums.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/main/displaycontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/pca9629a/pca9629a.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/audiocontroller.h</file>
         </group>

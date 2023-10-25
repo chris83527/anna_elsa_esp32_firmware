@@ -123,9 +123,9 @@ bool ReelController::initialise() {
     reelCentreInitOk = false;
     reelRightInitOk = false;
 
-    leftReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_LEFT_I2C_ADDRESS, I2C_FREQ_HZ);
-    centreReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_CENTRE_I2C_ADDRESS, I2C_FREQ_HZ);
-    rightReel = new PCA9629A(0, GPIO_I2C_SDA, GPIO_I2C_SCL, REEL_RIGHT_I2C_ADDRESS, I2C_FREQ_HZ);
+    leftReel = new PCA9629A(I2C_NUM_0, REEL_LEFT_I2C_ADDRESS);
+    centreReel = new PCA9629A(I2C_NUM_0, REEL_CENTRE_I2C_ADDRESS);
+    rightReel = new PCA9629A(I2C_NUM_0, REEL_RIGHT_I2C_ADDRESS);
 
     this->leftReel->initialise();
     this->centreReel->initialise();

@@ -48,21 +48,21 @@
 extern "C" {
 #endif
 
-typedef i2c_dev_t ht16k33_t;
+typedef struct {
+        i2c_port_t _port;
+	int _address;	
+} ht16k33_t;
 
 /**
  * @brief Initialize device descriptor
  *
- * Default SCL frequency is 400kHz.
  *
  * @param dev Pointer to device descriptor
  * @param port I2C port number
  * @param addr I2C address
- * @param sda_gpio SDA GPIO
- * @param scl_gpio SCL GPIO
  * @return `ESP_OK` on success
  */
-esp_err_t ht16k33_init_desc(ht16k33_t *dev, const i2c_port_t port, const uint8_t addr, const gpio_num_t sda_gpio, const gpio_num_t scl_gpio);
+void ht16k33_init(ht16k33_t *dev, const i2c_port_t port, const uint8_t addr);
 
 /**
  * @brief Free device descriptor

@@ -47,6 +47,7 @@
 
 static const char *TAG = "oledcontroller";
 
+int i2c_address = 0x3c;
 
 oledcontroller::oledcontroller() {
 }
@@ -57,10 +58,7 @@ oledcontroller::oledcontroller(const oledcontroller& orig) {
 oledcontroller::~oledcontroller() {
 }
 
-void oledcontroller::initialise() {      
-    
-    esp_err_t ret = i2c_master_init(&dev, I2C_NUM_0, (uint8_t)0x3c, GPIO_I2C_SDA, GPIO_I2C_SCL);    
-    
+void oledcontroller::initialise() {             
 
 #if CONFIG_FLIP
     dev._flip = true;
@@ -69,11 +67,11 @@ void oledcontroller::initialise() {
 
 #if CONFIG_SSD1306_128x64
     ESP_LOGI(TAG, "Panel is 128x64");
-    ssd1306_init(&dev, 128, 64);
+    ssd1306_init(&dev, I2C_NUM_0, i2c_address, 128, 64);
 #endif // CONFIG_SSD1306_128x64
 #if CONFIG_SSD1306_128x32
     ESP_LOGI(TAG, "Panel is 128x32");
-    ssd1306_init(&dev, 128, 32);
+    ssd1306_init(&dev, I2C_NUM_0, i2c_address, 128, 32);
 #endif // CONFIG_SSD1306_128x32
 
     ssd1306_clear_screen(&dev, false);

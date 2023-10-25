@@ -29,41 +29,17 @@
 
 #include "driver/gpio.h"
 #include "esp_log.h"
-#include "i2cdev.h"
+#include "i2c_manager.h"
 
 #include "include/ssd1306.h"
 
 #define tag "SSD1306"
 
-#define I2C_NUM I2C_NUM_0
-
-#define I2C_MASTER_FREQ_HZ 100000 /*!< I2C clock of SSD1306 can run at 400 kHz max. */
-
-i2c_dev_t i2cdev;
-
 static const char *TAG = "ssd1306_i2c";
 
-esp_err_t i2c_master_init(SSD1306_t * dev, const i2c_port_t port, const uint8_t addr, const gpio_num_t sda_gpio, const gpio_num_t scl_gpio) {
-
-    memset(&i2cdev, 0, sizeof (i2c_dev_t));
-    i2cdev.addr = addr;
-    i2cdev.cfg.mode = I2C_MODE_MASTER;
-    i2cdev.cfg.sda_io_num = sda_gpio;
-    i2cdev.cfg.scl_io_num = scl_gpio;
-    i2cdev.cfg.sda_pullup_en = GPIO_PULLUP_DISABLE;
-    i2cdev.cfg.scl_pullup_en = GPIO_PULLUP_DISABLE;
-    i2cdev.cfg.clk_flags = 0;
-    i2cdev.cfg.master.clk_speed = I2C_MASTER_FREQ_HZ;
-    i2cdev.port = port;
-
-    dev->_address = addr;
-    dev->_flip = false;
-
-    return i2c_dev_create_mutex(&i2cdev);
-}
-
 void i2c_init(SSD1306_t * dev, int width, int height) {
-
+    
+    dev->_flip = false;
     dev->_width = width;
     dev->_height = height;
     dev->_pages = 8;
@@ -111,7 +87,7 @@ void i2c_init(SSD1306_t * dev, int width, int height) {
     data[26] = OLED_CMD_DISPLAY_ON;
 
     // initialise display
-    i2c_write_bytes(&i2cdev, &data[0], 27);
+    i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, &data[0], 27);
 
 }
 
@@ -135,14 +111,14 @@ void i2c_display_image(SSD1306_t * dev, int page, int seg, uint8_t * images, int
     data[2] = (0x10 + columHigh);
     data[3] = (0xB0 | _page);
 
-    i2c_write_bytes(&i2cdev, &data[0], 4);
+    i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, &data[0], 4);
 
     uint8_t *imagedata = (uint8_t*) calloc(width + 1, sizeof (uint8_t));
     imagedata[0] = OLED_CONTROL_BYTE_DATA_STREAM;
 
     memcpy(&imagedata[1], images, width);
-
-    i2c_write_bytes(&i2cdev, &imagedata[0], width + 1);
+    
+    i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, &imagedata[0], width + 1);
 
     free(imagedata);
 }
@@ -160,7 +136,7 @@ void i2c_contrast(SSD1306_t * dev, int contrast) {
         (uint8_t) _contrast,
     };
 
-    i2c_write_bytes(&i2cdev, &data[0], 3);
+    i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, &data[0], 3);
 }
 
 //void i2c_hardware_scroll(SSD1306_t * dev, ssd1306_scroll_type_t scroll) {
@@ -242,19 +218,3 @@ void i2c_contrast(SSD1306_t * dev, int contrast) {
 //
 //    i2c_cmd_link_delete(cmd);
 //}
-
-/**
- * @brief Writes a number of bytes to the i2c bus in one go
- * 
- * @param dev the i2c device to use when writing
- * @param bytesToWrite a pointer to the array containing the bytes
- * @param len The number of bytes to write
- * @return ESP_OK if everything was ok, ESP_FAIL otherwise
- */
-esp_err_t i2c_write_bytes(i2c_dev_t * dev, uint8_t* bytesToWrite, size_t len) {
-    I2C_DEV_TAKE_MUTEX(dev);
-    I2C_DEV_CHECK_LOGE(dev, i2c_dev_write(dev, NULL, 0, bytesToWrite, len), "An error occurred in i2c_write_bytes writing i2c data");
-    I2C_DEV_GIVE_MUTEX(dev);
-
-    return ESP_OK;
-}
