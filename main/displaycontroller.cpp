@@ -186,40 +186,26 @@ esp_err_t DisplayController::initialise() {
         ESP_LOGD(TAG, "WS2812 driver installation succeeded");
     }
 
-    
-    if (ht16k33_init_desc(&creditDisplay)) {
-        ESP_LOGE(TAG, "Could not initialise credit display");
-    } else {
-        ht16k33_display_on(&creditDisplay);
-        ht16k33_write_value(&creditDisplay, "%05d", 88888);
-        ESP_LOGD(TAG, "Credit display initialisation succeeded");
-    }
 
-    bankDisplay.cfg.master.clk_speed = I2C_FREQ_HZ;
-    bankDisplay.cfg.mode = I2C_MODE_MASTER;
-    bankDisplay.cfg.scl_pullup_en = false;
-    bankDisplay.cfg.sda_pullup_en = false;
-    if (ht16k33_init_desc(this->getBankDisplay(), 0, BANK_DISPLAY_ADDRESS, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
-        ESP_LOGE(TAG, "Could not initialise bank display");
-    } else {
-        ht16k33_display_on(this->getBankDisplay());
-        ht16k33_write_value(this->getBankDisplay(), "%05d", 88888);
-        ESP_LOGD(TAG, "Bank display initialisation succeeded");
-    }
+    ht16k33_init(this->getCreditDisplay(), I2C_NUM_0, CREDIT_DISPLAY_ADDRESS);
+    ESP_LOGE(TAG, "Could not initialise credit display");
 
-    movesDisplay.cfg.master.clk_speed = I2C_FREQ_HZ;
-    movesDisplay.cfg.mode = I2C_MODE_MASTER;
-    movesDisplay.cfg.scl_pullup_en = false;
-    movesDisplay.cfg.sda_pullup_en = false;
-    if (ht16k33_init_desc(this->getMovesDisplay(), 0, MOVES_DISPLAY_ADDRESS, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
-        ESP_LOGE(TAG, "Could not initialise moves display");
-    } else {
-        ht16k33_display_on(this->getMovesDisplay());
-        ht16k33_write_value(this->getMovesDisplay(), "%02d", 88);
-        ESP_LOGD(TAG, "Moves display initialisation succeeded");
-    }
+    ht16k33_display_on(&creditDisplay);
+    ht16k33_write_value(&creditDisplay, "%05d", 88888);
+    ESP_LOGD(TAG, "Credit display initialisation succeeded");
 
-    if (mcp23x17_init_desc(this->getButtonIO(), BUTTONS_I2C_ADDRESS, 0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
+    ht16k33_init(this->getBankDisplay(), I2C_NUM_0, BANK_DISPLAY_ADDRESS);
+    ht16k33_display_on(this->getBankDisplay());
+    ht16k33_write_value(this->getBankDisplay(), "%05d", 88888);
+    ESP_LOGD(TAG, "Bank display initialisation succeeded");
+
+
+    ht16k33_init(this->getMovesDisplay(), I2C_NUM_0, MOVES_DISPLAY_ADDRESS);    
+    ht16k33_display_on(this->getMovesDisplay());
+    ht16k33_write_value(this->getMovesDisplay(), "%02d", 88);
+    ESP_LOGD(TAG, "Moves display initialisation succeeded");
+
+    if (mcp23x17_init_desc(this->getButtonIO(), BUTTONS_I2C_ADDRESS, I2C_NUM_0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
         ESP_LOGE(TAG, "Could not initialise button interface");
     } else {
 
@@ -451,7 +437,7 @@ void DisplayController::fadeInOutEffect() {
     resetLampData();
 
     // Trail lamps fade in
-    for (int i = 0; i < 256; i++) {
+    for (int i = 255; i >= 0; i -= 2) {
         for (int j = 0; j < TRAIL_LAMPS.size(); j++) {
             if (!this->attractMode) {
                 return;
@@ -461,9 +447,9 @@ void DisplayController::fadeInOutEffect() {
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
-
+    
     // Nudge lamps fade in
-    for (int i = 0; i < 256; i++) {
+    for (int i = 255; i >= 0; i -= 2) {
         for (int j = 0; j < NUDGE_LAMPS.size(); j++) {
             if (!this->attractMode) {
                 return;
@@ -475,7 +461,7 @@ void DisplayController::fadeInOutEffect() {
     }
 
     // Trail lamps fade out
-    for (int i = 255; i >= 0; i -= 2) {
+    for (int i = 0; i < 256; i++) {
         for (int j = 0; j < TRAIL_LAMPS.size(); j++) {
             if (!this->attractMode) {
                 return;
@@ -486,8 +472,9 @@ void DisplayController::fadeInOutEffect() {
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
 
-    // Feature lamps fade in
-    for (int i = 0; i < 256; i++) {
+
+     // Feature lamps fade in
+    for (int i = 255; i >= 0; i -= 2) {
         for (int j = 0; j < FEATURE_LAMPS.size(); j++) {
             if (!this->attractMode) {
                 return;
@@ -497,9 +484,10 @@ void DisplayController::fadeInOutEffect() {
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
+    
 
     // Nudge lamps fade out
-    for (int i = 255; i >= 0; i -= 2) {
+    for (int i = 0; i < 256; i++) {
         for (int j = 0; j < NUDGE_LAMPS.size(); j++) {
             if (!this->attractMode) {
                 return;
@@ -509,9 +497,10 @@ void DisplayController::fadeInOutEffect() {
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
+    
 
-    // Feature lamps fade out
-    for (int i = 255; i >= 0; i -= 2) {
+   // Feature lamps fade out
+    for (int i = 0; i < 256; i++) {
         for (int j = 0; j < FEATURE_LAMPS.size(); j++) {
             if (!this->attractMode) {
                 return;
