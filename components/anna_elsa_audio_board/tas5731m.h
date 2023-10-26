@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 
-#include "i2cdev.h"
+#include "i2c_manager.h"
 #include "audio_hal.h"
 #include "esp_err.h"
 

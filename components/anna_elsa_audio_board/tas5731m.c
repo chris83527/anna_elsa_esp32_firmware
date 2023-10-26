@@ -24,7 +24,6 @@
 
 #include <string.h>
 
-#include "esp_idf_lib_helpers.h"
 #include "board.h"
 #include "esp_log.h"
 #include "tas5731m.h"
@@ -32,7 +31,6 @@
 
 static const char *TAG = "TAS5731M";
 
-#define TAS5731M_ADDRESS 0x1a
 //#define TAS5731M_ADDRESS 0x34 // ASEL pulled low
 //#define TAS5731M_ADDRESS 0x36 // ASEL pulled high
 #define TAS5731M_PDWN_GPIO get_pa_enable_gpio()
@@ -40,7 +38,7 @@ static const char *TAG = "TAS5731M";
 #define TAS5731M_VOLUME_MAX 100
 #define TAS5731M_VOLUME_MIN 100
 
-#define I2C_MASTER_FREQ_HZ 100000
+#define TAS5731M_I2C_ADDRESS 0x1a
 
 #define TAS5731M_ASSERT(a, format, b, ...) \
     if ((a) != 0) { \
@@ -50,8 +48,6 @@ static const char *TAG = "TAS5731M";
 
 esp_err_t tas5731m_ctrl(audio_hal_codec_mode_t mode, audio_hal_ctrl_t ctrl_state);
 esp_err_t tas5731m_config_iface(audio_hal_codec_mode_t mode, audio_hal_codec_i2s_iface_t *iface);
-
-i2c_dev_t i2c_dev;
 
 
 /*
@@ -72,64 +68,58 @@ audio_hal_func_t AUDIO_CODEC_TAS5731M_DEFAULT_HANDLE = {
 static esp_err_t tas5731m_transmit_registers() {
 
     esp_err_t ret = ESP_OK;
-
-    ESP_LOGD(TAG, "Taking mutex");
-    I2C_DEV_TAKE_MUTEX(&i2c_dev);
+    
     uint8_t buf[10];
     buf[0] = 0x00;
     // init sequence
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x1b, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x1b, &buf[0], 1);
     vTaskDelay(50 / portTICK_RATE_MS);
     buf[0] = 0x03;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x04, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x04, &buf[0], 1);
     buf[0] = 0x00;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x06, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x06, &buf[0], 1);
     buf[0] = 0x30;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x0a, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x09, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x08, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x0a, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x09, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x08, &buf[0], 1);
     buf[0] = 0x54;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x14, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x14, &buf[0], 1);
     buf[0] = 0xac;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x13, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x13, &buf[0], 1);
     buf[0] = 0x54;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x12, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x12, &buf[0], 1);
     buf[0] = 0xac;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x11, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x11, &buf[0], 1);
     buf[0] = 0x91;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x0e, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x0e, &buf[0], 1);
     buf[0] = 0x00;
     buf[1] = 0x01;
     buf[2] = 0x77;
     buf[3] = 0x72;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x20, &buf[0], 4), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x20, &buf[0], 4);
     buf[0] = 0x02;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x10, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x10, &buf[0], 1);
     buf[0] = 0x00;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x0b, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x0b, &buf[0], 1);
     buf[0] = 0x02;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x10, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x1c, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x10, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x1c, &buf[0], 1);
     buf[0] = 0x30;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x19, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x19, &buf[0], 1);
     buf[0] = 0x01;
     buf[1] = 0x02;
     buf[2] = 0x13;
     buf[3] = 0x45;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x25, &buf[0], 4), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x25, &buf[0], 4);
     buf[0] = 0xff;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x07, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x07, &buf[0], 1);
     buf[0] = 0x00;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x05, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x05, &buf[0], 1);
     buf[0] = 0x60;
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_write_reg(&i2c_dev, 0x07, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
-    ESP_LOGD(TAG, "Releasing mutex");
-    I2C_DEV_GIVE_MUTEX(&i2c_dev);
-
-    // Read error status register
-    I2C_DEV_TAKE_MUTEX(&i2c_dev);
-    I2C_DEV_CHECK_LOGE(&i2c_dev, i2c_dev_read_reg(&i2c_dev, 0x02, &buf[0], 1), "An error occurred in tasm5731m_transmit_registers writing i2c data");
-    I2C_DEV_GIVE_MUTEX(&i2c_dev);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x07, &buf[0], 1);
+    
+    // Read error status register    
+    i2c_manager_read(I2C_NUM_0, TAS5731M_I2C_ADDRESS,  0x02, &buf[0], 1);   
 
     if (buf[0] & 2) {
         ESP_LOGW(TAG, "Overcurrent, overtemperature or undervoltage errors");
@@ -193,27 +183,7 @@ esp_err_t tas5731m_init(audio_hal_codec_config_t *codec_cfg) {
     vTaskDelay(200 / portTICK_RATE_MS);
     gpio_set_level(TAS5731M_RST_GPIO, 1);
     vTaskDelay(500 / portTICK_RATE_MS);
-
-
-    memset(&i2c_dev, 0, sizeof (i2c_dev_t));
-
-    i2c_dev.addr = TAS5731M_ADDRESS;
-    i2c_dev.cfg.mode = I2C_MODE_MASTER;
-    i2c_dev.cfg.sda_io_num = GPIO_I2C_SDA;
-    i2c_dev.cfg.scl_io_num = GPIO_I2C_SCL;
-    i2c_dev.cfg.sda_pullup_en = GPIO_PULLUP_DISABLE;
-    i2c_dev.cfg.scl_pullup_en = GPIO_PULLUP_DISABLE;
-    i2c_dev.cfg.clk_flags = 0;
-    i2c_dev.cfg.master.clk_speed = I2C_MASTER_FREQ_HZ;
-    i2c_dev.port = I2C_NUM_0;               
-
-    ret |= i2c_dev_create_mutex(&i2c_dev);
-
-    if (ret != ESP_OK) {
-        ESP_LOGW(TAG, "failed to create i2c mutex");
-        return ESP_FAIL;
-    }
-
+    
     ret |= tas5731m_transmit_registers();
 
     if (ret != ESP_OK) {
@@ -242,7 +212,7 @@ esp_err_t tas5731m_set_volume(int vol) {
 
     cmd[0] = MASTER_VOL_REG_ADDR;
     cmd[1] = tas5731m_volume[vol_idx];
-    ret = i2c_dev_write_reg(&i2c_dev, cmd[0], &cmd[1], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, cmd[0], &cmd[1], 1);
     ESP_LOGW(TAG, "volume = 0x%x", cmd[1]);
     return ret;
 }
@@ -252,7 +222,7 @@ esp_err_t tas5731m_get_volume(int *value) {
     /// FIXME: Got the digit volume is not right.
     uint8_t cmd[2] = {MASTER_VOL_REG_ADDR, 0x00};
     //ret = i2c_bus_read_bytes(i2c_handler, TAS5731M_ADDRESS, &cmd[0], 1, &cmd[1], 1);
-    ret = i2c_dev_read_reg(&i2c_dev, cmd[0], &cmd[1], 1);
+    ret = i2c_manager_read(I2C_NUM_0, TAS5731M_I2C_ADDRESS, cmd[0], &cmd[1], 1);
     TAS5731M_ASSERT(ret, "Fail to get volume", ESP_FAIL);
     int i;
     for (i = 0; i < sizeof (tas5731m_volume); i++) {

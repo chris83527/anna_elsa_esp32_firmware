@@ -1304,6 +1304,16 @@
               </df>
             </df>
           </df>
+          <df name="i2c_manager">
+            <df name="CMakeFiles">
+              <df name="__idf_i2c_manager.dir">
+                <df name="i2c_manager">
+                </df>
+                <df name="i2cdev">
+                </df>
+              </df>
+            </df>
+          </df>
           <df name="i2cdev">
             <df name="CMakeFiles">
               <df name="__idf_i2cdev.dir">
@@ -2034,6 +2044,18 @@
           </df>
           <in>ht16k33.c</in>
         </df>
+        <df name="i2c_manager">
+          <df name="i2c_manager">
+            <in>i2c_manager.c</in>
+            <in>i2c_manager.h</in>
+          </df>
+          <df name="i2cdev">
+            <in>i2cdev.c</in>
+            <in>i2cdev.h</in>
+          </df>
+          <df name="readme_assets">
+          </df>
+        </df>
         <df name="joltwallet__littlefs">
           <df name="example">
             <df name="flash_data">
@@ -2052,6 +2074,8 @@
             <df name="mklittlefs-00c186b-generic-linux64">
             </df>
             <df name="mklittlefs-193ec2f-generic-linux64">
+            </df>
+            <df name="mklittlefs-2d015b9-generic-linux64">
             </df>
             <df name="mklittlefs-49a50a7-generic-linux64">
             </df>
@@ -3313,6 +3337,9 @@
                 <df name="mbedx509.dir">
                 </df>
               </df>
+              <in>psa_crypto_driver_wrappers.c</in>
+              <in>ssl_debug_helpers_generated.c</in>
+              <in>version_features.c</in>
             </df>
           </df>
         </df>
