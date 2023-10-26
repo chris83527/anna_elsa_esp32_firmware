@@ -159,7 +159,7 @@ menu "SSD1306 Configuration"
 			bool "SPI3_HOST"
 			help
 				USE SPI3_HOST. This is also called VSPI_HOST
-	endchoice
+	endchoice       
 
 endmenu
 

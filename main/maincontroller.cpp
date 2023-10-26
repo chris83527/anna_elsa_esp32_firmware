@@ -90,8 +90,7 @@ void MainController::start() {
     this->blinkCPUStatusLEDThread.detach();
 
     this->displayController->displayText("INITIALISING 02");
-    ESP_LOGD(TAG, "Calling i2cdev_init()");
-    ESP_ERROR_CHECK_WITHOUT_ABORT(i2cdev_init());
+    // Removed
 
     this->displayController->displayText("INITIALISING 03");
     // start outputting to status oled

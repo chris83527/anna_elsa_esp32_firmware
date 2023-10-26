@@ -17,11 +17,11 @@ set(EXTRA_COMPONENT_DIRS
 "/home/chris/esp/esp-idf-v4.4.6/components/spiffs" 
 "/home/chris/esp/esp-idf-lib/components/color" 
 "/home/chris/esp/esp-idf-lib/components/lib8tion" 
-"/home/chris/esp/esp-idf-lib/components/i2cdev" 
 "/home/chris/esp/esp-idf-lib/components/ds3231" 
 "/home/chris/esp/esp-idf-lib/components/mcp23008" 
 "/home/chris/esp/esp-idf-lib/components/mcp23x17" 
 "/home/chris/esp/esp-idf-lib/components/lib8tion" 
+"/home/chris/esp/esp-idf-lib/components/i2cdev" 
 "/home/chris/esp/esp-idf-lib/components/esp_idf_lib_helpers" 
 "/home/chris/esp/esp-idf-lib/components/led_strip" 
 "/home/chris/esp/esp-adf/components")

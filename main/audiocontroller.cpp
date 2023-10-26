@@ -44,7 +44,6 @@
 #include <sys/unistd.h>
 #include <cstring>
 
-#include "i2cdev.h"
 #include "driver/i2s.h"
 #include "spiffs_stream.h"
 #include "i2s_stream.h"

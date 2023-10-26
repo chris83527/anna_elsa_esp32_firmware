@@ -28,7 +28,6 @@
 
 #include "pca9629a.h"
 #include "esp_log.h"
-#include "i2cdev.h"
 #include "config.h"
 
 #include <cstring>

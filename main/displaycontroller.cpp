@@ -187,9 +187,7 @@ esp_err_t DisplayController::initialise() {
     }
 
 
-    ht16k33_init(this->getCreditDisplay(), I2C_NUM_0, CREDIT_DISPLAY_ADDRESS);
-    ESP_LOGE(TAG, "Could not initialise credit display");
-
+    ht16k33_init(this->getCreditDisplay(), I2C_NUM_0, CREDIT_DISPLAY_ADDRESS);  
     ht16k33_display_on(&creditDisplay);
     ht16k33_write_value(&creditDisplay, "%05d", 88888);
     ESP_LOGD(TAG, "Credit display initialisation succeeded");
@@ -198,7 +196,6 @@ esp_err_t DisplayController::initialise() {
     ht16k33_display_on(this->getBankDisplay());
     ht16k33_write_value(this->getBankDisplay(), "%05d", 88888);
     ESP_LOGD(TAG, "Bank display initialisation succeeded");
-
 
     ht16k33_init(this->getMovesDisplay(), I2C_NUM_0, MOVES_DISPLAY_ADDRESS);    
     ht16k33_display_on(this->getMovesDisplay());
