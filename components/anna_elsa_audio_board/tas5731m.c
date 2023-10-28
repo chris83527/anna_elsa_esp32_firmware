@@ -72,54 +72,54 @@ static esp_err_t tas5731m_transmit_registers() {
     uint8_t buf[10];
     buf[0] = 0x00;
     // init sequence
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x1b, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x1b, buf, 1);
     vTaskDelay(50 / portTICK_RATE_MS);
     buf[0] = 0x03;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x04, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x04, buf, 1);
     buf[0] = 0x00;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x06, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x06, buf, 1);
     buf[0] = 0x30;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x0a, &buf[0], 1);
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x09, &buf[0], 1);
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x08, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x0a, buf, 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x09, buf, 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x08, buf, 1);
     buf[0] = 0x54;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x14, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x14, buf, 1);
     buf[0] = 0xac;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x13, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x13, buf, 1);
     buf[0] = 0x54;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x12, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x12, buf, 1);
     buf[0] = 0xac;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x11, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x11, buf, 1);
     buf[0] = 0x91;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x0e, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x0e, buf, 1);
     buf[0] = 0x00;
     buf[1] = 0x01;
     buf[2] = 0x77;
     buf[3] = 0x72;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x20, &buf[0], 4);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x20, buf, 4);
     buf[0] = 0x02;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x10, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x10, buf, 1);
     buf[0] = 0x00;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x0b, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x0b, buf, 1);
     buf[0] = 0x02;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x10, &buf[0], 1);
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x1c, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x10, buf, 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x1c, buf, 1);
     buf[0] = 0x30;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x19, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x19, buf, 1);
     buf[0] = 0x01;
     buf[1] = 0x02;
     buf[2] = 0x13;
     buf[3] = 0x45;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x25, &buf[0], 4);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x25, buf, 4);
     buf[0] = 0xff;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x07, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x07, buf, 1);
     buf[0] = 0x00;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x05, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x05, buf, 1);
     buf[0] = 0x60;
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x07, &buf[0], 1);
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x07, buf, 1);
     
     // Read error status register    
-    i2c_manager_read(I2C_NUM_0, TAS5731M_I2C_ADDRESS,  0x02, &buf[0], 1);   
+    i2c_manager_read(I2C_NUM_0, TAS5731M_I2C_ADDRESS,  0x02, buf, 1);   
 
     if (buf[0] & 2) {
         ESP_LOGW(TAG, "Overcurrent, overtemperature or undervoltage errors");
@@ -208,21 +208,20 @@ esp_err_t tas5731m_set_volume(int vol) {
     }
     vol_idx = vol / 5;
 
-    uint8_t cmd[2] = {0, 0};
-
-    cmd[0] = MASTER_VOL_REG_ADDR;
-    cmd[1] = tas5731m_volume[vol_idx];
-    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, cmd[0], &cmd[1], 1);
-    ESP_LOGW(TAG, "volume = 0x%x", cmd[1]);
+    uint8_t cmd[1] = {0};
+   
+    cmd[0] = tas5731m_volume[vol_idx];
+    i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, MASTER_VOL_REG_ADDR, cmd, 1);
+    ESP_LOGW(TAG, "volume = 0x%x", cmd[0]);
     return ret;
 }
 
 esp_err_t tas5731m_get_volume(int *value) {
     esp_err_t ret = ESP_OK;
     /// FIXME: Got the digit volume is not right.
-    uint8_t cmd[2] = {MASTER_VOL_REG_ADDR, 0x00};
-    //ret = i2c_bus_read_bytes(i2c_handler, TAS5731M_ADDRESS, &cmd[0], 1, &cmd[1], 1);
-    ret = i2c_manager_read(I2C_NUM_0, TAS5731M_I2C_ADDRESS, cmd[0], &cmd[1], 1);
+    uint8_t cmd[1] = {0x00};
+    
+    ret = i2c_manager_read(I2C_NUM_0, TAS5731M_I2C_ADDRESS, MASTER_VOL_REG_ADDR, cmd, 1);
     TAS5731M_ASSERT(ret, "Fail to get volume", ESP_FAIL);
     int i;
     for (i = 0; i < sizeof (tas5731m_volume); i++) {

@@ -88,7 +88,7 @@ void i2c_init(SSD1306_t * dev, int width, int height) {
     data[26] = OLED_CMD_DISPLAY_ON;
 
     // initialise display
-    i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, &data[0], 27);
+    i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, data, 27);
 
 }
 
@@ -112,14 +112,14 @@ void i2c_display_image(SSD1306_t * dev, int page, int seg, uint8_t * images, int
     data[2] = (0x10 + columHigh);
     data[3] = (0xB0 | _page);
 
-    i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, &data[0], 4);
+    i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, data, 4);
 
     uint8_t *imagedata = (uint8_t*) calloc(width + 1, sizeof (uint8_t));
     imagedata[0] = OLED_CONTROL_BYTE_DATA_STREAM;
 
     memcpy(&imagedata[1], images, width);
     
-    i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, &imagedata[0], width + 1);
+    i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, imagedata, width + 1);
 
     free(imagedata);
 }
@@ -137,7 +137,7 @@ void i2c_contrast(SSD1306_t * dev, int contrast) {
         (uint8_t) _contrast,
     };
 
-    i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, &data[0], 3);
+    i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, data, 3);
 }
 
 //void i2c_hardware_scroll(SSD1306_t * dev, ssd1306_scroll_type_t scroll) {

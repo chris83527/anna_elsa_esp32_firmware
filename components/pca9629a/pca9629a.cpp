@@ -151,7 +151,7 @@ esp_err_t PCA9629A::write(RegisterName register_name, const uint8_t value) {
     uint8_t cmd[1];
     cmd[0] = value;
 
-    esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, static_cast<uint8_t> (register_name), cmd, 1);
+    esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, static_cast<uint8_t> (register_name), &cmd[0], 1);
 
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "An error occurred in PCA9629A::write writing i2c data");
@@ -167,7 +167,7 @@ esp_err_t PCA9629A::write16(RegisterName register_name, const uint16_t value) {
     cmd[ 0 ] = value & 0xFF;
     cmd[ 1 ] = value >> 8;
 
-    esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, static_cast<uint8_t> (register_name), cmd, 1);
+    esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, static_cast<uint8_t> (register_name), &cmd[0], 1);
     ret |= i2c_manager_write(this->i2c_port, this->i2c_address, static_cast<uint8_t> (register_name) + 1, &cmd[1], 1);
 
     if (ret != ESP_OK) {

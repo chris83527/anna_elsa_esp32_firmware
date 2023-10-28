@@ -78,32 +78,6 @@ enum {
 static const int days_per_month[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 static const int days_per_month_leap_year[] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-uint8_t DS3231::bcd2dec(uint8_t val) {
-    return (val >> 4) * 10 + (val & 0x0f);
-}
-
-uint8_t DS3231::dec2bcd(uint8_t val) {
-    return ((val / 10) << 4) + (val % 10);
-}
-
-// Function to convert year, month, and day to days since January 1st
-
-inline int DS3231::days_since_january_1st(int year, int month, int day) {
-    int days = day - 1;
-    const int *ptr = days_per_month;
-
-    // Handle leap year
-    if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))
-        ptr = days_per_month_leap_year;
-
-    // Add days from previous months
-    for (int i = 0; i < month; i++) {
-        days += ptr[i];
-    }
-
-    return days;
-}
-
 /** Create a DS3231 instance connected to specified I2C pins with specified address
  *            
  * @param i2c_port The I2C port to use (default: 0)
@@ -134,7 +108,7 @@ esp_err_t DS3231::set_time(const struct tm *time) {
     data[5] = dec2bcd(time->tm_mon + 1);
     data[6] = dec2bcd(time->tm_year - 100);
 
-    return i2c_manager_write(this->i2c_port, this->i2c_address, DS3231_ADDR_TIME, data, 7);
+    return i2c_manager_write(this->i2c_port, this->i2c_address, DS3231_ADDR_TIME, &data[0], 7);
 }
 
 esp_err_t DS3231::set_alarm(const alarm_t alarms, struct tm *time1, const alarm1_rate_t option1, struct tm *time2, const alarm2_rate_t option2) {
@@ -378,4 +352,30 @@ esp_err_t DS3231::get_aging_offset(int8_t& age) {
     age = (int8_t) age_u8;
 
     return ESP_OK;
+}
+
+uint8_t DS3231::bcd2dec(uint8_t val) {
+    return (val >> 4) * 10 + (val & 0x0f);
+}
+
+uint8_t DS3231::dec2bcd(uint8_t val) {
+    return ((val / 10) << 4) + (val % 10);
+}
+
+// Function to convert year, month, and day to days since January 1st
+
+inline int DS3231::days_since_january_1st(int year, int month, int day) {
+    int days = day - 1;
+    const int *ptr = days_per_month;
+
+    // Handle leap year
+    if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))
+        ptr = days_per_month_leap_year;
+
+    // Add days from previous months
+    for (int i = 0; i < month; i++) {
+        days += ptr[i];
+    }
+
+    return days;
 }
