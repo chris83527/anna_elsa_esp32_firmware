@@ -56,7 +56,7 @@ void MainController::start() {
     this->audioController.reset(new AudioController());
     this->displayController.reset(new DisplayController(this));
     this->reelController.reset(new ReelController(this));
-    this->oledController.reset(new oledcontroller());
+    //this->oledController.reset(new oledcontroller());
     this->moneyController.reset(new MoneyController(this));
     this->game.reset(new Game(this));
     this->cctalkController.reset(new CCTalkController());
@@ -94,12 +94,12 @@ void MainController::start() {
 
     this->displayController->displayText("INITIALISING 03");
     // start outputting to status oled
-    oledController->initialise();
+    //oledController->initialise();
 
     this->displayController->displayText("INITIALISING 04");
     // Initialize NVS
     ESP_LOGD(TAG, "Setting up NVS");
-    oledController->scrollText("Init NVS");
+    //oledController->scrollText("Init NVS");
 
     // Initialize NVS
     this->displayController->displayText("INITIALISING 05");
@@ -126,10 +126,10 @@ void MainController::start() {
     nvs_handle = nvs::open_nvs_handle_from_partition(NVS_PARTITION_SETTINGS, NVS_PARTITION_SETTINGS, NVS_READWRITE, &err);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(err));
-        oledController->scrollText("  -> failed");
+        //oledController->scrollText("  -> failed");
     } else {
         ESP_LOGD(TAG, "NVS opened ok.");
-        oledController->scrollText("  -> ok");
+        //oledController->scrollText("  -> ok");
     }
 
     // Initialise WiFi
@@ -138,7 +138,7 @@ void MainController::start() {
 
     // initialise ds3231 RTC
     this->displayController->displayText("INITIALISING 08");
-    oledController->scrollText("Init RTC");
+    //oledController->scrollText("Init RTC");
     
     this->ds3231 = new DS3231(I2C_NUM_0, DS3231_ADDR);
 //    if (err != ESP_OK) {
@@ -147,11 +147,11 @@ void MainController::start() {
 //    } else {
 //        //this->setDateTime(); // Debug only
         ESP_LOGI(TAG, "RTC initialised ok");
-        oledController->scrollText("  -> ok");
+        //oledController->scrollText("  -> ok");
     //}
 
     this->displayController->displayText("INITIALISING 09");
-    oledController->scrollText("Init LittleFS");
+    //oledController->scrollText("Init LittleFS");
     esp_vfs_littlefs_conf_t conf = {
         .base_path = "/httpd",
         .partition_label = "httpd",
@@ -175,7 +175,7 @@ void MainController::start() {
     }
 
     this->displayController->displayText("INITIALISING 0A");
-    oledController->scrollText("Init Webserver");
+    //oledController->scrollText("Init Webserver");
     this->httpController->initialise(80, "/httpd", "INNUENDO", "woodsamusements");
 
     /* Mark current app as valid */
@@ -191,7 +191,7 @@ void MainController::start() {
 
     // initialise audio subsystem   
     this->displayController->displayText("INITIALISING 0B");
-    oledController->scrollText("Init Audio");
+    //oledController->scrollText("Init Audio");
     audioController->initialise();
 
 //    esp_err_t res;
@@ -215,21 +215,21 @@ void MainController::start() {
 //    printf("\n\n");
 
     this->displayController->displayText("INITIALISING 0C");
-    oledController->scrollText("Init Display");
+    //oledController->scrollText("Init Display");
     if (displayController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise tableau subsystem");
-        oledController->scrollText("  -> failed");
+        //oledController->scrollText("  -> failed");
     } else {
         ESP_LOGD(TAG, "Display controller initialisation ok.");
-        oledController->scrollText("  -> ok");
+        //oledController->scrollText("  -> ok");
     }
 
     this->displayController->displayText("INITIALISING 0D");
-    oledController->scrollText("Load stats");
+    //oledController->scrollText("Load stats");
     moneyController->initialise();
 
     this->displayController->displayText("INITIALISING 0E");
-    oledController->scrollText("Init cctalk");
+    //oledController->scrollText("Init cctalk");
     cctalkController->setCreditAcceptedCallback([&](uint8_t coin_id, const esp32cc::CcIdentifier & identifier) {
         ESP_LOGI(TAG, "Credit accepted: Coin id: %d, Identifier: %s", coin_id, identifier.id_string.c_str());
         moneyController->addToCredit(COIN_VALUES[coin_id]);
@@ -238,25 +238,25 @@ void MainController::start() {
     this->displayController->displayText("INITIALISING 0F");
     if (cctalkController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
-        oledController->scrollText("  -> failed");
+        //oledController->scrollText("  -> failed");
     } else {
-        oledController->scrollText("  -> ok");
+        //oledController->scrollText("  -> ok");
     }
 
     this->displayController->displayText("INITIALISING 10");
-    oledController->scrollText("Init reels");
+    //oledController->scrollText("Init reels");
     if (!reelController->initialise()) {
-        oledController->scrollText("  -> failed");
+        //oledController->scrollText("  -> failed");
         ESP_LOGE(TAG, "Failed to initialise reel controller subsystem");
     } else {
-        oledController->scrollText("  -> ok");
+        //oledController->scrollText("  -> ok");
         ESP_LOGD(TAG, "Reel controller initialisation ok.");
     }
 
     blinkDelay = 1000;
 
     this->displayController->displayText("INITIALISING 11");
-    oledController->scrollText("Init game");
+    //oledController->scrollText("Init game");
     game->initialise();
 
     this->displayController->displayText("INITIALISING 12");
@@ -265,10 +265,10 @@ void MainController::start() {
     cfg.prio = 1;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
-    this->updateStatisticsThread = std::thread([this]() {
-        updateStatisticsDisplayTask();
-    });
-    this->updateStatisticsThread.detach();
+//    this->updateStatisticsThread = std::thread([this]() {
+//        updateStatisticsDisplayTask();
+//    });
+//    this->updateStatisticsThread.detach();
 
     this->displayController->displayText("INITIALISING 13");
     for (;;) {

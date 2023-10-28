@@ -27,6 +27,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#include "sdkconfig.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "i2c_manager.h"
