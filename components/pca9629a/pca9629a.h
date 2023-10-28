@@ -32,10 +32,10 @@
 #ifndef PCA9629A_H
 #define PCA9629A_H
 
-#include <stdint.h>
-
+#include <cstdint>
 #include <thread>
 #include <chrono>
+#include <esp_err.h>
 
 #include "i2c_manager.h"
 
@@ -96,11 +96,6 @@ public:
         REG_STEPCOUNT2, /**< Step counter byte 2 */
         REG_STEPCOUNT3, /**< Step counter byte 3 */
     } RegisterName;
-
-private:
-
-
-public:
 
     /** keyword to select direction of rotation */
     typedef enum {

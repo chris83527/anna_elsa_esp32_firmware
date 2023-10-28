@@ -85,8 +85,7 @@ private:
 
 class DisplayController {
 public:
-    DisplayController(MainController *mainController);
-    DisplayController(const DisplayController &orig);
+    DisplayController(MainController *mainController);    
 
     esp_err_t initialise(void);
 
@@ -112,12 +111,12 @@ public:
     void beginAttractMode(void);
     void stopAttractMode(void);
 
-    ht16k33_t* getBankDisplay(void);
-    ht16k33_t* getCreditDisplay(void);
-    ht16k33_t* getMovesDisplay(void);
+    HT16K33* getBankDisplay(void);
+    HT16K33* getCreditDisplay(void);
+    HT16K33* getMovesDisplay(void);
 
     led_strip_t* getLedStrip(void);
-    mcp23x17_t* getButtonIO(void);
+    MCP23x17* getButtonIO(void);
 
 
     static const int NUDGE_LAMPS_LENGTH = 5;
@@ -225,11 +224,11 @@ protected:
 private:
     led_strip_t ledStrip;
 
-    ht16k33_t movesDisplay;
-    ht16k33_t creditDisplay;
-    ht16k33_t bankDisplay;
+    HT16K33* movesDisplay;
+    HT16K33* creditDisplay;
+    HT16K33* bankDisplay;
 
-    mcp23x17_t buttonIO;
+    MCP23x17* buttonIO;
 
     uint8_t buttonStatus;
     bool doorOpen;

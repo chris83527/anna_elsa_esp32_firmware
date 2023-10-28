@@ -150,11 +150,13 @@ DisplayController::DisplayController(MainController* mainController) {
     DisplayController::FEATURE_LAMPS[10] = LAMP_MATRIX_FREE_SPIN_4_3;
     DisplayController::FEATURE_LAMPS[11] = LAMP_MATRIX_PALACE_4_1;
 
+    movesDisplay = new HT16K33(I2C_NUM_0, MOVES_DISPLAY_ADDRESS);
+    creditDisplay = new HT16K33(I2C_NUM_0, CREDIT_DISPLAY_ADDRESS);
+    bankDisplay = new HT16K33(I2C_NUM_0, BANK_DISPLAY_ADDRESS);
+    buttonIO = new MCP23x17(I2C_NUM_0, BUTTONS_I2C_ADDRESS);
+
+    
     ESP_LOGD(TAG, "Leaving constructor");
-}
-
-DisplayController::DisplayController(const DisplayController& orig) {
-
 }
 
 esp_err_t DisplayController::initialise() {
@@ -162,11 +164,7 @@ esp_err_t DisplayController::initialise() {
     ESP_LOGI(TAG, "Entering DisplayController::initialise()");
 
     this->buttonStatus = 0;
-
-    memset(&movesDisplay, 0, sizeof (ht16k33_t));
-    memset(&creditDisplay, 0, sizeof (ht16k33_t));
-    memset(&bankDisplay, 0, sizeof (ht16k33_t));
-    memset(&buttonIO, 0, sizeof (mcp23x17_t));
+    
     memset(&ledStrip, 0, sizeof (led_strip_t));
 
     //ledStrip.is_rgbw = true;
@@ -177,7 +175,6 @@ esp_err_t DisplayController::initialise() {
     ledStrip.brightness = 255;
     ledStrip.channel = RMT_TX_CHANNEL;
 
-
     led_strip_install();
 
     if (led_strip_init(&this->ledStrip) != ESP_OK) {
@@ -186,34 +183,24 @@ esp_err_t DisplayController::initialise() {
         ESP_LOGD(TAG, "WS2812 driver installation succeeded");
     }
 
-
-    ht16k33_init(this->getCreditDisplay(), I2C_NUM_0, CREDIT_DISPLAY_ADDRESS);  
-    ht16k33_display_on(&creditDisplay);
-    ht16k33_write_value(&creditDisplay, "%05d", 88888);
+    creditDisplay->display_on();
+    creditDisplay->write_value("%05d", 88888);
     ESP_LOGD(TAG, "Credit display initialisation succeeded");
 
-    ht16k33_init(this->getBankDisplay(), I2C_NUM_0, BANK_DISPLAY_ADDRESS);
-    ht16k33_display_on(this->getBankDisplay());
-    ht16k33_write_value(this->getBankDisplay(), "%05d", 88888);
+    bankDisplay->display_on();
+    bankDisplay->write_value("%05d", 88888);
     ESP_LOGD(TAG, "Bank display initialisation succeeded");
 
-    ht16k33_init(this->getMovesDisplay(), I2C_NUM_0, MOVES_DISPLAY_ADDRESS);    
-    ht16k33_display_on(this->getMovesDisplay());
-    ht16k33_write_value(this->getMovesDisplay(), "%02d", 88);
+    movesDisplay->display_on();
+    movesDisplay->write_value("%05d", 88);
     ESP_LOGD(TAG, "Moves display initialisation succeeded");
 
-    if (mcp23x17_init_desc(this->getButtonIO(), BUTTONS_I2C_ADDRESS, I2C_NUM_0, GPIO_I2C_SDA, GPIO_I2C_SCL) != ESP_OK) {
-        ESP_LOGE(TAG, "Could not initialise button interface");
-    } else {
+    uint16_t portMode = 0x00ff; // PortA input, portB output (0 = output, 1 = input)
+    uint16_t pullup = 0x0000; // internal pullup resistors on button pins off - we pull them up in hardware.
 
-        uint16_t portMode = 0x00ff; // PortA input, portB output (0 = output, 1 = input)
-        uint16_t pullup = 0x0000; // internal pullup resistors on button pins off - we pull them up in hardware.
-
-        mcp23x17_port_set_mode(this->getButtonIO(), portMode);
-        mcp23x17_port_set_pullup(this->getButtonIO(), pullup);
-
-        ESP_LOGI(TAG, "Button interface initialisation succeeded");
-    }
+    buttonIO->port_set_mode(portMode);
+    buttonIO->port_set_pullup(pullup);
+    ESP_LOGI(TAG, "Button interface initialisation succeeded");
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -317,7 +304,7 @@ void DisplayController::testLamps() {
 void DisplayController::setMoves(uint8_t value) {
 
     ESP_LOGD(TAG, "Entering setMoves(%d)", value);
-    ht16k33_write_value(getMovesDisplay(), "%02d", value);
+    movesDisplay->write_value("%02d", value);
     ESP_LOGD(TAG, "Exiting setMoves");
 }
 
@@ -366,28 +353,27 @@ void DisplayController::clearText() {
 }
 
 led_strip_t* DisplayController::getLedStrip() {
-
     return &this->ledStrip;
 }
 
-mcp23x17_t* DisplayController::getButtonIO() {
+MCP23x17* DisplayController::getButtonIO() {
 
-    return &this->buttonIO;
+    return this->buttonIO;
 }
 
-ht16k33_t* DisplayController::getBankDisplay() {
+HT16K33* DisplayController::getBankDisplay() {
 
-    return &this->bankDisplay;
+    return this->bankDisplay;
 }
 
-ht16k33_t* DisplayController::getCreditDisplay() {
+HT16K33* DisplayController::getCreditDisplay() {
 
-    return &this->creditDisplay;
+    return this->creditDisplay;
 }
 
-ht16k33_t* DisplayController::getMovesDisplay() {
+HT16K33* DisplayController::getMovesDisplay() {
 
-    return &this->movesDisplay;
+    return this->movesDisplay;
 }
 
 void DisplayController::attractModeTask() {
@@ -444,7 +430,7 @@ void DisplayController::fadeInOutEffect() {
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
-    
+
     // Nudge lamps fade in
     for (int i = 255; i >= 0; i -= 2) {
         for (int j = 0; j < NUDGE_LAMPS.size(); j++) {
@@ -470,7 +456,7 @@ void DisplayController::fadeInOutEffect() {
     }
 
 
-     // Feature lamps fade in
+    // Feature lamps fade in
     for (int i = 255; i >= 0; i -= 2) {
         for (int j = 0; j < FEATURE_LAMPS.size(); j++) {
             if (!this->attractMode) {
@@ -481,7 +467,7 @@ void DisplayController::fadeInOutEffect() {
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
-    
+
 
     // Nudge lamps fade out
     for (int i = 0; i < 256; i++) {
@@ -494,9 +480,9 @@ void DisplayController::fadeInOutEffect() {
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
-    
 
-   // Feature lamps fade out
+
+    // Feature lamps fade out
     for (int i = 0; i < 256; i++) {
         for (int j = 0; j < FEATURE_LAMPS.size(); j++) {
             if (!this->attractMode) {
@@ -656,7 +642,7 @@ void DisplayController::updateLampsTask() {
 
     for (;;) {
 
-        err = mcp23x17_port_read(&buttonIO, &buttonVal);
+        err = buttonIO->port_read(buttonVal);
 
         if (err == ESP_OK) {
             this->buttonStatus = (uint8_t) ~(buttonVal & 0xff); // Invert because we are pulling low in hardware.
@@ -715,7 +701,7 @@ void DisplayController::updateLampsTask() {
         }
 
         led_strip_flush(&ledStrip);
-        mcp23x17_port_write(this->getButtonIO(), buttonVal);
+        buttonIO->port_write(buttonVal);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
@@ -739,13 +725,12 @@ void DisplayController::updateSevenSegDisplaysTask() {
 
         if (initialRun || (bank != mainController->getMoneyController()->getBank())) {
             bank = mainController->getMoneyController()->getBank();
-            ht16k33_write_value(mainController->getDisplayController()->getBankDisplay(), "%05d", bank);
+            bankDisplay->write_value("%05d", bank);
         }
 
         if (initialRun || (credit != mainController->getMoneyController()->getCredit())) {
-
             credit = mainController->getMoneyController()->getCredit();
-            ht16k33_write_value(mainController->getDisplayController()->getCreditDisplay(), "%05d", credit);
+            creditDisplay->write_value("%05d", credit);
         }
 
         initialRun = false;

@@ -35,9 +35,8 @@
  * BSD Licensed as described in the file LICENSE
  */
 #include <esp_log.h>
-#include <string.h>
-#include <math.h>
-#include <i2c_manager.h>
+#include <cstring>
+#include <cmath>
 #include "ht16k33.h"
 
 #define HT16K33_ON              0x21  // Commands
@@ -76,7 +75,7 @@ static const char *TAG = "ht16k33";
 //               d = A3        
 static const uint8_t charmap[] = {
 
- SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F,
+    SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F,
     SEG_B | SEG_C, // 1 = 1, etc
     SEG_A | SEG_B | SEG_G | SEG_E | SEG_D, // 2        
     SEG_A | SEG_B | SEG_C | SEG_G | SEG_D, // 3
@@ -110,80 +109,75 @@ static const uint8_t charmap[] = {
     SEG_A | SEG_F | SEG_G | SEG_C | SEG_D // S = 31
 };
 
-void ht16k33_init(ht16k33_t *dev, const i2c_port_t port, const uint8_t addr) {
-    dev->_address = addr;
-    dev->_port = port;
+HT16K33::HT16K33(const i2c_port_t port = I2C_NUM_0, const uint8_t address = HT16K33_ADDR_BASE) {
+    this->i2c_port = port;
+    this->i2c_address = address;
 }
 
-esp_err_t ht16k33_display_on(ht16k33_t *dev)
-{
-    CHECK_ARG(dev);
+HT16K33::~HT16K33() {
+    
+}
 
-    ht16k33_write_cmd(dev, HT16K33_ON);
-    ht16k33_write_cmd(dev, HT16K33_DISPLAYON);
-    ht16k33_write_cmd(dev, HT16K33_DIM);
+esp_err_t HT16K33::display_on() {
+    
+    HT16K33::write_cmd(HT16K33_ON);
+    HT16K33::write_cmd(HT16K33_DISPLAYON);
+    HT16K33::write_cmd(HT16K33_DIM);
 
     return ESP_OK;
 }
 
-esp_err_t ht16k33_display(ht16k33_t *dev, uint8_t *arr, const uint8_t dp)
-{
-    CHECK_ARG(dev);
-
-    ht16k33_write_pos(dev, 0, charmap[arr[0]], dp == 0);
-    ht16k33_write_pos(dev, 1, charmap[arr[1]], dp == 1);
-    ht16k33_write_pos(dev, 2, charmap[arr[2]], dp == 2);
-    ht16k33_write_pos(dev, 3, charmap[arr[3]], dp == 3);
-    ht16k33_write_pos(dev, 4, charmap[arr[4]], dp == 4);
+esp_err_t HT16K33::display(uint8_t *arr, const uint8_t dp) {
+    
+    HT16K33::write_pos(0, charmap[arr[0]], dp == 0);
+    HT16K33::write_pos(1, charmap[arr[1]], dp == 1);
+    HT16K33::write_pos(2, charmap[arr[2]], dp == 2);
+    HT16K33::write_pos(3, charmap[arr[3]], dp == 3);
+    HT16K33::write_pos(4, charmap[arr[4]], dp == 4);
 
     return ESP_OK;
 }
 
-esp_err_t ht16k33_write_digit(ht16k33_t *dev, const uint8_t pos, const uint8_t val, const uint8_t dp)
-{
-    CHECK_ARG(dev);
-
-    ht16k33_write_pos(dev, pos, charmap[val], dp == pos);
+esp_err_t HT16K33::write_digit(const uint8_t pos, const uint8_t val, const uint8_t dp) {
+   
+    HT16K33::write_pos(pos, charmap[val], dp == pos);
 
     return ESP_OK;
 }
 
-esp_err_t ht16k33_write_value(ht16k33_t *dev, const char* fmt, const int value) {
+esp_err_t HT16K33::write_value( const char* fmt, const int value) {
     char buf[6];
-    
+
     sprintf(buf, fmt, value);
-    
-    for (int pos = 0 ; pos < 5; pos++) {
-        ht16k33_write_digit(dev, (uint8_t)pos, (uint8_t)(buf[pos] - 48), (uint8_t)2);
+
+    for (int pos = 0; pos < 5; pos++) {
+        HT16K33::write_digit((uint8_t) pos, (uint8_t) (buf[pos] - 48), (uint8_t) 2);
     }
 
     return ESP_OK;
 }
 
-esp_err_t ht16k33_write_cmd(ht16k33_t *dev, const uint8_t cmd)
-{
-    esp_err_t ret = i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, &cmd, 1);
-    
+esp_err_t HT16K33::write_cmd(const uint8_t cmd) {
+    esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, I2C_NO_REG, &cmd, 1);
+
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "An error occurred in ht16k33_write_cmd writing i2c data");
+        ESP_LOGE(TAG, "An error occurred in HT16K33::write_cmd writing i2c data");
     }
-    
+
     return ret;
 }
 
-esp_err_t ht16k33_write_pos(ht16k33_t *dev, const uint8_t pos, const uint8_t mask, const bool dp)
-{
-    
+esp_err_t HT16K33::write_pos(const uint8_t pos, const uint8_t mask, const bool dp) {
+
     uint8_t new_mask = mask;
-    if (dp) 
-    {
+    if (dp) {
         new_mask |= SEG_DP; // dp
     }
-                
-    esp_err_t ret = i2c_manager_write(dev->_port, dev->_address, pos * 2, &new_mask, 1);
-    
+
+    esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, pos * 2, &new_mask, 1);
+
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "An error occurred in ht16k33_write_pos writing i2c data");
+        ESP_LOGE(TAG, "An error occurred in HT16K33::write_pos writing i2c data");
     }
 
     return ret;

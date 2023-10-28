@@ -139,17 +139,16 @@ void MainController::start() {
     // initialise ds3231 RTC
     this->displayController->displayText("INITIALISING 08");
     oledController->scrollText("Init RTC");
-    memset(&ds3231, 0, sizeof (i2c_dev_t));
-
-    err = ds3231_init_desc(&ds3231, 0, GPIO_I2C_SDA, GPIO_I2C_SCL);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Error initialising RTC!");
-        oledController->scrollText("  -> failed");
-    } else {
-        //this->setDateTime(); // Debug only
+    
+    this->ds3231 = new DS3231(I2C_NUM_0, DS3231_ADDR);
+//    if (err != ESP_OK) {
+//        ESP_LOGE(TAG, "Error initialising RTC!");
+//        oledController->scrollText("  -> failed");
+//    } else {
+//        //this->setDateTime(); // Debug only
         ESP_LOGI(TAG, "RTC initialised ok");
         oledController->scrollText("  -> ok");
-    }
+    //}
 
     this->displayController->displayText("INITIALISING 09");
     oledController->scrollText("Init LittleFS");
@@ -195,25 +194,25 @@ void MainController::start() {
     oledController->scrollText("Init Audio");
     audioController->initialise();
 
-    esp_err_t res;
-    printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n");
-    printf("00:         ");
-    for (uint8_t i = 3; i < 0x78; i++) {
-        i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-        i2c_master_start(cmd);
-        i2c_master_write_byte(cmd, (i << 1) | I2C_MASTER_WRITE, 1 /* expect ack */);
-        i2c_master_stop(cmd);
-
-        res = i2c_master_cmd_begin(I2C_NUM_0, cmd, pdMS_TO_TICKS(10));
-        if (i % 16 == 0)
-            printf("\n%2x:", i);
-        if (res == 0)
-            printf(" %2x", i);
-        else
-            printf(" --");
-        i2c_cmd_link_delete(cmd);
-    }
-    printf("\n\n");
+//    esp_err_t res;
+//    printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n");
+//    printf("00:         ");
+//    for (uint8_t i = 3; i < 0x78; i++) {
+//        i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+//        i2c_master_start(cmd);
+//        i2c_master_write_byte(cmd, (i << 1) | I2C_MASTER_WRITE, 1 /* expect ack */);
+//        i2c_master_stop(cmd);
+//
+//        res = i2c_master_cmd_begin(I2C_NUM_0, cmd, pdMS_TO_TICKS(10));
+//        if (i % 16 == 0)
+//            printf("\n%2x:", i);
+//        if (res == 0)
+//            printf(" %2x", i);
+//        else
+//            printf(" --");
+//        i2c_cmd_link_delete(cmd);
+//    }
+//    printf("\n\n");
 
     this->displayController->displayText("INITIALISING 0C");
     oledController->scrollText("Init Display");
@@ -296,7 +295,7 @@ void MainController::setDateTime() {
     time.tm_year = (2023 - 1900); // tm_year = number of years since 1900
     time.tm_mday = 24;
 
-    ds3231_set_time(&ds3231, &time);
+    ds3231->set_time(&time);
 }
 
 std::shared_ptr<AudioController> MainController::getAudioController() {
@@ -331,8 +330,8 @@ std::shared_ptr<Game> MainController::getGame() {
     return game;
 }
 
-i2c_dev_t* MainController::getDs3231() {
-    return &this->ds3231;
+DS3231* MainController::getDs3231() {
+    return this->ds3231;
 }
 
 void MainController::error(int errorCode) {
@@ -433,7 +432,7 @@ void MainController::updateStatisticsDisplayTask() {
 
     while (1) {
 
-        ret = ds3231_get_time(&this->ds3231, &time);
+        ret = ds3231->get_time(time);
 
         if (ret == ESP_OK) {
 

@@ -37,62 +37,31 @@
 #ifndef __HT16K33_H__
 #define __HT16K33_H__
 
-#include <stddef.h>
-#include <stdbool.h>
+#include <cstddef>
+#include <cstdbool>
 #include <esp_err.h>
-#include <driver/i2c.h>
+#include <i2c_manager.h>
 
 #define HT16K33_ADDR_BASE 0x70
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+class HT16K33 {
+public:
 
-typedef struct {
-        i2c_port_t _port;
-	int _address;	
-} ht16k33_t;
+    HT16K33(const i2c_port_t port, const uint8_t address);
+    ~HT16K33();   
 
-/**
- * @brief Initialize device descriptor
- *
- *
- * @param dev Pointer to device descriptor
- * @param port I2C port number
- * @param addr I2C address
- * @return `ESP_OK` on success
- */
-void ht16k33_init(ht16k33_t *dev, const i2c_port_t port, const uint8_t addr);
+    esp_err_t set_digits(uint8_t val);
+    esp_err_t display_on();
+    esp_err_t display(uint8_t *arr, const uint8_t dp);
+    esp_err_t write_digit(const uint8_t pos, const uint8_t val, const uint8_t dp);
+    esp_err_t write_value(const char* fmt, const int value);
 
-/**
- * @brief Free device descriptor
- *
- * @param dev Pointer to device descriptor
- * @return `ESP_OK` on success
- */
-esp_err_t ht16k33_free_desc(ht16k33_t *dev);
+private:
+    esp_err_t write_cmd(const uint8_t cmd);
+    esp_err_t write_pos(const uint8_t pos, const uint8_t mask, const bool dp);
 
-esp_err_t ht16k33_set_digits(ht16k33_t *dev, uint8_t val);
-
-esp_err_t ht16k33_display_on(ht16k33_t *dev);
-
-esp_err_t ht16k33_display(ht16k33_t *dev, uint8_t *arr, const uint8_t dp);
-
-esp_err_t ht16k33_write_digit(ht16k33_t *dev, const uint8_t pos, const uint8_t val, const uint8_t dp);
-
-esp_err_t ht16k33_write_value(ht16k33_t *dev, const char* fmt, const int value);
-
-
-// "Private" methods
-esp_err_t ht16k33_write_cmd(ht16k33_t *dev, const uint8_t cmd);
-
-esp_err_t ht16k33_write_pos(ht16k33_t *dev, const uint8_t pos, const uint8_t mask, const bool dp);
-
-
-
-#ifdef __cplusplus
-}
-#endif
-
+    i2c_port_t i2c_port;
+    uint8_t i2c_address;
+};
 #endif
 

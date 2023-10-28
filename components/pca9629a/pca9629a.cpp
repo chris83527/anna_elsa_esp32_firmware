@@ -72,10 +72,7 @@ const char *reg_name[] = {
     "STEPCOUNT3",
 };
 
-PCA9629A::PCA9629A(
-        const i2c_port_t port,
-        const uint8_t i2c_address
-        ) {
+PCA9629A::PCA9629A(const i2c_port_t port, const uint8_t i2c_address) {
 
     ESP_LOGD(TAG, "i2c_port: %d, i2c_address: %d", i2c_port, i2c_address);
     this->i2c_port = port;
@@ -266,15 +263,15 @@ void PCA9629A::stop(void) {
 esp_err_t PCA9629A::register_dump(void) {
     uint8_t data[ 34 ]; // number of registers
     uint8_t cmd = 0x80;
-   
+
     esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, I2C_NO_REG, &cmd, 1);
-    
+
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "An error occurred in PCA9629A::register_dump writing i2c data");
     }
 
-    ret |= i2c_manager_read(this->i2c_port, this->i2c_address, I2C_NO_REG, data, sizeof(data));
-    
+    ret |= i2c_manager_read(this->i2c_port, this->i2c_address, I2C_NO_REG, data, sizeof (data));
+
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "An error occurred in PCA9629A::register_dump reading i2c data");
     }

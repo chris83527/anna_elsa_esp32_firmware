@@ -68,12 +68,12 @@ public:
     std::shared_ptr<oledcontroller> getOledController();
     //std::shared_ptr<WIFI::Wifi> getWifiController();
 
-    i2c_dev_t* getDs3231();
+    DS3231* getDs3231();
 
 
 private:
 
-    i2c_dev_t ds3231;
+    DS3231* ds3231;
 
     //EEProm_Data eeprom_data;    
     void blinkCPUStatusLEDTask(void);

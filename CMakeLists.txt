@@ -9,6 +9,9 @@ set(EXTRA_COMPONENT_DIRS
 "components/m20ly02z" 
 "components/ssd1306"
 "components/joltwallet__littlefs" 
+"components/mcp23x17" 
+"components/mcp23008" 
+"components/ds3231" 
 "/home/chris/esp/esp-idf-v4.4.6/components/esp_hw_support" 
 "/home/chris/esp/esp-idf-v4.4.6/components/esp_https_server" 
 "/home/chris/esp/esp-idf-v4.4.6/components/esp_wifi" 
@@ -17,13 +20,8 @@ set(EXTRA_COMPONENT_DIRS
 "/home/chris/esp/esp-idf-v4.4.6/components/spiffs" 
 "/home/chris/esp/esp-idf-lib/components/color" 
 "/home/chris/esp/esp-idf-lib/components/lib8tion" 
-"/home/chris/esp/esp-idf-lib/components/ds3231" 
-"/home/chris/esp/esp-idf-lib/components/mcp23008" 
-"/home/chris/esp/esp-idf-lib/components/mcp23x17" 
-"/home/chris/esp/esp-idf-lib/components/lib8tion" 
-"/home/chris/esp/esp-idf-lib/components/i2cdev" 
-"/home/chris/esp/esp-idf-lib/components/esp_idf_lib_helpers" 
 "/home/chris/esp/esp-idf-lib/components/led_strip" 
+"/home/chris/esp/esp-idf-lib/components/esp_idf_lib_helpers" 
 "/home/chris/esp/esp-adf/components")
 
 
