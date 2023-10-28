@@ -65,6 +65,7 @@ static const char *TAG = "mcp23008";
 #define BV(x) (1 << (x))
 
 MCP23008::MCP23008(const i2c_port_t port = I2C_NUM_0, const uint8_t address = MCP23008_I2C_ADDR_BASE) {
+    ESP_LOGD(TAG, "i2c_port: %d, i2c_address: %d", port, address);
     this->i2c_port = port;
     this->i2c_address = address;
 }

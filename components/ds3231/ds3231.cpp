@@ -84,6 +84,7 @@ static const int days_per_month_leap_year[] = {31, 29, 31, 30, 31, 30, 31, 31, 3
  * @param i2c_address I2C-bus address (default: 0x20)     
  */
 DS3231::DS3231(const i2c_port_t port = I2C_NUM_0, const uint8_t address = DS3231_ADDR) {
+    ESP_LOGD(TAG, "i2c_port: %d, i2c_address: %d", port, address);
     this->i2c_port = port;
     this->i2c_address = address;
 }

@@ -78,6 +78,7 @@ static const char *TAG = "mcp23x17";
 #define BV(x) (1 << (x))
 
 MCP23x17::MCP23x17(const i2c_port_t port = I2C_NUM_0, const uint8_t address = MCP23X17_ADDR_BASE) {
+    ESP_LOGD(TAG, "i2c_port: %d, i2c_address: %d", port, address);
     this->i2c_port = port;
     this->i2c_address = address;
 }
@@ -86,8 +87,7 @@ MCP23x17::~MCP23x17() {
 
 }
 
-esp_err_t MCP23x17::get_int_out_mode(int_out_mode_t& mode) {
-    CHECK_ARG(mode);
+esp_err_t MCP23x17::get_int_out_mode(int_out_mode_t& mode) {    
 
     bool buf;
     CHECK(read_reg_bit_8(REG_IOCON, buf, BIT_IOCON_ODR));
@@ -134,8 +134,7 @@ esp_err_t MCP23x17::port_write(const uint16_t val) {
     return write_reg_16(REG_GPIOA, val);
 }
 
-esp_err_t MCP23x17::get_mode(const uint8_t pin, gpio_mode_t& mode) {
-    CHECK_ARG(mode);
+esp_err_t MCP23x17::get_mode(const uint8_t pin, gpio_mode_t& mode) {    
 
     bool buf;
     CHECK(read_reg_bit_16(REG_IODIRA, buf, pin));
@@ -156,8 +155,7 @@ esp_err_t MCP23x17::set_pullup(const uint8_t pin, const bool enable) {
     return write_reg_bit_16(REG_GPPUA, enable, pin);
 }
 
-esp_err_t MCP23x17::get_level(uint8_t pin, uint32_t& val) {
-    CHECK_ARG(val);
+esp_err_t MCP23x17::get_level(uint8_t pin, uint32_t& val) {    
 
     bool buf;
     CHECK(read_reg_bit_16(REG_GPIOA, buf, pin));
@@ -216,7 +214,7 @@ esp_err_t MCP23x17::set_interrupt(uint8_t pin, gpio_intr_t intr) {
 }
 
 esp_err_t MCP23x17::read_reg_16(const uint8_t reg, uint16_t& val) {
-    CHECK_ARG(val);
+    
     uint8_t data[2];
 
     esp_err_t res = i2c_manager_read(this->i2c_port, this->i2c_address, reg, data, 2);
@@ -249,8 +247,7 @@ esp_err_t MCP23x17::write_reg_bit_16(const uint8_t reg, bool val, uint8_t bit) {
 }
 
 esp_err_t MCP23x17::read_reg_bit_8(const uint8_t reg, bool& val, uint8_t bit) {
-    CHECK_ARG(val);
-
+    
     uint8_t buf;
 
     esp_err_t res = i2c_manager_read(this->i2c_port, this->i2c_address, reg, &buf, 1);

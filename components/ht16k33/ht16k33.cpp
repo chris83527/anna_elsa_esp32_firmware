@@ -110,6 +110,7 @@ static const uint8_t charmap[] = {
 };
 
 HT16K33::HT16K33(const i2c_port_t port = I2C_NUM_0, const uint8_t address = HT16K33_ADDR_BASE) {
+    ESP_LOGD(TAG, "i2c_port: %d, i2c_address: %d", port, address);
     this->i2c_port = port;
     this->i2c_address = address;
 }
