@@ -78,6 +78,8 @@ enum {
 static const int days_per_month[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 static const int days_per_month_leap_year[] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
+static const char *TAG = "ds3231";
+
 /** Create a DS3231 instance connected to specified I2C pins with specified address
  *            
  * @param i2c_port The I2C port to use (default: 0)

@@ -45,6 +45,7 @@
 #include <cstdbool>
 #include <i2c_manager.h>
 #include <esp_err.h>
+#include <esp_log.h>
 
 #define DS3231_ADDR 0x68 //!< I2C address
 
