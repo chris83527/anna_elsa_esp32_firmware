@@ -226,9 +226,9 @@ esp_err_t MCP23x17::read_reg_16(const uint8_t reg, uint16_t& val) {
 
 esp_err_t MCP23x17::write_reg_16(const uint8_t reg, const uint16_t val) {
     uint8_t data[2];
-    data[0] = (val >> 8);
-    data[1] = (val & 0xff);
-
+    data[0] = (val & 0xff);
+    data[1] = (val >> 8);
+    
     return i2c_manager_write(this->i2c_port, this->i2c_address, reg, data, 2);
 }
 
@@ -237,11 +237,12 @@ esp_err_t MCP23x17::write_reg_bit_16(const uint8_t reg, bool val, uint8_t bit) {
 
     i2c_manager_read(this->i2c_port, this->i2c_address, reg, data, 2);
 
-    uint16_t buf16 = (data[ 0 ] << 8 | data[ 1 ]);
+    uint16_t buf16 = (data[ 1 ] << 8 | data[ 0 ]);
 
     buf16 = (buf16 & ~BV(bit)) | (val ? BV(bit) : 0);
-    data[0] = (buf16 >> 8);
-    data[1] = (buf16 & 0xff);
+    
+    data[0] = (buf16 & 0xff);
+    data[1] = (buf16 >> 8);    
 
     return i2c_manager_write(this->i2c_port, this->i2c_address, reg, data, 2);
 }
