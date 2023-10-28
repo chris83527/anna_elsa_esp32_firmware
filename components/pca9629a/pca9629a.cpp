@@ -201,7 +201,7 @@ esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t& result) {
         ESP_LOGE(TAG, "An error occurred in PCA9629A::read16 reading i2c data");
     }
 
-    result = (data[ 0 ] << 8 | data[ 1 ]);
+    result = (data[ 1 ] << 8 | data[ 0 ]);
 
     return ret;
 }

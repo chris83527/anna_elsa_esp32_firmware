@@ -219,7 +219,7 @@ esp_err_t MCP23x17::read_reg_16(const uint8_t reg, uint16_t& val) {
 
     esp_err_t res = i2c_manager_read(this->i2c_port, this->i2c_address, reg, data, 2);
 
-    val = (data[ 0 ] << 8 | data[ 1 ]);
+    val = (data[ 1 ] << 8 | data[ 0 ]);
     
     return res;
 }
