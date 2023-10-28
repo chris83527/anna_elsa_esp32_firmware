@@ -219,11 +219,11 @@ esp_err_t MCP23x17::read_reg_16(const uint8_t reg, uint16_t& val) {
     CHECK_ARG(val);
     uint8_t data[2];
 
-    i2c_manager_read(this->i2c_port, this->i2c_address, reg, data, 2);
+    esp_err_t res = i2c_manager_read(this->i2c_port, this->i2c_address, reg, data, 2);
 
     val = (data[ 0 ] << 8 | data[ 1 ]);
     
-    return ESP_OK;
+    return res;
 }
 
 esp_err_t MCP23x17::write_reg_16(const uint8_t reg, const uint16_t val) {
@@ -253,11 +253,11 @@ esp_err_t MCP23x17::read_reg_bit_8(const uint8_t reg, bool& val, uint8_t bit) {
 
     uint8_t buf;
 
-    i2c_manager_read(this->i2c_port, this->i2c_address, reg, &buf, 1);
+    esp_err_t res = i2c_manager_read(this->i2c_port, this->i2c_address, reg, &buf, 1);
 
     val = (buf & BV(bit)) >> bit;
 
-    return ESP_OK;
+    return res;
 }
 
 esp_err_t MCP23x17::write_reg_bit_8(const uint8_t reg, const bool val, const uint8_t bit) {
@@ -266,9 +266,8 @@ esp_err_t MCP23x17::write_reg_bit_8(const uint8_t reg, const bool val, const uin
 
     i2c_manager_read(this->i2c_port, this->i2c_address, reg, &buf, 1);
     buf = (buf & ~BV(bit)) | (val ? BV(bit) : 0);
-    i2c_manager_write(this->i2c_port, this->i2c_address, reg, &buf, 1);
-
-    return ESP_OK;
+    return i2c_manager_write(this->i2c_port, this->i2c_address, reg, &buf, 1);
+   
 }
 
 esp_err_t MCP23x17::read_reg_bit_16(const uint8_t reg, bool& val, const uint8_t bit) {

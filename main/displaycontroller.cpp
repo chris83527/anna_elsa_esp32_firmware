@@ -660,6 +660,7 @@ void DisplayController::updateLampsTask() {
             }
 
         } else {
+            this-> buttonStatus = 0;
             ESP_LOGE(TAG, "An error occurred getting button status");
             //esp_backtrace_print
         }
