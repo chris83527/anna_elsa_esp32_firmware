@@ -2,6 +2,10 @@
 #define MAIN_SSD1306_H_
 
 #include <cstdint>
+#include <string>
+#include <vector>
+#include <esp_log.h>
+
 #include <i2c_manager.h>
 
 // Following definitions are borrowed from 
@@ -115,13 +119,13 @@ public:
     void set_buffer(uint8_t * buffer);
     void get_buffer(uint8_t * buffer);
     void display_image(int page, int seg, uint8_t * images, int width);
-    void display_text(int page, const char * text, int text_len, bool invert);
-    void display_text_x3(int page, const char * text, int text_len, bool invert);
+    void display_text(int page, const std::string text, bool invert);
+    void display_text_x3(int page, const std::string text, bool invert);
     void clear_screen(bool invert);
     void clear_line(int page, bool invert);
     void contrast(int contrast);
     void software_scroll(int start, int end);
-    void scroll_text(const char * text, int text_len, bool invert);
+    void scroll_text(const std::string text, bool invert);
     void scroll_clear();
     void hardware_scroll(scroll_type_t scroll);
     void wrap_arround(scroll_type_t scroll, int start, int end, int8_t delay);

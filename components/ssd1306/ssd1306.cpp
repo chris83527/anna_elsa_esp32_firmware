@@ -3,8 +3,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include <esp_log.h>
-
 #include "sdkconfig.h"
 #include "include/ssd1306.h"
 #include "include/font8x8_basic.h"
@@ -87,16 +85,18 @@ void SSD1306::display_image(int page, int seg, uint8_t * images, int width) {
     memcpy(&this->_page[page]._segs[seg], images, width);
 }
 
-void SSD1306::display_text(int page, const char * text, int text_len, bool invert) {
+void SSD1306::display_text(int page, const std::string text, bool invert) {
     if (page >= this->_pages) return;
 
-    int _text_len = text_len;
-    if (_text_len > 16) _text_len = 16;
+    std::string newText;
+    if (text.length() > 16) {
+        newText = text.substr(0, 16);
+    }
 
     uint8_t seg = 0;
     uint8_t image[8];
-    for (uint8_t i = 0; i < _text_len; i++) {
-        memcpy(image, font8x8_basic_tr[(uint8_t) text[i]], 8);
+    for (uint8_t i = 0; i < text.length(); i++) {
+        memcpy(image, font8x8_basic_tr[(uint8_t) newText.data()[i]], 8);
         if (invert) SSD1306::invert(image, 8);
         if (this->_flip) SSD1306::flip(image, 8);
         SSD1306::display_image(page, seg, image, 8);
@@ -106,17 +106,21 @@ void SSD1306::display_text(int page, const char * text, int text_len, bool inver
 
 // by Coert Vonk
 
-void SSD1306::display_text_x3(int page, const char * text, int text_len, bool invert) {
+void SSD1306::display_text_x3(int page, const std::string text, bool invert) {
     if (page >= this->_pages) return;
 
-    int _text_len = text_len;
-    if (_text_len > 5) _text_len = 5;
+    std::string newText;
+    if (text.length() > 5) {
+        newText = text.substr(0, 5);
+    } else {
+        newText = text;
+    }
 
     uint8_t seg = 0;
 
-    for (uint8_t nn = 0; nn < _text_len; nn++) {
+    for (uint8_t nn = 0; nn < text.length(); nn++) {
 
-        uint8_t const * const in_columns = font8x8_basic_tr[(uint8_t) text[nn]];
+        uint8_t const * const in_columns = font8x8_basic_tr[(uint8_t) newText.data()[nn]];
 
         // make the character 3x as high
         out_column_t out_columns[8];
@@ -159,17 +163,14 @@ void SSD1306::display_text_x3(int page, const char * text, int text_len, bool in
 }
 
 void SSD1306::clear_screen(bool invert) {
-    char space[16];
-    memset(space, 0x00, sizeof (space));
+
     for (int page = 0; page < this->_pages; page++) {
-        SSD1306::display_text(page, space, sizeof (space), invert);
+        SSD1306::display_text(page, "                ", invert);
     }
 }
 
 void SSD1306::clear_line(int page, bool invert) {
-    char space[16];
-    memset(space, 0x00, sizeof (space));
-    SSD1306::display_text(page, space, sizeof (space), invert);
+    SSD1306::display_text(page, "                ", invert);
 }
 
 void SSD1306::contrast(int contrast) {
@@ -193,7 +194,7 @@ void SSD1306::software_scroll(int start, int end) {
     }
 }
 
-void SSD1306::scroll_text(const char * text, int text_len, bool invert) {
+void SSD1306::scroll_text(std::string text, bool invert) {
     ESP_LOGD(TAG, "this->_scEnable=%d", this->_scEnable);
 
     if (this->_scEnable == false) {
@@ -218,12 +219,11 @@ void SSD1306::scroll_text(const char * text, int text_len, bool invert) {
         srcIndex = srcIndex - this->_scDirection;
     }
 
-    int _text_len = text_len;
-    if (_text_len > 16) {
-        _text_len = 16;
+    if (text.length() > 16) {
+        text = text.substr(0, 16);
     }
 
-    SSD1306::display_text(srcIndex, text, text_len, invert);
+    SSD1306::display_text(srcIndex, text, invert);
 }
 
 void SSD1306::scroll_clear() {
@@ -556,7 +556,7 @@ uint8_t SSD1306::rotate_byte(uint8_t ch1) {
 }
 
 void SSD1306::fadeout() {
-    
+
     uint8_t image[1];
     for (int page = 0; page < this->_pages; page++) {
         image[0] = 0xFF;
@@ -566,7 +566,7 @@ void SSD1306::fadeout() {
             } else {
                 image[0] = image[0] << 1;
             }
-            for (int seg = 0; seg < 128; seg++) {    
+            for (int seg = 0; seg < 128; seg++) {
                 i2c_display_image(page, seg, image, 1);
                 this->_page[page]._segs[seg] = image[0];
             }
@@ -587,7 +587,7 @@ void SSD1306::dump_page(int page, int seg) {
 
 void SSD1306::i2c_init() {
 
-    this->_flip = false;    
+    this->_flip = false;
     this->_pages = 8;
     if (this->_height == 32) this->_pages = 4;
 
@@ -659,15 +659,14 @@ void SSD1306::i2c_display_image(int page, int seg, uint8_t * images, int width) 
 
     i2c_manager_write(this->_port, this->_address, I2C_NO_REG, data, 4);
 
-    //uint8_t *imagedata = (uint8_t*) calloc(width + 1, sizeof (uint8_t));
     uint8_t imagedata[width + 1];
     imagedata[0] = OLED_CONTROL_BYTE_DATA_STREAM;
 
     memcpy(&imagedata[1], images, width);
 
+    // FIXME: This line causes the ESP32 to core dump (but only if clear screen is being called)
+    ESP_LOGI(TAG, "i2c_display_image: width (+1): %d", width + 1);
     i2c_manager_write(this->_port, this->_address, I2C_NO_REG, imagedata, width + 1);
-
-    //free(imagedata);
 }
 
 void SSD1306::i2c_contrast(int contrast) {

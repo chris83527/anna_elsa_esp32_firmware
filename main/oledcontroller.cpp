@@ -85,7 +85,7 @@ void oledcontroller::clearDisplay() {
 
 void oledcontroller::scrollText(std::string textToDisplay) {    
     ssd1306->software_scroll((ssd1306->get_pages() - 1), 1);    
-    ssd1306->scroll_text(textToDisplay.append(20 - textToDisplay.size(), ' ').c_str(), 20, false);
+    ssd1306->scroll_text(textToDisplay.append(20 - textToDisplay.size(), ' '), false);
 }
 
 void oledcontroller::displayText(std::string textToDisplay, int lineNumber, bool invert) { 
@@ -93,7 +93,7 @@ void oledcontroller::displayText(std::string textToDisplay, int lineNumber, bool
     if (textToDisplay.size() > 20) {
         textToDisplay = textToDisplay.substr(0,20);
     }
-    ssd1306->display_text(lineNumber, textToDisplay.append(20 - textToDisplay.size(), ' ').c_str(), 20, invert);
+    ssd1306->display_text(lineNumber, textToDisplay.append(20 - textToDisplay.size(), ' '), invert);
 }
 
 
