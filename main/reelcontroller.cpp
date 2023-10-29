@@ -213,7 +213,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
         uint8_t moves = random8_to(13);
         this->mainController->getDisplayController()->setMoves(moves);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
     // Switch off

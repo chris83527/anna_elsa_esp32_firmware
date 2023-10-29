@@ -227,7 +227,7 @@ void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t 
     uint8_t data;
     read(REG_MCNTL, data);
     while ((data & 0x80) != 0) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
         read(REG_MCNTL, data);
     }
 

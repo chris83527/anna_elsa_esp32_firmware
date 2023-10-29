@@ -66,7 +66,8 @@ oledcontroller::oledcontroller(const oledcontroller& orig) {
 oledcontroller::~oledcontroller() {
 }
 
-void oledcontroller::initialise() {             
+void oledcontroller::initialise() {  
+    ssd1306->init();
 
 #if CONFIG_FLIP
     ssd1306->_flip = true;
