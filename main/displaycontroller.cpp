@@ -278,7 +278,7 @@ void DisplayController::resetLampData() {
     for (int i = 0; i < (LED_COUNT + 6); i++) {
         lampData.at(i).setLampState(LampState::off);
         // set lamp colour to white
-        lampData.at(i).setRgb(rgb_from_values(255, 255, 255));
+        lampData.at(i).setRgb(rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS)); // changed from 255 to try and prevent voltage drop browning out vfd display
     }
     ESP_LOGD(TAG, "Exiting resetLampData()");
 }
@@ -425,7 +425,7 @@ void DisplayController::fadeInOutEffect() {
             if (!this->attractMode) {
                 return;
             }
-            lampData[TRAIL_LAMPS[j]].setRgb(rgb_fade_light(rgb_from_values(255, 255, 255), i));
+            lampData[TRAIL_LAMPS[j]].setRgb(rgb_fade_light(rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i));
             lampData[TRAIL_LAMPS[j]].setLampState(LampState::on);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -437,7 +437,7 @@ void DisplayController::fadeInOutEffect() {
             if (!this->attractMode) {
                 return;
             }
-            lampData[NUDGE_LAMPS[j]].setRgb(rgb_fade_light(rgb_from_values(255, 255, 255), i));
+            lampData[NUDGE_LAMPS[j]].setRgb(rgb_fade_light(rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i));
             lampData[NUDGE_LAMPS[j]].setLampState(LampState::on);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -449,7 +449,7 @@ void DisplayController::fadeInOutEffect() {
             if (!this->attractMode) {
                 return;
             }
-            lampData[TRAIL_LAMPS[j]].setRgb(rgb_fade_light(rgb_from_values(255, 255, 255), i));
+            lampData[TRAIL_LAMPS[j]].setRgb(rgb_fade_light(rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i));
             lampData[TRAIL_LAMPS[j]].setLampState(LampState::on);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -462,7 +462,7 @@ void DisplayController::fadeInOutEffect() {
             if (!this->attractMode) {
                 return;
             }
-            lampData[FEATURE_LAMPS[j]].setRgb(rgb_fade_light(rgb_from_values(255, 255, 255), i));
+            lampData[FEATURE_LAMPS[j]].setRgb(rgb_fade_light(rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i));
             lampData[FEATURE_LAMPS[j]].setLampState(LampState::on);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -475,7 +475,7 @@ void DisplayController::fadeInOutEffect() {
             if (!this->attractMode) {
                 return;
             }
-            lampData[NUDGE_LAMPS[j]].setRgb(rgb_fade_light(rgb_from_values(255, 255, 255), i));
+            lampData[NUDGE_LAMPS[j]].setRgb(rgb_fade_light(rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i));
             lampData[NUDGE_LAMPS[j]].setLampState(LampState::on);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -488,7 +488,7 @@ void DisplayController::fadeInOutEffect() {
             if (!this->attractMode) {
                 return;
             }
-            lampData[FEATURE_LAMPS[j]].setRgb(rgb_fade_light(rgb_from_values(255, 255, 255), i));
+            lampData[FEATURE_LAMPS[j]].setRgb(rgb_fade_light(rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i));
             lampData[FEATURE_LAMPS[j]].setLampState(LampState::on);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -507,7 +507,7 @@ void DisplayController::chaseEffect() {
             if (!this->attractMode) {
                 return;
             }
-            lampData.at(TRAIL_LAMPS.at(i)).setRgb(rgb_from_values(0, 255, 255));
+            lampData.at(TRAIL_LAMPS.at(i)).setRgb(rgb_from_values(0, MAX_BRIGHTNESS, MAX_BRIGHTNESS));
             lampData.at(TRAIL_LAMPS.at(i)).setLampState(LampState::on);
             std::this_thread::sleep_for(std::chrono::milliseconds(25));
 
@@ -573,7 +573,7 @@ void DisplayController::blinkLampsTask() {
                     getLampData().at(i).setActiveRgb(getLampData().at(i).getRgb());
                 } else {
                     // non- RGB button lamps
-                    getLampData().at(i).setActiveRgb(rgb_from_values(255, 255, 255));
+                    getLampData().at(i).setActiveRgb(rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS));
                 }
             } else {
                 // Set active rgb value to 0 (off or black)
@@ -589,7 +589,7 @@ void DisplayController::blinkLampsTask() {
                     getLampData().at(i).setActiveRgb(getLampData().at(i).getRgb());
                 } else {
                     // non- RGB button lamps
-                    getLampData().at(i).setActiveRgb(rgb_from_values(255, 255, 255));
+                    getLampData().at(i).setActiveRgb(rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS));
                 }
             } else {
                 // Set active rgb value to 0 (off or black)
@@ -605,7 +605,7 @@ void DisplayController::blinkLampsTask() {
                     getLampData().at(i).setActiveRgb(getLampData().at(i).getRgb());
                 } else {
                     // non- RGB button lamps
-                    getLampData().at(i).setActiveRgb(rgb_from_values(255, 255, 255));
+                    getLampData().at(i).setActiveRgb(rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS));
                 }
             } else {
                 // Set active rgb value to 0 (off or black)
@@ -621,7 +621,7 @@ void DisplayController::blinkLampsTask() {
                     getLampData().at(i).setActiveRgb(getLampData().at(i).getRgb());
                 } else {
                     // non- RGB button lamps
-                    getLampData().at(i).setActiveRgb(rgb_from_values(255, 255, 255));
+                    getLampData().at(i).setActiveRgb(rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS));
                 }
             } else {
                 // Set active rgb value to 0 (off or black)
