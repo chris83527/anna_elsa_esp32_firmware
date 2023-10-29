@@ -122,6 +122,7 @@ public:
     static const int NUDGE_LAMPS_LENGTH = 5;
     static const int FEATURE_LAMPS_LENGTH = 12;
     static const int TRAIL_LAMPS_LENGTH = 17;
+    static const int PRIZE_LADDER_LENGTH = 8;
 
     // WS2128B LEDs
     static const int REEL_LAMP_L1 = 0;
@@ -202,8 +203,9 @@ public:
     static std::array<int, NUDGE_LAMPS_LENGTH> NUDGE_LAMPS;
     static std::array<int, TRAIL_LAMPS_LENGTH> TRAIL_LAMPS;
     static std::array<int, FEATURE_LAMPS_LENGTH> FEATURE_LAMPS;
+    static std::array<std::array<int, 2>, PRIZE_LADDER_LENGTH> PRIZE_LADDER_LAMPS;
 
-    static const int MAX_BRIGHTNESS = 240;
+    static const int MAX_BRIGHTNESS = 230;
 
 
     /*
