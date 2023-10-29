@@ -122,7 +122,7 @@ void i2c_display_image(SSD1306_t * dev, int page, int seg, uint8_t * images, int
 
     i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, imagedata, width + 1);
 
-    free(imagedata);
+    //free(imagedata);
 }
 
 void i2c_contrast(SSD1306_t * dev, int contrast) {
