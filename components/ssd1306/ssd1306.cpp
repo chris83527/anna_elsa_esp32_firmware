@@ -91,6 +91,8 @@ void SSD1306::display_text(int page, const std::string text, bool invert) {
     std::string newText;
     if (text.length() > 16) {
         newText = text.substr(0, 16);
+    } else {
+        newText = text;
     }
 
     uint8_t seg = 0;
@@ -219,11 +221,14 @@ void SSD1306::scroll_text(std::string text, bool invert) {
         srcIndex = srcIndex - this->_scDirection;
     }
 
+    std::string newText;
     if (text.length() > 16) {
-        text = text.substr(0, 16);
+        newText = text.substr(0, 16);
+    } else {
+        newText = text;
     }
 
-    SSD1306::display_text(srcIndex, text, invert);
+    SSD1306::display_text(srcIndex, newText, invert);
 }
 
 void SSD1306::scroll_clear() {
