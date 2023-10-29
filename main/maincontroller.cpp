@@ -133,15 +133,15 @@ void MainController::start() {
     }
 
     // Initialise WiFi
-    //oledController->scrollText("Init WiFi");
+    oledController->scrollText("Init WiFi");
 
 
     // initialise ds3231 RTC
     this->displayController->displayText("INITIALISING 08");
-    //oledController->scrollText("Init RTC");
+    oledController->scrollText("Init RTC");
     
     this->ds3231 = new DS3231(I2C_NUM_0, DS3231_ADDR);
-    setDateTime();
+    setDateTime(); // Debug
        
 //    if (err != ESP_OK) {
 //        ESP_LOGE(TAG, "Error initialising RTC!");
@@ -149,11 +149,11 @@ void MainController::start() {
 //    } else {
 //        //this->setDateTime(); // Debug only
         ESP_LOGI(TAG, "RTC initialised ok");
-        //oledController->scrollText("  -> ok");
+        oledController->scrollText("  -> ok");
     //}
 
     this->displayController->displayText("INITIALISING 09");
-    //oledController->scrollText("Init LittleFS");
+    oledController->scrollText("Init LittleFS");
     esp_vfs_littlefs_conf_t conf = {
         .base_path = "/httpd",
         .partition_label = "httpd",
@@ -177,7 +177,7 @@ void MainController::start() {
     }
 
     this->displayController->displayText("INITIALISING 0A");
-    //oledController->scrollText("Init Webserver");
+    oledController->scrollText("Init Webserver");
     this->httpController->initialise(80, "/httpd", "INNUENDO", "woodsamusements");
 
     /* Mark current app as valid */
@@ -193,7 +193,7 @@ void MainController::start() {
 
     // initialise audio subsystem   
     this->displayController->displayText("INITIALISING 0B");
-    //oledController->scrollText("Init Audio");
+    oledController->scrollText("Init Audio");
     audioController->initialise();
 
     esp_err_t res;
@@ -217,21 +217,21 @@ void MainController::start() {
     printf("\n\n");
 
     this->displayController->displayText("INITIALISING 0C");
-    //oledController->scrollText("Init Display");
+    oledController->scrollText("Init Display");
     if (displayController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise tableau subsystem");
-        //oledController->scrollText("  -> failed");
+        oledController->scrollText("  -> failed");
     } else {
         ESP_LOGD(TAG, "Display controller initialisation ok.");
-        //oledController->scrollText("  -> ok");
+        oledController->scrollText("  -> ok");
     }
 
     this->displayController->displayText("INITIALISING 0D");
-    //oledController->scrollText("Load stats");
+    oledController->scrollText("Load stats");
     moneyController->initialise();
 
     this->displayController->displayText("INITIALISING 0E");
-    //oledController->scrollText("Init cctalk");
+    oledController->scrollText("Init cctalk");
     cctalkController->setCreditAcceptedCallback([&](uint8_t coin_id, const esp32cc::CcIdentifier & identifier) {
         ESP_LOGI(TAG, "Credit accepted: Coin id: %d, Identifier: %s", coin_id, identifier.id_string.c_str());
         moneyController->addToCredit(COIN_VALUES[coin_id]);
@@ -240,18 +240,18 @@ void MainController::start() {
     this->displayController->displayText("INITIALISING 0F");
     if (cctalkController->initialise() != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
-        //oledController->scrollText("  -> failed");
+        oledController->scrollText("  -> failed");
     } else {
-        //oledController->scrollText("  -> ok");
+        oledController->scrollText("  -> ok");
     }
 
     this->displayController->displayText("INITIALISING 10");
-    //oledController->scrollText("Init reels");
+    oledController->scrollText("Init reels");
     if (!reelController->initialise()) {
-        //oledController->scrollText("  -> failed");
+        oledController->scrollText("  -> failed");
         ESP_LOGE(TAG, "Failed to initialise reel controller subsystem");
     } else {
-        //oledController->scrollText("  -> ok");
+        oledController->scrollText("  -> ok");
         ESP_LOGD(TAG, "Reel controller initialisation ok.");
     }
 
@@ -267,10 +267,10 @@ void MainController::start() {
     cfg.prio = 1;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
-//    this->updateStatisticsThread = std::thread([this]() {
-//        updateStatisticsDisplayTask();
-//    });
-//    this->updateStatisticsThread.detach();
+    this->updateStatisticsThread = std::thread([this]() {
+        updateStatisticsDisplayTask();
+    });
+    this->updateStatisticsThread.detach();
 
     this->displayController->displayText("INITIALISING 13");
     for (;;) {
