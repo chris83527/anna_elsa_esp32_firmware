@@ -94,12 +94,12 @@ void MainController::start() {
 
     this->displayController->displayText("INITIALISING 03");
     // start outputting to status oled
-    //oledController->initialise();
+    oledController->initialise();
 
     this->displayController->displayText("INITIALISING 04");
     // Initialize NVS
     ESP_LOGD(TAG, "Setting up NVS");
-    //oledController->scrollText("Init NVS");
+    oledController->scrollText("Init NVS");
 
     // Initialize NVS
     this->displayController->displayText("INITIALISING 05");
@@ -126,10 +126,10 @@ void MainController::start() {
     nvs_handle = nvs::open_nvs_handle_from_partition(NVS_PARTITION_SETTINGS, NVS_PARTITION_SETTINGS, NVS_READWRITE, &err);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(err));
-        //oledController->scrollText("  -> failed");
+        oledController->scrollText("  -> failed");
     } else {
         ESP_LOGD(TAG, "NVS opened ok.");
-        //oledController->scrollText("  -> ok");
+        oledController->scrollText("  -> ok");
     }
 
     // Initialise WiFi
