@@ -150,14 +150,18 @@ DisplayController::DisplayController(MainController* mainController) {
     DisplayController::FEATURE_LAMPS[10] = LAMP_MATRIX_FREE_SPIN_4_3;
     DisplayController::FEATURE_LAMPS[11] = LAMP_MATRIX_PALACE_4_1;
 
-    DisplayController::PRIZE_LADDER_LAMPS[0] = {LAMP_PRIZE_HANS, LAMP_PRIZE_20_CENT};
-    DisplayController::PRIZE_LADDER_LAMPS[1] = {LAMP_PRIZE_OLAF_ANY, LAMP_PRIZE_40_CENT};
-    DisplayController::PRIZE_LADDER_LAMPS[2] = {LAMP_PRIZE_OLAF_3, LAMP_PRIZE_80_CENT};
-    DisplayController::PRIZE_LADDER_LAMPS[3] = {LAMP_PRIZE_SVEN, LAMP_PRIZE_120_CENT};
-    DisplayController::PRIZE_LADDER_LAMPS[4] = {LAMP_PRIZE_CHRISTOPH, LAMP_PRIZE_160_CENT};
-    DisplayController::PRIZE_LADDER_LAMPS[5] = {LAMP_PRIZE_ELSA, LAMP_PRIZE_200_CENT};
-    DisplayController::PRIZE_LADDER_LAMPS[6] = {LAMP_PRIZE_ANNA, LAMP_PRIZE_300_CENT};
-    DisplayController::PRIZE_LADDER_LAMPS[7] = {LAMP_PRIZE_PALACE, LAMP_PRIZE_400_CENT};
+    // FIXME: Won't link
+//    DisplayController::PRIZE_LADDER_LAMPS = {
+//        {
+//            {LAMP_PRIZE_HANS, LAMP_PRIZE_20_CENT},
+//            {LAMP_PRIZE_OLAF_3, LAMP_PRIZE_80_CENT},
+//            {LAMP_PRIZE_OLAF_ANY, LAMP_PRIZE_40_CENT},
+//            {LAMP_PRIZE_SVEN, LAMP_PRIZE_120_CENT},
+//            {LAMP_PRIZE_CHRISTOPH, LAMP_PRIZE_160_CENT},
+//            {LAMP_PRIZE_ELSA, LAMP_PRIZE_200_CENT},
+//            {LAMP_PRIZE_ANNA, LAMP_PRIZE_300_CENT},
+//            {LAMP_PRIZE_PALACE, LAMP_PRIZE_400_CENT},
+//        }};
 
 
 

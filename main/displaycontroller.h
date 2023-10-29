@@ -203,7 +203,8 @@ public:
     static std::array<int, NUDGE_LAMPS_LENGTH> NUDGE_LAMPS;
     static std::array<int, TRAIL_LAMPS_LENGTH> TRAIL_LAMPS;
     static std::array<int, FEATURE_LAMPS_LENGTH> FEATURE_LAMPS;
-    static std::array<std::array<int, 2>, PRIZE_LADDER_LENGTH> PRIZE_LADDER_LAMPS;
+    // FIXME: Won't link
+    //static std::array<std::array<int, 2>, PRIZE_LADDER_LENGTH> PRIZE_LADDER_LAMPS;
 
     static const int MAX_BRIGHTNESS = 230;
 
