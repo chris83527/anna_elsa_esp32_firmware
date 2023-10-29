@@ -49,7 +49,7 @@ public:
 
 private:
 
-    SSD1306_t dev;
+    SSD1306* ssd1306;
     
     int top = 2;
     int center = 3;
