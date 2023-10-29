@@ -56,7 +56,7 @@ void MainController::start() {
     this->audioController.reset(new AudioController());
     this->displayController.reset(new DisplayController(this));
     this->reelController.reset(new ReelController(this));
-    //this->oledController.reset(new oledcontroller());
+    this->oledController.reset(new oledcontroller());
     this->moneyController.reset(new MoneyController(this));
     this->game.reset(new Game(this));
     this->cctalkController.reset(new CCTalkController());

@@ -8,7 +8,7 @@
 #include "include/ssd1306.h"
 #include "include/font8x8_basic.h"
 
-#define TAG "SSD1306"
+#define TAG "ssd1306"
 
 #define PACK8 __attribute__((aligned( __alignof__( uint8_t ) ), packed ))
 
@@ -133,12 +133,12 @@ void ssd1306_display_text_x3(SSD1306_t * dev, int page, const char * text, int t
             }
             if (invert) ssd1306_invert(image, 24);
             if (dev->_flip) ssd1306_flip(image, 24);
-//            if (dev->_address == I2CAddress) {
+            //if (dev->_address == I2CAddress) {
 
                 i2c_display_image(dev, page + yy, seg, image, 24);
 
                 memcpy(&dev->_page[page + yy]._segs[seg], image, 24);
-  //          }
+            //}
             seg = seg + 24;
         }
     }
@@ -186,7 +186,6 @@ void ssd1306_scroll_text(SSD1306_t * dev, const char * text, int text_len, bool 
     void (*func)(SSD1306_t * dev, int page, int seg, uint8_t * images, int width);
 
     func = i2c_display_image;
-
 
     int srcIndex = dev->_scEnd - dev->_scDirection;
     while (1) {

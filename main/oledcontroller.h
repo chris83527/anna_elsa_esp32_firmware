@@ -50,6 +50,7 @@ public:
 private:
 
     SSD1306_t dev;
+    
     int top = 2;
     int center = 3;
     int bottom = 8;
