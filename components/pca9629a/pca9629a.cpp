@@ -26,11 +26,11 @@
  * Taken from datasheet at https://www.nxp.com/docs/en/data-sheet/PCA9629A.pdf
  */
 
+#include <cstring>
+
 #include "pca9629a.h"
 #include "esp_log.h"
 #include "config.h"
-
-#include <cstring>
 
 static const char *TAG = "pca9629a";
 

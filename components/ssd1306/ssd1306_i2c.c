@@ -30,7 +30,6 @@
 #include "sdkconfig.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
-#include "i2c_manager.h"
 
 #include "include/ssd1306.h"
 
