@@ -168,6 +168,7 @@ esp_err_t PCA9629A::write16(RegisterName register_name, const uint16_t value) {
     cmd[ 1 ] = value >> 8;
 
     esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, static_cast<uint8_t> (register_name), &cmd[0], 1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     ret |= i2c_manager_write(this->i2c_port, this->i2c_address, static_cast<uint8_t> (register_name) + 1, &cmd[1], 1);
 
     if (ret != ESP_OK) {
