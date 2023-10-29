@@ -203,7 +203,7 @@ public:
     static std::array<int, TRAIL_LAMPS_LENGTH> TRAIL_LAMPS;
     static std::array<int, FEATURE_LAMPS_LENGTH> FEATURE_LAMPS;
 
-    static const int MAX_BRIGHTNESS = 250;
+    static const int MAX_BRIGHTNESS = 240;
 
 
     /*
