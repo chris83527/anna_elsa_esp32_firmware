@@ -39,7 +39,7 @@
 static const char *TAG = "ssd1306_i2c";
 
 void i2c_init(SSD1306_t * dev, int width, int height) {
-    
+
     dev->_flip = false;
     dev->_width = width;
     dev->_height = height;
@@ -114,11 +114,12 @@ void i2c_display_image(SSD1306_t * dev, int page, int seg, uint8_t * images, int
 
     i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, data, 4);
 
-    uint8_t *imagedata = (uint8_t*) calloc(width + 1, sizeof (uint8_t));
+    //uint8_t *imagedata = (uint8_t*) calloc(width + 1, sizeof (uint8_t));
+    uint8_t imagedata[width + 1];
     imagedata[0] = OLED_CONTROL_BYTE_DATA_STREAM;
 
     memcpy(&imagedata[1], images, width);
-    
+
     i2c_manager_write(dev->_port, dev->_address, I2C_NO_REG, imagedata, width + 1);
 
     free(imagedata);

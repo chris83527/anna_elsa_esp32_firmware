@@ -35,6 +35,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+#include "sdkconfig.h"
 
 #include "ssd1306.h"
 #include "font8x8_basic.h"
@@ -65,14 +66,14 @@ void oledcontroller::initialise() {
     ESP_LOGW(TAG, "Flip upside down");
 #endif
 
-#if CONFIG_SSD1306_128x64
+//#if CONFIG_SSD1306_128x64
     ESP_LOGI(TAG, "Panel is 128x64");
     ssd1306_init(&dev, I2C_NUM_0, i2c_address, 128, 64);
-#endif // CONFIG_SSD1306_128x64
-#if CONFIG_SSD1306_128x32
-    ESP_LOGI(TAG, "Panel is 128x32");
-    ssd1306_init(&dev, I2C_NUM_0, i2c_address, 128, 32);
-#endif // CONFIG_SSD1306_128x32
+//#endif // CONFIG_SSD1306_128x64
+//#if CONFIG_SSD1306_128x32
+//    ESP_LOGI(TAG, "Panel is 128x32");
+//    ssd1306_init(&dev, I2C_NUM_0, i2c_address, 128, 32);
+//#endif // CONFIG_SSD1306_128x32
 
     ssd1306_clear_screen(&dev, false);
     ssd1306_contrast(&dev, 0xff);
