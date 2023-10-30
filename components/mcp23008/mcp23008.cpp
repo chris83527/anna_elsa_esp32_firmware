@@ -36,6 +36,8 @@
  */
 
 #include <esp_log.h>
+#include "i2c_manager.h"
+
 #include "mcp23008.h"
 
 #define I2C_FREQ_HZ 1000000 // Max 1MHz for esp-idf, but device supports up to 1.7Mhz

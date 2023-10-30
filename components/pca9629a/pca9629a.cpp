@@ -28,6 +28,7 @@
 
 #include <cstring>
 
+#include "i2c_manager.h"
 #include "pca9629a.h"
 #include "esp_log.h"
 #include "config.h"

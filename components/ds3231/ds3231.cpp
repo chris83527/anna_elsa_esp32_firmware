@@ -38,6 +38,8 @@
  */
 #include <stdio.h>
 #include <esp_err.h>
+#include <i2c_manager.h>
+
 #include "ds3231.h"
 
 #define DS3231_STAT_OSCILLATOR 0x80

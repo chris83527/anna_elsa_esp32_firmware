@@ -40,9 +40,9 @@
 #define __MCP23008_H__
 
 #include <cstdbool>
-#include <i2c_manager.h>
 #include <driver/gpio.h>
 #include <esp_err.h>
+#include <driver/i2c.h>
 
 #define MCP23008_I2C_ADDR_BASE 0x20
 

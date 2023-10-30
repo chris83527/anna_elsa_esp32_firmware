@@ -3,10 +3,10 @@
 
 #include <cstdint>
 #include <string>
+#include <cstring>
 #include <vector>
+#include <driver/i2c.h>
 #include <esp_log.h>
-
-#include <i2c_manager.h>
 
 // Following definitions are borrowed from 
 // http://robotcantalk.blogspot.com/2015/03/interfacing-arduino-with-ssd1306-driven.html

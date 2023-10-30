@@ -40,7 +40,7 @@
 #include <cstddef>
 #include <cstdbool>
 #include <esp_err.h>
-#include <i2c_manager.h>
+#include "driver/i2c.h"
 
 #define HT16K33_ADDR_BASE 0x70
 

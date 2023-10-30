@@ -36,9 +36,9 @@
 extern "C" {
 #endif
 
-#include "i2c_manager.h"
 #include "audio_hal.h"
 #include "esp_err.h"
+#include "driver/i2c.h"
 
 #ifdef __cplusplus
 extern "C" {

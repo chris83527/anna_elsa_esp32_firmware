@@ -37,6 +37,7 @@
 
 #include <esp_log.h>
 #include <string.h>
+#include "i2c_manager.h"
 #include "mcp23x17.h"
 
 static const char *TAG = "mcp23x17";

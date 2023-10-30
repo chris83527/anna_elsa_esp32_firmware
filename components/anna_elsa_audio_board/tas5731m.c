@@ -24,10 +24,12 @@
 
 #include <string.h>
 
+#include "i2c_manager.h"
 #include "board.h"
 #include "esp_log.h"
 #include "tas5731m.h"
 #include "tas5731m_reg_cfg.h"
+
 
 static const char *TAG = "TAS5731M";
 

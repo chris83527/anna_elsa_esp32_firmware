@@ -35,9 +35,8 @@
 #include <cstdint>
 #include <thread>
 #include <chrono>
+#include <driver/i2c.h>
 #include <esp_err.h>
-
-#include "i2c_manager.h"
 
 #define PCA_9629A_DEFAULT_STEPS_PER_ROTATION  48
 #define PCA9629A_I2C_ADDR_BASE        0x20

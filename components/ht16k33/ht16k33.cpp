@@ -37,6 +37,8 @@
 #include <esp_log.h>
 #include <cstring>
 #include <cmath>
+#include "i2c_manager.h"
+
 #include "ht16k33.h"
 
 #define HT16K33_ON              0x21  // Commands

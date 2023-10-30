@@ -1,9 +1,11 @@
-#include <string.h>
+#include <string>
+#include "i2c_manager.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
 #include "sdkconfig.h"
+
 #include "include/ssd1306.h"
 #include "include/font8x8_basic.h"
 

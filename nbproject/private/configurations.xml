@@ -2087,7 +2087,7 @@
             <in>font8x8_basic.h</in>
             <in>ssd1306.h</in>
           </df>
-          <in>ssd1306.c</in>
+          <in>ssd1306.cpp</in>
           <in>ssd1306_i2c.c</in>
         </df>
       </df>
@@ -2161,6 +2161,16 @@
                   </df>
                 </df>
                 <df name="img_to_3d_matrix">
+                  <df name="example">
+                    <df name="converted_image">
+                    </df>
+                    <df name="image">
+                    </df>
+                  </df>
+                  <df name="templates">
+                    <in>template_img_to_3d.c</in>
+                    <in>template_img_to_3d.h</in>
+                  </df>
                 </df>
               </df>
             </df>
@@ -2191,6 +2201,15 @@
                 </df>
                 <df name="graphics">
                   <df name="3d_matrix">
+                    <df name="3d_matrix_data">
+                      <in>cube_matrix.h</in>
+                      <in>esp_logo.c</in>
+                      <in>esp_logo.h</in>
+                      <in>esp_text.c</in>
+                      <in>esp_text.h</in>
+                      <in>image_to_3d_matrix.c</in>
+                      <in>image_to_3d_matrix.h</in>
+                    </df>
                     <df name="3d_matrix_src">
                       <in>graphics_support.cpp</in>
                       <in>graphics_support.h</in>
@@ -2219,6 +2238,16 @@
               </df>
             </df>
             <df name="apps">
+              <df name="3d_graphics">
+                <df name="main">
+                  <in>3d_graphics_demo.cpp</in>
+                </df>
+              </df>
+              <df name="kalman_filter">
+                <df name="main">
+                  <in>kalman_filter_demo.cpp</in>
+                </df>
+              </df>
             </df>
             <df name="azure_board_apps">
               <df name="apps">
@@ -2234,6 +2263,33 @@
                 </df>
               </df>
               <df name="graphics">
+                <df name="3d_matrix">
+                  <df name="3d_matrix_data">
+                    <in>cube_matrix.h</in>
+                    <in>esp_logo.c</in>
+                    <in>esp_logo.h</in>
+                    <in>esp_text.c</in>
+                    <in>esp_text.h</in>
+                    <in>image_to_3d_matrix.c</in>
+                    <in>image_to_3d_matrix.h</in>
+                  </df>
+                  <df name="3d_matrix_src">
+                    <in>graphics_support.cpp</in>
+                    <in>graphics_support.h</in>
+                  </df>
+                </df>
+                <df name="img_to_3d_matrix">
+                  <df name="example">
+                    <df name="converted_image">
+                    </df>
+                    <df name="image">
+                    </df>
+                  </df>
+                  <df name="templates">
+                    <in>template_img_to_3d.c</in>
+                    <in>template_img_to_3d.h</in>
+                  </df>
+                </df>
               </df>
             </df>
             <df name="basic_math">
@@ -2277,6 +2333,11 @@
               </df>
             </df>
             <df name="lyrat_board_app">
+              <df name="main">
+                <in>audio_amp_main.c</in>
+              </df>
+              <df name="spiffs">
+              </df>
             </df>
             <df name="matrix">
               <df name="main">
@@ -2285,7 +2346,490 @@
             </df>
           </df>
           <df name="modules">
+            <df name="common">
+              <df name="include">
+                <in>dsp_common.h</in>
+                <in>dsp_err.h</in>
+                <in>dsp_err_codes.h</in>
+                <in>dsp_platform.h</in>
+                <in>dsp_tests.h</in>
+                <in>dsp_types.h</in>
+                <in>esp_dsp.h</in>
+              </df>
+              <df name="include_sim">
+                <in>esp_attr.h</in>
+                <in>esp_err.h</in>
+                <in>esp_log.h</in>
+                <in>sdkconfig.h</in>
+              </df>
+              <df name="misc">
+                <in>aes3_tie_log.c</in>
+                <in>dsps_pwroftwo.cpp</in>
+              </df>
+            </df>
+            <df name="conv">
+              <df name="float">
+                <in>dsps_ccorr_f32_ae32.S</in>
+                <in>dsps_ccorr_f32_ansi.c</in>
+                <in>dsps_conv_f32_ae32.S</in>
+                <in>dsps_conv_f32_ansi.c</in>
+                <in>dsps_conv_f32_m_ae32.S</in>
+                <in>dsps_corr_f32_ae32.S</in>
+                <in>dsps_corr_f32_ansi.c</in>
+              </df>
+              <df name="include">
+                <in>dsps_ccorr.h</in>
+                <in>dsps_conv.h</in>
+                <in>dsps_conv_platform.h</in>
+                <in>dsps_corr.h</in>
+              </df>
+              <df name="test">
+                <in>test_dsps_ccorr_f32_ae32.c</in>
+                <in>test_dsps_ccorr_f32_ansi.c</in>
+                <in>test_dsps_conv_f32_ae32.c</in>
+                <in>test_dsps_conv_f32_ansi.c</in>
+                <in>test_dsps_corr_f32_ae32.c</in>
+                <in>test_dsps_corr_f32_ansi.c</in>
+              </df>
+            </df>
+            <df name="dct">
+              <df name="float">
+                <in>dsps_dct_f32.c</in>
+              </df>
+              <df name="include">
+                <in>dsps_dct.h</in>
+              </df>
+              <df name="test">
+                <in>test_dsps_dct_f32.c</in>
+              </df>
+            </df>
+            <df name="dotprod">
+              <df name="fixed">
+                <in>dspi_dotprod_off_s16_aes3.S</in>
+                <in>dspi_dotprod_off_s16_ansi.c</in>
+                <in>dspi_dotprod_off_s8_aes3.S</in>
+                <in>dspi_dotprod_off_s8_ansi.c</in>
+                <in>dspi_dotprod_off_u16_aes3.S</in>
+                <in>dspi_dotprod_off_u16_ansi.c</in>
+                <in>dspi_dotprod_off_u8_aes3.S</in>
+                <in>dspi_dotprod_off_u8_ansi.c</in>
+                <in>dspi_dotprod_s16_aes3.S</in>
+                <in>dspi_dotprod_s16_ansi.c</in>
+                <in>dspi_dotprod_s8_aes3.S</in>
+                <in>dspi_dotprod_s8_ansi.c</in>
+                <in>dspi_dotprod_u16_aes3.S</in>
+                <in>dspi_dotprod_u16_ansi.c</in>
+                <in>dspi_dotprod_u8_aes3.S</in>
+                <in>dspi_dotprod_u8_ansi.c</in>
+                <in>dsps_dotprod_s16_ae32.S</in>
+                <in>dsps_dotprod_s16_ansi.c</in>
+                <in>dsps_dotprod_s16_m_ae32.S</in>
+              </df>
+              <df name="float">
+                <in>dspi_dotprod_f32_ansi.c</in>
+                <in>dspi_dotprod_off_f32_ansi.c</in>
+                <in>dsps_dotprod_f32_ae32.S</in>
+                <in>dsps_dotprod_f32_aes3.S</in>
+                <in>dsps_dotprod_f32_ansi.c</in>
+                <in>dsps_dotprod_f32_m_ae32.S</in>
+                <in>dsps_dotprode_f32_ae32.S</in>
+                <in>dsps_dotprode_f32_ansi.c</in>
+                <in>dsps_dotprode_f32_m_ae32.S</in>
+              </df>
+              <df name="include">
+                <in>dspi_dotprod.h</in>
+                <in>dspi_dotprod_platform.h</in>
+                <in>dsps_dotprod.h</in>
+                <in>dsps_dotprod_platform.h</in>
+              </df>
+              <df name="test">
+                <in>test_dotprod_f32.c</in>
+                <in>test_dotprod_s16.c</in>
+                <in>test_dotprode_f32.c</in>
+                <in>test_dspi_dotprod_f32_ansi.c</in>
+                <in>test_dspi_dotprod_off_f32_ansi.c</in>
+                <in>test_dspi_dotprod_off_s16_aes3.c</in>
+                <in>test_dspi_dotprod_off_s16_ansi.c</in>
+                <in>test_dspi_dotprod_off_s8_aes3.c</in>
+                <in>test_dspi_dotprod_off_s8_ansi.c</in>
+                <in>test_dspi_dotprod_off_u16_aes3.c</in>
+                <in>test_dspi_dotprod_off_u16_ansi.c</in>
+                <in>test_dspi_dotprod_off_u8_aes3.c</in>
+                <in>test_dspi_dotprod_off_u8_ansi.c</in>
+                <in>test_dspi_dotprod_s16_aes3.c</in>
+                <in>test_dspi_dotprod_s16_ansi.c</in>
+                <in>test_dspi_dotprod_s8_aes3.c</in>
+                <in>test_dspi_dotprod_s8_ansi.c</in>
+                <in>test_dspi_dotprod_u16_aes3.c</in>
+                <in>test_dspi_dotprod_u16_ansi.c</in>
+                <in>test_dspi_dotprod_u8_aes3.c</in>
+                <in>test_dspi_dotprod_u8_ansi.c</in>
+              </df>
+            </df>
+            <df name="fft">
+              <df name="fixed">
+                <in>dsps_fft2r_sc16_ae32.S</in>
+                <in>dsps_fft2r_sc16_aes3.S</in>
+                <in>dsps_fft2r_sc16_ansi.c</in>
+              </df>
+              <df name="float">
+                <in>dsps_bit_rev_lookup_fc32_aes3.S</in>
+                <in>dsps_fft2r_bitrev_tables_fc32.c</in>
+                <in>dsps_fft2r_fc32_ae32.c</in>
+                <in>dsps_fft2r_fc32_ae32_.S</in>
+                <in>dsps_fft2r_fc32_aes3_.S</in>
+                <in>dsps_fft2r_fc32_ansi.c</in>
+                <in>dsps_fft4r_bitrev_tables_fc32.c</in>
+                <in>dsps_fft4r_fc32_ae32.c</in>
+                <in>dsps_fft4r_fc32_ansi.c</in>
+              </df>
+              <df name="include">
+                <in>dsps_fft2r.h</in>
+                <in>dsps_fft2r_platform.h</in>
+                <in>dsps_fft4r.h</in>
+                <in>dsps_fft4r_platform.h</in>
+                <in>dsps_fft_tables.h</in>
+              </df>
+              <df name="test">
+                <in>test_dsps_fft2r_fc32_ae32.c</in>
+                <in>test_dsps_fft2r_fc32_ansi.c</in>
+                <in>test_dsps_fft2r_sc16_ae32.c</in>
+                <in>test_dsps_fft2r_sc16_ansi.c</in>
+                <in>test_dsps_fft4r_fc32_ae32.c</in>
+                <in>test_dsps_fft4r_fc32_ansi.c</in>
+              </df>
+              <df name="test_sim">
+                <in>main.c</in>
+                <in>test_fft2r.c</in>
+              </df>
+            </df>
             <df name="fir">
+              <df name="fixed">
+                <in>dsps_fir_s16_m_ae32.S</in>
+                <in>dsps_fird_init_s16.c</in>
+                <in>dsps_fird_s16_ae32.S</in>
+                <in>dsps_fird_s16_aes3.S</in>
+                <in>dsps_fird_s16_ansi.c</in>
+              </df>
+              <df name="float">
+                <in>dsps_fir_f32_ae32.S</in>
+                <in>dsps_fir_f32_aes3.S</in>
+                <in>dsps_fir_f32_ansi.c</in>
+                <in>dsps_fir_init_f32.c</in>
+                <in>dsps_fird_f32_ae32.S</in>
+                <in>dsps_fird_f32_aes3.S</in>
+                <in>dsps_fird_f32_ansi.c</in>
+                <in>dsps_fird_init_f32.c</in>
+              </df>
+              <df name="include">
+                <in>dsps_fir.h</in>
+                <in>dsps_fir_platform.h</in>
+              </df>
+              <df name="test">
+                <in>test_dsps_fir_f32_ae32.c</in>
+                <in>test_dsps_fir_f32_ansi.c</in>
+                <in>test_dsps_fird_f32_ae32.c</in>
+                <in>test_dsps_fird_f32_ansi.c</in>
+                <in>test_dsps_fird_s16_ae32.c</in>
+                <in>test_dsps_fird_s16_ansi.c</in>
+              </df>
+              <df name="test_sim">
+                <in>main.c</in>
+                <in>test_fir.c</in>
+              </df>
+            </df>
+            <df name="iir">
+              <df name="biquad">
+                <in>dsps_biquad_f32_ae32.S</in>
+                <in>dsps_biquad_f32_aes3.S</in>
+                <in>dsps_biquad_f32_ansi.c</in>
+                <in>dsps_biquad_gen_f32.c</in>
+              </df>
+              <df name="include">
+                <in>dsps_biquad.h</in>
+                <in>dsps_biquad_gen.h</in>
+                <in>dsps_biquad_platform.h</in>
+              </df>
+              <df name="test">
+                <in>test_bq_f32_ae32.c</in>
+                <in>test_bq_f32_ansi.c</in>
+              </df>
+              <df name="test_sim">
+                <in>main.c</in>
+                <in>test_iir_biquad.c</in>
+              </df>
+            </df>
+            <df name="kalman">
+              <df name="ekf">
+                <df name="common">
+                  <in>ekf.cpp</in>
+                </df>
+                <df name="include">
+                  <in>ekf.h</in>
+                </df>
+              </df>
+              <df name="ekf_imu13states">
+                <df name="docs">
+                </df>
+                <df name="include">
+                  <in>ekf_imu13states.h</in>
+                </df>
+                <df name="test">
+                  <in>test_ekf_imu13states.cpp</in>
+                </df>
+                <in>ekf_imu13states.cpp</in>
+              </df>
+            </df>
+            <df name="math">
+              <df name="add">
+                <df name="fixed">
+                  <in>dsps_add_s16_ae32.S</in>
+                  <in>dsps_add_s16_ansi.c</in>
+                </df>
+                <df name="float">
+                  <in>dsps_add_f32_ae32.S</in>
+                  <in>dsps_add_f32_ansi.c</in>
+                </df>
+                <df name="include">
+                  <in>dsps_add.h</in>
+                  <in>dsps_add_platform.h</in>
+                </df>
+                <df name="test">
+                  <in>test_dsps_add_f32_ansi.c</in>
+                  <in>test_dsps_add_s16_ae32.c</in>
+                  <in>test_dsps_add_s16_ansi.c</in>
+                </df>
+              </df>
+              <df name="addc">
+                <df name="float">
+                  <in>dsps_addc_f32_ae32.S</in>
+                  <in>dsps_addc_f32_ansi.c</in>
+                </df>
+                <df name="include">
+                  <in>dsps_addc.h</in>
+                  <in>dsps_addc_platform.h</in>
+                </df>
+                <df name="test">
+                  <in>test_dsps_addc_f32_ansi.c</in>
+                </df>
+              </df>
+              <df name="include">
+                <in>dsps_math.h</in>
+              </df>
+              <df name="mul">
+                <df name="fixed">
+                  <in>dsps_mul_s16_ansi.c</in>
+                </df>
+                <df name="float">
+                  <in>dsps_mul_f32_ae32.S</in>
+                  <in>dsps_mul_f32_ansi.c</in>
+                </df>
+                <df name="include">
+                  <in>dsps_mul.h</in>
+                  <in>dsps_mul_platform.h</in>
+                </df>
+                <df name="test">
+                  <in>test_dsps_mul_f32_ansi.c</in>
+                </df>
+              </df>
+              <df name="mulc">
+                <df name="fixed">
+                  <in>dsps_mulc_s16_ae32.S</in>
+                  <in>dsps_mulc_s16_ansi.c</in>
+                </df>
+                <df name="float">
+                  <in>dsps_mulc_f32_ae32.S</in>
+                  <in>dsps_mulc_f32_ansi.c</in>
+                </df>
+                <df name="include">
+                  <in>dsps_mulc.h</in>
+                  <in>dsps_mulc_platform.h</in>
+                </df>
+                <df name="test">
+                  <in>test_dsps_mulc_f32_ansi.c</in>
+                  <in>test_dsps_mulc_s16_ae32.c</in>
+                  <in>test_dsps_mulc_s16_ansi.c</in>
+                </df>
+              </df>
+              <df name="sqrt">
+                <df name="float">
+                  <in>dsps_sqrt_f32_ansi.c</in>
+                </df>
+                <df name="include">
+                  <in>dsps_sqrt.h</in>
+                </df>
+                <df name="test">
+                  <in>test_dsps_sqrt_f32_ansi.c</in>
+                </df>
+              </df>
+              <df name="sub">
+                <df name="float">
+                  <in>dsps_sub_f32_ae32.S</in>
+                  <in>dsps_sub_f32_ansi.c</in>
+                </df>
+                <df name="include">
+                  <in>dsps_sub.h</in>
+                  <in>dsps_sub_platform.h</in>
+                </df>
+                <df name="test">
+                  <in>test_dsps_sub_f32_ansi.c</in>
+                </df>
+              </df>
+            </df>
+            <df name="matrix">
+              <df name="fixed">
+                <in>dspm_mult_s16_ae32.S</in>
+                <in>dspm_mult_s16_aes3.S</in>
+                <in>dspm_mult_s16_ansi.c</in>
+                <in>dspm_mult_s16_m_ae32.S</in>
+                <in>dspm_mult_s16_m_ae32_vector.S</in>
+              </df>
+              <df name="float">
+                <in>dspm_mult_3x3x1_f32_ae32.S</in>
+                <in>dspm_mult_3x3x3_f32_ae32.S</in>
+                <in>dspm_mult_4x4x1_f32_ae32.S</in>
+                <in>dspm_mult_4x4x4_f32_ae32.S</in>
+                <in>dspm_mult_f32_ae32.S</in>
+                <in>dspm_mult_f32_aes3.S</in>
+                <in>dspm_mult_f32_ansi.c</in>
+              </df>
+              <df name="include">
+                <in>dspm_mult.h</in>
+                <in>dspm_mult_platform.h</in>
+                <in>mat.h</in>
+              </df>
+              <df name="mat">
+                <in>mat.cpp</in>
+              </df>
+              <df name="test">
+                <in>test_mat_f32.cpp</in>
+                <in>test_mmult_3x3xx_f32_ae32.c</in>
+                <in>test_mmult_4x4xx_f32_ae32.c</in>
+                <in>test_mmult_f32_ae32.c</in>
+                <in>test_mmult_f32_ansi.c</in>
+                <in>test_mmult_s16_ae32.c</in>
+                <in>test_mmult_s16_ansi.c</in>
+              </df>
+              <df name="test_sim">
+                <in>main.c</in>
+                <in>test_mmult.c</in>
+              </df>
+            </df>
+            <df name="support">
+              <df name="cplx_gen">
+                <df name="test">
+                  <in>test_cplx_gen.c</in>
+                </df>
+                <in>dsps_cplx_gen.S</in>
+                <in>dsps_cplx_gen.c</in>
+                <in>dsps_cplx_gen_init.c</in>
+              </df>
+              <df name="include">
+                <in>dsps_cplx_gen.h</in>
+                <in>dsps_cplx_gen_platform.h</in>
+                <in>dsps_d_gen.h</in>
+                <in>dsps_h_gen.h</in>
+                <in>dsps_sfdr.h</in>
+                <in>dsps_snr.h</in>
+                <in>dsps_tone_gen.h</in>
+                <in>dsps_view.h</in>
+              </df>
+              <df name="mem">
+                <df name="esp32s3">
+                  <in>dsps_memcpy_aes3.S</in>
+                  <in>dsps_memset_aes3.S</in>
+                </df>
+                <df name="include">
+                  <in>dsps_mem.h</in>
+                  <in>dsps_mem_platform.h</in>
+                </df>
+                <df name="test">
+                  <in>test_dsps_memcpy_memset.c</in>
+                </df>
+              </df>
+              <df name="misc">
+                <in>dsps_d_gen.c</in>
+                <in>dsps_h_gen.c</in>
+                <in>dsps_tone_gen.c</in>
+              </df>
+              <df name="sfdr">
+                <df name="float">
+                  <in>dsps_sfdr_f32.cpp</in>
+                </df>
+                <df name="test">
+                  <in>test_dsps_sfdr_f32.c</in>
+                </df>
+              </df>
+              <df name="snr">
+                <df name="float">
+                  <in>dsps_snr_f32.cpp</in>
+                </df>
+                <df name="test">
+                  <in>test_dsps_snr_f32.c</in>
+                </df>
+              </df>
+              <df name="view">
+                <df name="test">
+                  <in>test_dsps_view.c</in>
+                </df>
+                <in>dsps_view.cpp</in>
+              </df>
+            </df>
+            <df name="windows">
+              <df name="blackman">
+                <df name="float">
+                  <in>dsps_wind_blackman_f32.c</in>
+                </df>
+                <df name="include">
+                  <in>dsps_wind_blackman.h</in>
+                </df>
+              </df>
+              <df name="blackman_harris">
+                <df name="float">
+                  <in>dsps_wind_blackman_harris_f32.c</in>
+                </df>
+                <df name="include">
+                  <in>dsps_wind_blackman_harris.h</in>
+                </df>
+              </df>
+              <df name="blackman_nuttall">
+                <df name="float">
+                  <in>dsps_wind_blackman_nuttall_f32.c</in>
+                </df>
+                <df name="include">
+                  <in>dsps_wind_blackman_nuttall.h</in>
+                </df>
+              </df>
+              <df name="flat_top">
+                <df name="float">
+                  <in>dsps_wind_flat_top_f32.c</in>
+                </df>
+                <df name="include">
+                  <in>dsps_wind_flat_top.h</in>
+                </df>
+              </df>
+              <df name="hann">
+                <df name="float">
+                  <in>dsps_wind_hann_f32.c</in>
+                </df>
+                <df name="include">
+                  <in>dsps_wind_hann.h</in>
+                </df>
+              </df>
+              <df name="include">
+                <in>dsps_wind.h</in>
+              </df>
+              <df name="nuttall">
+                <df name="float">
+                  <in>dsps_wind_nuttall_f32.c</in>
+                </df>
+                <df name="include">
+                  <in>dsps_wind_nuttall.h</in>
+                </df>
+              </df>
+              <df name="test">
+                <in>test_wind_f32.c</in>
+              </df>
             </df>
           </df>
           <df name="test">

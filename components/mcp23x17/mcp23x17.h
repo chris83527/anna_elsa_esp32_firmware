@@ -42,7 +42,7 @@
 #include <cstdint>
 #include <cstdbool>
 #include <driver/gpio.h>
-#include <i2c_manager.h>
+#include <driver/i2c.h>
 #include <esp_err.h>
 
 #define MCP23X17_ADDR_BASE 0x20
