@@ -645,10 +645,7 @@ void SSD1306::i2c_init() {
 }
 
 void SSD1306::i2c_display_image(int page, int seg, uint8_t * images, int width) {
-
-    // FIXME (causes ESP32 to core dump)
-    return;
-    
+   
     if (page >= this->_pages) return;
     if (seg >= this->_width) return;
 

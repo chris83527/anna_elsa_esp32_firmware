@@ -178,15 +178,15 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     auto leftReelThread = std::thread([this, &leftSteps]() {
         leftReel->startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
     });
+    leftReelThread.detach();
     auto centreReelThread = std::thread([this, &centreSteps]() {
         centreReel->startAfterHome(PCA9629A::Direction::CW, centreSteps, 1);
     });
+    centreReelThread.detach();
     auto rightReelThread = std::thread([this, &rightSteps]() {
         rightReel->startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
-    });
-    leftReelThread.join();
-    centreReelThread.join();
-    rightReelThread.join();
+    });        
+    rightReelThread.detach();
 
     // Loop waiting for reels to stop    
     bool leftFinished = false;
@@ -324,15 +324,15 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     auto leftReelThread = std::thread([this, &leftSteps]() {
         leftReel->start(PCA9629A::Direction::CW, leftSteps, 1);
     });
+    leftReelThread.detach();
     auto centreReelThread = std::thread([this, &centreSteps]() {
         centreReel->start(PCA9629A::Direction::CW, centreSteps, 1);
     });
+    centreReelThread.detach();
     auto rightReelThread = std::thread([this, &rightSteps]() {
         rightReel->start(PCA9629A::Direction::CW, rightSteps, 1);
     });
-    leftReelThread.join();
-    centreReelThread.join();
-    rightReelThread.join();
+    rightReelThread.detach();       
 
     // Loop waiting for reels to stop    
     bool leftFinished = false;
