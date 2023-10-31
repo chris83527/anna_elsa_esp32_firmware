@@ -13,17 +13,11 @@
           <in>cctalk_link_controller.cpp</in>
           <in>serial_worker.cpp</in>
         </df>
-        <df name="ht16k33">
-          <in>ht16k33.c</in>
-        </df>
         <df name="m20ly02z">
           <in>m20ly02z.c</in>
         </df>
         <df name="pca9629a">
           <in>pca9629a.cpp</in>
-        </df>
-        <df name="ssd1306">
-          <in>ssd1306_i2c.c</in>
         </df>
       </df>
       <df name="main">
@@ -58761,10 +58755,6 @@
         <ccTool flags="0">
         </ccTool>
       </item>
-      <item path="components/ht16k33/ht16k33.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="1">
-        </cTool>
-      </item>
       <item path="components/m20ly02z/m20ly02z.c" ex="false" tool="0" flavor2="10">
         <cTool flags="1">
         </cTool>
@@ -58772,10 +58762,6 @@
       <item path="components/pca9629a/pca9629a.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
-      </item>
-      <item path="components/ssd1306/ssd1306_i2c.c" ex="false" tool="0" flavor2="10">
-        <cTool flags="1">
-        </cTool>
       </item>
       <folder path="0/components">
         <cTool>

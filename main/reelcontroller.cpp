@@ -140,7 +140,7 @@ bool ReelController::initialise() {
 
     // Wait for reels to stop
     while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
 
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
@@ -324,15 +324,15 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     auto leftReelThread = std::thread([this, &leftSteps]() {
         leftReel->start(PCA9629A::Direction::CW, leftSteps, 1);
     });
-    leftReelThread.detach();
+    
     auto centreReelThread = std::thread([this, &centreSteps]() {
         centreReel->start(PCA9629A::Direction::CW, centreSteps, 1);
-    });
-    centreReelThread.detach();
+    });    
     auto rightReelThread = std::thread([this, &rightSteps]() {
         rightReel->start(PCA9629A::Direction::CW, rightSteps, 1);
     });
-    rightReelThread.detach();       
+    centreReelThread.join();
+    rightReelThread.join();       
 
     // Loop waiting for reels to stop    
     bool leftFinished = false;
@@ -508,11 +508,9 @@ void ReelController::test() {
         auto leftReelThread = std::thread([this, leftSteps]() {
             leftReel->startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
         });
-
         auto centreReelThread = std::thread([this, centreSteps]() {
             centreReel->startAfterHome(PCA9629A::Direction::CW, centreSteps, 1);
         });
-
         auto rightReelThread = std::thread([this, rightSteps]() {
             rightReel->startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
         });

@@ -1954,7 +1954,6 @@
           <df name="include">
             <in>ht16k33.h</in>
           </df>
-          <in>ht16k33.c</in>
           <in>ht16k33.cpp</in>
         </df>
         <df name="i2c_manager">
@@ -1993,6 +1992,8 @@
             <df name="mklittlefs-3e198b9-generic-linux64">
             </df>
             <df name="mklittlefs-49a50a7-generic-linux64">
+            </df>
+            <df name="mklittlefs-55ac253-generic-linux64">
             </df>
             <df name="mklittlefs-6ce7478-generic-linux64">
             </df>
@@ -2088,7 +2089,6 @@
             <in>ssd1306.h</in>
           </df>
           <in>ssd1306.cpp</in>
-          <in>ssd1306_i2c.c</in>
         </df>
       </df>
       <df name="config">

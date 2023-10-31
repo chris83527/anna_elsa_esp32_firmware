@@ -1,8 +1,8 @@
 #include <string>
-#include "i2c_manager.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "i2c_manager.h"
 
 #include "sdkconfig.h"
 
