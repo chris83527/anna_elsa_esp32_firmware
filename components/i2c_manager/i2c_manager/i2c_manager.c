@@ -306,6 +306,8 @@ esp_err_t I2C_FN(_lock)(i2c_port_t port) {
 	if (xSemaphoreTake(I2C_FN(_mutex)[port], timeout) == pdTRUE) {
 		return ESP_OK;
         }
+        
+        return ESP_FAIL;
 // } else {
 //		ESP_LOGE(TAG, "Removing stale mutex lock from port %d.", (int)port);
 //		I2C_FN(_force_unlock)(port);
