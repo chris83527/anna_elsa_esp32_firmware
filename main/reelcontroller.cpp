@@ -175,13 +175,26 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
+    auto cfg = esp_pthread_get_default_config();
+    cfg.thread_name = "LeftReelThread";
+    cfg.prio = 1;
+    cfg.stack_size = 1024;
+    esp_pthread_set_cfg(&cfg);
+    
     auto leftReelThread = std::thread([this, &leftSteps]() {
         leftReel->startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
     });
-    
+    cfg.thread_name = "CentreReelThread";
+    cfg.prio = 1;
+    cfg.stack_size = 1024;
+    esp_pthread_set_cfg(&cfg);
     auto centreReelThread = std::thread([this, &centreSteps]() {
         centreReel->startAfterHome(PCA9629A::Direction::CW, centreSteps, 1);
     });    
+    cfg.thread_name = "RightReelThread";
+    cfg.prio = 1;
+    cfg.stack_size = 1024;
+    esp_pthread_set_cfg(&cfg);
     auto rightReelThread = std::thread([this, &rightSteps]() {
         rightReel->startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
     });

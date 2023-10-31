@@ -118,6 +118,7 @@ private:
 
     std::thread updateStatisticsThread;
     std::thread blinkCPUStatusLEDThread;    
+    std::thread gameThread;
 };
 
 

@@ -139,17 +139,17 @@ void MainController::start() {
     // initialise ds3231 RTC
     this->displayController->displayText("INITIALISING 08");
     oledController->scrollText("Init RTC");
-    
+
     this->ds3231 = new DS3231(I2C_NUM_0, DS3231_ADDR);
     setDateTime(); // Debug
-       
-//    if (err != ESP_OK) {
-//        ESP_LOGE(TAG, "Error initialising RTC!");
-//        oledController->scrollText("  -> failed");
-//    } else {
-//        //this->setDateTime(); // Debug only
-        ESP_LOGI(TAG, "RTC initialised ok");
-        oledController->scrollText("  -> ok");
+
+    //    if (err != ESP_OK) {
+    //        ESP_LOGE(TAG, "Error initialising RTC!");
+    //        oledController->scrollText("  -> failed");
+    //    } else {
+    //        //this->setDateTime(); // Debug only
+    ESP_LOGI(TAG, "RTC initialised ok");
+    oledController->scrollText("  -> ok");
     //}
 
     this->displayController->displayText("INITIALISING 09");
@@ -273,66 +273,85 @@ void MainController::start() {
     this->updateStatisticsThread.detach();
 
     this->displayController->displayText("INITIALISING 13");
-    for (;;) {
-        if ((!game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
-            ESP_LOGD(TAG, "Starting game...");
-            game->start();
-        } else {
-            if (!getDisplayController()->isAttractMode()) {
-                getDisplayController()->beginAttractMode();
+
+    cfg = esp_pthread_get_default_config();
+    cfg.thread_name = "UpdateStatistics";
+    cfg.prio = 1;
+    cfg.stack_size = 8192;
+    esp_pthread_set_cfg(&cfg);
+    this->gameThread = std::thread([this]() {
+        for (;;) {
+            if ((!game->isGameInProgress()) && (this->moneyController->getCredit() >= 20)) {
+                ESP_LOGD(TAG, "Starting game...");
+                game->start();
+            } else {
+                if (!getDisplayController()->isAttractMode()) {
+                    getDisplayController()->beginAttractMode();
+                }
             }
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
-        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
+    this->gameThread.detach();
 
 }
 
 void MainController::setDateTime() {
-    tm time;
-    time.tm_hour = 12;
-    time.tm_min = 31;
-    time.tm_sec = 0;
-    time.tm_isdst = true;
-    time.tm_mon = 01;
-    time.tm_year = (2023 - 1900); // tm_year = number of years since 1900
-    time.tm_mday = 24;
 
-    ds3231->set_time(&time);
+    tm time;
+            time.tm_hour = 12;
+            time.tm_min = 31;
+            time.tm_sec = 0;
+            time.tm_isdst = true;
+            time.tm_mon = 01;
+            time.tm_year = (2023 - 1900); // tm_year = number of years since 1900
+            time.tm_mday = 24;
+
+            ds3231->set_time(&time);
 }
 
 std::shared_ptr<AudioController> MainController::getAudioController() {
+
     return audioController;
 }
 
 std::shared_ptr<ReelController> MainController::getReelController() {
+
     return reelController;
 }
 
 std::shared_ptr<CCTalkController> MainController::getCCTalkController() {
+
     return cctalkController;
 }
 
 std::shared_ptr<DisplayController> MainController::getDisplayController() {
+
     return displayController;
 }
 
 std::shared_ptr<MoneyController> MainController::getMoneyController() {
+
     return moneyController;
 }
 
 std::shared_ptr<oledcontroller> MainController::getOledController() {
+
     return oledController;
 }
 
 uint8_t MainController::getVolume() {
+
     return volume;
 }
 
 std::shared_ptr<Game> MainController::getGame() {
+
     return game;
 }
 
 DS3231* MainController::getDs3231() {
+
     return this->ds3231;
 }
 
@@ -352,10 +371,10 @@ void MainController::writeValueToNVS(const char * key, uint16_t value) {
 
     esp_err_t err;
 
-    // Write
-    ESP_LOGD(TAG, "Updating %s in NVS ... ", key);
+            // Write
+            ESP_LOGD(TAG, "Updating %s in NVS ... ", key);
 
-    err = nvs_handle->set_item<uint16_t>(key, value);
+            err = nvs_handle->set_item<uint16_t>(key, value);
     switch (err) {
         case ESP_OK:
             ESP_LOGD(TAG, "Done");
@@ -369,11 +388,12 @@ void MainController::writeValueToNVS(const char * key, uint16_t value) {
     // to flash storage. Implementations may write to storage at other times,
     // but this is not guaranteed.
     ESP_LOGD(TAG, "Committing updates in NVS ... ");
-    err = nvs_handle->commit();
+            err = nvs_handle->commit();
 
     switch (err) {
         case ESP_OK:
             ESP_LOGD(TAG, "Commit Done");
+
             break;
         default:
             ESP_LOGE(TAG, "Commit Failed!");
@@ -385,19 +405,20 @@ uint16_t MainController::readValueFromNVS(const char * key) {
 
     esp_err_t err;
 
-    // Read
-    ESP_LOGD(TAG, "Reading %s from NVS ... ", key);
+            // Read
+            ESP_LOGD(TAG, "Reading %s from NVS ... ", key);
 
-    uint16_t value = 0; // value will default to 0, if not set yet in NVS
-    err = nvs_handle->get_item<uint16_t>(key, value);
+            uint16_t value = 0; // value will default to 0, if not set yet in NVS
+            err = nvs_handle->get_item<uint16_t>(key, value);
     switch (err) {
         case ESP_OK:
             ESP_LOGD(TAG, "Done");
-            ESP_LOGD(TAG, "%s = %d", key, value);
+                    ESP_LOGD(TAG, "%s = %d", key, value);
             break;
         case ESP_ERR_NVS_NOT_FOUND:
             ESP_LOGE(TAG, "The value for %s is not initialized yet! Initialising now to 0", key);
-            writeValueToNVS(key, 0);
+                    writeValueToNVS(key, 0);
+
             break;
         default:
             ESP_LOGE(TAG, "Error reading %s!", esp_err_to_name(err));
@@ -413,24 +434,25 @@ uint16_t MainController::readValueFromNVS(const char * key) {
 
 void MainController::blinkCPUStatusLEDTask() {
     while (1) {
+
         /* Blink off (output low) */
         gpio_set_level(CPU_LED_GPIO, 0);
-        std::this_thread::sleep_for(std::chrono::milliseconds(blinkDelay));
-        /* Blink on (output high) */
-        gpio_set_level(CPU_LED_GPIO, 1);
-        std::this_thread::sleep_for(std::chrono::milliseconds(blinkDelay));
+                std::this_thread::sleep_for(std::chrono::milliseconds(blinkDelay));
+                /* Blink on (output high) */
+                gpio_set_level(CPU_LED_GPIO, 1);
+                std::this_thread::sleep_for(std::chrono::milliseconds(blinkDelay));
     }
 }
 
 void MainController::updateStatisticsDisplayTask() {
 
     tm time;
-    std::string dateString;
+            std::string dateString;
 
-    this->oledController->clearDisplay();
+            this->oledController->clearDisplay();
 
-    char buf[21];
-    esp_err_t ret;
+            char buf[21];
+            esp_err_t ret;
 
     while (1) {
 
@@ -439,22 +461,22 @@ void MainController::updateStatisticsDisplayTask() {
         if (ret == ESP_OK) {
 
             uint16_t years = time.tm_year + 1900;
-            std::sprintf(buf, "%02d-%02d-%04d %02d:%02d", time.tm_mday, time.tm_mon, years, time.tm_hour, time.tm_min);
+                    std::sprintf(buf, "%02d-%02d-%04d %02d:%02d", time.tm_mday, time.tm_mon, years, time.tm_hour, time.tm_min);
 
-            dateString.clear();
-            dateString.append(buf);
-            oledController->displayText(dateString, 0, true);
+                    dateString.clear();
+                    dateString.append(buf);
+                    oledController->displayText(dateString, 0, true);
 
-            std::sprintf(buf, "Games    : %05d", this->moneyController->getGameCount());
-            oledController->displayText(buf, 2, false);
-            std::sprintf(buf, "Total in : %05d", this->moneyController->getIncomeTotal());
-            oledController->displayText(buf, 3, false);
-            std::sprintf(buf, "Total out: %05d", this->moneyController->getPayoutTotal());
-            oledController->displayText(buf, 4, false);
-            std::sprintf(buf, "Credit   : %05d", this->moneyController->getCredit());
-            oledController->displayText(buf, 5, false);
-            std::sprintf(buf, "Bank     : %05d", this->moneyController->getBank());
-            oledController->displayText(buf, 6, false);
+                    std::sprintf(buf, "Games    : %05d", this->moneyController->getGameCount());
+                    oledController->displayText(buf, 2, false);
+                    std::sprintf(buf, "Total in : %05d", this->moneyController->getIncomeTotal());
+                    oledController->displayText(buf, 3, false);
+                    std::sprintf(buf, "Total out: %05d", this->moneyController->getPayoutTotal());
+                    oledController->displayText(buf, 4, false);
+                    std::sprintf(buf, "Credit   : %05d", this->moneyController->getCredit());
+                    oledController->displayText(buf, 5, false);
+                    std::sprintf(buf, "Bank     : %05d", this->moneyController->getBank());
+                    oledController->displayText(buf, 6, false);
         } else {
             ESP_LOGW(TAG, "Couldn't read time from RTC!");
         }

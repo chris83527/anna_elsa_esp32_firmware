@@ -429,7 +429,7 @@ void SSD1306::bitmaps(int xpos, int ypos, uint8_t * bitmap, int width, int heigh
                 _seg++;
             }
         }
-        vTaskDelay(1);
+        //vTaskDelay(1);
         offset = offset + _width;
         dstBits++;
         _seg = xpos;

@@ -33,6 +33,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/moneycontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_link_controller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/CMakeLists.txt</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/i2c_manager/i2c_manager/i2c_manager.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/mcp23008/CMakeLists.txt</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/ds3231/ds3231.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_device.cpp</file>
