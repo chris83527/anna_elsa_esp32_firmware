@@ -292,7 +292,7 @@ void MainController::start() {
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     });
-    this->gameThread.detach();
+    this->gameThread.join();
 
 }
 
