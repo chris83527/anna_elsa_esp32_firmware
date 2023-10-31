@@ -670,9 +670,7 @@ void SSD1306::i2c_display_image(int page, int seg, uint8_t * images, int width) 
     imagedata[0] = OLED_CONTROL_BYTE_DATA_STREAM;
 
     memcpy(&imagedata[1], images, width);
-
-    // FIXME: This line causes the ESP32 to core dump (but only if clear screen is being called)
-    ESP_LOGI(TAG, "i2c_display_image: width (+1): %d", width + 1);
+    
     i2c_manager_write(this->_port, this->_address, I2C_NO_REG, imagedata, width + 1);
 }
 
