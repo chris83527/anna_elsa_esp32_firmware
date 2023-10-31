@@ -151,17 +151,17 @@ DisplayController::DisplayController(MainController* mainController) {
     DisplayController::FEATURE_LAMPS[11] = LAMP_MATRIX_PALACE_4_1;
 
     // FIXME: Won't link
-//    DisplayController::PRIZE_LADDER_LAMPS = {
-//        {
-//            {LAMP_PRIZE_HANS, LAMP_PRIZE_20_CENT},
-//            {LAMP_PRIZE_OLAF_3, LAMP_PRIZE_80_CENT},
-//            {LAMP_PRIZE_OLAF_ANY, LAMP_PRIZE_40_CENT},
-//            {LAMP_PRIZE_SVEN, LAMP_PRIZE_120_CENT},
-//            {LAMP_PRIZE_CHRISTOPH, LAMP_PRIZE_160_CENT},
-//            {LAMP_PRIZE_ELSA, LAMP_PRIZE_200_CENT},
-//            {LAMP_PRIZE_ANNA, LAMP_PRIZE_300_CENT},
-//            {LAMP_PRIZE_PALACE, LAMP_PRIZE_400_CENT},
-//        }};
+    //    DisplayController::PRIZE_LADDER_LAMPS = {
+    //        {
+    //            {LAMP_PRIZE_HANS, LAMP_PRIZE_20_CENT},
+    //            {LAMP_PRIZE_OLAF_3, LAMP_PRIZE_80_CENT},
+    //            {LAMP_PRIZE_OLAF_ANY, LAMP_PRIZE_40_CENT},
+    //            {LAMP_PRIZE_SVEN, LAMP_PRIZE_120_CENT},
+    //            {LAMP_PRIZE_CHRISTOPH, LAMP_PRIZE_160_CENT},
+    //            {LAMP_PRIZE_ELSA, LAMP_PRIZE_200_CENT},
+    //            {LAMP_PRIZE_ANNA, LAMP_PRIZE_300_CENT},
+    //            {LAMP_PRIZE_PALACE, LAMP_PRIZE_400_CENT},
+    //        }};
 
 
 
@@ -276,13 +276,10 @@ esp_err_t DisplayController::initialise() {
 }
 
 void DisplayController::beginAttractMode() {
-
     this->attractMode = true;
-
 }
 
 void DisplayController::stopAttractMode() {
-
     this->attractMode = false;
 }
 
