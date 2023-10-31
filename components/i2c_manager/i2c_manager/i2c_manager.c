@@ -304,6 +304,7 @@ esp_err_t I2C_FN(_lock)(i2c_port_t port) {
 	#endif
 
 	if (xSemaphoreTake(I2C_FN(_mutex)[port], timeout) == pdTRUE) {
+            vTaskDelay(1); // Attempt to fix issue
 		return ESP_OK;
         }
         
