@@ -258,7 +258,7 @@ void MainController::start() {
     blinkDelay = 1000;
 
     this->displayController->displayText("INITIALISING 11");
-    //oledController->scrollText("Init game");
+    oledController->scrollText("Init game");
     game->initialise();
 
     this->displayController->displayText("INITIALISING 12");

@@ -387,7 +387,7 @@ bool Game::isWinningLine() {
     uint8_t centreSymbolId = symbolsCentreReel[centrePos - 1];
     uint8_t rightSymbolId = symbolsRightReel[rightPos - 1];
 
-    ESP_LOGI(TAG, "Reel positions: %s - %s - %s", this->symbolMap[leftSymbolId].c_str(), this->symbolMap[centreSymbolId].c_str(), this->symbolMap[rightSymbolId].c_str());
+//    ESP_LOGI(TAG, "Reel positions: %s - %s - %s", this->symbolMap[leftSymbolId].c_str(), this->symbolMap[centreSymbolId].c_str(), this->symbolMap[rightSymbolId].c_str());
 
     for (int i = 0; i < 7; i++) {
 
