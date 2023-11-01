@@ -209,7 +209,7 @@ esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t& result) {
 }
 
 void PCA9629A::start(Direction direction, uint16_t step_count, uint8_t repeats) {
-
+    
     performingAction = true;
     write(REG_MSK, 0x1F); // Disable all interrupts
     write(REG_INT_MTR_ACT, 0x00);
@@ -218,6 +218,7 @@ void PCA9629A::start(Direction direction, uint16_t step_count, uint8_t repeats) 
     write(REG_INTSTAT, 0x00); // reset interrupt status register    
     write(REG_MCNTL, 0x80 | static_cast<uint8_t> (direction));
     performingAction = false;
+    
 }
 
 void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t repeats) {

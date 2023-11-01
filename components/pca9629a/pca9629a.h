@@ -36,6 +36,7 @@
 #include <thread>
 #include <chrono>
 #include <driver/i2c.h>
+#include <mutex>
 #include <esp_err.h>
 
 #define PCA_9629A_DEFAULT_STEPS_PER_ROTATION  48
@@ -230,6 +231,8 @@ private:
     uint8_t i2c_address;
 
     bool performingAction;
+    
+    std::mutex _mutex;
 };
 
 

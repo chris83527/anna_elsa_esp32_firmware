@@ -125,7 +125,7 @@ esp_err_t I2C_FN(_init)(i2c_port_t port) {
     I2C_PORT_CHECK(port, ESP_FAIL);
 
     esp_err_t ret = ESP_OK;
-
+    
     if (I2C_FN(_mutex)[port] == 0) {
 
         ESP_LOGI(TAG, "Starting I2C master at port %d.", (int) port);
@@ -217,7 +217,7 @@ esp_err_t I2C_FN(_read)(i2c_port_t port, uint16_t addr, uint32_t reg, uint8_t *b
         i2c_cmd_link_delete(cmd);
         I2C_FN(_unlock)((int) port);
     } else {
-        ESP_LOGE(TAG, "Lock could not be obtained for port %d.", (int) port);
+        ESP_LOGE(TAG, "Read: Lock could not be obtained for port %d by .", (int) port, );
         return ESP_ERR_TIMEOUT;
     }
 
@@ -303,10 +303,11 @@ esp_err_t I2C_FN(_lock)(i2c_port_t port) {
     }
 #endif
 
-    if (xSemaphoreTake(I2C_FN(_mutex)[port], timeout) == pdTRUE) {
+    SemaphoreHandle_t mutex = I2C_FN(_mutex)[port];
+    if (xSemaphoreTake(mutex, timeout) == pdTRUE) {
         return ESP_OK;
     }
-
+    ESP_LOGI(TAG, SemaphoreHandle_t)
     return ESP_FAIL;
     // } else {
     //		ESP_LOGE(TAG, "Removing stale mutex lock from port %d.", (int)port);
@@ -319,7 +320,7 @@ esp_err_t I2C_FN(_unlock)(i2c_port_t port) {
     I2C_PORT_CHECK(port, ESP_FAIL);
     ESP_LOGV(TAG, "Mutex lock removed for %d.", (int) port);
     esp_err_t ret = (xSemaphoreGive(I2C_FN(_mutex)[port]) == pdTRUE ? ESP_OK : ESP_FAIL);
-    vTaskDelay(1); // Attempt to fix issue
+    vTaskDelay(pdMS_TO_TICKS(1)); // Attempt to fix issue
     return ret;
 }
 
