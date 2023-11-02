@@ -186,9 +186,9 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
 
     ESP_LOGI(TAG, "Entering spinReels()");
 
-    uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
-    uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 25);
-    uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 25);
+    uint8_t reelStopLeft = holdLeft ? 1 : random8_between(1, 25);
+    uint8_t reelStopCentre = holdCentre ? 1 : random8_between(1, 25);
+    uint8_t reelStopRight = holdRight ? 1 : random8_between(1, 25);
     
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).setLampState(LampState::off);
 
@@ -299,7 +299,9 @@ bool Game::offerHold() {
     uint8_t centreSymbolId = symbolsCentreReel[centrePos];
     uint8_t rightSymbolId = symbolsRightReel[rightPos];
 
-    bool result = (((leftSymbolId == centreSymbolId) || (leftSymbolId == rightSymbolId) || (centreSymbolId == rightSymbolId)) && hold > 0);
+    bool result = (((leftSymbolId == centreSymbolId) || (leftSymbolId == rightSymbolId) || (centreSymbolId == rightSymbolId)) 
+    && !(((leftSymbolId == centreSymbolId) && (leftSymbolId == rightSymbolId) && (centreSymbolId == rightSymbolId)))
+    && hold > 0);
 
     ESP_LOGD(TAG, "Exiting offerHold(). Returning %s", result ? "true" : "false");
 
