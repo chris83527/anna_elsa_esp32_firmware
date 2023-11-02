@@ -286,32 +286,41 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     centreReelThread.join();
     rightReelThread.join();
 
+    bool leftPlayAudio = true;
+    bool centrePlayAudio = true;
+    bool rightPlayAudio = true;
+    
     // Loop waiting for reels to stop    
-    bool leftFinished = false;
-    bool centreFinished = false;
-    bool rightFinished = false;
+    bool leftFinished = leftReel->isStopped();
+    bool centreFinished = centreReel->isStopped();
+    bool rightFinished = rightReel->isStopped();
+    
+    while (!leftFinished || !centreFinished || !rightFinished) {
 
-    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
-
-        if (leftReel->isStopped() && !leftFinished) {
-            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
-            leftFinished = true;
+        if (leftFinished && leftPlayAudio) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);            
+            leftPlayAudio = false;
         }
 
-        if (centreReel->isStopped() && !centreFinished) {
-            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
-            centreFinished = true;
+        if (centreFinished && centrePlayAudio) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);            
+            centrePlayAudio = false;
         }
 
-        if (rightReel->isStopped() && !rightFinished) {
-            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
-            rightFinished = true;
+        if (rightFinished && rightPlayAudio) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);            
+            rightPlayAudio = false;
         }
 
         uint8_t moves = random8_to(13);
         this->mainController->getDisplayController()->setMoves(moves);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+        leftFinished = leftReel->isStopped();
+        centreFinished = centreReel->isStopped();
+        rightFinished = rightReel->isStopped();
+
     }
 
     // Switch off    
@@ -334,13 +343,13 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     uint8_t centreSymbolId = mainController->getGame()->symbolsCentreReel[this->reelStopInfo.centreStop - 1];
     uint8_t rightSymbolId = mainController->getGame()->symbolsRightReel[this->reelStopInfo.rightStop - 1];
 
-    ESP_LOGD(TAG, "Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
+    ESP_LOGI(TAG, "Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
 
     int leftSteps = leftStops * STEPS_PER_STOP;
     int centreSteps = centreStops * STEPS_PER_STOP;
     int rightSteps = rightStops * STEPS_PER_STOP;
 
-    ESP_LOGD(TAG, "nudge: leftSteps: %d, centreSteps: %d, rightSteps: %d", leftSteps, centreSteps, rightSteps);
+    //ESP_LOGD(TAG, "nudge: leftSteps: %d, centreSteps: %d, rightSteps: %d", leftSteps, centreSteps, rightSteps);
 
     // Switch on
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
@@ -360,28 +369,41 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     centreReelThread.join();
     rightReelThread.join();
 
+   bool leftPlayAudio = true;
+    bool centrePlayAudio = true;
+    bool rightPlayAudio = true;
+    
     // Loop waiting for reels to stop    
-    bool leftFinished = false;
-    bool centreFinished = false;
-    bool rightFinished = false;
-    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
+    bool leftFinished = leftReel->isStopped();
+    bool centreFinished = centreReel->isStopped();
+    bool rightFinished = rightReel->isStopped();
+    
+    while (!leftFinished || !centreFinished || !rightFinished) {
 
-        if (leftReel->isStopped() && !leftFinished) {
-            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
-            leftFinished = true;
+        if (leftFinished && leftPlayAudio) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);            
+            leftPlayAudio = false;
         }
 
-        if (centreReel->isStopped() && !centreFinished) {
-            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
-            centreFinished = true;
+        if (centreFinished && centrePlayAudio) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);            
+            centrePlayAudio = false;
         }
 
-        if (rightReel->isStopped() && !rightFinished) {
-            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
-            rightFinished = true;
+        if (rightFinished && rightPlayAudio) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);            
+            rightPlayAudio = false;
         }
+
+        uint8_t moves = random8_to(13);
+        this->mainController->getDisplayController()->setMoves(moves);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+        leftFinished = leftReel->isStopped();
+        centreFinished = centreReel->isStopped();
+        rightFinished = rightReel->isStopped();
+
     }
 
     // Switch off

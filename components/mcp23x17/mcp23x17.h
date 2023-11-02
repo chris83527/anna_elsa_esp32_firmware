@@ -41,6 +41,7 @@
 
 #include <cstdint>
 #include <cstdbool>
+#include <mutex>
 #include <driver/gpio.h>
 #include <driver/i2c.h>
 #include <esp_err.h>
@@ -275,6 +276,8 @@ private:
 
     i2c_port_t i2c_port;
     uint8_t i2c_address;
+    
+    std::mutex _mutex;
 };
 
 #endif /* __MCP23X17_H__ */

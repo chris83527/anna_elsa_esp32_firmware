@@ -272,6 +272,7 @@ private:
     void rainbowEffect();
     void chaseEffect();
     void fadeInOutEffect();
+       
 };
 
 
