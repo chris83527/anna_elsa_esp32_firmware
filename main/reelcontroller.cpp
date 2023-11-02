@@ -140,7 +140,7 @@ bool ReelController::initialise() {
 
     // Wait for reels to stop
     while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
