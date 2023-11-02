@@ -203,23 +203,31 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     centreReelThread.join();
     rightReelThread.join();
 
+    
+    bool leftPlayAudio = true;
+    bool centrePlayAudio = true;
+    bool rightPlayAudio = true;
+    
     // Loop waiting for reels to stop    
     bool leftFinished = leftReel->isStopped();
     bool centreFinished = centreReel->isStopped();
     bool rightFinished = rightReel->isStopped();
-
+    
     while (!leftFinished || !centreFinished || !rightFinished) {
 
         if (leftFinished) {
             this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);            
+            leftPlayAudio = false;
         }
 
         if (centreFinished) {
             this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);            
+            centrePlayAudio = false;
         }
 
         if (rightFinished) {
             this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);            
+            rightPlayAudio = false;
         }
 
         uint8_t moves = random8_to(13);
