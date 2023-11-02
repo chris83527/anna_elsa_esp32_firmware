@@ -180,7 +180,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     cfg.prio = 1;
     cfg.stack_size = 1024;
     esp_pthread_set_cfg(&cfg);
-    
+
     auto leftReelThread = std::thread([this, &leftSteps]() {
         leftReel->startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
     });
@@ -190,7 +190,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     esp_pthread_set_cfg(&cfg);
     auto centreReelThread = std::thread([this, &centreSteps]() {
         centreReel->startAfterHome(PCA9629A::Direction::CW, centreSteps, 1);
-    });    
+    });
     cfg.thread_name = "RightReelThread";
     cfg.prio = 1;
     cfg.stack_size = 1024;
@@ -198,37 +198,39 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     auto rightReelThread = std::thread([this, &rightSteps]() {
         rightReel->startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
     });
-    
+
     leftReelThread.join();
     centreReelThread.join();
     rightReelThread.join();
 
     // Loop waiting for reels to stop    
-    bool leftFinished = false;
-    bool centreFinished = false;
-    bool rightFinished = false;
+    bool leftFinished = leftReel->isStopped();
+    bool centreFinished = centreReel->isStopped();
+    bool rightFinished = rightReel->isStopped();
 
-    while (!leftReel->isStopped() || !centreReel->isStopped() || !rightReel->isStopped()) {
+    while (!leftFinished || !centreFinished || !rightFinished) {
 
-        if (leftReel->isStopped() && !leftFinished) {
-            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
-            leftFinished = true;
+        if (leftFinished) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);            
         }
 
-        if (centreReel->isStopped() && !centreFinished) {
-            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
-            centreFinished = true;
+        if (centreFinished) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);            
         }
 
-        if (rightReel->isStopped() && !rightFinished) {
-            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
-            rightFinished = true;
+        if (rightFinished) {
+            this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);            
         }
 
         uint8_t moves = random8_to(13);
         this->mainController->getDisplayController()->setMoves(moves);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+        leftFinished = leftReel->isStopped();
+        centreFinished = centreReel->isStopped();
+        rightFinished = rightReel->isStopped();
+
     }
 
     // Switch off
@@ -339,16 +341,16 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     auto leftReelThread = std::thread([this, &leftSteps]() {
         leftReel->start(PCA9629A::Direction::CW, leftSteps, 1);
     });
-    
+
     auto centreReelThread = std::thread([this, &centreSteps]() {
         centreReel->start(PCA9629A::Direction::CW, centreSteps, 1);
-    });    
+    });
     auto rightReelThread = std::thread([this, &rightSteps]() {
         rightReel->start(PCA9629A::Direction::CW, rightSteps, 1);
     });
     leftReelThread.join();
     centreReelThread.join();
-    rightReelThread.join();       
+    rightReelThread.join();
 
     // Loop waiting for reels to stop    
     bool leftFinished = false;
