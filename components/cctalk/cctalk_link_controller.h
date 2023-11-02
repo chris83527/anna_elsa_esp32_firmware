@@ -105,6 +105,8 @@ namespace esp32cc {
         uart_port_t uartNumber = 1;
 
         bool isPortOpen = false;
+        
+        std::mutex _mutex;
     };
 }
 

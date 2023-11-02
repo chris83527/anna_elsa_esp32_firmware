@@ -101,8 +101,7 @@ namespace esp32cc {
 
         Timer timer;
 
-        bool portOpen = false;
-
+        bool portOpen = false;        
     };
 }
 

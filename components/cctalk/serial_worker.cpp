@@ -97,8 +97,7 @@ namespace esp32cc {
 
     void SerialWorker::sendRequest(const uint64_t requestId, const std::vector<uint8_t>& requestData, const int writeTimeoutMsec, const int responseTimeoutMsec) {
 
-        //ESP_LOGD(TAG, "sendRequest called. Request id %d size (start): %d", int(requestId), requestData.size());
-        //sendMutex.lock();
+        //ESP_LOGD(TAG, "sendRequest called. Request id %d size (start): %d", int(requestId), requestData.size());        
 
         this->requestId = requestId;
         this->responseTimeoutMsec = responseTimeoutMsec;
@@ -147,8 +146,8 @@ namespace esp32cc {
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        }
-
+        }        
+        
         if (receiveComplete) {
 
             uart_flush(this->getUartNumber());

@@ -114,10 +114,8 @@ namespace esp32cc {
      */
     uint64_t CctalkLinkController::ccRequest(CcHeader command, uint8_t devAddress, std::vector<uint8_t>& data, int responseTimeoutMsec, std::function<void(const std::string& error_msg, const std::vector<uint8_t>& command_data) > callbackFunction) {
 
-        ESP_LOGD(TAG, "Checking no existing request in process");
-        while (requestInProgress) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(25));
-        }
+        ESP_LOGD(TAG, "Setting mutex");
+        _mutex.lock();
 
         requestInProgress = true;
 
@@ -203,6 +201,8 @@ namespace esp32cc {
      */
     void CctalkLinkController::onResponseReceive(const uint64_t request_id, const std::vector<uint8_t>& responseData)  {
 
+        _mutex.unlock();
+        
         if (responseData.size() < 5) {
             ESP_LOGE(TAG, "ccTalk response size too small (%d bytes).", responseData.size());
             // TODO The command should be retried.            
