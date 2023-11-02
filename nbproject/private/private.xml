@@ -29,6 +29,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/m20ly02z/CMakeLists.txt</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_def.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/i2c_manager/i2c_manager/i2c_manager.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_device.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/moneycontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_link_controller.h</file>
