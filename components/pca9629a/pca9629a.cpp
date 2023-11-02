@@ -209,7 +209,7 @@ esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t& result) {
 }
 
 void PCA9629A::start(Direction direction, uint16_t step_count, uint8_t repeats) {
-    
+    _mutex.lock();
     performingAction = true;
     write(REG_MSK, 0x1F); // Disable all interrupts
     write(REG_INT_MTR_ACT, 0x00);
@@ -218,11 +218,11 @@ void PCA9629A::start(Direction direction, uint16_t step_count, uint8_t repeats) 
     write(REG_INTSTAT, 0x00); // reset interrupt status register    
     write(REG_MCNTL, 0x80 | static_cast<uint8_t> (direction));
     performingAction = false;
-    
+    _mutex.unlock();
 }
 
 void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t repeats) {
-
+    _mutex.lock();
     performingAction = true;
 
     home(direction);
@@ -234,11 +234,20 @@ void PCA9629A::startAfterHome(Direction direction, uint16_t step_count, uint8_t 
         read(REG_MCNTL, data);
     }
 
-    start(direction, step_count, repeats);
+    write(REG_MSK, 0x1F); // Disable all interrupts
+    write(REG_INT_MTR_ACT, 0x00);
+    write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
+    write(REG_PMA, repeats);
+    write(REG_INTSTAT, 0x00); // reset interrupt status register    
+    write(REG_MCNTL, 0x80 | static_cast<uint8_t> (direction));
+
     performingAction = false;
+    
+    _mutex.unlock();
 }
 
 void PCA9629A::home(Direction dir) {
+    _mutex.lock();
     performingAction = true;
 
     write(REG_MSK, 0x1E); // Enable interrupt on P0
@@ -248,19 +257,23 @@ void PCA9629A::home(Direction dir) {
     write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 255);
     write(REG_MCNTL, 0x90 | static_cast<uint8_t> (dir));
     performingAction = false;
+    _mutex.unlock();
 }
 
 bool PCA9629A::isStopped() {
+    _mutex.lock();
     uint8_t data;
     read(REG_MCNTL, data);
 
-    ESP_LOGD(TAG, "MCNTL register: %d", data);
-
+    //ESP_LOGD(TAG, "MCNTL register: %d", data);
+    _mutex.unlock();
     return (!performingAction && ((data & 0x80) == 0));
 }
 
 void PCA9629A::stop(void) {
+    _mutex.lock();
     write(REG_MCNTL, 0x00);
+    _mutex.unlock();
 }
 
 esp_err_t PCA9629A::register_dump(void) {
