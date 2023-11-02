@@ -215,17 +215,17 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     
     while (!leftFinished || !centreFinished || !rightFinished) {
 
-        if (leftFinished) {
+        if (leftFinished && leftPlayAudio) {
             this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);            
             leftPlayAudio = false;
         }
 
-        if (centreFinished) {
+        if (centreFinished && centrePlayAudio) {
             this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);            
             centrePlayAudio = false;
         }
 
-        if (rightFinished) {
+        if (rightFinished && rightPlayAudio) {
             this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);            
             rightPlayAudio = false;
         }
