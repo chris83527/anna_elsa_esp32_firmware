@@ -165,13 +165,14 @@ namespace esp32cc {
                     this->isTimerIterationTaskRunning = false;
                     // Nothing we can do, cannot work with this device.
                     stopPolling();
+                    ESP_LOGV(TAG, "Initialisation failed");
                     break;
                 case CcDeviceState::NormalAccepting:
                     switch (this->deviceCategory) {
                         case CcCategory::Payout:
                             // We just need to regularly poll the hopper
                             // Test hopper
-                            //ESP_LOGD(TAG, "Testing hopper");
+                            ESP_LOGV(TAG, "Testing hopper");
                             requestHopperStatus([ & ](const std::string & error_msg, uint8_t event_counter, const std::vector<CcEventData>& hopperStatusData) {
                                 processHopperStatus(error_msg, event_counter, hopperStatusData, [ & ]() {
                                     this->isTimerIterationTaskRunning = false;

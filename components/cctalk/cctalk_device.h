@@ -278,19 +278,19 @@ namespace esp32cc {
         bool shutdown(const std::function<void(const std::string& error_msg)>& finish_callback);
 
         /// Get device status as set by the latest status-updating function
-        [[nodiscard]] CcDeviceState getDeviceState() const;
+        CcDeviceState getDeviceState() const;
 
         /// Get requestManufacturingInfo() category result.
-        [[nodiscard]] CcCategory getStoredDeviceCategory() const;
+        CcCategory getStoredDeviceCategory() const;
 
         /// Get requestManufacturingInfo() free-form string result.
-        [[nodiscard]] std::string getStoredManufacturingInfo() const;
+        std::string getStoredManufacturingInfo() const;
 
         /// Get detectPollingInterval() result
-        [[nodiscard]] int getStoredPollingInterval() const;
+        int getStoredPollingInterval() const;
 
         /// Get requestIdentifiers() result
-        [[nodiscard]] std::map<uint8_t, CcIdentifier> getStoredIndentifiers() const;        
+        std::map<uint8_t, CcIdentifier> getStoredIndentifiers() const;        
 
     private:
 
@@ -308,8 +308,8 @@ namespace esp32cc {
 
         CctalkLinkController* linkController; ///< Controller for serial worker thread with cctalk link management support.
 
-        int normalPollingIntervalMsec = 250; ///< Polling interval for normal and diagnostics modes.
-        const int defaultNormalPollingIntervalMsec = 250; ///< Default polling interval for normal and diagnostics modes.
+        int normalPollingIntervalMsec = 200; ///< Polling interval for normal and diagnostics modes.
+        const int defaultNormalPollingIntervalMsec = 200; ///< Default polling interval for normal and diagnostics modes.
         const int notAlivePollingIntervalMsec = 1000; ///< Polling interval for modes when the device doesn't respond to alive check.
 
         bool isTimerIterationTaskRunning = false; ///< Avoids parallel executions of state change, since it's asynchronous
@@ -324,9 +324,8 @@ namespace esp32cc {
         std::map<uint8_t, CcIdentifier> identifiers; ///< Coin positions / bill types and IDs (names)        
 
         bool isEventLogRead = false; ///< True if the event log was read at least once.
-        uint8_t lastEventNumber = 0; ///< Last event number returned by ReadBufferedCredit command.
-
-        TaskHandle_t pollTaskHandle;
+        volatile uint8_t lastEventNumber = 0; ///< Last event number returned by ReadBufferedCredit command.
+        
         std::thread pollThread;
         int pollingInterval = defaultNormalPollingIntervalMsec;
         bool isPolling = false;

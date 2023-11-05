@@ -204,9 +204,8 @@ namespace esp32cc {
     void CctalkLinkController::onResponseReceive(const uint64_t request_id, const std::vector<uint8_t>& responseData) {
 
         if (responseData.size() < 5) {
-            ESP_LOGE(TAG, "ccTalk response size too small (%d bytes).", responseData.size());
-            // TODO The command should be retried.            
-            requestInProgress = false;
+            ESP_LOGE(TAG, "ccTalk response size too small (%d bytes).", responseData.size());            
+            this->requestInProgress = false;
             return;
         }
 
@@ -235,8 +234,7 @@ namespace esp32cc {
 
         // Format error
         if (responseData.size() != 5 + dataSize) {
-            ESP_LOGE(TAG, "Invalid ccTalk response: size (%d bytes).", responseData.size());
-            // TODO The command should be retried.      
+            ESP_LOGE(TAG, "Invalid ccTalk response: size (%d bytes).", responseData.size());               
             this->requestInProgress = false;
             return;
         }
