@@ -90,7 +90,7 @@ namespace esp32cc {
 
         uint64_t requestNumber = 0; ///< Request number. This is used to identify which response came from which request.
 
-        bool requestInProgress = false;
+        std::atomic<bool> requestInProgress = false;
 
         uint8_t currentDeviceAddress = 0x00; // The slave device we are currently talking to        
         const uint8_t controllerAddress = 0x01; ///< Controller address. 1 means "Master". There is no reason to change this.

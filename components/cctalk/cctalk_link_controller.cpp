@@ -115,12 +115,11 @@ namespace esp32cc {
     uint64_t CctalkLinkController::ccRequest(CcHeader command, uint8_t devAddress, std::vector<uint8_t>& data, int responseTimeoutMsec, std::function<void(const std::string& error_msg, const std::vector<uint8_t>& command_data) > callbackFunction) {
 
         ESP_LOGD(TAG, "Checking no existing request in process");
-        //        while (requestInProgress) {
-        //            std::this_thread::sleep_for(std::chrono::milliseconds(25));
-        //        }
-        _mutex.lock();
+        while (requestInProgress) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(25));
+        }
 
-        //requestInProgress = true;
+        requestInProgress = true;
 
         if (callbackFunction != nullptr) {
             ESP_LOGD(TAG, "Setting callback function");
@@ -140,23 +139,20 @@ namespace esp32cc {
 
         if (data.size() > 255) {
             ESP_LOGE(TAG, "Size of additional data too large! Aborting request.");
-            //this->requestInProgress = false;
-            _mutex.unlock();
+            this->requestInProgress = false;
             return 0;
         }
 
         if (this->isDesEncrypted) {
             ESP_LOGE(TAG, "ccTalk encryption requested, unsupported! Aborting request.");
-            //this->requestInProgress = false;
-            _mutex.unlock();
+            this->requestInProgress = false;
             return 0;
         }
 
         if (this->isChecksum16bit) {
             // TODO support this
             ESP_LOGE(TAG, "ccTalk 16-bit CRC checksums requested, unsupported! Aborting request.");
-            //this->requestInProgress = false;
-            _mutex.unlock();
+            this->requestInProgress = false;
             return 0;
         }
 
@@ -194,7 +190,7 @@ namespace esp32cc {
 
         this->serialWorker.sendRequest(requestId, requestData, writeTimeoutMsec, responseTimeoutMsec);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         return requestId;
     }
@@ -206,8 +202,6 @@ namespace esp32cc {
      * @param response_data
      */
     void CctalkLinkController::onResponseReceive(const uint64_t request_id, const std::vector<uint8_t>& responseData) {
-
-
 
         if (responseData.size() < 5) {
             ESP_LOGE(TAG, "ccTalk response size too small (%d bytes).", responseData.size());
@@ -224,21 +218,20 @@ namespace esp32cc {
         std::vector<uint8_t> responseDataNoLocalEcho = {responseData.begin() + 4, responseData.end() - 1};
         //uint8_t received_checksum = responseData.at(responseData.end() - 1);
 
-        // if (this->showCctalkResponse) {
-        std::string formatted_data;
-        if (responseDataNoLocalEcho.size() == 0) {
-            formatted_data = "(empty)";
-        } else {
-            for (uint8_t data : responseDataNoLocalEcho) {
-                std::stringstream stream;
-                stream << data;
-                formatted_data.append(stream.str());
+        if (this->showCctalkResponse) {
+            std::string formatted_data;
+            if (responseDataNoLocalEcho.size() == 0) {
+                formatted_data = "(empty)";
+            } else {
+                for (uint8_t data : responseDataNoLocalEcho) {
+                    std::stringstream stream;
+                    stream << data;
+                    formatted_data.append(stream.str());
+                }
             }
+            // Don't print response_id, it interferes with identical message hiding.
+            ESP_LOGD(TAG, "ccTalk response from address %d, data: %s", int(sourceAddress), formatted_data.c_str());
         }
-        // Don't print response_id, it interferes with identical message hiding.
-        ESP_LOGD(TAG, "ccTalk response from address %d, data: %s", int(sourceAddress), formatted_data.c_str());
-        //}
-
 
         // Format error
         if (responseData.size() != 5 + dataSize) {
@@ -284,17 +277,15 @@ namespace esp32cc {
             this->requestInProgress = false;
             return;
         }
-
-
-        //this->requestInProgress = false;
-        _mutex.unlock();
-
+       
         if (this->executeOnReturnCallback != nullptr) {
             std::string data;
             this->executeOnReturnCallback(data, responseDataNoLocalEcho);
         } else {
             ESP_LOGE(TAG, "Callback pointer was nullptr");
         }
+        
+        this->requestInProgress = false;
 
     }
 }
