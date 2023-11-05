@@ -129,7 +129,8 @@ namespace esp32cc {
         while (!receiveComplete) {
 
             if (timer.isReady()) {
-                ESP_LOGD(TAG, "Timer hit");
+                ESP_LOGI(TAG, "Timer hit");
+                uart_flush(this->getUartNumber());
                 break; // receive complete false
             }
 

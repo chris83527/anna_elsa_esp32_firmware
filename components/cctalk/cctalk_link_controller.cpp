@@ -114,10 +114,13 @@ namespace esp32cc {
      */
     uint64_t CctalkLinkController::ccRequest(CcHeader command, uint8_t devAddress, std::vector<uint8_t>& data, int responseTimeoutMsec, std::function<void(const std::string& error_msg, const std::vector<uint8_t>& command_data) > callbackFunction) {
 
-        ESP_LOGD(TAG, "Setting mutex");
+        ESP_LOGD(TAG, "Checking no existing request in process");
+        //        while (requestInProgress) {
+        //            std::this_thread::sleep_for(std::chrono::milliseconds(25));
+        //        }
         _mutex.lock();
 
-        requestInProgress = true;
+        //requestInProgress = true;
 
         if (callbackFunction != nullptr) {
             ESP_LOGD(TAG, "Setting callback function");
@@ -137,32 +140,35 @@ namespace esp32cc {
 
         if (data.size() > 255) {
             ESP_LOGE(TAG, "Size of additional data too large! Aborting request.");
-            this->requestInProgress = false;
+            //this->requestInProgress = false;
+            _mutex.unlock();
             return 0;
         }
 
         if (this->isDesEncrypted) {
             ESP_LOGE(TAG, "ccTalk encryption requested, unsupported! Aborting request.");
-            this->requestInProgress = false;
+            //this->requestInProgress = false;
+            _mutex.unlock();
             return 0;
         }
 
         if (this->isChecksum16bit) {
             // TODO support this
             ESP_LOGE(TAG, "ccTalk 16-bit CRC checksums requested, unsupported! Aborting request.");
-            this->requestInProgress = false;
+            //this->requestInProgress = false;
+            _mutex.unlock();
             return 0;
         }
 
-        //    if (this->showCctalkRequest) {
-        std::string formatted_data;
-        for (uint8_t tmpData : data) {
-            std::stringstream stream;
-            stream << "0x" << std::hex << tmpData;
-            formatted_data.append(stream.str());
+        if (this->showCctalkRequest) {
+            std::string formatted_data;
+            for (uint8_t tmpData : data) {
+                std::stringstream stream;
+                stream << "0x" << std::hex << tmpData;
+                formatted_data.append(stream.str());
+            }
+            ESP_LOGD(TAG, "> ccTalk request: %s, address: %d, data: %s", ccHeaderGetDisplayableName(command).c_str(), (int(devAddress)), (data.size() == 0 ? "(empty)" : formatted_data.c_str()));
         }
-        ESP_LOGD(TAG, "> ccTalk request: %s, address: %d, data: %s", ccHeaderGetDisplayableName(command).c_str(), (int(devAddress)), (data.size() == 0 ? "(empty)" : formatted_data.c_str()));
-        //  }
 
         // Build the data structure
         std::vector<uint8_t> requestData;
@@ -189,7 +195,7 @@ namespace esp32cc {
         this->serialWorker.sendRequest(requestId, requestData, writeTimeoutMsec, responseTimeoutMsec);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        
+
         return requestId;
     }
 
@@ -199,10 +205,10 @@ namespace esp32cc {
      * @param request_id
      * @param response_data
      */
-    void CctalkLinkController::onResponseReceive(const uint64_t request_id, const std::vector<uint8_t>& responseData)  {
+    void CctalkLinkController::onResponseReceive(const uint64_t request_id, const std::vector<uint8_t>& responseData) {
 
-        _mutex.unlock();
-        
+
+
         if (responseData.size() < 5) {
             ESP_LOGE(TAG, "ccTalk response size too small (%d bytes).", responseData.size());
             // TODO The command should be retried.            
@@ -272,8 +278,6 @@ namespace esp32cc {
             return;
         }
 
-
-
         // Every reply must have the command field set to 0.
         if (command != static_cast<decltype(command)> (CcHeader::Ack)) {
             ESP_LOGE(TAG, "Invalid ccTalk response %lld from address %d: Command is %d, expected 0.", request_id, int(sourceAddress), int(command));
@@ -282,7 +286,8 @@ namespace esp32cc {
         }
 
 
-        this->requestInProgress = false;
+        //this->requestInProgress = false;
+        _mutex.unlock();
 
         if (this->executeOnReturnCallback != nullptr) {
             std::string data;

@@ -96,8 +96,8 @@ namespace esp32cc {
         const uint8_t controllerAddress = 0x01; ///< Controller address. 1 means "Master". There is no reason to change this.
 
 
-        bool showCctalkRequest = true;
-        bool showCctalkResponse = true;
+        bool showCctalkRequest = false;
+        bool showCctalkResponse = false;
 
         TaskHandle_t workerTaskHandle;
         SerialWorker serialWorker;
