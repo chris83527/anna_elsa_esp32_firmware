@@ -34,9 +34,7 @@
 
 #include <functional>
 #include <string>
-#include <mutex>
 #include <vector>
-#include <atomic>
 #include <thread>
 
 #include "esp_log.h"
@@ -90,23 +88,20 @@ namespace esp32cc {
 
         uint64_t requestNumber = 0; ///< Request number. This is used to identify which response came from which request.
 
-        std::atomic<bool> requestInProgress = false;
+        volatile bool requestInProgress = false;
 
         uint8_t currentDeviceAddress = 0x00; // The slave device we are currently talking to        
         const uint8_t controllerAddress = 0x01; ///< Controller address. 1 means "Master". There is no reason to change this.
 
-
         bool showCctalkRequest = false;
         bool showCctalkResponse = false;
-
-        TaskHandle_t workerTaskHandle;
+        
         SerialWorker serialWorker;
 
         uart_port_t uartNumber = 1;
 
         bool isPortOpen = false;
-        
-        std::mutex _mutex;
+                
     };
 }
 
