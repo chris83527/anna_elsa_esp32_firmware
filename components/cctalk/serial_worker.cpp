@@ -131,6 +131,7 @@ namespace esp32cc {
             if (timer.isReady()) {
                 ESP_LOGI(TAG, "Timer hit");
                 uart_flush(this->getUartNumber());
+                this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>());
                 break; // receive complete false
             }
 
@@ -156,10 +157,12 @@ namespace esp32cc {
             if (receivedData.size() <= requestData.size()) {
                 // this shouldn't be possible as we have local echo
                 ESP_LOGE(TAG, "Received data bytes (%d) was less than request data bytes (%d). Is device connected?", receivedData.size(), requestData.size());
+                this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>());
             } else {
                 ESP_LOGD(TAG, "Read %d bytes - response size %d (with local echo). Executing callback", bytesRead, receivedData.size());
                 ESP_LOGD(TAG, "Response size: %d", (receivedData.size() - requestData.size()));
             }
+            
             if (receivedData.size() > 5) {
                 this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>(receivedData.begin() + requestData.size(), receivedData.end()));
             } else {

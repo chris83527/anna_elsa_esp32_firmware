@@ -583,7 +583,7 @@ namespace esp32cc {
                 error = error_msg;
             } else {
                 // Decode the data                
-                info.append("*** Serial number: " + decodeResponseToHex(responseData) + "\n");
+                info.append("*** Serial number: " + decodeResponseToString(responseData) + "\n");
             }
         });
 
