@@ -1639,7 +1639,7 @@ namespace esp32cc {
     }
     
     std::string CctalkDevice::decodeSerialNumber(const std::vector<uint8_t>& responseData) {
-        std::string formatted_data;
+        
         uint32_t serialNumber;
         if (responseData.size() == 3) {
             serialNumber = responseData.at(0) & 0xff;
@@ -1648,7 +1648,7 @@ namespace esp32cc {
             
             return std::to_string(serialNumber);
         }
-        return std::string;
+        return "";
     }
     
 
