@@ -41,10 +41,6 @@ namespace esp32cc {
 
     }
 
-    CctalkDevice::CctalkDevice(const CctalkDevice& orig) {
-
-    }
-
     CctalkDevice::~CctalkDevice() {
 
     }
@@ -53,10 +49,10 @@ namespace esp32cc {
         return this->linkController;
     }
 
-    bool CctalkDevice::initialise(CctalkLinkController* linkController, const uint8_t deviceAddress, const std::function<void(const std::string& error_msg)>& finish_callback) {
-        this->linkController = linkController;
+    bool CctalkDevice::initialise(CctalkLinkController* controller, const uint8_t devAddress, const std::function<void(const std::string& error_msg)>& finish_callback) {
 
-        this->deviceAddress = deviceAddress;
+        this->linkController = controller;
+        this->deviceAddress = devAddress;
         this->lastEventNumber = 0;
 
         if (getDeviceState() != CcDeviceState::ShutDown) {
@@ -97,7 +93,7 @@ namespace esp32cc {
     void CctalkDevice::stopPolling() {
         ESP_LOGD(TAG, "Stopping poll timer.");
 
-        this->isPolling = false;       
+        this->isPolling = false;
     }
 
     void CctalkDevice::devicePollTask() {
@@ -302,46 +298,44 @@ namespace esp32cc {
         //        assert((this->deviceState == CcDeviceState::ShutDown || this->deviceState == CcDeviceState::ExternalReset
         //                || this->deviceState == CcDeviceState::UnexpectedDown || this->deviceState == CcDeviceState::UninitializedDown) == false);
 
-        auto shared_error = std::make_shared<std::string>();
-        auto shared_alive = std::make_shared<bool>();
-        auto shared_continue = std::make_shared<bool>();
+        std::string error;
+        bool isAlive = false;
+        bool doContinue = true;
 
-        *shared_continue = true;
-
-        if (shared_error->size() == 0) {
+        if (error.size() == 0) {
             setDeviceState(CcDeviceState::Initialized);
-            finish_callback(*shared_error);
-        } else if (*shared_alive) {
+            finish_callback(error);
+        } else if (isAlive) {
             requestSwitchDeviceState(CcDeviceState::InitializationFailed, finish_callback);
-            *shared_continue = false;
+            doContinue = false;
         } else {
             requestSwitchDeviceState(CcDeviceState::UninitializedDown, finish_callback);
-            *shared_continue = false;
+            doContinue = false;
         }
 
-        if (!*shared_continue) {
+        if (!doContinue) {
             return false;
         }
 
-        ESP_LOGD(TAG, "Requesting checkAlive");
         // Check if it's present / alive
+        ESP_LOGD(TAG, "Requesting checkAlive");
         requestCheckAlive([ & ](const std::string& error_msg, bool alive) {
             if (!error_msg.size() == 0) {
-                *shared_error = error_msg;
-                *shared_continue = false;
+                error = error_msg;
+                doContinue = false;
             }
-            *shared_alive = alive;
+            isAlive = alive;
         });
 
-        if (!*shared_continue) {
+        if (!doContinue) {
             return false;
         }
 
-        ESP_LOGD(TAG, "Requesting manufacturing info");
         // Get device manufacturing info
+        ESP_LOGD(TAG, "Requesting manufacturing info");
         requestManufacturingInfo([ & ](const std::string& error_msg, CcCategory category, const std::string & info) {
             if (!error_msg.size() == 0) {
-                *shared_error = error_msg;
+                error = error_msg;
             } else {
                 this->deviceCategory = category;
                 this->manufacturingInfo = info;
@@ -349,11 +343,11 @@ namespace esp32cc {
             }
 
             if (error_msg.size() > 0 || (category != CcCategory::BillValidator && category != CcCategory::CoinAcceptor && category != CcCategory::Payout)) {
-                *shared_continue = false;
+                doContinue = false;
             }
         });
 
-        if (!*shared_continue) {
+        if (!doContinue) {
             return false;
         }
 
@@ -362,7 +356,7 @@ namespace esp32cc {
             // Get recommended polling frequency        
             requestPollingInterval([ & ](const std::string& error_msg, uint64_t msec) {
                 if (!error_msg.size() == 0) {
-                    *shared_error = error_msg;
+                    error = error_msg;
                 } else {
                     // For very large values and unsupported values pick reasonable defaults.
                     const uint64_t max_interval_msec = 1000;
@@ -376,11 +370,11 @@ namespace esp32cc {
                 }
 
                 if (error_msg.size() > 0) {
-                    *shared_continue = false;
+                    doContinue = false;
                 }
             });
 
-            if (!*shared_continue) {
+            if (!doContinue) {
                 return false;
             }
 
@@ -389,17 +383,17 @@ namespace esp32cc {
                 ESP_LOGD(TAG, "Requesting identifiers");
                 requestIdentifiers([ & ](const std::string& error_msg, const std::map<uint8_t, CcIdentifier>& identifiers) {
                     if (!error_msg.size() == 0) {
-                        *shared_error = error_msg;
+                        error = error_msg;
                     } else {
                         this->identifiers = identifiers;
                     }
                     if (error_msg.size() > 0) {
-                        *shared_continue = false;
+                        doContinue = false;
                     }
                 });
             }
 
-            if (!shared_continue) {
+            if (!doContinue) {
                 return false;
             }
 
@@ -407,15 +401,15 @@ namespace esp32cc {
             if (this->deviceCategory == CcCategory::BillValidator) {
                 modifyBillOperatingMode(true, true, [ & ](const std::string & error_msg) {
                     if (!error_msg.size() == 0) {
-                        *shared_error = error_msg;
+                        error = error_msg;
                     }
                     if (error_msg.size() > 0) {
-                        *shared_continue = false;
+                        doContinue = false;
                     }
                 });
             }
 
-            if (!*shared_continue) {
+            if (!doContinue) {
                 return false;
             }
 
@@ -423,17 +417,17 @@ namespace esp32cc {
             // that this is not needed for coin acceptors, but the practice shows it is.        
             modifyInhibitStatus(0xff, 0xff, [ & ](const std::string & error_msg) {
                 if (!error_msg.size() == 0) {
-                    *shared_error = error_msg;
+                    error = error_msg;
                 }
 
                 if (error_msg.size() > 0) {
-                    *shared_continue = false;
+                    doContinue = false;
                 }
             });
 
         }
 
-        return *shared_continue;
+        return doContinue;
     }
 
     bool CctalkDevice::switchStateNormalAccepting(const std::function<void(const std::string& error_msg)>& finish_callback) {
@@ -530,7 +524,7 @@ namespace esp32cc {
     }
 
     void CctalkDevice::requestManufacturingInfo(const std::function<void(const std::string& error_msg, CcCategory& category, const std::string& info)>& finish_callback) {
-        auto shared_error = std::make_shared<std::string>();
+        std::string error;
         CcCategory category;
         std::string info;
         std::vector<uint8_t> data;
@@ -538,7 +532,7 @@ namespace esp32cc {
         // Category                    
         this->linkController->ccRequest(CcHeader::RequestEquipmentCategoryId, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t>& responseData) {
             if (!error_msg.size() == 0) {
-                *shared_error = error_msg;
+                error = error_msg;
             } else {
                 // Decode the data
                 std::string decoded = decodeResponseToString(responseData);
@@ -547,14 +541,14 @@ namespace esp32cc {
             }
         });
 
-        if ((*shared_error).size() != 0) {
+        if (error.size() != 0) {
             return;
         }
 
         // Product code        
         this->linkController->ccRequest(CcHeader::RequestProductCode, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
             if (!error_msg.size() == 0) {
-                *shared_error = error_msg;
+                error = error_msg;
             } else {
                 // Decode the data                
                 info.append("*** Product code: " + decodeResponseToString(responseData) + "\n");
@@ -565,7 +559,7 @@ namespace esp32cc {
         // Build code        
         this->linkController->ccRequest(CcHeader::RequestBuildCode, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
             if (!error_msg.size() == 0) {
-                *shared_error = error_msg;
+                error = error_msg;
             } else {
                 // Decode the data
                 info.append("*** Build code: " + decodeResponseToString(responseData) + "\n");
@@ -575,7 +569,7 @@ namespace esp32cc {
         // Manufacturer        
         this->linkController->ccRequest(CcHeader::RequestManufacturerId, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
             if (!error_msg.size() == 0) {
-                *shared_error = error_msg;
+                error = error_msg;
             } else {
                 // Decode the data
                 std::string decoded = decodeResponseToString(responseData);
@@ -586,7 +580,7 @@ namespace esp32cc {
         // S/N        
         this->linkController->ccRequest(CcHeader::RequestSerialNumber, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t>& responseData) {
             if (!error_msg.size() == 0) {
-                *shared_error = error_msg;
+                error = error_msg;
             } else {
                 // Decode the data                
                 info.append("*** Serial number: " + decodeResponseToHex(responseData) + "\n");
@@ -597,7 +591,7 @@ namespace esp32cc {
         // Software revision           
         this->linkController->ccRequest(CcHeader::RequestSoftwareRevision, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t>& responseData) {
             if (!error_msg.size() == 0) {
-                *shared_error = error_msg;
+                error = error_msg;
             } else {
                 // Decode the data                
                 info.append("*** Software Revision: " + decodeResponseToString(responseData) + "\n");
@@ -608,7 +602,7 @@ namespace esp32cc {
         // ccTalk command set revision        
         this->linkController->ccRequest(CcHeader::RequestCommsRevision, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t>& responseData) {
             if (!error_msg.size() == 0) {
-                *shared_error = error_msg;
+                error = error_msg;
             } else {
                 if (responseData.size() == 3) {
                     info.append("*** ccTalk product release: " + std::to_string(responseData.at(0)) + ", ccTalk version " + std::to_string(responseData.at(1)) + "." + std::to_string(responseData.at(1)));
@@ -618,7 +612,7 @@ namespace esp32cc {
             }
         });
 
-        finish_callback(*shared_error, category, info);
+        finish_callback(error, category, info);
     }
 
     void CctalkDevice::requestPollingInterval(const std::function<void(const std::string& error_msg, uint64_t msec)>& finish_callback) {
@@ -793,20 +787,16 @@ namespace esp32cc {
             return;
         }
 
-        auto shared_max_positions = std::make_shared<uint8_t>(0);
+        int maxPositions;
+
         if (this->deviceCategory == CcCategory::CoinAcceptor) {
-            shared_max_positions = std::make_shared<uint8_t>(6);
+            maxPositions = 6;
         } else {
-            shared_max_positions = std::make_shared<uint8_t>(16);
+            maxPositions = 16;
         }
 
-        auto shared_error = std::make_shared<std::string>();
-        auto shared_identifiers = std::make_shared<std::map<uint8_t, CcIdentifier >> ();
-        auto shared_country_scaling_data = std::make_shared<std::map < std::string, CcCountryScalingData >> ();
-
+        std::string error;
         std::string coin_bill = (this->deviceCategory == CcCategory::CoinAcceptor ? "Coin" : "Bill");
-
-
 
         // If this is a Bill Validator, get number of bill types currently supported    
         if (this->deviceCategory == CcCategory::BillValidator) {
@@ -824,10 +814,10 @@ namespace esp32cc {
                         uint8_t num_bill_types = responseData.at(0);
                         // uint8_t num_banks = responseData.at(1);  // unused
                         if (num_bill_types > 1) {
-                            *shared_max_positions = num_bill_types;
-                            ESP_LOGD(TAG, "Number of bill types currently supported: %d.", int(*shared_max_positions));
+                            maxPositions = num_bill_types;
+                            ESP_LOGD(TAG, "Number of bill types currently supported: %d.", maxPositions);
                         } else {
-                            ESP_LOGE(TAG, "Could not get the number of bill types currently supported, falling back to %d.", int(*shared_max_positions));
+                            ESP_LOGE(TAG, "Could not get the number of bill types currently supported, falling back to %d.", maxPositions);
                         }
                     }
                 }
@@ -836,7 +826,7 @@ namespace esp32cc {
 
         std::vector<uint8_t> data;
         /// Get coin / bill IDs (and possibly country scaling data)
-        for (uint8_t pos = 1; pos <= *shared_max_positions; ++pos) {
+        for (uint8_t pos = 1; pos <= maxPositions; ++pos) {
 
             /// Fetch coin / bill ID at position pos.
             CcHeader get_command = (this->deviceCategory == CcCategory::CoinAcceptor ? CcHeader::RequestCoinId : CcHeader::RequestBillId);
@@ -844,7 +834,7 @@ namespace esp32cc {
             data.push_back(pos);
             this->linkController->ccRequest(get_command, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
                 if (!error_msg.size() == 0) {
-                    *shared_error = error_msg;
+                    error = error_msg;
 
                 } else {
                     // Decode the data.
@@ -852,51 +842,42 @@ namespace esp32cc {
                     std::string decodedData = decodeResponseToString(responseData);
                     if (!decodedData.size() == 0 && decodedData != "......" && decodedData.at(0) != 0) {
                         CcIdentifier identifier(decodedData);
-                        if (shared_country_scaling_data->count(identifier.country) > 0) {
-                            identifier.setCountryScalingData(shared_country_scaling_data->at(identifier.country));
+                        if (countryScalingData.count(identifier.country) > 0) {
+                            identifier.setCountryScalingData(this->countryScalingData.at(identifier.country));
                         }
                         ESP_LOGD(TAG, "Adding coin identifier %s to position %d in shared_identifiers", identifier.id_string.c_str(), pos);
-                        (*shared_identifiers).insert(std::make_pair(pos, identifier));
+                        this->identifiers.insert(std::make_pair(pos, identifier));
                     }
                 }
-
-                //serializer->continueSequence();
             });
 
 
             // If this is a Bill Validator, get country scaling data.
             // For coin acceptors, use a fixed, predefined country scaling data.
-
-
-            if (shared_identifiers.get()->count(pos) == 0) { // empty position
-                //serializer->continueSequence(true);
-                //return;
+            if (this->identifiers.count(pos) == 0) { // empty position
+                ESP_LOGD(TAG, "Empty position: %d", pos);
             }
 
-            std::string country = shared_identifiers.get()->at(pos).country;
-            if (country.size() == 0 || shared_country_scaling_data->count(country) > 0) {
-                //serializer->continueSequence(true);
-                //return; // already present
+            std::string country = this->identifiers.at(pos).country;
+            if (country.size() == 0 || this->countryScalingData.count(country) > 0) {
+                // Do nothing
             }
-
 
             // Predefined rules for Georgia. TODO Make this configurable and / or remove it from here.
             if (this->deviceCategory == CcCategory::CoinAcceptor && country == "GE") {
                 CcCountryScalingData data;
                 data.scaling_factor = 1;
                 data.decimal_places = 2;
-                (*shared_country_scaling_data).insert(std::make_pair(country, data));
-                (*shared_identifiers).at(pos).country_scaling_data = data;
+                this->countryScalingData.insert(std::make_pair(country, data));
+                this->identifiers.at(pos).country_scaling_data = data;
                 ESP_LOGD(TAG, "Using predefined country scaling data for %s: scaling factor: %d, decimal places: %d.", country.c_str(), data.scaling_factor, int(data.decimal_places));
-                //serializer->continueSequence(true);
-                //return;
             }
 
             if (this->deviceCategory != CcCategory::BillValidator) {
                 std::vector<uint8_t> countryVector = std::vector<uint8_t>(country.begin(), country.end());
                 this->linkController->ccRequest(CcHeader::RequestCountryScalingFactor, this->deviceAddress, countryVector, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
                     if (!error_msg.size() == 0) {
-                        *shared_error = error_msg;
+                        error = error_msg;
 
                     } else {
                         // Decode the data
@@ -909,36 +890,31 @@ namespace esp32cc {
                             data.scaling_factor = uint16_t(lsb + msb * 256);
                             data.decimal_places = responseData.at(2);
                             if (data.isValid()) {
-                                (*shared_country_scaling_data).insert(std::make_pair(country, data));
-                                (*shared_identifiers).at(pos).country_scaling_data = data;
+                                this->countryScalingData.insert(std::make_pair(country, data));
+                                this->identifiers.at(pos).country_scaling_data = data;
                                 ESP_LOGD(TAG, "Country scaling data for %s: scaling factor: %d, decimal places: %d.", country.c_str(), data.scaling_factor, int(data.decimal_places));
                             } else {
                                 ESP_LOGD(TAG, "Country scaling data for %s: empty!", country.c_str());
                             }
                         }
                     }
-                    //serializer->continueSequence(error_msg.size() == 0);
                 });
             }
         }
 
-        if (!shared_error->size() == 0) {
-            ESP_LOGE(TAG, "Error getting %s identifiers: %s", coin_bill.c_str(), shared_error->c_str());
+        if (error.size() != 0) {
+            ESP_LOGE(TAG, "Error getting %s identifiers: %s", coin_bill.c_str(), error.c_str());
         } else {
-            if (shared_identifiers->size() != 0) {
-                // TODO: fix this
-                //                std::string strs;
-                //                strs.append("* %1 identifiers: " + coin_bill);
-                for (auto iter = shared_identifiers->cbegin(); iter != shared_identifiers->cend(); ++iter) {
+            if (this->identifiers.size() != 0) {
+                for (auto iter = this->identifiers.cbegin(); iter != this->identifiers.cend(); ++iter) {
                     ESP_LOGD(TAG, "*** %s position %d: %s", coin_bill.c_str(), int(iter->first), iter->second.id_string.c_str());
                 }
-                //                logMessage(strs.join(std::stringLiteral("\n")));
             } else {
                 ESP_LOGD(TAG, "No non-empty %s identifiers received.", coin_bill.c_str());
             }
         }
 
-        finish_callback(*shared_error, *shared_identifiers);
+        finish_callback(error, this->identifiers);
 
     }
 
@@ -947,12 +923,11 @@ namespace esp32cc {
         this->linkController->ccRequest(CcHeader::RequestHopperStatus, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
 
             // TODO Handle command timeout
-
             std::vector<CcEventData> event_data;
 
-            if (!error_msg.size() == 0) {
-                //ESP_LOGE(TAG, "Error getting %s buffered credit / events: %s", coin_bill.c_str(), error_msg.c_str());
-                finish_callback(error_msg, 0, event_data);
+            if (error_msg.size() != 0) {
+                ESP_LOGE(TAG, "Error getting hopper status: %s", error_msg.c_str());
+                        finish_callback(error_msg, 0, event_data);
                 return;
             }
 
@@ -1105,7 +1080,6 @@ namespace esp32cc {
         }
 
         // When the device is first booted, the event log contains all zeroes.
-
         if (this->lastEventNumber == 0 && eventCounter == 0) {
             // The device is operating normally (just initialized).
             finish_callback();
@@ -1279,17 +1253,17 @@ namespace esp32cc {
             return;
         }
 
-        auto shared_self_check_fault_code = std::make_shared<CcFaultCode>(CcFaultCode::Ok);
+        CcFaultCode selfCheckFaultCode = CcFaultCode::Ok;
 
         // Check if the error is a problem enough to warrant a diagnostics polling mode
         if (self_check_requested) {
 
             ESP_LOGD(TAG, "At least one new event has an error code, requesting SelfCheck to see if there is a global fault code.");
 
-            *shared_self_check_fault_code = CcFaultCode::CustomCommandError;
+            selfCheckFaultCode = CcFaultCode::CustomCommandError;
 
             requestSelfCheck([ & ]([[maybe_unused]] const std::string& error_msg, CcFaultCode fault_code) {
-                *shared_self_check_fault_code = fault_code;
+                selfCheckFaultCode = fault_code;
             });
             finish_callback();
         }
@@ -1300,7 +1274,7 @@ namespace esp32cc {
             bool accept = false;
             CcIdentifier id = this->identifiers.at(routing_req_event.bill_id);
 
-            if (*shared_self_check_fault_code != CcFaultCode::Ok) {
+            if (selfCheckFaultCode != CcFaultCode::Ok) {
                 ESP_LOGD(TAG, "SelfCheck returned a non-OK fault code; pending bill in escrow will be rejected.");
 
             } else if (bill_routing_force_reject) {
@@ -1328,14 +1302,10 @@ namespace esp32cc {
         // If the fault code was not Ok, switch to diagnostics mode.
         if (self_check_requested) {
 
-            if (*shared_self_check_fault_code == CcFaultCode::Ok) {
-                //aser->continueSequence(true);
-            } else {
-
+            if (selfCheckFaultCode != CcFaultCode::Ok) {
                 ESP_LOGD(TAG, "SelfCheck returned a non-OK fault code, switching to diagnostics polling mode.");
-
                 requestSwitchDeviceState(CcDeviceState::DiagnosticsPolling, [ & ]([[maybe_unused]] const std::string & local_error_msg) {
-                    //aser->continueSequence(true);
+                    // Do nothing
                 });
             }
         }
@@ -1384,7 +1354,7 @@ namespace esp32cc {
                 return;
             }
             if (responseData.size() != 1) {
-                std::string error = "! Invalid data received for PerformSelfCheck.";
+                std::string error = "Invalid data received for PerformSelfCheck.";
                 //ccResponseDataDecodeError(request_id, error); // auto-logged
                 finish_callback(error, CcFaultCode::CustomCommandError);
 

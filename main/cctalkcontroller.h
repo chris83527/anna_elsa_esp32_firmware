@@ -42,12 +42,13 @@ public:
 
     const static unsigned long VALIDATOR_POLL_INTERVAL = 250;
     const static unsigned long HOPPER_STATUS_POLL_INTERVAL = 100;
+    
+    // These should be private
     esp32cc::CoinHopperDevice hopper;
+    esp32cc::CoinAcceptorDevice coinAcceptor;
 private:
 
-    esp32cc::CctalkLinkController cctalkLinkController;
-
-    esp32cc::CoinAcceptorDevice coinAcceptor;
+    esp32cc::CctalkLinkController* cctalkLinkController;
        
 };
 

@@ -142,10 +142,8 @@ namespace esp32cc {
         using ResponseErrorFunc = std::function<void(const std::string& error_msg)>;
 
         /// Constructor
-        CctalkDevice();
-        CctalkDevice(const CctalkDevice& orig);
+        CctalkDevice();        
         virtual ~CctalkDevice();
-
 
         /// Start event-handling timer
         void startPolling();
@@ -322,6 +320,7 @@ namespace esp32cc {
         std::string manufacturingInfo; ///< Free-form text product information (manufacturer, serial number, etc...)
 
         std::map<uint8_t, CcIdentifier> identifiers; ///< Coin positions / bill types and IDs (names)        
+        std::map<std::string, CcCountryScalingData> countryScalingData;
 
         bool isEventLogRead = false; ///< True if the event log was read at least once.
         volatile uint8_t lastEventNumber = 0; ///< Last event number returned by ReadBufferedCredit command.

@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   CCTalkController.cpp
  * Author: chris
  * 
@@ -31,15 +31,17 @@ esp_err_t CCTalkController::initialise() {
 
     ESP_LOGD(TAG, "CCTalkController::initialise called");
 
-    cctalkLinkController.initialise(CCTALK_UART, CCTALK_GPIO_TX, CCTALK_GPIO_RX, false, false);
+    cctalkLinkController = new esp32cc::CctalkLinkController();
+    
+    cctalkLinkController->initialise(CCTALK_UART, CCTALK_GPIO_TX, CCTALK_GPIO_RX, false, false);
 
-    this->hopper.initialise(&this->cctalkLinkController, CCTALK_HOPPER, [ = ](const std::string & error_msg){
+    this->hopper.initialise(this->cctalkLinkController, CCTALK_HOPPER, [ = ](const std::string & error_msg){
         if (error_msg.size() > 0) {
             ESP_LOGE(TAG, "An error occurred initialising the hopper: %s", error_msg.c_str());
         }
     });
-
-    this->coinAcceptor.initialise(&this->cctalkLinkController, CCTALK_COIN_VALIDATOR, [ = ](const std::string & error_msg){
+    
+    this->coinAcceptor.initialise(this->cctalkLinkController, CCTALK_COIN_VALIDATOR, [ = ](const std::string & error_msg){
         if (error_msg.size() > 0) {
             ESP_LOGE(TAG, "An error occurred initialising the coin acceptor: %s", error_msg.c_str());
         }

@@ -26,6 +26,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/.gitignore</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/config.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/oledcontroller.h</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/bill_validator_device.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/m20ly02z/CMakeLists.txt</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_def.h</file>
@@ -80,8 +81,8 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/tas5731m.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/webserver.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/ssd1306/Kconfig</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/serial_worker.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/oledcontroller.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/serial_worker.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/nbproject/private/configurations.xml</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_enums.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/displaycontroller.cpp</file>

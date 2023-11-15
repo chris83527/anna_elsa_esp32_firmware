@@ -203,6 +203,8 @@ namespace esp32cc {
      */
     void CctalkLinkController::onResponseReceive(const uint64_t request_id, const std::vector<uint8_t>& responseData) {
 
+        ESP_LOGD(TAG, "Entering onResponseReceive");
+        
         if (responseData.size() < 5) {
             ESP_LOGE(TAG, "ccTalk response size too small (%d bytes).", responseData.size());            
             this->requestInProgress = false;
@@ -276,6 +278,8 @@ namespace esp32cc {
             return;
         }
        
+        this->requestInProgress = false;
+        
         if (this->executeOnReturnCallback != nullptr) {
             std::string data;
             this->executeOnReturnCallback(data, responseDataNoLocalEcho);
@@ -283,7 +287,6 @@ namespace esp32cc {
             ESP_LOGE(TAG, "Callback pointer was nullptr");
         }
         
-        this->requestInProgress = false;
-
+        ESP_LOGD(TAG, "Returning from onResponseReceive");
     }
 }
