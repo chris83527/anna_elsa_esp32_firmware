@@ -594,7 +594,7 @@ namespace esp32cc {
                 error = error_msg;
             } else {
                 // Decode the data                
-                info.append("*** Software Revision: " + decodeResponseToString(responseData) + "\n");
+                info.append("*** Software Revision: " + decodeSerialNumber(responseData) + "\n");
             }
         });
 
@@ -605,7 +605,7 @@ namespace esp32cc {
                 error = error_msg;
             } else {
                 if (responseData.size() == 3) {
-                    info.append("*** ccTalk product release: " + std::to_string(responseData.at(0)) + ", ccTalk version " + std::to_string(responseData.at(1)) + "." + std::to_string(responseData.at(1)));
+                    info.append("*** ccTalk product release: " + std::to_string(responseData.at(0)) + ", ccTalk version " + std::to_string(responseData.at(1)) + "." + std::to_string(responseData.at(2)));
                 } else {
                     info.append("*** ccTalk comms revision (encoded): " + decodeResponseToHex(responseData) + "\n");
                 }
@@ -1637,6 +1637,20 @@ namespace esp32cc {
         }
         return formatted_data;
     }
+    
+    std::string CctalkDevice::decodeSerialNumber(const std::vector<uint8_t>& responseData) {
+        std::string formatted_data;
+        uint32_t serialNumber;
+        if (responseData.size() == 3) {
+            serialNumber = responseData.at(0) & 0xff;
+            serialNumber |= responseData.at(1) << 8;
+            serialNumber |= responseData.at(2) << 16;
+            
+            return std::to_string(serialNumber);
+        }
+        return std::string;
+    }
+    
 
     void CctalkDevice::setCreditAcceptedCallback(CreditAcceptedFunc callback) {
         this->creditAcceptedCallback = callback;

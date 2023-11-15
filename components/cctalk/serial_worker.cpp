@@ -156,8 +156,7 @@ namespace esp32cc {
 
             if (receivedData.size() <= requestData.size()) {
                 // this shouldn't be possible as we have local echo
-                ESP_LOGE(TAG, "Received data bytes (%d) was less than request data bytes (%d). Is device connected?", receivedData.size(), requestData.size());
-                this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>());
+                ESP_LOGE(TAG, "Received data bytes (%d) was less than request data bytes (%d). Is device connected?", receivedData.size(), requestData.size());                
             } else {
                 ESP_LOGD(TAG, "Read %d bytes - response size %d (with local echo). Executing callback", bytesRead, receivedData.size());
                 ESP_LOGD(TAG, "Response size: %d", (receivedData.size() - requestData.size()));

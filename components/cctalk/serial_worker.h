@@ -88,7 +88,7 @@ namespace esp32cc {
 
     private:
 
-        std::function<void(const uint64_t requestId, const std::vector<uint8_t>& responseData) > onResponseReceiveCallback;
+        volatile std::function<void(const uint64_t requestId, const std::vector<uint8_t>& responseData) > onResponseReceiveCallback;
         uint64_t requestId;
         int responseTimeoutMsec;
 

@@ -301,6 +301,7 @@ namespace esp32cc {
         /// Poll task        
         std::string decodeResponseToString(const std::vector<uint8_t>& responseData);
         std::string decodeResponseToHex(const std::vector<uint8_t>& responseData);
+        std::string decodeSerialNumber(const std::vector<uint8_t>& responseData);
 
         virtual void devicePollTask();
 
