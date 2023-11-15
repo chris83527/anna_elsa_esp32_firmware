@@ -1642,9 +1642,9 @@ namespace esp32cc {
         
         uint32_t serialNumber;
         if (responseData.size() == 3) {
-            serialNumber = responseData.at(0) & 0xff;
+            serialNumber = responseData.at(2) & 0xff;
             serialNumber |= responseData.at(1) << 8;
-            serialNumber |= responseData.at(2) << 16;
+            serialNumber |= responseData.at(0) << 16;
             
             return std::to_string(serialNumber);
         }
