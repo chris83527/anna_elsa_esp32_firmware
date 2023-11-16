@@ -226,7 +226,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     bool centreFinished = centreReel->isStopped();
     bool rightFinished = rightReel->isStopped();
 
-    while (!leftFinished || !centreFinished || !rightFinished) {
+    for(;;) {
 
         if (leftFinished && leftPlayAudio) {
             this->mainController->getAudioController()->playAudioFile(Sounds::SND_REEL_STOP);
@@ -243,10 +243,14 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
             rightPlayAudio = false;
         }
 
-        uint8_t moves = random8_to(13);
-        this->mainController->getDisplayController()->setMoves(moves);
+        if (leftFinished && centreFinished && rightFinished) {
+            break;
+        }
+        
+        //uint8_t moves = random8_to(13);
+        //this->mainController->getDisplayController()->setMoves(moves);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         if (!leftFinished) {
             leftFinished = leftReel->isStopped();
