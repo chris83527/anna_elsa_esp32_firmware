@@ -160,7 +160,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     uint8_t centreSymbolId = mainController->getGame()->symbolsCentreReel[centreStop - 1];
     uint8_t rightSymbolId = mainController->getGame()->symbolsRightReel[rightStop - 1];
 
-    ESP_LOGI(TAG, "Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
+    printf("Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
 
     this->commandInProgress = true;
     this->reelStopInfo.leftStop = leftStop;
@@ -278,7 +278,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     uint8_t centreSymbolId = mainController->getGame()->symbolsCentreReel[centreStop - 1];
     uint8_t rightSymbolId = mainController->getGame()->symbolsRightReel[rightStop - 1];
 
-    ESP_LOGI(TAG, "Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
+    printf("Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
 
     this->commandInProgress = true;
     this->reelStopInfo.leftStop = leftStop;
@@ -366,7 +366,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, c
     uint8_t centreSymbolId = mainController->getGame()->symbolsCentreReel[this->reelStopInfo.centreStop - 1];
     uint8_t rightSymbolId = mainController->getGame()->symbolsRightReel[this->reelStopInfo.rightStop - 1];
 
-    ESP_LOGI(TAG, "Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
+    printf("Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
 
     int leftSteps = leftStops * STEPS_PER_STOP;
     int centreSteps = centreStops * STEPS_PER_STOP;
