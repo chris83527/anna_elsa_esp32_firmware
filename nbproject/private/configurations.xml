@@ -1093,11 +1093,33 @@
                     </df>
                   </df>
                   <df name="matrix">
+                    <df name="add">
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="addc">
+                      <df name="float">
+                      </df>
+                    </df>
                     <df name="fixed">
                     </df>
                     <df name="float">
                     </df>
                     <df name="mat">
+                    </df>
+                    <df name="mul">
+                      <df name="fixed">
+                      </df>
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="mulc">
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="sub">
+                      <df name="float">
+                      </df>
                     </df>
                   </df>
                   <df name="support">
@@ -2677,42 +2699,110 @@
               </df>
             </df>
             <df name="matrix">
-              <df name="fixed">
-                <in>dspm_mult_s16_ae32.S</in>
-                <in>dspm_mult_s16_aes3.S</in>
-                <in>dspm_mult_s16_ansi.c</in>
-                <in>dspm_mult_s16_m_ae32.S</in>
-                <in>dspm_mult_s16_m_ae32_vector.S</in>
+              <df name="add">
+                <df name="float">
+                  <in>dspm_add_f32_ae32.S</in>
+                  <in>dspm_add_f32_ansi.c</in>
+                </df>
+                <df name="include">
+                  <in>dspm_add.h</in>
+                  <in>dspm_add_platform.h</in>
+                </df>
+                <df name="test">
+                  <in>test_dspm_add_f32_ae32.cpp</in>
+                  <in>test_dspm_add_f32_ansi.cpp</in>
+                </df>
               </df>
-              <df name="float">
-                <in>dspm_mult_3x3x1_f32_ae32.S</in>
-                <in>dspm_mult_3x3x3_f32_ae32.S</in>
-                <in>dspm_mult_4x4x1_f32_ae32.S</in>
-                <in>dspm_mult_4x4x4_f32_ae32.S</in>
-                <in>dspm_mult_f32_ae32.S</in>
-                <in>dspm_mult_f32_aes3.S</in>
-                <in>dspm_mult_f32_ansi.c</in>
+              <df name="addc">
+                <df name="float">
+                  <in>dspm_addc_f32_ae32.S</in>
+                  <in>dspm_addc_f32_ansi.c</in>
+                </df>
+                <df name="include">
+                  <in>dspm_addc.h</in>
+                  <in>dspm_addc_platform.h</in>
+                </df>
+                <df name="test">
+                  <in>test_dspm_addc_f32_ansi.cpp</in>
+                </df>
               </df>
               <df name="include">
-                <in>dspm_mult.h</in>
-                <in>dspm_mult_platform.h</in>
+                <in>dspm_matrix.h</in>
                 <in>mat.h</in>
               </df>
               <df name="mat">
                 <in>mat.cpp</in>
               </df>
-              <df name="test">
-                <in>test_mat_f32.cpp</in>
-                <in>test_mmult_3x3xx_f32_ae32.c</in>
-                <in>test_mmult_4x4xx_f32_ae32.c</in>
-                <in>test_mmult_f32_ae32.c</in>
-                <in>test_mmult_f32_ansi.c</in>
-                <in>test_mmult_s16_ae32.c</in>
-                <in>test_mmult_s16_ansi.c</in>
+              <df name="mul">
+                <df name="fixed">
+                  <in>dspm_mult_s16_ae32.S</in>
+                  <in>dspm_mult_s16_aes3.S</in>
+                  <in>dspm_mult_s16_ansi.c</in>
+                  <in>dspm_mult_s16_m_ae32.S</in>
+                  <in>dspm_mult_s16_m_ae32_vector.S</in>
+                </df>
+                <df name="float">
+                  <in>dspm_mult_3x3x1_f32_ae32.S</in>
+                  <in>dspm_mult_3x3x3_f32_ae32.S</in>
+                  <in>dspm_mult_4x4x1_f32_ae32.S</in>
+                  <in>dspm_mult_4x4x4_f32_ae32.S</in>
+                  <in>dspm_mult_ex_f32_ae32.S</in>
+                  <in>dspm_mult_ex_f32_aes3.S</in>
+                  <in>dspm_mult_ex_f32_ansi.c</in>
+                  <in>dspm_mult_f32_ae32.S</in>
+                  <in>dspm_mult_f32_aes3.S</in>
+                  <in>dspm_mult_f32_ansi.c</in>
+                </df>
+                <df name="include">
+                  <in>dspm_mult.h</in>
+                  <in>dspm_mult_platform.h</in>
+                </df>
+                <df name="test">
+                  <df name="include">
+                    <in>test_mat_common.h</in>
+                  </df>
+                  <in>test_mat_common.cpp</in>
+                  <in>test_mat_f32.cpp</in>
+                  <in>test_mat_sub_f32.cpp</in>
+                  <in>test_mmult_3x3xx_f32_ae32.c</in>
+                  <in>test_mmult_4x4xx_f32_ae32.c</in>
+                  <in>test_mmult_ex_f32_aexx.cpp</in>
+                  <in>test_mmult_ex_f32_ansi.cpp</in>
+                  <in>test_mmult_f32_ae32.c</in>
+                  <in>test_mmult_f32_ansi.c</in>
+                  <in>test_mmult_s16_ae32.c</in>
+                  <in>test_mmult_s16_ansi.c</in>
+                </df>
+                <df name="test_sim">
+                  <in>main.c</in>
+                  <in>test_mmult.c</in>
+                </df>
               </df>
-              <df name="test_sim">
-                <in>main.c</in>
-                <in>test_mmult.c</in>
+              <df name="mulc">
+                <df name="float">
+                  <in>dspm_mulc_f32_ae32.S</in>
+                  <in>dspm_mulc_f32_ansi.c</in>
+                </df>
+                <df name="include">
+                  <in>dspm_mulc.h</in>
+                  <in>dspm_mulc_platform.h</in>
+                </df>
+                <df name="test">
+                  <in>test_dspm_mulc_f32_ansi.cpp</in>
+                </df>
+              </df>
+              <df name="sub">
+                <df name="float">
+                  <in>dspm_sub_f32_ae32.S</in>
+                  <in>dspm_sub_f32_ansi.c</in>
+                </df>
+                <df name="include">
+                  <in>dspm_sub.h</in>
+                  <in>dspm_sub_platform.h</in>
+                </df>
+                <df name="test">
+                  <in>test_dspm_sub_f32_ansi.cpp</in>
+                </df>
               </df>
             </df>
             <df name="support">

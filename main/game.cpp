@@ -186,9 +186,9 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
 
     ESP_LOGI(TAG, "Entering spinReels()");
 
-    uint8_t reelStopLeft = holdLeft ? 1 : random8_between(1, 25);
-    uint8_t reelStopCentre = holdCentre ? 1 : random8_between(1, 25);
-    uint8_t reelStopRight = holdRight ? 1 : random8_between(1, 25);
+    uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
+    uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 25);
+    uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 25);
     
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).setLampState(LampState::off);
 
@@ -200,23 +200,19 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
 }
 
 void Game::shuffleReels() {
-    uint8_t reelStopLeft = random8_between(1, 25);
-    uint8_t reelStopCentre = random8_between(1, 25);
-    uint8_t reelStopRight = random8_between(1, 25);
-
-    mainController->getMoneyController()->removeFromCredit(20);
+    ESP_LOGI(TAG, "Entering shuffleReels()");
+    
+    uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
+    uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 25);
+    uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 25);
+    
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).setLampState(LampState::off);
 
     this->mainController->getDisplayController()->displayText("    LET IT GO!!     ");
 
     mainController->getReelController()->shuffle(reelStopLeft, reelStopCentre, reelStopRight);
 
-    // Generate a random moves value for any feature game
-    while (mainController->getReelController()->isCommandInProgress()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        this->moves = random8_to(12);
-        this->mainController->getDisplayController()->setMoves(this->moves); // TODO: fix this
-    }
+    ESP_LOGI(TAG, "Exiting shuffleReels()");
 }
 
 void Game::playNudges(int nudges) {
@@ -414,18 +410,17 @@ void Game::playFeatureMatrix() {
     // loop waiting for button press.
     std::bitset<8> btnStatus = mainController->getDisplayController()->getButtonStatus();
     while (!btnStatus.test(BTN_START)) {
-        featureIndex = random8_to(13); // number of features
+        featureIndex = random8_between(0, 12); // number of features
 
-        mainController->getDisplayController()->getLampData().at(DisplayController::FEATURE_LAMPS.at(featureIndex)).setLampState(LampState::on);
+        mainController->getDisplayController()->getLampData().at(DisplayController::FEATURE_LAMPS.at(featureIndex)).setLampState(LampState::blinkfast);
 
         btnStatus = mainController->getDisplayController()->getButtonStatus();
-
-        // TODO: do something here.
-
-        mainController->getDisplayController()->getLampData().at(DisplayController::FEATURE_LAMPS.at(featureIndex)).setLampState(LampState::off);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
+    mainController->getDisplayController()->getLampData().at(DisplayController::FEATURE_LAMPS.at(featureIndex)).setLampState(LampState::off);
+    
     // Feature has been chosen, let's continue...
     switch (featureIndex) {
             // String featureMap[12] = {"Free Spin", "Double Money", "Shuffle", "Lose", "Palace", "Palace", "Shuffle", "Lose", "Free Spin", "Hi/Lo", "Free Spin", "Palace"};
