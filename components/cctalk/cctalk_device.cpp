@@ -583,7 +583,7 @@ namespace esp32cc {
                 error = error_msg;
             } else {
                 // Decode the data                
-                info.append("*** Serial number: " + decodeResponseToString(responseData) + "\n");
+                info.append("*** Serial number: " + decodeSerialNumber(responseData) + "\n");
             }
         });
 
@@ -594,7 +594,7 @@ namespace esp32cc {
                 error = error_msg;
             } else {
                 // Decode the data                
-                info.append("*** Software Revision: " + decodeSerialNumber(responseData) + "\n");
+                info.append("*** Software Revision: " + decodeResponseToString(responseData) + "\n");
             }
         });
 
@@ -1640,12 +1640,9 @@ namespace esp32cc {
     
     std::string CctalkDevice::decodeSerialNumber(const std::vector<uint8_t>& responseData) {
         
-        uint32_t serialNumber;
+        uint32_t serialNumber = 0;
         if (responseData.size() == 3) {
-            serialNumber = responseData.at(2) & 0xff;
-            serialNumber |= responseData.at(1) << 8;
-            serialNumber |= responseData.at(0) << 16;
-            
+            serialNumber = (responseData.at(0) << 16) | (responseData.at(1) << 8) | (responseData.at(2) & 0xff);                                    
             return std::to_string(serialNumber);
         }
         return "";
