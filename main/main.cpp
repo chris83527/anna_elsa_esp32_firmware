@@ -64,7 +64,7 @@ void app_main() {
 
 //    cfg.prio = 1;
     //cfg.inherit_cfg = true;
-    cfg.stack_size = (4096);
+    cfg.stack_size = (8192);
     if (esp_pthread_set_cfg(&cfg) != ESP_OK) {
         printf("esp_pthread_set_cfg failed\n");
         abort();

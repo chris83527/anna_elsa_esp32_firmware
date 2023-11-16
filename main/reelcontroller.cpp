@@ -176,16 +176,15 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
     auto cfg = esp_pthread_get_default_config();
-    
+            
     if (leftStop > 0) { // Check if reel is held       
         cfg.thread_name = "LeftReelThread";
         cfg.prio = 1;
         cfg.stack_size = 1024;
         esp_pthread_set_cfg(&cfg);
-        auto leftReelThread = std::thread([this, &leftSteps]() {
+        this->leftReelThread = std::thread([this, &leftSteps]() {
             leftReel->startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
-        });
-        leftReelThread.detach();
+        });        
     }
 
     if (centreStop > 0) { // Check if reel is held
@@ -193,10 +192,9 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
         cfg.prio = 1;
         cfg.stack_size = 1024;
         esp_pthread_set_cfg(&cfg);
-        auto centreReelThread = std::thread([this, &centreSteps]() {
+        this->centreReelThread = std::thread([this, &centreSteps]() {
             centreReel->startAfterHome(PCA9629A::Direction::CW, centreSteps, 1);
-        });
-        centreReelThread.detach();
+        });        
     }
 
     if (rightStop > 0) { auto cfg = esp_pthread_get_default_config();
@@ -204,10 +202,19 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
         cfg.prio = 1;
         cfg.stack_size = 1024;
         esp_pthread_set_cfg(&cfg);
-        auto rightReelThread = std::thread([this, &rightSteps]() {
+        this->rightReelThread = std::thread([this, &rightSteps]() {
             rightReel->startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
-        });
-        rightReelThread.detach();
+        });        
+    }
+    
+    if (leftStop > 0) {
+        this->leftReelThread.join();
+    }
+    if (centreStop > 0) {
+        this->centreReelThread.join();
+    }
+    if (rightStop > 0) {
+        this->rightReelThread.join();
     }
 
     bool leftPlayAudio = true;

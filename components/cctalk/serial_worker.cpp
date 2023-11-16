@@ -112,7 +112,7 @@ namespace esp32cc {
         //xQueueReset(this->cctalkUartQueueHandle);
         uart_flush(this->getUartNumber());
         uart_write_bytes(this->getUartNumber(), requestData.data(), requestData.size());
-        uart_wait_tx_done(this->getUartNumber(), pdMS_TO_TICKS(500)); // wait 75ms max 
+        uart_wait_tx_done(this->getUartNumber(), pdMS_TO_TICKS(writeTimeoutMsec)); // wait 75ms max 
 
         ESP_LOGD(TAG, "Send complete. Waiting for response");
 
@@ -167,6 +167,8 @@ namespace esp32cc {
             } else {
                 this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>());
             }
+        } else {
+            uart_flush(this->getUartNumber());
         }
 
     }

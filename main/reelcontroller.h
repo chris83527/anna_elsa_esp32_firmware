@@ -67,14 +67,14 @@
 class ReelController {
 public:
     ReelController(MainController *mainController);
-    ReelController(const ReelController &orig);  
+    ReelController(const ReelController &orig);
 
     typedef struct {
         uint8_t leftStop = 0;
         uint8_t centreStop = 0;
         uint8_t rightStop = 0;
     } reel_stop_info_t;
-    
+
     bool reelLeftInitOk;
     bool reelCentreInitOk;
     bool reelRightInitOk;
@@ -86,31 +86,34 @@ public:
     void shuffle(const uint8_t leftStop, const uint8_t midStop, const uint8_t rightStop);
 
     reel_stop_info_t getReelStopInfo(void);
-    
+
     bool isCommandInProgress(void);
-    
+
     void calibrate(void);
     void test(void);
 
 
 private:
     const int MAX_STOPS = 25; // total number of stops (i.e. symbols)    
-    
+
     reel_stop_info_t reelStopInfo;
-    
+
     uint8_t status;
     bool commandInProgress;
 
-    MainController* mainController;    
+    MainController* mainController;
 
     PCA9629A* leftReel;
-    PCA9629A* centreReel; 
+    PCA9629A* centreReel;
     PCA9629A* rightReel;
-    
-     // Prepare and then apply the LEDC PWM timer configuration
+
+    // Prepare and then apply the LEDC PWM timer configuration
     ledc_timer_config_t ledc_timer;
     ledc_channel_config_t ledc_channel;
-    
+
+    std::thread leftReelThread;
+    std::thread centreReelThread;
+    std::thread rightReelThread;
 };
 
 #endif /* __WAVE_H__ */
