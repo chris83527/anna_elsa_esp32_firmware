@@ -291,6 +291,7 @@ void DisplayController::resetLampData() {
         lampData.at(i).setLampState(LampState::off);
         // set lamp colour to white
         lampData.at(i).setRgb(rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS)); // changed from 255 to try and prevent voltage drop browning out vfd display
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     ESP_LOGD(TAG, "Exiting resetLampData()");
 }
@@ -336,7 +337,7 @@ uint8_t DisplayController::waitForButton(uint8_t mask) {
     // loop waiting for button press.
     while ((btnStatus & mask) == 0) {
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
         btnStatus = getButtonStatus();
     }
 

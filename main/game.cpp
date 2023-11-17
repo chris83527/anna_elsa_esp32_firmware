@@ -253,14 +253,14 @@ void Game::playNudges(int nudges) {
 
         // wait for reel controller to finish command
         while (mainController->getReelController()->isCommandInProgress()) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(25));
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
         }
 
         if (isWinningLine()) {
             transferOrGamble();
             return;
         } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(25));
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
         }
 
         nudges--;

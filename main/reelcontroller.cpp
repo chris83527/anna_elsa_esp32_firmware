@@ -154,6 +154,8 @@ bool ReelController::initialise() {
 
 void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, const uint8_t rightStop) {
 
+    this->commandInProgress = true;
+    
     ESP_LOGI(TAG, "spin called: left stop: %d, centre stop: %d, right stop: %d", leftStop, centreStop, rightStop);
 
     if (leftStop > 0) this->reelStopInfo.leftStop = leftStop;
@@ -165,10 +167,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     uint8_t rightSymbolId = mainController->getGame()->symbolsRightReel[this->reelStopInfo.rightStop - 1];
 
     printf("Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
-
-    this->commandInProgress = true;
-
-
+    
     int leftSteps = (((this->reelStopInfo.leftStop - 1) + 75) * STEPS_PER_STOP);
     int centreSteps = (((this->reelStopInfo.centreStop - 1) + 50) * STEPS_PER_STOP);
     int rightSteps = (((this->reelStopInfo.rightStop - 1) + 25) * STEPS_PER_STOP);
@@ -255,7 +254,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
         // Update the moves value - just a bit of decoration here really
         if (count == 0) {        
             this->mainController->getDisplayController()->setMoves(random8_to(13));            
-        } else if (count == 50) {
+        } else if (count == 10) {
             count = 0;
         }
         count++;
@@ -282,6 +281,8 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
 }
 
 void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, const uint8_t rightStop) {
+    this->commandInProgress = true;
+    
     ESP_LOGI(TAG, "shuffle() called: leftStop: %d, centreStop: %d, rightStop: %d", leftStop, centreStop, rightStop);
 
     uint8_t leftSymbolId = mainController->getGame()->symbolsLeftReel[leftStop - 1];
@@ -289,8 +290,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
     uint8_t rightSymbolId = mainController->getGame()->symbolsRightReel[rightStop - 1];
 
     printf("Calculated reel positions: %s - %s - %s", mainController->getGame()->symbolMap[leftSymbolId].c_str(), mainController->getGame()->symbolMap[centreSymbolId].c_str(), mainController->getGame()->symbolMap[rightSymbolId].c_str());
-
-    this->commandInProgress = true;
+    
     this->reelStopInfo.leftStop = leftStop;
     this->reelStopInfo.centreStop = centreStop;
     this->reelStopInfo.rightStop = rightStop;
@@ -366,6 +366,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop, c
 void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops, const uint8_t rightStops) {
 
     this->commandInProgress = true;
+    
     ESP_LOGI(TAG, "nudge() called: leftStops: %d, centreStops: %d, rightStops: %d", leftStops, centreStops, rightStops);
 
     this->reelStopInfo.leftStop += leftStops;
