@@ -255,7 +255,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
         // Update the moves value - just a bit of decoration here really
         if (count == 0) {        
             this->mainController->getDisplayController()->setMoves(random8_to(13));            
-        } else if (count = 50) {
+        } else if (count == 50) {
             count = 0;
         }
         count++;
