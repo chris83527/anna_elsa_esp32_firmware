@@ -41,6 +41,13 @@
 #include "reelcontroller.h"
 #include "displaycontroller.h"
 
+#define HANS 0
+#define OLAF 1
+#define SVEN 2
+#define ANNA 3
+#define KRISTOF 4
+#define ELSA 5
+#define PALACE 6
 
 class MainController; // forward declaration
 
@@ -64,9 +71,9 @@ public:
     std::string featureMap[12] = {"Free Spin", "Double Money", "Shuffle", "Lose", "Palace", "Palace", "Shuffle", "Lose", "Free Spin", "Hi/Lo", "Free Spin", "Palace"};
 
     // Map symbols to physical stops on reels (25 stops on a reel)
-    uint8_t symbolsLeftReel[25]   = {0, 1, 0, 0, 3, 2, 4, 0, 1, 1, 2, 4, 5, 2, 4, 2, 1, 4, 5, 1, 3, 4, 6, 2, 1};
-    uint8_t symbolsCentreReel[25] = {2, 0, 1, 5, 0, 2, 0, 4, 1, 5, 2, 4, 1, 2, 4, 4, 1, 2, 5, 2, 4, 6, 1, 3, 0};
-    uint8_t symbolsRightReel[25]  = {4, 4, 1, 1, 2, 0, 0, 1, 2, 4, 6, 1, 5, 0, 2, 4, 6, 1, 2, 0, 3, 2, 5, 4, 1};
+    uint8_t symbolsLeftReel[25]   = {HANS, OLAF, HANS, HANS, ANNA, SVEN, KRISTOF, HANS, OLAF, OLAF, SVEN, KRISTOF, ELSA, SVEN, KRISTOF, SVEN, OLAF, KRISTOF, ELSA, OLAF, ANNA, KRISTOF, PALACE, SVEN, OLAF};
+    uint8_t symbolsCentreReel[25] = {SVEN, HANS, OLAF, ELSA, HANS, SVEN, HANS, KRISTOF, OLAF, ELSA, SVEN, KRISTOF, OLAF, SVEN, KRISTOF, KRISTOF, OLAF, SVEN, ELSA, SVEN, KRISTOF, PALACE, OLAF, ANNA, HANS};
+    uint8_t symbolsRightReel[25]  = {KRISTOF, KRISTOF, OLAF, OLAF, SVEN, HANS, HANS, OLAF, SVEN, KRISTOF, PALACE, OLAF, ELSA, HANS, SVEN, KRISTOF, PALACE, OLAF, SVEN, HANS, ANNA, SVEN, ELSA, KRISTOF, OLAF};
 
 private:
 

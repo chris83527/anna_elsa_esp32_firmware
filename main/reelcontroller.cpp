@@ -229,6 +229,8 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
     bool centreFinished = centreReel->isStopped();
     bool rightFinished = rightReel->isStopped();
 
+    int count = 0;
+    
     for (;;) {
 
         if (leftFinished && leftPlayAudio) {
@@ -249,9 +251,14 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop, cons
         if (leftFinished && centreFinished && rightFinished) {
             break;
         }
-
-        //uint8_t moves = random8_to(13);
-        //this->mainController->getDisplayController()->setMoves(moves);
+        
+        // Update the moves value - just a bit of decoration here really
+        if (count == 0) {        
+            this->mainController->getDisplayController()->setMoves(random8_to(13));            
+        } else if (count = 50) {
+            count = 0;
+        }
+        count++;
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 

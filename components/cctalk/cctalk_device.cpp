@@ -82,10 +82,10 @@ namespace esp32cc {
             cfg.prio = 9;
             cfg.stack_size = 8192;
             esp_pthread_set_cfg(&cfg);
-            auto pollThread = std::thread([this] {
+            this->pollThread = std::thread([this] {
                 devicePollTask();
             });
-            pollThread.detach();
+            this->pollThread.detach();
         }
 
     }

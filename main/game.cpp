@@ -285,7 +285,7 @@ bool Game::offerHold() {
     uint8_t centrePos;
     uint8_t rightPos;
 
-    uint8_t hold = random8_to(2); //0 or 1
+    uint8_t hold = (random8_to(10) == 1); // 1 in 10 chance
 
     leftPos = mainController->getReelController()->getReelStopInfo().leftStop;
     centrePos = mainController->getReelController()->getReelStopInfo().centreStop;

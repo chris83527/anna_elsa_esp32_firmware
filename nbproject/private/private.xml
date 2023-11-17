@@ -18,7 +18,6 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/CMakeLists.txt</file>
             <file>file:/home/chris/esp/esp-idf-v4.4.6/components/driver/test/test_i2c.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/.gitmodules</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_link_controller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/ssd1306/CMakeLists.txt</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/mcp23008/mcp23008.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.cpp</file>
@@ -72,11 +71,13 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/cctalkcontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_pins_config.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/CMakeLists.txt</file>
+            <file>file:/home/chris/esp/esp-idf-v4.4.6/components/log/log.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_pins_config.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/mcp23008/mcp23008.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/webserver.c</file>
+            <file>file:/home/chris/esp/esp-idf-v4.4.6/components/spi_flash/sim/stubs/log/include/esp_log.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/nbproject/private/launcher.properties</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/tas5731m.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/webserver.h</file>
