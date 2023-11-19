@@ -186,9 +186,9 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
 
     ESP_LOGI(TAG, "Entering spinReels()");
 
-    uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
-    uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 25);
-    uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 25);
+    uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 26); // n-1
+    uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 26); // n-1
+    uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 26); // n-1 
     
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).setLampState(LampState::off);
 
@@ -202,9 +202,9 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
 void Game::shuffleReels() {
     ESP_LOGI(TAG, "Entering shuffleReels()");
     
-    uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
-    uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 25);
-    uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 25);
+    uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 26);
+    uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 26);
+    uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 26);
     
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).setLampState(LampState::off);
 
