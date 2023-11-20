@@ -72,6 +72,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_pins_config.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/CMakeLists.txt</file>
             <file>file:/home/chris/esp/esp-idf-v4.4.6/components/log/log.c</file>
+            <file>file:/home/chris/esp/esp-idf-lib/components/lib8tion/lib8tion/random8.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_pins_config.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.h</file>
