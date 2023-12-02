@@ -148,25 +148,28 @@ namespace esp32cc {
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        }        
-        
+        }
+
         if (receiveComplete) {
 
             uart_flush(this->getUartNumber());
 
             if (receivedData.size() <= requestData.size()) {
                 // this shouldn't be possible as we have local echo
-                ESP_LOGE(TAG, "Received data bytes (%d) was less than request data bytes (%d). Is device connected?", receivedData.size(), requestData.size());                
+                ESP_LOGE(TAG, "Received data bytes (%d) was less than or equal to request data bytes (%d). Is device connected?", receivedData.size(), requestData.size());
+                uart_flush(this->getUartNumber());
             } else {
                 ESP_LOGD(TAG, "Read %d bytes - response size %d (with local echo). Executing callback", bytesRead, receivedData.size());
                 ESP_LOGD(TAG, "Response size: %d", (receivedData.size() - requestData.size()));
+
+                if (receivedData.size() > 5) {
+                    this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>(receivedData.begin() + requestData.size(), receivedData.end()));
+                } else {
+                    this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>());
+                }
             }
-            
-            if (receivedData.size() > 5) {
-                this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>(receivedData.begin() + requestData.size(), receivedData.end()));
-            } else {
-                this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>());
-            }
+
+
         } else {
             uart_flush(this->getUartNumber());
         }

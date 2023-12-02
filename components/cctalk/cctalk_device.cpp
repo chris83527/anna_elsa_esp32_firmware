@@ -63,6 +63,16 @@ namespace esp32cc {
         return requestSwitchDeviceState(CcDeviceState::Initialized, [ & ](const std::string & error_msg) {
             finish_callback(error_msg);
         });
+
+        auto cfg = esp_pthread_get_default_config();
+        cfg.thread_name = ccCategoryDisplayNameFromCategory(this->getStoredDeviceCategory()).append("Polling").c_str();
+        cfg.prio = 9;
+        cfg.stack_size = 8192;
+        esp_pthread_set_cfg(&cfg);
+        this->pollThread = std::thread([this] {
+            devicePollTask();
+        });
+        this->pollThread.detach();
     }
 
     bool CctalkDevice::shutdown(const std::function<void(const std::string& error_msg)>& finish_callback) {
@@ -73,21 +83,7 @@ namespace esp32cc {
 
     void CctalkDevice::startPolling() {
         ESP_LOGD(TAG, "Starting poll timer.");
-
-        // prevent a new thread from being spawned 
-        if (!this->isPolling) {
-            isPolling = true;
-            auto cfg = esp_pthread_get_default_config();
-            cfg.thread_name = ccCategoryDisplayNameFromCategory(this->getStoredDeviceCategory()).append("Polling").c_str();
-            cfg.prio = 9;
-            cfg.stack_size = 8192;
-            esp_pthread_set_cfg(&cfg);
-            this->pollThread = std::thread([this] {
-                devicePollTask();
-            });
-            this->pollThread.detach();
-        }
-
+        this->isPolling = true;
     }
 
     void CctalkDevice::stopPolling() {
@@ -99,137 +95,142 @@ namespace esp32cc {
     void CctalkDevice::devicePollTask() {
 
         while (1) {
-            ESP_LOGD(TAG, "Polling %s...", ccCategoryDisplayNameFromCategory(this->getStoredDeviceCategory()).c_str());
+            if (this->isPolling) {
+                ESP_LOGD(TAG, "Polling %s...", ccCategoryDisplayNameFromCategory(this->getStoredDeviceCategory()).c_str());
 
-            // This is set to false in finish callbacks.
-            this->isTimerIterationTaskRunning = true;
+                // This is set to false in finish callbacks.
+                this->isTimerIterationTaskRunning = true;
 
-            switch (getDeviceState()) {
-                case CcDeviceState::ShutDown:
-                    // The device is not initialized, do nothing and wait for request for state change to Initialized.
-                    this->isTimerIterationTaskRunning = false;
-                    break;
-                case CcDeviceState::UninitializedDown:
-                    // The device didn't respond to alive check and is assumed uninitialized,
-                    // see if it came back and if so, initialize it.
-                    requestCheckAlive([ & ]([[maybe_unused]] const std::string& error_msg, bool alive) {
-                        if (alive) {
-                            requestSwitchDeviceState(CcDeviceState::Initialized, [ & ]([[maybe_unused]] const std::string & local_error_msg) {
+                switch (getDeviceState()) {
+                    case CcDeviceState::ShutDown:
+                        // The device is not initialized, do nothing and wait for request for state change to Initialized.
+                        this->isTimerIterationTaskRunning = false;
+                        break;
+                    case CcDeviceState::UninitializedDown:
+                        // The device didn't respond to alive check and is assumed uninitialized,
+                        // see if it came back and if so, initialize it.
+                        requestCheckAlive([ & ]([[maybe_unused]] const std::string& error_msg, bool alive) {
+                            if (alive) {
+                                requestSwitchDeviceState(CcDeviceState::Initialized, [ & ]([[maybe_unused]] const std::string & local_error_msg) {
+                                    this->isTimerIterationTaskRunning = false;
+                                });
+                            } else {
                                 this->isTimerIterationTaskRunning = false;
-                            });
-                        } else {
-                            this->isTimerIterationTaskRunning = false;
-                        }
-                    });
-                    break;
-                case CcDeviceState::Initialized:
-                    switch (this->deviceCategory) {
-                        case CcCategory::Payout:
-                            // Enable hopper
-                            ESP_LOGD(TAG, "Enabling hopper");
-                            enableHopper([&](const std::string & error_msg) {
-                                if (error_msg.size() > 0) {
-                                    ESP_LOGE(TAG, "Enable hopper command failed: %s", error_msg.c_str());
-                                }
-                            });
-                            break;
-                        case CcCategory::CoinAcceptor:
-                        case CcCategory::BillValidator:
-                            // The device has been initialized, resume normal rejecting or diagnostics polling.
-                            // Default to bill / coin rejection.
-                            // Perform a self-check and see if everything's ok.
-                            requestSelfCheck([ & ]([[maybe_unused]] const std::string& error_msg, CcFaultCode fault_code) {
-                                if (fault_code == CcFaultCode::Ok) {
-                                    // The device is OK, resume normal rejecting mode.
-                                    requestSwitchDeviceState(CcDeviceState::NormalRejecting, [ & ]([[maybe_unused]] const std::string & local_error_msg) {
-                                        this->isTimerIterationTaskRunning = false;
-                                    });
-                                } else {
-                                    // The device is not ok, resume diagnostics polling mode.
-                                    requestSwitchDeviceState(CcDeviceState::DiagnosticsPolling, [ & ]([[maybe_unused]] const std::string & local_error_msg) {
-                                        this->isTimerIterationTaskRunning = false;
-                                    });
-                                }
-                            });
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                case CcDeviceState::InitializationFailed:
-                    // The device initialization failed, something wrong with it. Abort.
-                    this->isTimerIterationTaskRunning = false;
-                    // Nothing we can do, cannot work with this device.
-                    stopPolling();
-                    ESP_LOGV(TAG, "Initialisation failed");
-                    break;
-                case CcDeviceState::NormalAccepting:
-                    switch (this->deviceCategory) {
-                        case CcCategory::Payout:
-                            // We just need to regularly poll the hopper
-                            // Test hopper
-                            ESP_LOGV(TAG, "Testing hopper");
-                            requestHopperStatus([ & ](const std::string & error_msg, uint8_t event_counter, const std::vector<CcEventData>& hopperStatusData) {
-                                processHopperStatus(error_msg, event_counter, hopperStatusData, [ & ]() {
-                                    this->isTimerIterationTaskRunning = false;
-                                });
-                            });
-                            break;
-                        case CcCategory::CoinAcceptor:
-                        case CcCategory::BillValidator:
-                            // We're accepting the credit, process the credit / event log.
-                            requestBufferedCreditEvents([ & ](const std::string& error_msg, uint8_t event_counter, const std::vector<CcEventData>& event_data) {
-                                processCreditEventLog(true, error_msg, event_counter, event_data, [ & ]() {
-                                    this->isTimerIterationTaskRunning = false;
-                                });
-                            });
-                            break;
-                        default:
-                            break;
-                    }
-
-                    break;
-                case CcDeviceState::NormalRejecting:
-                    requestBufferedCreditEvents([ & ](const std::string& error_msg, uint8_t event_counter, const std::vector<CcEventData>& event_data) {
-                        processCreditEventLog(false, error_msg, event_counter, event_data, [ & ]() {
-                            isTimerIterationTaskRunning = false;
+                            }
                         });
-                    });
-                    break;
-                case CcDeviceState::DiagnosticsPolling:
-                    // If we're in diagnostics polling mode, poll the fault code until it's resolved,
-                    // then switch to rejecting mode.
-                    requestSelfCheck([ & ]([[maybe_unused]] const std::string& error_msg, CcFaultCode fault_code) {
-                        if (fault_code == CcFaultCode::Ok) {
-                            // The error has been resolved, switch to rejecting mode.
-                            requestSwitchDeviceState(CcDeviceState::NormalRejecting, [ & ]([[maybe_unused]] const std::string & state_error_msg) {
+                        break;
+                    case CcDeviceState::Initialized:
+                        switch (this->deviceCategory) {
+                            case CcCategory::Payout:
+                                // Enable hopper
+                                ESP_LOGD(TAG, "Enabling hopper");
+                                enableHopper([&](const std::string & error_msg) {
+                                    if (error_msg.size() > 0) {
+                                        ESP_LOGE(TAG, "Enable hopper command failed: %s", error_msg.c_str());
+                                    }
+                                });
+                                break;
+                            case CcCategory::CoinAcceptor:
+                            case CcCategory::BillValidator:
+                                // The device has been initialized, resume normal rejecting or diagnostics polling.
+                                // Default to bill / coin rejection.
+                                // Perform a self-check and see if everything's ok.
+                                requestSelfCheck([ & ]([[maybe_unused]] const std::string& error_msg, CcFaultCode fault_code) {
+                                    if (fault_code == CcFaultCode::Ok) {
+                                        // The device is OK, resume normal rejecting mode.
+                                        requestSwitchDeviceState(CcDeviceState::NormalRejecting, [ & ]([[maybe_unused]] const std::string & local_error_msg) {
+                                            this->isTimerIterationTaskRunning = false;
+                                        });
+                                    } else {
+                                        // The device is not ok, resume diagnostics polling mode.
+                                        requestSwitchDeviceState(CcDeviceState::DiagnosticsPolling, [ & ]([[maybe_unused]] const std::string & local_error_msg) {
+                                            this->isTimerIterationTaskRunning = false;
+                                        });
+                                    }
+                                });
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case CcDeviceState::InitializationFailed:
+                        // The device initialization failed, something wrong with it. Abort.
+                        this->isTimerIterationTaskRunning = false;
+                        // Nothing we can do, cannot work with this device.
+                        stopPolling();
+                        ESP_LOGV(TAG, "Initialisation failed");
+                        break;
+                    case CcDeviceState::NormalAccepting:
+                        switch (this->deviceCategory) {
+                            case CcCategory::Payout:
+                                // We just need to regularly poll the hopper
+                                // Test hopper
+                                ESP_LOGV(TAG, "Testing hopper");
+                                requestHopperStatus([ & ](const std::string & error_msg, uint8_t event_counter, const std::vector<CcEventData>& hopperStatusData) {
+                                    processHopperStatus(error_msg, event_counter, hopperStatusData, [ & ]() {
+                                        this->isTimerIterationTaskRunning = false;
+                                    });
+                                });
+                                break;
+                            case CcCategory::CoinAcceptor:
+                            case CcCategory::BillValidator:
+                                // We're accepting the credit, process the credit / event log.
+                                requestBufferedCreditEvents([ & ](const std::string& error_msg, uint8_t event_counter, const std::vector<CcEventData>& event_data) {
+                                    processCreditEventLog(true, error_msg, event_counter, event_data, [ & ]() {
+                                        this->isTimerIterationTaskRunning = false;
+                                    });
+                                });
+                                break;
+                            default:
+                                break;
+                        }
+
+                        break;
+                    case CcDeviceState::NormalRejecting:
+                        requestBufferedCreditEvents([ & ](const std::string& error_msg, uint8_t event_counter, const std::vector<CcEventData>& event_data) {
+                            processCreditEventLog(false, error_msg, event_counter, event_data, [ & ]() {
                                 isTimerIterationTaskRunning = false;
                             });
-                        } else { // the fault is still there
+                        });
+                        break;
+                    case CcDeviceState::DiagnosticsPolling:
+                        // If we're in diagnostics polling mode, poll the fault code until it's resolved,
+                        // then switch to rejecting mode.
+                        requestSelfCheck([ & ]([[maybe_unused]] const std::string& error_msg, CcFaultCode fault_code) {
+                            if (fault_code == CcFaultCode::Ok) {
+                                // The error has been resolved, switch to rejecting mode.
+                                requestSwitchDeviceState(CcDeviceState::NormalRejecting, [ & ]([[maybe_unused]] const std::string & state_error_msg) {
+                                    isTimerIterationTaskRunning = false;
+                                });
+                            } else { // the fault is still there
+                                isTimerIterationTaskRunning = false;
+                            }
+                        });
+                        break;
+                    case CcDeviceState::UnexpectedDown:
+                        // The link was lost with the device. We should not do anything that may lead
+                        // to the loss of the event table (and, therefore, credit). Just re-initialize it, the
+                        // NormalRejecting state will be enabled and the event table will be read, if everything's ok.
+                        requestSwitchDeviceState(CcDeviceState::Initialized, [ & ]([[maybe_unused]] const std::string & error_msg) {
                             isTimerIterationTaskRunning = false;
-                        }
-                    });
-                    break;
-                case CcDeviceState::UnexpectedDown:
-                    // The link was lost with the device. We should not do anything that may lead
-                    // to the loss of the event table (and, therefore, credit). Just re-initialize it, the
-                    // NormalRejecting state will be enabled and the event table will be read, if everything's ok.
-                    requestSwitchDeviceState(CcDeviceState::Initialized, [ & ]([[maybe_unused]] const std::string & error_msg) {
-                        isTimerIterationTaskRunning = false;
-                    });
-                    break;
-                case CcDeviceState::ExternalReset:
-                    // The device event log turned out to be empty (after being non-empty). This means
-                    // that the device was probably reset externally, with possible loss of credits.
-                    // Assume it needs initialization.
-                    requestSwitchDeviceState(CcDeviceState::Initialized, [ & ]([[maybe_unused]] const std::string & error_msg) {
-                        isTimerIterationTaskRunning = false;
-                    });
-                    break;
-            }
+                        });
+                        break;
+                    case CcDeviceState::ExternalReset:
+                        // The device event log turned out to be empty (after being non-empty). This means
+                        // that the device was probably reset externally, with possible loss of credits.
+                        // Assume it needs initialization.
+                        requestSwitchDeviceState(CcDeviceState::Initialized, [ & ]([[maybe_unused]] const std::string & error_msg) {
+                            isTimerIterationTaskRunning = false;
+                        });
+                        break;
+                }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(this->normalPollingIntervalMsec));
+                std::this_thread::sleep_for(std::chrono::milliseconds(this->normalPollingIntervalMsec));
+            } else {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
         }
+
     }
 
     bool CctalkDevice::requestSwitchDeviceState(CcDeviceState state, const std::function<void(const std::string& error_msg)>& finish_callback) {
@@ -287,6 +288,7 @@ namespace esp32cc {
                 setDeviceState(state);
                 this->pollingInterval = notAlivePollingIntervalMsec;
                 finish_callback("");
+
                 return true;
         }
 
@@ -493,6 +495,7 @@ namespace esp32cc {
                 finish_callback(error_msg);
             });
         } else {
+
             setDeviceState(CcDeviceState::ShutDown);
             finish_callback(std::string());
         }
@@ -655,6 +658,7 @@ namespace esp32cc {
                 case 8: ms_multiplier = 1000UL * 60 * 60 * 24 * 7 * 30;
                     break;
                 case 9: ms_multiplier = 1000UL * 31557600;
+
                     break;
                     //default: assert(true);
 
@@ -688,6 +692,7 @@ namespace esp32cc {
 
                 return;
             }
+
             ESP_LOGD(TAG, "Inhibit status set: %d, %d", int(accept_mask1), int(accept_mask2));
             finish_callback(std::string());
         });
@@ -708,6 +713,7 @@ namespace esp32cc {
 
                 return;
             }
+
             ESP_LOGD(TAG, "Master inhibit status set to: %s", inhibit ? "reject" : "accept");
             /*
                              ESP_LOGD(TAG, "Verifying that master inhibit status was set correctly..."));
@@ -746,6 +752,7 @@ namespace esp32cc {
                 return;
             }
             // Decode the data
+
             bool inhibit = !bool(responseData.at(0)); // 0 means inhibit
             ESP_LOGD(TAG, "Master inhibit status: %s", !inhibit ? "accept" : "reject");
             finish_callback(std::string(), inhibit);
@@ -770,12 +777,13 @@ namespace esp32cc {
                 return;
             }
             if (!responseData.size() == 0) {
-                std::string error = "! Non-empty data received while waiting for ACK.";
+                std::string error = "Non-empty data received while waiting for ACK.";
                 //ccResponseDataDecodeError(request_id, error); // auto-logged
                 finish_callback(error);
 
                 return;
             }
+
             ESP_LOGD(TAG, "Bill validator operating mode set to: %d", int(mask));
             finish_callback(std::string());
         });
@@ -910,6 +918,7 @@ namespace esp32cc {
                     ESP_LOGD(TAG, "*** %s position %d: %s", coin_bill.c_str(), int(iter->first), iter->second.id_string.c_str());
                 }
             } else {
+
                 ESP_LOGD(TAG, "No non-empty %s identifiers received.", coin_bill.c_str());
             }
         }
@@ -934,6 +943,7 @@ namespace esp32cc {
             if (responseData.size() == 0) {
                 std::string error = std::string("Invalid (empty) hopper status data received.");
                         finish_callback(error, 0, event_data);
+
                 return;
             }
 
@@ -1033,6 +1043,7 @@ namespace esp32cc {
         if (this->lastEventNumber == 0 && eventCounter == 0) {
             // The device is operating normally (just initialized).
             finish_callback();
+
             return;
         }
 
@@ -1366,6 +1377,7 @@ namespace esp32cc {
             //                ESP_LOGD(TAG, "Self-check fault code: %s", ccFaultCodeGetDisplayableName(fault_code).c_str());
             //                finish_callback(ccFaultCodeGetDisplayableName(fault_code), fault_code);
             //            } else {
+
             finish_callback(ccFaultCodeGetDisplayableName(CcFaultCode::Ok), CcFaultCode::Ok);
             //            }
         });
@@ -1387,6 +1399,7 @@ namespace esp32cc {
 
                 return;
             }
+
             ESP_LOGD(TAG, "Soft reset acknowledged, waiting for the device to get back up.");
         });
     }
@@ -1418,6 +1431,7 @@ namespace esp32cc {
 
                 return;
             }
+
             ESP_LOGD(TAG, "Sorter path for coin_id %d set to %d", int(coin_id), int(path));
         });
     }
@@ -1437,6 +1451,7 @@ namespace esp32cc {
 
                 return;
             }
+
             ESP_LOGD(TAG, "Default sorter path set to %d", int(path));
         });
     }
@@ -1456,6 +1471,7 @@ namespace esp32cc {
 
                 return;
             }
+
             ESP_LOGD(TAG, "Sorter override status set to %d", int(overrideStatus));
         });
     }
@@ -1506,6 +1522,7 @@ namespace esp32cc {
                 finish_callback(error_msg, responseData);
                 return;
             }
+
             finish_callback(std::string(), responseData);
             return;
         });
@@ -1581,6 +1598,7 @@ namespace esp32cc {
         ESP_LOGD(TAG, "Dispensing %02d coin(s).", numberOfCoins);
 
         this->linkController->ccRequest(CcHeader::DispenseHopperCoins, this->deviceAddress, data, 200, [&](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
+
             finish_callback(std::string());
         });
 
@@ -1593,6 +1611,7 @@ namespace esp32cc {
 
     void CctalkDevice::setDeviceState(CcDeviceState state) {
         if (this->deviceState != state) {
+
             this->deviceState = state;
             ESP_LOGD(TAG, "Device state changed to: %s", ccDeviceStateGetDisplayableName(state).c_str());
         }
@@ -1637,17 +1656,17 @@ namespace esp32cc {
         }
         return formatted_data;
     }
-    
+
     std::string CctalkDevice::decodeSerialNumber(const std::vector<uint8_t>& responseData) {
-        
+
         uint32_t serialNumber = 0;
         if (responseData.size() == 3) {
-            serialNumber = (responseData.at(0) << 16) | (responseData.at(1) << 8) | (responseData.at(2) & 0xff);                                    
+            serialNumber = (responseData.at(0) << 16) | (responseData.at(1) << 8) | (responseData.at(2) & 0xff);
+
             return std::to_string(serialNumber);
         }
         return "";
     }
-    
 
     void CctalkDevice::setCreditAcceptedCallback(CreditAcceptedFunc callback) {
         this->creditAcceptedCallback = callback;
