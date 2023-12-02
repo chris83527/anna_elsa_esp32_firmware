@@ -94,11 +94,15 @@ namespace esp32cc {
         this->portOpen = false;
         return xErr != ESP_OK;
     }
+    
+    bool SerialWorker::isRequestInProgress() {
+        return this->requestInProgress;
+    }
 
     void SerialWorker::sendRequest(const uint64_t requestId, const std::vector<uint8_t>& requestData, const int writeTimeoutMsec, const int responseTimeoutMsec) {
 
         //ESP_LOGD(TAG, "sendRequest called. Request id %d size (start): %d", int(requestId), requestData.size());        
-
+        this->requestInProgress = true;
         this->requestId = requestId;
         this->responseTimeoutMsec = responseTimeoutMsec;
 
@@ -154,6 +158,8 @@ namespace esp32cc {
 
             uart_flush(this->getUartNumber());
 
+            this->requestInProgress = false;
+            
             if (receivedData.size() <= requestData.size()) {
                 // this shouldn't be possible as we have local echo
                 ESP_LOGE(TAG, "Received data bytes (%d) was less than or equal to request data bytes (%d). Is device connected?", receivedData.size(), requestData.size());

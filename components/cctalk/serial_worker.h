@@ -83,6 +83,7 @@ namespace esp32cc {
         uart_port_t getUartNumber();
         uint64_t getRequestId();
         int getResponseTimeoutMsec();
+        bool isRequestInProgress();
 
     protected:
 
@@ -101,7 +102,9 @@ namespace esp32cc {
 
         Timer timer;
 
-        bool portOpen = false;        
+        bool portOpen = false;   
+        
+        volatile bool requestInProgress = false;
     };
 }
 
