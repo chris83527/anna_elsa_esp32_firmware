@@ -1552,7 +1552,7 @@ namespace esp32cc {
         ESP_LOGD(TAG, "Dispense coins called: Dispensing %d coins: ", numberOfCoins);
 
         std::vector<uint8_t> data;
-        bool doContinue = true;
+        bool doContinue = false;
 
         if (this->deviceCategory != CcCategory::Payout) {
             ESP_LOGE(TAG, "Incorrect device category for dispenseCoins command: %s", ccCategoryDisplayNameFromCategory(this->deviceCategory).c_str());
@@ -1570,10 +1570,7 @@ namespace esp32cc {
                 return;
             }
 
-            if (cipherKey.size() != 8) {
-                ESP_LOGE(TAG, "Expecting 8 cipher bytes, received %d", cipherKey.size());
-                doContinue = false;
-            } else {
+            if (cipherKey.size() == 8) {
                 data.push_back(cipherKey.at(0));
                 data.push_back(cipherKey.at(1));
                 data.push_back(cipherKey.at(2));
@@ -1581,7 +1578,11 @@ namespace esp32cc {
                 data.push_back(cipherKey.at(4));
                 data.push_back(cipherKey.at(5));
                 data.push_back(cipherKey.at(6));
-                data.push_back(cipherKey.at(7));
+                data.push_back(cipherKey.at(7));   
+                doContinue = true;
+            } else {
+                ESP_LOGE(TAG, "Expecting 8 cipher bytes, received %d", cipherKey.size());
+                doContinue = false;
             }
 
         });
