@@ -1,21 +1,39 @@
 dependencies:
   espressif/esp-dsp:
-    component_hash: 46498b4973097cac29cfc6a692abef44375ffb7b00b73b3f354124efc626a154
+    component_hash: 3e7bbd487f1357a1d4944d0c85966d049501ea281b8a4c7f93f7cfedd5b7f23d
     source:
       service_url: https://api.components.espressif.com/
       type: service
-    version: 1.4.10
+    version: 1.4.12
+  espressif/jsmn:
+    component_hash: d80350c41bbaa827c98a25b6072df00884e72f54885996fab4a4f0aebce6b6c3
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.1.0
+  espressif/mdns:
+    component_hash: d8ae7aa491ff97aea1d00d514a1de42cdbaaf1bce10df183968fa5594b904de7
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.2.5
+  espressif/nghttp:
+    component_hash: 5e55c2fc982f7ddd257818be86f50d60705f3fd3a39d709c399434e81d458e1e
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.58.0
   idf:
     component_hash: null
     source:
       type: idf
-    version: 4.4.6
-  joltwallet__littlefs:
-    component_hash: null
+    version: 5.2.1
+  joltwallet/littlefs:
+    component_hash: 703c642136031deca2579bdc19721a397f9fd9033b1c667c7b89fe23fa394c40
     source:
-      path: /home/chris/anna_elsa_esp32_firmware/components/joltwallet__littlefs
-      type: local
-    version: 1.5.1
-manifest_hash: dc7434d1b309be24cc21d58d339d8430abd2a77ed50afc572abc82e456fe8f0d
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.14.2
+manifest_hash: 128b7529f35335ac5afb19b7ceea9843840a8cab1c4715e123b52f54a2bf28ae
 target: esp32
 version: 1.0.0

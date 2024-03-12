@@ -15,9 +15,10 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/m20ly02z/m20ly02z.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/ssd1306/ssd1306.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/dependencies.lock</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/CMakeLists.txt</file>
-            <file>file:/home/chris/esp/esp-idf-v4.4.6/components/driver/test/test_i2c.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/.gitmodules</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_link_controller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/ssd1306/CMakeLists.txt</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/mcp23008/mcp23008.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.cpp</file>
@@ -31,7 +32,6 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_def.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/i2c_manager/i2c_manager/i2c_manager.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_device.h</file>
-            <file>file:/home/chris/anna_elsa_esp32_firmware/main/moneycontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_link_controller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/CMakeLists.txt</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/i2c_manager/i2c_manager/i2c_manager.c</file>
@@ -39,6 +39,7 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/ds3231/ds3231.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_device.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/mcp23x17/LICENSE</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/i2c_manager/README.md</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/maincontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/httpcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/m20ly02z/component.mk</file>
@@ -71,20 +72,19 @@
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/cctalkcontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_pins_config.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/CMakeLists.txt</file>
-            <file>file:/home/chris/esp/esp-idf-v4.4.6/components/log/log.c</file>
             <file>file:/home/chris/esp/esp-idf-lib/components/lib8tion/lib8tion/random8.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/game.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/board_pins_config.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/reelcontroller.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/mcp23008/mcp23008.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/webserver.c</file>
-            <file>file:/home/chris/esp/esp-idf-v4.4.6/components/spi_flash/sim/stubs/log/include/esp_log.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/nbproject/private/launcher.properties</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/anna_elsa_audio_board/tas5731m.c</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/webserver.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/ssd1306/Kconfig</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/oledcontroller.cpp</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/serial_worker.cpp</file>
+            <file>file:/home/chris/anna_elsa_esp32_firmware/components/i2c_manager/CMakeLists.txt</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/nbproject/private/configurations.xml</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/components/cctalk/cctalk_enums.h</file>
             <file>file:/home/chris/anna_elsa_esp32_firmware/main/displaycontroller.cpp</file>
