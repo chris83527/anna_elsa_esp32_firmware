@@ -25,11 +25,10 @@
 #ifndef _BOARD_PINS_CONFIG_H_
 #define _BOARD_PINS_CONFIG_H_
 
-#include "driver/i2c.h"
-#include "driver/i2s.h"
-#include "driver/spi_common.h"
+#include "driver/i2s_std.h"
+#include "driver/i2c_master.h"
 #include "driver/spi_master.h"
-#include "driver/spi_slave.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,7 +45,7 @@ extern "C" {
  *     - ESP_OK
  *     - ESP_FAIL
  */
-esp_err_t get_i2c_pins(i2c_port_t port, i2c_config_t *i2c_config);
+esp_err_t get_i2c_pins(i2c_port_t port, i2c_master_bus_config_t *i2c_config);
 
 /**
  * @brief                  Get i2s pins configuration
@@ -58,7 +57,7 @@ esp_err_t get_i2c_pins(i2c_port_t port, i2c_config_t *i2c_config);
  *     - ESP_OK
  *     - ESP_FAIL
  */
-esp_err_t get_i2s_pins(i2s_port_t port, i2s_pin_config_t *i2s_config);
+esp_err_t get_i2s_pins(i2s_port_t port, i2s_std_config_t *i2s_config);
 
 /**
  * @brief                  Get spi pins configuration

@@ -23,12 +23,15 @@
  */
 
 #include <string.h>
+#include <inttypes.h>
 
+#include "soc/io_mux_reg.h"
 #include "i2c_manager.h"
 #include "board.h"
 #include "esp_log.h"
 #include "tas5731m.h"
 #include "tas5731m_reg_cfg.h"
+
 
 
 static const char *TAG = "TAS5731M";
@@ -75,7 +78,7 @@ static esp_err_t tas5731m_transmit_registers() {
     buf[0] = 0x00;
     // init sequence
     i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x1b, buf, 1);
-    vTaskDelay(50 / portTICK_RATE_MS);
+    vTaskDelay(pdMS_TO_TICKS(50));
     buf[0] = 0x03;
     i2c_manager_write(I2C_NUM_0, TAS5731M_I2C_ADDRESS, 0x04, buf, 1);
     buf[0] = 0x00;
@@ -171,20 +174,20 @@ esp_err_t tas5731m_init(audio_hal_codec_config_t *codec_cfg) {
     gpio_set_direction(TAS5731M_PDWN_GPIO, GPIO_MODE_OUTPUT);
 
     uint32_t reg_val = REG_READ(PIN_CTRL);
-    ESP_LOGD(TAG, "PIN_CTRL before:%x", reg_val);
+    ESP_LOGD(TAG, "PIN_CTRL before: %d", reg_val);
     REG_WRITE(PIN_CTRL, 0xFFFFFFF0);
     reg_val = REG_READ(PIN_CTRL);
-    ESP_LOGD(TAG, "PIN_CTRL after:%x", reg_val);
+    ESP_LOGD(TAG, "PIN_CTRL after: %d", reg_val);
     PIN_FUNC_SELECT(GPIO_PIN_REG_0, 1); //GPIO0 as CLK_OUT1
 
     // See TI TAS5731M Datasheet page 63
     gpio_set_level(TAS5731M_RST_GPIO, 0); // Drive /RESET = 0
     gpio_set_level(TAS5731M_PDWN_GPIO, 0);
-    vTaskDelay(200 / portTICK_RATE_MS);
+    vTaskDelay(pdMS_TO_TICKS(200));
     gpio_set_level(TAS5731M_PDWN_GPIO, 1);
-    vTaskDelay(200 / portTICK_RATE_MS);
+    vTaskDelay(pdMS_TO_TICKS(200));
     gpio_set_level(TAS5731M_RST_GPIO, 1);
-    vTaskDelay(500 / portTICK_RATE_MS);
+    vTaskDelay(pdMS_TO_TICKS(500));
     
     ret |= tas5731m_transmit_registers();
 

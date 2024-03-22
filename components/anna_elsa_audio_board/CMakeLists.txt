@@ -1,9 +1,8 @@
 set(COMPONENT_ADD_INCLUDEDIRS .)
 
 # Edit following two lines to set component requirements (see docs)
-set(COMPONENT_REQUIRES)
-set(COMPONENT_PRIV_REQUIRES audio_sal audio_hal esp_dispatcher esp_peripherals display_service i2c_manager log)
-
+#set(COMPONENT_REQUIRES)
+set(COMPONENT_REQUIRES audio_sal audio_hal esp_dispatcher esp_peripherals display_service i2c_manager soc driver log)
 
 if(CONFIG_AUDIO_BOARD_CUSTOM)
     message(STATUS "Current board name is " CONFIG_AUDIO_BOARD_CUSTOM)

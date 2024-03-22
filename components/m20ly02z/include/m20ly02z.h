@@ -39,7 +39,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include <driver/gpio.h>
+#include <gpio.h>
 #include <esp_err.h>
 
 #ifdef __cplusplus

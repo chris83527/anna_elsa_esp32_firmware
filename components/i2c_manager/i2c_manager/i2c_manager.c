@@ -34,7 +34,6 @@ SOFTWARE.
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
-#include <driver/i2c.h>
 
 #include "sdkconfig.h"
 
@@ -120,7 +119,7 @@ static void i2c_send_register(i2c_cmd_handle_t cmd, uint32_t reg) {
     i2c_master_write_byte(cmd, reg & 0xFF, ACK_CHECK_EN);
 }
 
-esp_err_t I2C_FN(_init)(i2c_port_t port) {
+esp_err_t I2C_FN(_init)(i2c_port_t port, i2c_master_bus_handle_t *bus_handle) {
 
     I2C_PORT_CHECK(port, ESP_FAIL);
 
@@ -132,36 +131,32 @@ esp_err_t I2C_FN(_init)(i2c_port_t port) {
 
         I2C_FN(_mutex)[port] = xSemaphoreCreateMutex();
 
-        i2c_config_t conf = {0};
+        i2c_master_bus_config_t conf = {0};
 
-#ifdef HAS_CLK_FLAGS
-        conf.clk_flags = 0;
-#endif
 
 #if defined (I2C_ZERO)
         if (port == I2C_NUM_0) {
+            conf.clk_source = I2C_CLK_SRC_DEFAULT;
+            conf.i2c_port = port;
             conf.sda_io_num = CONFIG_I2C_MANAGER_0_SDA;
             conf.scl_io_num = CONFIG_I2C_MANAGER_0_SCL;
-            conf.sda_pullup_en = I2C_MANAGER_0_PULLUPS ? GPIO_PULLUP_ENABLE : GPIO_PULLUP_DISABLE;
-            conf.scl_pullup_en = conf.sda_pullup_en;
-            conf.master.clk_speed = CONFIG_I2C_MANAGER_0_FREQ_HZ;
+            conf.flags.enable_internal_pullup = I2C_MANAGER_1_PULLUPS ? GPIO_PULLUP_ENABLE : GPIO_PULLUP_DISABLE;            
+            conf.glitch_ignore_cnt = 7;            
         }
 #endif
 
 #if defined (I2C_ONE)
         if (port == I2C_NUM_1) {
+            conf.clk_source = I2C_CLK_SRC_DEFAULT;
+            conf.i2c_port = port;
             conf.sda_io_num = CONFIG_I2C_MANAGER_1_SDA;
             conf.scl_io_num = CONFIG_I2C_MANAGER_1_SCL;
-            conf.sda_pullup_en = I2C_MANAGER_1_PULLUPS ? GPIO_PULLUP_ENABLE : GPIO_PULLUP_DISABLE;
-            conf.scl_pullup_en = conf.sda_pullup_en;
-            conf.master.clk_speed = CONFIG_I2C_MANAGER_1_FREQ_HZ;
+            conf.flags.enable_internal_pullup = I2C_MANAGER_1_PULLUPS ? GPIO_PULLUP_ENABLE : GPIO_PULLUP_DISABLE;            
+            conf.glitch_ignore_cnt = 7;                 
         }
 #endif
-
-        conf.mode = I2C_MODE_MASTER;
-
-        ret = i2c_param_config(port, &conf);
-        ret |= i2c_driver_install(port, conf.mode, 0, 0, 0);
+               
+        ret = i2c_new_master_bus(&conf, bus_handle);                
 
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "Failed to initialise I2C port %d.", (int) port);

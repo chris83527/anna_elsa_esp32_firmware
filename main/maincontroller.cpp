@@ -32,11 +32,11 @@
 #include "audiocontroller.h"
 #include "moneycontroller.h"
 #include "maincontroller.h"
-//#include "webserver.h"
+
 
 #include "esp_littlefs.h"
 #include "oledcontroller.h"
-#include "wifi.h"
+
 //#include "errors.h"
 
 static const char *TAG = "MainController";

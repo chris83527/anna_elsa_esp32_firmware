@@ -36,7 +36,8 @@
 
 static const char *TAG = "ANNA_ELSA_AUDIO_BOARD_V1_0";
 
-esp_err_t get_i2c_pins(i2c_port_t port, i2c_config_t *i2c_config)
+esp_err_t get_i2c_pins(i2c_port_t port, i2c_master_bus_config_t *i2c_config)
+
 {    
     AUDIO_NULL_CHECK(TAG, i2c_config, return ESP_FAIL);
     if (port == I2C_NUM_0) {
@@ -52,13 +53,12 @@ esp_err_t get_i2c_pins(i2c_port_t port, i2c_config_t *i2c_config)
 }
 
 
-esp_err_t get_i2s_pins(i2s_port_t port, i2s_pin_config_t *i2s_config) {
-    AUDIO_NULL_CHECK(TAG, i2s_config, return ESP_FAIL);
-
-    i2s_config->bck_io_num = GPIO_NUM_26;
-    i2s_config->ws_io_num = GPIO_NUM_25;
-    i2s_config->data_out_num = GPIO_NUM_27;    
-    i2s_config->data_in_num = I2S_PIN_NO_CHANGE;    
+esp_err_t get_i2s_pins(i2s_port_t port, i2s_std_config_t *i2s_std_config) {
+    AUDIO_NULL_CHECK(TAG, i2s_std_config, return ESP_FAIL);
+   
+    i2s_std_config->gpio_cfg.bclk = GPIO_NUM_26;
+    i2s_std_config->gpio_cfg.ws = GPIO_NUM_25;
+    i2s_std_config->gpio_cfg.dout = GPIO_NUM_27;        
 
     return ESP_OK;
 }
@@ -66,10 +66,10 @@ esp_err_t get_i2s_pins(i2s_port_t port, i2s_pin_config_t *i2s_config) {
 esp_err_t i2s_mclk_gpio_select(i2s_port_t i2s_num, gpio_num_t gpio_num)
 {
     
-  if (i2s_num >= I2S_NUM_MAX) {
-        ESP_LOGE(TAG, "Does not support i2s number(%d)", i2s_num);
-        return ESP_ERR_INVALID_ARG;
-    }
+//  if (i2s_num >= I2S_STD_NUM_MAX) {
+//        ESP_LOGE(TAG, "Does not support i2s number(%d)", i2s_num);
+//        return ESP_ERR_INVALID_ARG;
+//    }
     ESP_LOGD(TAG, "I2S%d, MCLK output by GPIO%d", i2s_num, gpio_num);
     return ESP_OK;
 }

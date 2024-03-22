@@ -20,7 +20,7 @@ extern "C" {
 
 
 // Only here to get the I2C_NUM_0 and I2C_NUM_1 defines.
-#include <driver/i2c.h>
+#include "driver/i2c_master.h"
 
 #define CONCATX(A, B) A ## B
 #define CONCAT(A, B) CONCATX(A, B)
@@ -42,7 +42,7 @@ extern "C" {
 #define I2C_REG_16  ( 1 << 31 )
 #define I2C_NO_REG  ( 1 << 30 )
 
-esp_err_t I2C_FN(_init)(i2c_port_t port);
+esp_err_t I2C_FN(_init)(i2c_port_t port, i2c_master_bus_handle_t *bus_handle);
 esp_err_t I2C_FN(_read)(i2c_port_t port, uint16_t addr, uint32_t reg, uint8_t *buffer, uint16_t size);
 esp_err_t I2C_FN(_write)(i2c_port_t port, uint16_t addr, uint32_t reg, const uint8_t *buffer, uint16_t size);
 esp_err_t I2C_FN(_close)(i2c_port_t port);

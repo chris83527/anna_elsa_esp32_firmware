@@ -35,6 +35,11 @@
 #define GPIO_I2C_SDA GPIO_NUM_21
 #define GPIO_I2C_SCL GPIO_NUM_22
 
+#define ESP_SD_PIN_CMD -1
+#define ESP_SD_PIN_D0 -1
+#define ESP_SD_PIN_CLK -1
+#define ESP_SD_PIN_D3 -1
+
 #define GPIO_AUDIO_PDWN GPIO_NUM_2
 
 #define BOARD_PA_GAIN 0

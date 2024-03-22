@@ -98,7 +98,7 @@ namespace esp32cc {
         
         SerialWorker serialWorker;
 
-        uart_port_t uartNumber = 1;
+        uart_port_t uartNumber = UART_NUM_1;
 
         bool isPortOpen = false;
                 

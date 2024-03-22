@@ -245,6 +245,186 @@
       </df>
       <df name="build">
         <df name="bootloader">
+          <df name="CMakeFiles">
+            <df name="3.25.1">
+              <df name="CompilerIdASM">
+              </df>
+              <df name="CompilerIdC">
+                <df name="tmp">
+                </df>
+                <in>CMakeCCompilerId.c</in>
+              </df>
+              <df name="CompilerIdCXX">
+                <df name="tmp">
+                </df>
+                <in>CMakeCXXCompilerId.cpp</in>
+              </df>
+            </df>
+            <df name="bootloader.elf.dir">
+            </df>
+            <df name="CheckTypeSize">
+            </df>
+            <df name="CMakeScratch">
+            </df>
+            <df name="git-data">
+            </df>
+            <df name="pkgRedirects">
+            </df>
+          </df>
+          <df name="config">
+            <in>sdkconfig.h</in>
+          </df>
+          <df name="esp-idf">
+            <df name="bootloader">
+              <df name="CMakeFiles">
+              </df>
+            </df>
+            <df name="bootloader_support">
+              <df name="CMakeFiles">
+                <df name="__idf_bootloader_support.dir">
+                  <df name="bootloader_flash">
+                    <df name="src">
+                    </df>
+                  </df>
+                  <df name="src">
+                    <df name="esp32">
+                    </df>
+                  </df>
+                </df>
+              </df>
+            </df>
+            <df name="CMakeFiles">
+            </df>
+            <df name="efuse">
+              <df name="CMakeFiles">
+                <df name="__idf_efuse.dir">
+                  <df name="esp32">
+                  </df>
+                  <df name="src">
+                    <df name="efuse_controller">
+                      <df name="keys">
+                        <df name="without_key_purposes">
+                          <df name="three_key_blocks">
+                          </df>
+                        </df>
+                      </df>
+                    </df>
+                  </df>
+                </df>
+              </df>
+            </df>
+            <df name="esp_app_format">
+              <df name="CMakeFiles">
+              </df>
+            </df>
+            <df name="esp_bootloader_format">
+              <df name="CMakeFiles">
+                <df name="__idf_esp_bootloader_format.dir">
+                </df>
+              </df>
+            </df>
+            <df name="esp_common">
+              <df name="CMakeFiles">
+                <df name="__idf_esp_common.dir">
+                  <df name="src">
+                  </df>
+                </df>
+              </df>
+            </df>
+            <df name="esp_hw_support">
+              <df name="CMakeFiles">
+                <df name="__idf_esp_hw_support.dir">
+                  <df name="port">
+                    <df name="esp32">
+                    </df>
+                  </df>
+                </df>
+              </df>
+              <df name="port">
+                <df name="esp32">
+                  <df name="CMakeFiles">
+                  </df>
+                </df>
+              </df>
+            </df>
+            <df name="esp_rom">
+              <df name="CMakeFiles">
+                <df name="__idf_esp_rom.dir">
+                  <df name="patches">
+                  </df>
+                </df>
+              </df>
+            </df>
+            <df name="esp_system">
+              <df name="CMakeFiles">
+                <df name="__idf_esp_system.dir">
+                </df>
+              </df>
+            </df>
+            <df name="esptool_py">
+              <df name="CMakeFiles">
+              </df>
+            </df>
+            <df name="freertos">
+              <df name="CMakeFiles">
+              </df>
+            </df>
+            <df name="hal">
+              <df name="CMakeFiles">
+                <df name="__idf_hal.dir">
+                  <df name="esp32">
+                  </df>
+                </df>
+              </df>
+            </df>
+            <df name="log">
+              <df name="CMakeFiles">
+                <df name="__idf_log.dir">
+                </df>
+              </df>
+            </df>
+            <df name="main">
+              <df name="CMakeFiles">
+                <df name="__idf_main.dir">
+                </df>
+              </df>
+            </df>
+            <df name="micro-ecc">
+              <df name="CMakeFiles">
+                <df name="__idf_micro-ecc.dir">
+                </df>
+              </df>
+            </df>
+            <df name="newlib">
+              <df name="CMakeFiles">
+              </df>
+            </df>
+            <df name="partition_table">
+              <df name="CMakeFiles">
+              </df>
+            </df>
+            <df name="soc">
+              <df name="CMakeFiles">
+                <df name="__idf_soc.dir">
+                  <df name="esp32">
+                  </df>
+                </df>
+              </df>
+            </df>
+            <df name="spi_flash">
+              <df name="CMakeFiles">
+                <df name="__idf_spi_flash.dir">
+                </df>
+              </df>
+            </df>
+            <df name="xtensa">
+              <df name="CMakeFiles">
+                <df name="__idf_xtensa.dir">
+                </df>
+              </df>
+            </df>
+          </df>
+          <in>project_elf_src_esp32.c</in>
         </df>
         <df name="bootloader-prefix">
           <df name="src">
@@ -269,6 +449,10 @@
               <in>CMakeCXXCompilerId.cpp</in>
             </df>
           </df>
+          <df name="anna_elsa_esp32.elf.dir">
+          </df>
+          <df name="bootloader.dir">
+          </df>
           <df name="CheckTypeSize">
           </df>
           <df name="CMakeScratch">
@@ -282,27 +466,2049 @@
           <in>sdkconfig.h</in>
         </df>
         <df name="esp-idf">
+          <df name="adf_utils">
+            <df name="CMakeFiles">
+              <df name="__idf_adf_utils.dir">
+                <df name="cloud_services">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="anna_elsa_audio_board">
+            <df name="CMakeFiles">
+              <df name="__idf_anna_elsa_audio_board.dir">
+              </df>
+            </df>
+          </df>
+          <df name="app_trace">
+            <df name="CMakeFiles">
+              <df name="__idf_app_trace.dir">
+                <df name="port">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="app_update">
+            <df name="CMakeFiles">
+              <df name="__idf_app_update.dir">
+              </df>
+            </df>
+          </df>
+          <df name="audio_board">
+            <df name="CMakeFiles">
+            </df>
+          </df>
+          <df name="audio_hal">
+            <df name="CMakeFiles">
+              <df name="__idf_audio_hal.dir">
+                <df name="driver">
+                  <df name="es7148">
+                  </df>
+                  <df name="es7210">
+                  </df>
+                  <df name="es7243">
+                  </df>
+                  <df name="es7243e">
+                  </df>
+                  <df name="es8156">
+                  </df>
+                  <df name="es8311">
+                  </df>
+                  <df name="es8374">
+                  </df>
+                  <df name="es8388">
+                  </df>
+                  <df name="tas5805m">
+                  </df>
+                  <df name="zl38063">
+                    <df name="api_lib">
+                    </df>
+                    <df name="example_apps">
+                    </df>
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="audio_pipeline">
+            <df name="CMakeFiles">
+              <df name="__idf_audio_pipeline.dir">
+              </df>
+            </df>
+          </df>
+          <df name="audio_recorder">
+            <df name="CMakeFiles">
+              <df name="__idf_audio_recorder.dir">
+              </df>
+            </df>
+          </df>
+          <df name="audio_sal">
+            <df name="CMakeFiles">
+              <df name="__idf_audio_sal.dir">
+              </df>
+            </df>
+          </df>
+          <df name="audio_stream">
+            <df name="CMakeFiles">
+              <df name="__idf_audio_stream.dir">
+                <df name="lib">
+                  <df name="gzip">
+                  </df>
+                  <df name="hls">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="battery_service">
+            <df name="CMakeFiles">
+              <df name="__idf_battery_service.dir">
+                <df name="monitors">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="bluetooth_service">
+            <df name="CMakeFiles">
+              <df name="__idf_bluetooth_service.dir">
+              </df>
+            </df>
+          </df>
+          <df name="bootloader">
+            <df name="CMakeFiles">
+            </df>
+          </df>
+          <df name="bootloader_support">
+            <df name="CMakeFiles">
+              <df name="__idf_bootloader_support.dir">
+                <df name="bootloader_flash">
+                  <df name="src">
+                  </df>
+                </df>
+                <df name="src">
+                  <df name="idf">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="bt">
+            <df name="CMakeFiles">
+            </df>
+          </df>
+          <df name="cctalk">
+            <df name="CMakeFiles">
+              <df name="__idf_cctalk.dir">
+              </df>
+            </df>
+          </df>
+          <df name="clouds">
+            <df name="CMakeFiles">
+            </df>
+          </df>
           <df name="CMakeFiles">
           </df>
-          <df name="esp_driver_gpio">
+          <df name="cmock">
             <df name="CMakeFiles">
+              <df name="__idf_cmock.dir">
+                <df name="CMock">
+                  <df name="src">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="color">
+            <df name="CMakeFiles">
+              <df name="__idf_color.dir">
+              </df>
+            </df>
+          </df>
+          <df name="console">
+            <df name="CMakeFiles">
+              <df name="__idf_console.dir">
+                <df name="argtable3">
+                </df>
+                <df name="linenoise">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="coredump_upload_service">
+            <df name="CMakeFiles">
+              <df name="__idf_coredump_upload_service.dir">
+              </df>
+            </df>
+          </df>
+          <df name="cxx">
+            <df name="CMakeFiles">
+              <df name="__idf_cxx.dir">
+              </df>
+            </df>
+          </df>
+          <df name="display_service">
+            <df name="CMakeFiles">
+              <df name="__idf_display_service.dir">
+                <df name="led_bar">
+                </df>
+                <df name="led_indicator">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="driver">
+            <df name="CMakeFiles">
+              <df name="__idf_driver.dir">
+                <df name="dac">
+                  <df name="esp32">
+                  </df>
+                </df>
+                <df name="deprecated">
+                  <df name="esp32">
+                  </df>
+                </df>
+                <df name="gpio">
+                </df>
+                <df name="gptimer">
+                </df>
+                <df name="i2c">
+                </df>
+                <df name="i2s">
+                </df>
+                <df name="ledc">
+                </df>
+                <df name="mcpwm">
+                </df>
+                <df name="pcnt">
+                </df>
+                <df name="rmt">
+                </df>
+                <df name="sdio_slave">
+                </df>
+                <df name="sdmmc">
+                </df>
+                <df name="sigma_delta">
+                </df>
+                <df name="spi">
+                  <df name="gpspi">
+                  </df>
+                  <df name="sdspi">
+                  </df>
+                </df>
+                <df name="touch_sensor">
+                  <df name="esp32">
+                  </df>
+                </df>
+                <df name="twai">
+                </df>
+                <df name="uart">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="ds3231">
+            <df name="CMakeFiles">
+              <df name="__idf_ds3231.dir">
+              </df>
+            </df>
+          </df>
+          <df name="dueros_service">
+            <df name="CMakeFiles">
+              <df name="__idf_dueros_service.dir">
+                <df name="__">
+                  <df name="__">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="efuse">
+            <df name="CMakeFiles">
+              <df name="__idf_efuse.dir">
+                <df name="esp32">
+                </df>
+                <df name="src">
+                  <df name="efuse_controller">
+                    <df name="keys">
+                      <df name="without_key_purposes">
+                        <df name="three_key_blocks">
+                        </df>
+                      </df>
+                    </df>
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp-adf-libs">
+            <df name="CMakeFiles">
+              <df name="__idf_esp-adf-libs.dir">
+                <df name="esp_codec">
+                </df>
+                <df name="media_lib_sal">
+                  <df name="mem_trace">
+                  </df>
+                  <df name="port">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp-sr">
+            <df name="CMakeFiles">
+              <df name="__idf_esp-sr.dir">
+                <df name="src">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp-tls">
+            <df name="CMakeFiles">
+              <df name="__idf_esp-tls.dir">
+                <df name="esp-tls-crypto">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp32-wifi-manager">
+            <df name="CMakeFiles">
+              <df name="__idf_esp32-wifi-manager.dir">
+                <df name="__">
+                  <df name="__">
+                  </df>
+                </df>
+                <df name="src">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_actions">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_actions.dir">
+              </df>
+            </df>
+          </df>
+          <df name="esp_adc">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_adc.dir">
+                <df name="deprecated">
+                  <df name="esp32">
+                  </df>
+                </df>
+                <df name="esp32">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_app_format">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_app_format.dir">
+              </df>
+            </df>
+          </df>
+          <df name="esp_bootloader_format">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_bootloader_format.dir">
+              </df>
+            </df>
+          </df>
+          <df name="esp_codec_dev">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_codec_dev.dir">
+                <df name="device">
+                  <df name="aw88298">
+                  </df>
+                  <df name="es7210">
+                  </df>
+                  <df name="es7243">
+                  </df>
+                  <df name="es7243e">
+                  </df>
+                  <df name="es8156">
+                  </df>
+                  <df name="es8311">
+                  </df>
+                  <df name="es8374">
+                  </df>
+                  <df name="es8388">
+                  </df>
+                  <df name="tas5805m">
+                  </df>
+                </df>
+                <df name="platform">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_coex">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_coex.dir">
+                <df name="esp32">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_common">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_common.dir">
+                <df name="src">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_dispatcher">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_dispatcher.dir">
+              </df>
+            </df>
+          </df>
+          <df name="esp_eth">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_eth.dir">
+                <df name="src">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_event">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_event.dir">
+              </df>
+            </df>
+          </df>
+          <df name="esp_event_cast">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_event_cast.dir">
+              </df>
+            </df>
+          </df>
+          <df name="esp_gdbstub">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_gdbstub.dir">
+                <df name="src">
+                  <df name="port">
+                    <df name="xtensa">
+                    </df>
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_hid">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_hid.dir">
+                <df name="src">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_http_client">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_http_client.dir">
+                <df name="lib">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_http_server">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_http_server.dir">
+                <df name="src">
+                  <df name="util">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_https_ota">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_https_ota.dir">
+                <df name="src">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_https_server">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_https_server.dir">
+                <df name="src">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_hw_support">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_hw_support.dir">
+                <df name="dma">
+                </df>
+                <df name="port">
+                  <df name="esp32">
+                  </df>
+                </df>
+              </df>
+            </df>
+            <df name="port">
+              <df name="esp32">
+                <df name="CMakeFiles">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_idf_lib_helpers">
+            <df name="CMakeFiles">
+            </df>
+          </df>
+          <df name="esp_lcd">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_lcd.dir">
+                <df name="src">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_local_ctrl">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_local_ctrl.dir">
+                <df name="proto-c">
+                </df>
+                <df name="src">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_mm">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_mm.dir">
+                <df name="port">
+                  <df name="esp32">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_netif">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_netif.dir">
+                <df name="lwip">
+                  <df name="netif">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_netif_stack">
+            <df name="CMakeFiles">
+            </df>
+          </df>
+          <df name="esp_partition">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_partition.dir">
+              </df>
+            </df>
+          </df>
+          <df name="esp_peripherals">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_peripherals.dir">
+                <df name="driver">
+                  <df name="i2c_bus">
+                  </df>
+                </df>
+                <df name="lib">
+                  <df name="adc_button">
+                  </df>
+                  <df name="blufi">
+                  </df>
+                  <df name="button">
+                  </df>
+                  <df name="gpio_isr">
+                  </df>
+                  <df name="IS31FL3216">
+                  </df>
+                  <df name="sdcard">
+                  </df>
+                  <df name="tca9554">
+                  </df>
+                  <df name="touch">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_phy">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_phy.dir">
+                <df name="src">
+                </df>
+              </df>
             </df>
           </df>
           <df name="esp_pm">
             <df name="CMakeFiles">
+              <df name="__idf_esp_pm.dir">
+              </df>
+            </df>
+          </df>
+          <df name="esp_psram">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_psram.dir">
+                <df name="esp32">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_ringbuf">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_ringbuf.dir">
+              </df>
+            </df>
+          </df>
+          <df name="esp_rom">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_rom.dir">
+                <df name="patches">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_system">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_system.dir">
+                <df name="port">
+                  <df name="arch">
+                    <df name="xtensa">
+                    </df>
+                  </df>
+                  <df name="soc">
+                    <df name="esp32">
+                    </df>
+                  </df>
+                </df>
+                <df name="task_wdt">
+                </df>
+              </df>
+            </df>
+            <df name="ld">
+            </df>
+            <df name="port">
+              <df name="CMakeFiles">
+              </df>
+              <df name="soc">
+                <df name="esp32">
+                  <df name="CMakeFiles">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_timer">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_timer.dir">
+                <df name="src">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esp_wifi">
+            <df name="CMakeFiles">
+              <df name="__idf_esp_wifi.dir">
+                <df name="esp32">
+                </df>
+                <df name="src">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="espcoredump">
+            <df name="CMakeFiles">
+              <df name="__idf_espcoredump.dir">
+                <df name="src">
+                  <df name="port">
+                    <df name="xtensa">
+                    </df>
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="espressif__esp-dsp">
+            <df name="CMakeFiles">
+              <df name="__idf_espressif__esp-dsp.dir">
+                <df name="modules">
+                  <df name="common">
+                    <df name="misc">
+                    </df>
+                  </df>
+                  <df name="conv">
+                    <df name="float">
+                    </df>
+                  </df>
+                  <df name="dct">
+                    <df name="float">
+                    </df>
+                  </df>
+                  <df name="dotprod">
+                    <df name="fixed">
+                    </df>
+                    <df name="float">
+                    </df>
+                  </df>
+                  <df name="fft">
+                    <df name="fixed">
+                    </df>
+                    <df name="float">
+                    </df>
+                  </df>
+                  <df name="fir">
+                    <df name="fixed">
+                    </df>
+                    <df name="float">
+                    </df>
+                  </df>
+                  <df name="iir">
+                    <df name="biquad">
+                    </df>
+                  </df>
+                  <df name="kalman">
+                    <df name="ekf">
+                      <df name="common">
+                      </df>
+                    </df>
+                    <df name="ekf_imu13states">
+                    </df>
+                  </df>
+                  <df name="math">
+                    <df name="add">
+                      <df name="fixed">
+                      </df>
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="addc">
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="mul">
+                      <df name="fixed">
+                      </df>
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="mulc">
+                      <df name="fixed">
+                      </df>
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="sqrt">
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="sub">
+                      <df name="fixed">
+                      </df>
+                      <df name="float">
+                      </df>
+                    </df>
+                  </df>
+                  <df name="matrix">
+                    <df name="add">
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="addc">
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="mat">
+                    </df>
+                    <df name="mul">
+                      <df name="fixed">
+                      </df>
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="mulc">
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="sub">
+                      <df name="float">
+                      </df>
+                    </df>
+                  </df>
+                  <df name="support">
+                    <df name="cplx_gen">
+                    </df>
+                    <df name="mem">
+                      <df name="esp32s3">
+                      </df>
+                    </df>
+                    <df name="misc">
+                    </df>
+                    <df name="sfdr">
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="snr">
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="view">
+                    </df>
+                  </df>
+                  <df name="windows">
+                    <df name="blackman">
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="blackman_harris">
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="blackman_nuttall">
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="flat_top">
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="hann">
+                      <df name="float">
+                      </df>
+                    </df>
+                    <df name="nuttall">
+                      <df name="float">
+                      </df>
+                    </df>
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="espressif__jsmn">
+            <df name="CMakeFiles">
+            </df>
+          </df>
+          <df name="espressif__mdns">
+            <df name="CMakeFiles">
+              <df name="__idf_espressif__mdns.dir">
+              </df>
+            </df>
+          </df>
+          <df name="espressif__nghttp">
+            <df name="CMakeFiles">
+              <df name="__idf_espressif__nghttp.dir">
+                <df name="nghttp2">
+                  <df name="lib">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="esptool_py">
+            <df name="CMakeFiles">
+            </df>
+          </df>
+          <df name="fatfs">
+            <df name="CMakeFiles">
+              <df name="__idf_fatfs.dir">
+                <df name="diskio">
+                </df>
+                <df name="port">
+                  <df name="freertos">
+                  </df>
+                </df>
+                <df name="src">
+                </df>
+                <df name="vfs">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="freertos">
+            <df name="CMakeFiles">
+              <df name="__idf_freertos.dir">
+                <df name="esp_additions">
+                </df>
+                <df name="FreeRTOS-Kernel">
+                  <df name="portable">
+                    <df name="xtensa">
+                    </df>
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="hal">
+            <df name="CMakeFiles">
+              <df name="__idf_hal.dir">
+                <df name="esp32">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="heap">
+            <df name="CMakeFiles">
+              <df name="__idf_heap.dir">
+                <df name="port">
+                  <df name="esp32">
+                  </df>
+                </df>
+                <df name="tlsf">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="ht16k33">
+            <df name="CMakeFiles">
+              <df name="__idf_ht16k33.dir">
+              </df>
+            </df>
+          </df>
+          <df name="http_parser">
+            <df name="CMakeFiles">
+              <df name="__idf_http_parser.dir">
+              </df>
+            </df>
+          </df>
+          <df name="i2c_manager">
+            <df name="CMakeFiles">
+              <df name="__idf_i2c_manager.dir">
+                <df name="i2c_manager">
+                </df>
+                <df name="i2cdev">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="idf_test">
+            <df name="CMakeFiles">
+            </df>
+          </df>
+          <df name="ieee802154">
+            <df name="CMakeFiles">
+            </df>
+          </df>
+          <df name="input_key_service">
+            <df name="CMakeFiles">
+              <df name="__idf_input_key_service.dir">
+              </df>
+            </df>
+          </df>
+          <df name="joltwallet__littlefs">
+            <df name="CMakeFiles">
+              <df name="__idf_joltwallet__littlefs.dir">
+                <df name="src">
+                  <df name="littlefs">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="json">
+            <df name="CMakeFiles">
+              <df name="__idf_json.dir">
+                <df name="cJSON">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="led_strip">
+            <df name="CMakeFiles">
+              <df name="__idf_led_strip.dir">
+              </df>
+            </df>
+          </df>
+          <df name="lib8tion">
+            <df name="CMakeFiles">
+              <df name="__idf_lib8tion.dir">
+              </df>
+            </df>
+          </df>
+          <df name="log">
+            <df name="CMakeFiles">
+              <df name="__idf_log.dir">
+              </df>
+            </df>
+          </df>
+          <df name="lwip">
+            <df name="CMakeFiles">
+              <df name="__idf_lwip.dir">
+                <df name="apps">
+                  <df name="dhcpserver">
+                  </df>
+                  <df name="ping">
+                  </df>
+                  <df name="sntp">
+                  </df>
+                </df>
+                <df name="lwip">
+                  <df name="src">
+                    <df name="api">
+                    </df>
+                    <df name="apps">
+                      <df name="netbiosns">
+                      </df>
+                      <df name="sntp">
+                      </df>
+                    </df>
+                    <df name="core">
+                      <df name="ipv4">
+                      </df>
+                      <df name="ipv6">
+                      </df>
+                    </df>
+                    <df name="netif">
+                      <df name="ppp">
+                      </df>
+                    </df>
+                  </df>
+                </df>
+                <df name="port">
+                  <df name="debug">
+                  </df>
+                  <df name="esp32xx">
+                  </df>
+                  <df name="freertos">
+                  </df>
+                  <df name="hooks">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="m20ly02z">
+            <df name="CMakeFiles">
+              <df name="__idf_m20ly02z.dir">
+              </df>
+            </df>
+          </df>
+          <df name="main">
+            <df name="CMakeFiles">
+              <df name="__idf_main.dir">
+              </df>
             </df>
           </df>
           <df name="mbedtls">
             <df name="CMakeFiles">
+              <df name="__idf_mbedtls.dir">
+                <df name="__">
+                  <df name="__">
+                  </df>
+                </df>
+                <df name="esp_crt_bundle">
+                </df>
+              </df>
+            </df>
+            <df name="mbedtls">
+              <df name="3rdparty">
+                <df name="CMakeFiles">
+                </df>
+                <df name="everest">
+                  <df name="CMakeFiles">
+                    <df name="everest.dir">
+                      <df name="library">
+                      </df>
+                    </df>
+                  </df>
+                </df>
+                <df name="p256-m">
+                  <df name="CMakeFiles">
+                    <df name="p256m.dir">
+                      <df name="p256-m">
+                      </df>
+                    </df>
+                  </df>
+                </df>
+              </df>
+              <df name="CMakeFiles">
+              </df>
+              <df name="include">
+                <df name="CMakeFiles">
+                </df>
+              </df>
+              <df name="library">
+                <df name="CMakeFiles">
+                  <df name="mbedcrypto.dir">
+                    <df name="home">
+                      <df name="chris">
+                        <df name="esp">
+                          <df name="esp-idf">
+                            <df name="components">
+                              <df name="mbedtls">
+                                <df name="port">
+                                  <df name="aes">
+                                    <df name="block">
+                                    </df>
+                                  </df>
+                                  <df name="bignum">
+                                  </df>
+                                  <df name="md">
+                                  </df>
+                                  <df name="sha">
+                                    <df name="parallel_engine">
+                                    </df>
+                                  </df>
+                                </df>
+                              </df>
+                            </df>
+                          </df>
+                        </df>
+                      </df>
+                    </df>
+                  </df>
+                  <df name="mbedtls.dir">
+                    <df name="home">
+                      <df name="chris">
+                        <df name="esp">
+                          <df name="esp-idf">
+                            <df name="components">
+                              <df name="mbedtls">
+                                <df name="port">
+                                </df>
+                              </df>
+                            </df>
+                          </df>
+                        </df>
+                      </df>
+                    </df>
+                  </df>
+                  <df name="mbedx509.dir">
+                  </df>
+                </df>
+                <in>error.c</in>
+                <in>psa_crypto_driver_wrappers_no_static.c</in>
+                <in>ssl_debug_helpers_generated.c</in>
+                <in>version_features.c</in>
+              </df>
+            </df>
+          </df>
+          <df name="mcp23008">
+            <df name="CMakeFiles">
+              <df name="__idf_mcp23008.dir">
+              </df>
+            </df>
+          </df>
+          <df name="mcp23x17">
+            <df name="CMakeFiles">
+              <df name="__idf_mcp23x17.dir">
+              </df>
+            </df>
+          </df>
+          <df name="mqtt">
+            <df name="CMakeFiles">
+              <df name="__idf_mqtt.dir">
+                <df name="esp-mqtt">
+                  <df name="lib">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="newlib">
+            <df name="CMakeFiles">
+              <df name="__idf_newlib.dir">
+                <df name="port">
+                </df>
+              </df>
+            </df>
+            <df name="port">
+              <df name="CMakeFiles">
+              </df>
+            </df>
+          </df>
+          <df name="nvs_flash">
+            <df name="CMakeFiles">
+              <df name="__idf_nvs_flash.dir">
+                <df name="src">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="nvs_sec_provider">
+            <df name="CMakeFiles">
+              <df name="__idf_nvs_sec_provider.dir">
+              </df>
+            </df>
+          </df>
+          <df name="openthread">
+            <df name="CMakeFiles">
+            </df>
+          </df>
+          <df name="ota_service">
+            <df name="CMakeFiles">
+              <df name="__idf_ota_service.dir">
+              </df>
+            </df>
+          </df>
+          <df name="partition_table">
+            <df name="CMakeFiles">
+            </df>
+          </df>
+          <df name="pca9629a">
+            <df name="CMakeFiles">
+              <df name="__idf_pca9629a.dir">
+              </df>
+            </df>
+          </df>
+          <df name="perfmon">
+            <df name="CMakeFiles">
+              <df name="__idf_perfmon.dir">
+              </df>
+            </df>
+          </df>
+          <df name="playlist">
+            <df name="CMakeFiles">
+              <df name="__idf_playlist.dir">
+                <df name="playlist_operator">
+                </df>
+                <df name="sdcard_scan">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="protobuf-c">
+            <df name="CMakeFiles">
+              <df name="__idf_protobuf-c.dir">
+                <df name="protobuf-c">
+                  <df name="protobuf-c">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="protocomm">
+            <df name="CMakeFiles">
+              <df name="__idf_protocomm.dir">
+                <df name="proto-c">
+                </df>
+                <df name="src">
+                  <df name="common">
+                  </df>
+                  <df name="crypto">
+                    <df name="srp6a">
+                    </df>
+                  </df>
+                  <df name="security">
+                  </df>
+                  <df name="transports">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="pthread">
+            <df name="CMakeFiles">
+              <df name="__idf_pthread.dir">
+              </df>
+            </df>
+          </df>
+          <df name="sdmmc">
+            <df name="CMakeFiles">
+              <df name="__idf_sdmmc.dir">
+              </df>
+            </df>
+          </df>
+          <df name="soc">
+            <df name="CMakeFiles">
+              <df name="__idf_soc.dir">
+                <df name="esp32">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="spi_flash">
+            <df name="CMakeFiles">
+              <df name="__idf_spi_flash.dir">
+              </df>
+            </df>
+          </df>
+          <df name="spiffs">
+            <df name="CMakeFiles">
+              <df name="__idf_spiffs.dir">
+                <df name="spiffs">
+                  <df name="src">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="ssd1306">
+            <df name="CMakeFiles">
+              <df name="__idf_ssd1306.dir">
+              </df>
+            </df>
+          </df>
+          <df name="tcp_transport">
+            <df name="CMakeFiles">
+              <df name="__idf_tcp_transport.dir">
+              </df>
+            </df>
+          </df>
+          <df name="tone_partition">
+            <df name="CMakeFiles">
+              <df name="__idf_tone_partition.dir">
+              </df>
+            </df>
+          </df>
+          <df name="ulp">
+            <df name="CMakeFiles">
+            </df>
+          </df>
+          <df name="unity">
+            <df name="CMakeFiles">
+              <df name="__idf_unity.dir">
+                <df name="port">
+                  <df name="esp">
+                  </df>
+                </df>
+                <df name="unity">
+                  <df name="src">
+                  </df>
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="usb">
+            <df name="CMakeFiles">
+            </df>
+          </df>
+          <df name="vfs">
+            <df name="CMakeFiles">
+              <df name="__idf_vfs.dir">
+              </df>
+            </df>
+          </df>
+          <df name="wear_levelling">
+            <df name="CMakeFiles">
+              <df name="__idf_wear_levelling.dir">
+              </df>
+            </df>
+          </df>
+          <df name="wifi_provisioning">
+            <df name="CMakeFiles">
+              <df name="__idf_wifi_provisioning.dir">
+                <df name="proto-c">
+                </df>
+                <df name="src">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="wifi_service">
+            <df name="CMakeFiles">
+              <df name="__idf_wifi_service.dir">
+                <df name="airkiss_config">
+                </df>
+                <df name="blufi_config">
+                </df>
+                <df name="smart_config">
+                </df>
+                <df name="src">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="wpa_supplicant">
+            <df name="CMakeFiles">
+              <df name="__idf_wpa_supplicant.dir">
+                <df name="esp_supplicant">
+                  <df name="src">
+                    <df name="crypto">
+                    </df>
+                  </df>
+                </df>
+                <df name="port">
+                </df>
+                <df name="src">
+                  <df name="ap">
+                  </df>
+                  <df name="common">
+                  </df>
+                  <df name="crypto">
+                  </df>
+                  <df name="eap_common">
+                  </df>
+                  <df name="eap_peer">
+                  </df>
+                  <df name="rsn_supp">
+                  </df>
+                  <df name="utils">
+                  </df>
+                  <df name="wps">
+                  </df>
+                </df>
+              </df>
             </df>
           </df>
           <df name="xtensa">
             <df name="CMakeFiles">
+              <df name="__idf_xtensa.dir">
+              </df>
+            </df>
+          </df>
+        </df>
+        <df name="littlefs_py_venv">
+          <df name="bin">
+          </df>
+          <df name="include">
+          </df>
+          <df name="lib">
+            <df name="python3.10">
+              <df name="site-packages">
+                <df name="_distutils_hack">
+                  <df name="__pycache__">
+                  </df>
+                </df>
+                <df name="littlefs">
+                  <df name="__pycache__">
+                  </df>
+                </df>
+                <df name="littlefs_python-0.10.0.dist-info">
+                </df>
+                <df name="pip">
+                  <df name="__pycache__">
+                  </df>
+                  <df name="_internal">
+                    <df name="__pycache__">
+                    </df>
+                    <df name="cli">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="commands">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="distributions">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="index">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="locations">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="metadata">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="models">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="network">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="operations">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="build">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="install">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="req">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="resolution">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="legacy">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="resolvelib">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="utils">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="vcs">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                  </df>
+                  <df name="_vendor">
+                    <df name="__pycache__">
+                    </df>
+                    <df name="cachecontrol">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="caches">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="certifi">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="chardet">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="cli">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="metadata">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="colorama">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="distlib">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="html5lib">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="_trie">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="filters">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="treeadapters">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="treebuilders">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="treewalkers">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="idna">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="msgpack">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="packaging">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="pep517">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="in_process">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="pkg_resources">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="platformdirs">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="progress">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="pygments">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="filters">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="formatters">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="lexers">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="styles">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="pyparsing">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="diagram">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="requests">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="resolvelib">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="compat">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="rich">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="tenacity">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="tomli">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="urllib3">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="contrib">
+                        <df name="__pycache__">
+                        </df>
+                        <df name="_securetransport">
+                          <df name="__pycache__">
+                          </df>
+                        </df>
+                      </df>
+                      <df name="packages">
+                        <df name="__pycache__">
+                        </df>
+                        <df name="backports">
+                          <df name="__pycache__">
+                          </df>
+                        </df>
+                      </df>
+                      <df name="util">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="webencodings">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                  </df>
+                </df>
+                <df name="pip-22.0.2.dist-info">
+                </df>
+                <df name="pkg_resources">
+                  <df name="__pycache__">
+                  </df>
+                  <df name="_vendor">
+                    <df name="__pycache__">
+                    </df>
+                    <df name="packaging">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                  </df>
+                  <df name="extern">
+                    <df name="__pycache__">
+                    </df>
+                  </df>
+                  <df name="tests">
+                    <df name="data">
+                      <df name="my-test-package-source">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                  </df>
+                </df>
+                <df name="setuptools">
+                  <df name="__pycache__">
+                  </df>
+                  <df name="_distutils">
+                    <df name="__pycache__">
+                    </df>
+                    <df name="command">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                  </df>
+                  <df name="_vendor">
+                    <df name="__pycache__">
+                    </df>
+                    <df name="more_itertools">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="packaging">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                  </df>
+                  <df name="command">
+                    <df name="__pycache__">
+                    </df>
+                  </df>
+                  <df name="extern">
+                    <df name="__pycache__">
+                    </df>
+                  </df>
+                </df>
+                <df name="setuptools-59.6.0.dist-info">
+                </df>
+              </df>
+            </df>
+          </df>
+          <df name="lib64">
+            <df name="python3.10">
+              <df name="site-packages">
+                <df name="_distutils_hack">
+                  <df name="__pycache__">
+                  </df>
+                </df>
+                <df name="littlefs">
+                  <df name="__pycache__">
+                  </df>
+                </df>
+                <df name="littlefs_python-0.10.0.dist-info">
+                </df>
+                <df name="pip">
+                  <df name="__pycache__">
+                  </df>
+                  <df name="_internal">
+                    <df name="__pycache__">
+                    </df>
+                    <df name="cli">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="commands">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="distributions">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="index">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="locations">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="metadata">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="models">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="network">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="operations">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="build">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="install">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="req">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="resolution">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="legacy">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="resolvelib">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="utils">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="vcs">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                  </df>
+                  <df name="_vendor">
+                    <df name="__pycache__">
+                    </df>
+                    <df name="cachecontrol">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="caches">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="certifi">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="chardet">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="cli">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="metadata">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="colorama">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="distlib">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="html5lib">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="_trie">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="filters">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="treeadapters">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="treebuilders">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="treewalkers">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="idna">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="msgpack">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="packaging">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="pep517">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="in_process">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="pkg_resources">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="platformdirs">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="progress">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="pygments">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="filters">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="formatters">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="lexers">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                      <df name="styles">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="pyparsing">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="diagram">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="requests">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="resolvelib">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="compat">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="rich">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="tenacity">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="tomli">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="urllib3">
+                      <df name="__pycache__">
+                      </df>
+                      <df name="contrib">
+                        <df name="__pycache__">
+                        </df>
+                        <df name="_securetransport">
+                          <df name="__pycache__">
+                          </df>
+                        </df>
+                      </df>
+                      <df name="packages">
+                        <df name="__pycache__">
+                        </df>
+                        <df name="backports">
+                          <df name="__pycache__">
+                          </df>
+                        </df>
+                      </df>
+                      <df name="util">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                    <df name="webencodings">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                  </df>
+                </df>
+                <df name="pip-22.0.2.dist-info">
+                </df>
+                <df name="pkg_resources">
+                  <df name="__pycache__">
+                  </df>
+                  <df name="_vendor">
+                    <df name="__pycache__">
+                    </df>
+                    <df name="packaging">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                  </df>
+                  <df name="extern">
+                    <df name="__pycache__">
+                    </df>
+                  </df>
+                  <df name="tests">
+                    <df name="data">
+                      <df name="my-test-package-source">
+                        <df name="__pycache__">
+                        </df>
+                      </df>
+                    </df>
+                  </df>
+                </df>
+                <df name="setuptools">
+                  <df name="__pycache__">
+                  </df>
+                  <df name="_distutils">
+                    <df name="__pycache__">
+                    </df>
+                    <df name="command">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                  </df>
+                  <df name="_vendor">
+                    <df name="__pycache__">
+                    </df>
+                    <df name="more_itertools">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                    <df name="packaging">
+                      <df name="__pycache__">
+                      </df>
+                    </df>
+                  </df>
+                  <df name="command">
+                    <df name="__pycache__">
+                    </df>
+                  </df>
+                  <df name="extern">
+                    <df name="__pycache__">
+                    </df>
+                  </df>
+                </df>
+                <df name="setuptools-59.6.0.dist-info">
+                </df>
+              </df>
             </df>
           </df>
         </df>
         <df name="log">
         </df>
+        <df name="partition_table">
+        </df>
+        <in>project_elf_src_esp32.c</in>
+        <in>x509_crt_bundle.S</in>
       </df>
       <df name="components">
         <df name="anna_elsa_audio_board">
@@ -331,6 +2537,36 @@
           <in>ds3231.cpp</in>
           <in>ds3231.h</in>
         </df>
+        <df name="esp32-wifi-manager">
+          <df name=".github">
+            <df name="ISSUE_TEMPLATE">
+            </df>
+          </df>
+          <df name="examples">
+            <df name="default_demo">
+              <df name="main">
+                <in>user_main.c</in>
+              </df>
+            </df>
+            <df name="http_hook">
+              <df name="main">
+                <in>user_main.c</in>
+              </df>
+            </df>
+          </df>
+          <df name="src">
+            <in>dns_server.c</in>
+            <in>dns_server.h</in>
+            <in>http_app.c</in>
+            <in>http_app.h</in>
+            <in>json.c</in>
+            <in>json.h</in>
+            <in>nvs_sync.c</in>
+            <in>nvs_sync.h</in>
+            <in>wifi_manager.c</in>
+            <in>wifi_manager.h</in>
+          </df>
+        </df>
         <df name="ht16k33">
           <df name="include">
             <in>ht16k33.h</in>
@@ -347,105 +2583,6 @@
             <in>i2cdev.h</in>
           </df>
           <df name="readme_assets">
-          </df>
-        </df>
-        <df name="joltwallet__littlefs">
-          <df name="example">
-            <df name="flash_data">
-            </df>
-            <df name="main">
-              <in>demo_esp_littlefs.c</in>
-            </df>
-          </df>
-          <df name="include">
-            <in>esp_littlefs.h</in>
-          </df>
-          <df name="mklittlefs">
-            <df name="include">
-              <in>spiffs_config.h</in>
-            </df>
-            <df name="mklittlefs-00c186b-generic-linux64">
-            </df>
-            <df name="mklittlefs-193ec2f-generic-linux64">
-            </df>
-            <df name="mklittlefs-2d015b9-generic-linux64">
-            </df>
-            <df name="mklittlefs-3e198b9-generic-linux64">
-            </df>
-            <df name="mklittlefs-405449e-generic-linux64">
-            </df>
-            <df name="mklittlefs-49a50a7-generic-linux64">
-            </df>
-            <df name="mklittlefs-55ac253-generic-linux64">
-            </df>
-            <df name="mklittlefs-6ce7478-generic-linux64">
-            </df>
-            <df name="mklittlefs-866fd36-generic-linux64">
-            </df>
-            <df name="mklittlefs-c27d2bc-generic-linux64">
-            </df>
-            <df name="mklittlefs-eb8ed44-generic-linux64">
-            </df>
-            <df name="tclap">
-              <in>Arg.h</in>
-              <in>ArgException.h</in>
-              <in>ArgTraits.h</in>
-              <in>CmdLine.h</in>
-              <in>CmdLineInterface.h</in>
-              <in>CmdLineOutput.h</in>
-              <in>Constraint.h</in>
-              <in>DocBookOutput.h</in>
-              <in>HelpVisitor.h</in>
-              <in>IgnoreRestVisitor.h</in>
-              <in>MultiArg.h</in>
-              <in>MultiSwitchArg.h</in>
-              <in>OptionalUnlabeledTracker.h</in>
-              <in>StandardTraits.h</in>
-              <in>StdOutput.h</in>
-              <in>SwitchArg.h</in>
-              <in>UnlabeledMultiArg.h</in>
-              <in>UnlabeledValueArg.h</in>
-              <in>ValueArg.h</in>
-              <in>ValuesConstraint.h</in>
-              <in>VersionVisitor.h</in>
-              <in>Visitor.h</in>
-              <in>XorHandler.h</in>
-              <in>ZshCompletionOutput.h</in>
-            </df>
-            <in>main.cpp</in>
-          </df>
-          <df name="src">
-            <df name="littlefs">
-              <df name=".github">
-                <df name="workflows">
-                </df>
-              </df>
-              <df name="bd">
-                <in>lfs_filebd.c</in>
-                <in>lfs_filebd.h</in>
-                <in>lfs_rambd.c</in>
-                <in>lfs_rambd.h</in>
-                <in>lfs_testbd.c</in>
-                <in>lfs_testbd.h</in>
-              </df>
-              <df name="scripts">
-              </df>
-              <df name="tests">
-              </df>
-              <in>lfs.c</in>
-              <in>lfs.h</in>
-              <in>lfs_util.c</in>
-              <in>lfs_util.h</in>
-            </df>
-            <in>esp_littlefs.c</in>
-            <in>lfs_config.c</in>
-            <in>lfs_config.h</in>
-            <in>littlefs_api.c</in>
-            <in>littlefs_api.h</in>
-          </df>
-          <df name="test">
-            <in>test_benchmark.c</in>
-            <in>test_littlefs.c</in>
           </df>
         </df>
         <df name="m20ly02z">
@@ -493,8 +2630,6 @@
         <in>displaycontroller.h</in>
         <in>game.cpp</in>
         <in>game.h</in>
-        <in>httpcontroller.cpp</in>
-        <in>httpcontroller.h</in>
         <in>main.cpp</in>
         <in>maincontroller.cpp</in>
         <in>maincontroller.h</in>
@@ -506,10 +2641,6 @@
         <in>reelcontroller.h</in>
         <in>spiffs.c</in>
         <in>spiffs.h</in>
-        <in>webserver.c</in>
-        <in>webserver.h</in>
-        <in>wifi.cpp</in>
-        <in>wifi.h</in>
       </df>
       <df name="managed_components">
         <df name="espressif__esp-dsp">
@@ -1329,6 +3460,68 @@
           <df name="include">
             <in>jsmn.h</in>
           </df>
+        </df>
+        <df name="espressif__mdns">
+          <df name="examples">
+            <df name="query_advertise">
+              <df name="main">
+                <in>mdns_example_main.c</in>
+              </df>
+            </df>
+          </df>
+          <df name="include">
+            <in>mdns.h</in>
+            <in>mdns_console.h</in>
+          </df>
+          <df name="private_include">
+            <in>mdns_networking.h</in>
+            <in>mdns_private.h</in>
+          </df>
+          <df name="tests">
+            <df name="host_test">
+              <df name="components">
+                <df name="esp_netif_linux">
+                  <df name="include">
+                    <df name="machine">
+                      <in>endian.h</in>
+                    </df>
+                    <in>esp_wifi_types.h</in>
+                  </df>
+                  <in>esp_netif_linux.c</in>
+                </df>
+              </df>
+              <df name="main">
+                <in>main.c</in>
+              </df>
+            </df>
+            <df name="test_afl_fuzz_host">
+              <df name="in">
+              </df>
+              <in>esp32_mock.c</in>
+              <in>esp32_mock.h</in>
+              <in>esp_attr.h</in>
+              <in>esp_netif_mock.c</in>
+              <in>mdns_di.h</in>
+              <in>mdns_mock.h</in>
+              <in>sdkconfig.h</in>
+              <in>test.c</in>
+            </df>
+            <df name="test_apps">
+              <df name="main">
+                <in>main.c</in>
+                <in>mdns_test.c</in>
+              </df>
+            </df>
+            <df name="unit_test">
+              <df name="main">
+                <in>test_mdns.c</in>
+              </df>
+            </df>
+          </df>
+          <in>mdns.c</in>
+          <in>mdns_console.c</in>
+          <in>mdns_networking_lwip.c</in>
+          <in>mdns_networking_socket.c</in>
         </df>
         <df name="espressif__nghttp">
           <df name="nghttp2">
@@ -2308,6 +4501,64 @@
             </df>
           </df>
         </df>
+        <df name="joltwallet__littlefs">
+          <df name="example">
+            <df name="flash_data">
+            </df>
+            <df name="main">
+              <in>demo_esp_littlefs.c</in>
+            </df>
+          </df>
+          <df name="include">
+            <in>esp_littlefs.h</in>
+          </df>
+          <df name="src">
+            <df name="littlefs">
+              <df name="bd">
+                <in>lfs_emubd.c</in>
+                <in>lfs_emubd.h</in>
+                <in>lfs_filebd.c</in>
+                <in>lfs_filebd.h</in>
+                <in>lfs_rambd.c</in>
+                <in>lfs_rambd.h</in>
+              </df>
+              <df name="benches">
+              </df>
+              <df name="runners">
+                <in>bench_runner.c</in>
+                <in>bench_runner.h</in>
+                <in>test_runner.c</in>
+                <in>test_runner.h</in>
+              </df>
+              <df name="scripts">
+              </df>
+              <df name="tests">
+              </df>
+              <in>lfs.c</in>
+              <in>lfs.h</in>
+              <in>lfs_util.c</in>
+              <in>lfs_util.h</in>
+            </df>
+            <in>esp_littlefs.c</in>
+            <in>lfs_config.c</in>
+            <in>lfs_config.h</in>
+            <in>littlefs_api.h</in>
+            <in>littlefs_esp_part.c</in>
+            <in>littlefs_sdmmc.c</in>
+          </df>
+          <df name="test">
+            <in>test_benchmark.c</in>
+            <in>test_dir.c</in>
+            <in>test_littlefs.c</in>
+            <in>test_littlefs_common.c</in>
+            <in>test_littlefs_common.h</in>
+            <in>test_littlefs_static_partition.c</in>
+          </df>
+          <df name="testdir">
+            <df name="test_folder">
+            </df>
+          </df>
+        </df>
       </df>
       <df name="partition_table">
       </df>
@@ -2744,6 +4995,10 @@
             </df>
           </df>
           <df name="lib_esp32c3_family">
+            <df name="esp32c3">
+            </df>
+            <df name="esp32s3">
+            </df>
           </df>
           <df name="lib_esp32c6">
             <df name="esp32c6-bt-lib">
@@ -2970,6 +5225,16 @@
               </df>
             </df>
             <df name="lib">
+              <df name="esp32">
+              </df>
+              <df name="esp32c3">
+              </df>
+              <df name="esp32c6">
+              </df>
+              <df name="esp32h2">
+              </df>
+              <df name="esp32s3">
+              </df>
             </df>
             <in>ext.c</in>
           </df>
@@ -5413,8 +7678,179 @@
               </df>
             </df>
             <df name="c_exception">
+              <df name="docs">
+              </df>
+              <df name="lib">
+                <in>CException.c</in>
+                <in>CException.h</in>
+              </df>
+              <df name="test">
+                <df name="support">
+                  <in>CExceptionConfig.h</in>
+                </df>
+                <in>TestException.c</in>
+              </df>
             </df>
             <df name="unity">
+              <df name="auto">
+              </df>
+              <df name="docs">
+              </df>
+              <df name="examples">
+                <df name="example_1">
+                  <df name="src">
+                    <in>ProductionCode.c</in>
+                    <in>ProductionCode.h</in>
+                    <in>ProductionCode2.c</in>
+                    <in>ProductionCode2.h</in>
+                  </df>
+                  <df name="test">
+                    <df name="test_runners">
+                      <in>TestProductionCode2_Runner.c</in>
+                      <in>TestProductionCode_Runner.c</in>
+                    </df>
+                    <in>TestProductionCode.c</in>
+                    <in>TestProductionCode2.c</in>
+                  </df>
+                </df>
+                <df name="example_2">
+                  <df name="src">
+                    <in>ProductionCode.c</in>
+                    <in>ProductionCode.h</in>
+                    <in>ProductionCode2.c</in>
+                    <in>ProductionCode2.h</in>
+                  </df>
+                  <df name="test">
+                    <df name="test_runners">
+                      <in>TestProductionCode2_Runner.c</in>
+                      <in>TestProductionCode_Runner.c</in>
+                      <in>all_tests.c</in>
+                    </df>
+                    <in>TestProductionCode.c</in>
+                    <in>TestProductionCode2.c</in>
+                  </df>
+                </df>
+                <df name="example_3">
+                  <df name="helper">
+                    <in>UnityHelper.c</in>
+                    <in>UnityHelper.h</in>
+                  </df>
+                  <df name="src">
+                    <in>ProductionCode.c</in>
+                    <in>ProductionCode.h</in>
+                    <in>ProductionCode2.c</in>
+                    <in>ProductionCode2.h</in>
+                  </df>
+                  <df name="test">
+                    <in>TestProductionCode.c</in>
+                    <in>TestProductionCode2.c</in>
+                  </df>
+                </df>
+                <df name="example_4">
+                  <df name="src">
+                    <in>ProductionCode.c</in>
+                    <in>ProductionCode.h</in>
+                    <in>ProductionCode2.c</in>
+                    <in>ProductionCode2.h</in>
+                  </df>
+                  <df name="subprojects">
+                  </df>
+                  <df name="test">
+                    <df name="test_runners">
+                      <in>TestProductionCode2_Runner.c</in>
+                      <in>TestProductionCode_Runner.c</in>
+                    </df>
+                    <in>TestProductionCode.c</in>
+                    <in>TestProductionCode2.c</in>
+                  </df>
+                </df>
+                <in>unity_config.h</in>
+              </df>
+              <df name="extras">
+                <df name="eclipse">
+                </df>
+                <df name="fixture">
+                  <df name="src">
+                    <in>unity_fixture.c</in>
+                    <in>unity_fixture.h</in>
+                    <in>unity_fixture_internals.h</in>
+                  </df>
+                  <df name="test">
+                    <df name="main">
+                      <in>AllTests.c</in>
+                    </df>
+                    <in>template_fixture_tests.c</in>
+                    <in>unity_fixture_Test.c</in>
+                    <in>unity_fixture_TestRunner.c</in>
+                  </df>
+                </df>
+                <df name="memory">
+                  <df name="src">
+                    <in>unity_memory.c</in>
+                    <in>unity_memory.h</in>
+                  </df>
+                  <df name="test">
+                    <in>unity_memory_Test.c</in>
+                    <in>unity_memory_TestRunner.c</in>
+                    <in>unity_output_Spy.c</in>
+                    <in>unity_output_Spy.h</in>
+                  </df>
+                </df>
+              </df>
+              <df name="src">
+                <in>unity.c</in>
+                <in>unity.h</in>
+                <in>unity_internals.h</in>
+              </df>
+              <df name="test">
+                <df name="expectdata">
+                  <in>testsample_cmd.c</in>
+                  <in>testsample_def.c</in>
+                  <in>testsample_head1.c</in>
+                  <in>testsample_head1.h</in>
+                  <in>testsample_mock_cmd.c</in>
+                  <in>testsample_mock_def.c</in>
+                  <in>testsample_mock_head1.c</in>
+                  <in>testsample_mock_head1.h</in>
+                  <in>testsample_mock_new1.c</in>
+                  <in>testsample_mock_new2.c</in>
+                  <in>testsample_mock_param.c</in>
+                  <in>testsample_mock_run1.c</in>
+                  <in>testsample_mock_run2.c</in>
+                  <in>testsample_mock_yaml.c</in>
+                  <in>testsample_new1.c</in>
+                  <in>testsample_new2.c</in>
+                  <in>testsample_param.c</in>
+                  <in>testsample_run1.c</in>
+                  <in>testsample_run2.c</in>
+                  <in>testsample_yaml.c</in>
+                </df>
+                <df name="spec">
+                </df>
+                <df name="targets">
+                </df>
+                <df name="testdata">
+                  <in>CException.h</in>
+                  <in>Defs.h</in>
+                  <in>cmock.h</in>
+                  <in>mockMock.h</in>
+                  <in>testRunnerGenerator.c</in>
+                  <in>testRunnerGeneratorSmall.c</in>
+                  <in>testRunnerGeneratorWithMocks.c</in>
+                </df>
+                <df name="tests">
+                  <in>self_assessment_utils.h</in>
+                  <in>test_unity_arrays.c</in>
+                  <in>test_unity_core.c</in>
+                  <in>test_unity_doubles.c</in>
+                  <in>test_unity_floats.c</in>
+                  <in>test_unity_integers.c</in>
+                  <in>test_unity_integers_64.c</in>
+                  <in>test_unity_memory.c</in>
+                  <in>test_unity_parameterized.c</in>
+                  <in>test_unity_strings.c</in>
+                </df>
+              </df>
             </df>
           </df>
         </df>
@@ -7124,6 +9560,17 @@
               <in>test_rtc_power.c</in>
             </df>
           </df>
+          <df name="wakeup_tests">
+            <df name="main">
+              <df name="include">
+                <in>io_wakeup_cmd.h</in>
+              </df>
+              <df name="src">
+                <in>io_wakeup_cmd.c</in>
+              </df>
+              <in>test_app_main.c</in>
+            </df>
+          </df>
         </df>
         <in>adc_share_hw_ctrl.c</in>
         <in>clk_ctrl_os.c</in>
@@ -7461,6 +9908,20 @@
           <in>esp_phy_init.h</in>
         </df>
         <df name="lib">
+          <df name="esp32">
+          </df>
+          <df name="esp32c2">
+          </df>
+          <df name="esp32c3">
+          </df>
+          <df name="esp32c6">
+          </df>
+          <df name="esp32h2">
+          </df>
+          <df name="esp32s2">
+          </df>
+          <df name="esp32s3">
+          </df>
         </df>
         <df name="src">
           <in>btbb_init.c</in>
@@ -7886,6 +10347,11 @@
           <df name="linux_rom_apis">
             <df name="main">
               <in>rom_test.cpp</in>
+            </df>
+          </df>
+          <df name="rom_impl_components">
+            <df name="main">
+              <in>test_app_main.c</in>
             </df>
           </df>
           <df name="rom_tests">
@@ -9491,6 +11957,181 @@
       </df>
       <df name="json">
         <df name="cJSON">
+          <df name=".github">
+            <df name="workflows">
+            </df>
+          </df>
+          <df name="fuzzing">
+            <df name="inputs">
+            </df>
+            <in>afl.c</in>
+            <in>cjson_read_fuzzer.c</in>
+            <in>fuzz_main.c</in>
+          </df>
+          <df name="library_config">
+          </df>
+          <df name="tests">
+            <df name="inputs">
+            </df>
+            <df name="json-patch-tests">
+            </df>
+            <df name="unity">
+              <df name="auto">
+              </df>
+              <df name="docs">
+              </df>
+              <df name="examples">
+                <df name="example_1">
+                  <df name="src">
+                    <in>ProductionCode.c</in>
+                    <in>ProductionCode.h</in>
+                    <in>ProductionCode2.c</in>
+                    <in>ProductionCode2.h</in>
+                  </df>
+                  <df name="test">
+                    <df name="test_runners">
+                      <in>TestProductionCode2_Runner.c</in>
+                      <in>TestProductionCode_Runner.c</in>
+                    </df>
+                    <in>TestProductionCode.c</in>
+                    <in>TestProductionCode2.c</in>
+                  </df>
+                </df>
+                <df name="example_2">
+                  <df name="src">
+                    <in>ProductionCode.c</in>
+                    <in>ProductionCode.h</in>
+                    <in>ProductionCode2.c</in>
+                    <in>ProductionCode2.h</in>
+                  </df>
+                  <df name="test">
+                    <df name="test_runners">
+                      <in>TestProductionCode2_Runner.c</in>
+                      <in>TestProductionCode_Runner.c</in>
+                      <in>all_tests.c</in>
+                    </df>
+                    <in>TestProductionCode.c</in>
+                    <in>TestProductionCode2.c</in>
+                  </df>
+                </df>
+                <df name="example_3">
+                  <df name="helper">
+                    <in>UnityHelper.c</in>
+                    <in>UnityHelper.h</in>
+                  </df>
+                  <df name="src">
+                    <in>ProductionCode.c</in>
+                    <in>ProductionCode.h</in>
+                    <in>ProductionCode2.c</in>
+                    <in>ProductionCode2.h</in>
+                  </df>
+                  <df name="test">
+                    <in>TestProductionCode.c</in>
+                    <in>TestProductionCode2.c</in>
+                  </df>
+                </df>
+                <in>unity_config.h</in>
+              </df>
+              <df name="extras">
+                <df name="eclipse">
+                </df>
+                <df name="fixture">
+                  <df name="src">
+                    <in>unity_fixture.c</in>
+                    <in>unity_fixture.h</in>
+                    <in>unity_fixture_internals.h</in>
+                    <in>unity_fixture_malloc_overrides.h</in>
+                  </df>
+                  <df name="test">
+                    <df name="main">
+                      <in>AllTests.c</in>
+                    </df>
+                    <in>template_fixture_tests.c</in>
+                    <in>unity_fixture_Test.c</in>
+                    <in>unity_fixture_TestRunner.c</in>
+                    <in>unity_output_Spy.c</in>
+                    <in>unity_output_Spy.h</in>
+                  </df>
+                </df>
+              </df>
+              <df name="release">
+              </df>
+              <df name="src">
+                <in>unity.c</in>
+                <in>unity.h</in>
+                <in>unity_internals.h</in>
+              </df>
+              <df name="test">
+                <df name="expectdata">
+                  <in>testsample_cmd.c</in>
+                  <in>testsample_def.c</in>
+                  <in>testsample_head1.c</in>
+                  <in>testsample_head1.h</in>
+                  <in>testsample_mock_cmd.c</in>
+                  <in>testsample_mock_def.c</in>
+                  <in>testsample_mock_head1.c</in>
+                  <in>testsample_mock_head1.h</in>
+                  <in>testsample_mock_new1.c</in>
+                  <in>testsample_mock_new2.c</in>
+                  <in>testsample_mock_param.c</in>
+                  <in>testsample_mock_run1.c</in>
+                  <in>testsample_mock_run2.c</in>
+                  <in>testsample_mock_yaml.c</in>
+                  <in>testsample_new1.c</in>
+                  <in>testsample_new2.c</in>
+                  <in>testsample_param.c</in>
+                  <in>testsample_run1.c</in>
+                  <in>testsample_run2.c</in>
+                  <in>testsample_yaml.c</in>
+                </df>
+                <df name="spec">
+                </df>
+                <df name="targets">
+                </df>
+                <df name="testdata">
+                  <in>CException.h</in>
+                  <in>Defs.h</in>
+                  <in>cmock.h</in>
+                  <in>mockMock.h</in>
+                  <in>testRunnerGenerator.c</in>
+                  <in>testRunnerGeneratorSmall.c</in>
+                  <in>testRunnerGeneratorWithMocks.c</in>
+                </df>
+                <df name="tests">
+                  <in>testparameterized.c</in>
+                  <in>testunity.c</in>
+                </df>
+              </df>
+            </df>
+            <in>cjson_add.c</in>
+            <in>common.h</in>
+            <in>compare_tests.c</in>
+            <in>json_patch_tests.c</in>
+            <in>minify_tests.c</in>
+            <in>misc_tests.c</in>
+            <in>misc_utils_tests.c</in>
+            <in>old_utils_tests.c</in>
+            <in>parse_array.c</in>
+            <in>parse_examples.c</in>
+            <in>parse_hex4.c</in>
+            <in>parse_number.c</in>
+            <in>parse_object.c</in>
+            <in>parse_string.c</in>
+            <in>parse_value.c</in>
+            <in>parse_with_opts.c</in>
+            <in>print_array.c</in>
+            <in>print_number.c</in>
+            <in>print_object.c</in>
+            <in>print_string.c</in>
+            <in>print_value.c</in>
+            <in>readme_examples.c</in>
+            <in>unity_setup.c</in>
+          </df>
+          <in>cJSON.c</in>
+          <in>cJSON.h</in>
+          <in>cJSON_Utils.c</in>
+          <in>cJSON_Utils.h</in>
+          <in>test.c</in>
         </df>
       </df>
       <df name="linux">
@@ -10148,6 +12789,624 @@
           <in>esp_crt_bundle.c</in>
         </df>
         <df name="mbedtls">
+          <df name=".github">
+            <df name="ISSUE_TEMPLATE">
+            </df>
+          </df>
+          <df name="3rdparty">
+            <df name="everest">
+              <df name="include">
+                <df name="everest">
+                  <df name="kremlib">
+                    <in>FStar_UInt128.h</in>
+                    <in>FStar_UInt64_FStar_UInt32_FStar_UInt16_FStar_UInt8.h</in>
+                  </df>
+                  <df name="kremlin">
+                    <df name="internal">
+                      <in>builtin.h</in>
+                      <in>callconv.h</in>
+                      <in>compat.h</in>
+                      <in>debug.h</in>
+                      <in>target.h</in>
+                      <in>types.h</in>
+                      <in>wasmsupport.h</in>
+                    </df>
+                    <in>c_endianness.h</in>
+                  </df>
+                  <df name="vs2013">
+                    <in>Hacl_Curve25519.h</in>
+                    <in>inttypes.h</in>
+                    <in>stdbool.h</in>
+                  </df>
+                  <in>Hacl_Curve25519.h</in>
+                  <in>everest.h</in>
+                  <in>kremlib.h</in>
+                  <in>x25519.h</in>
+                </df>
+              </df>
+              <df name="library">
+                <df name="kremlib">
+                  <in>FStar_UInt128_extracted.c</in>
+                  <in>FStar_UInt64_FStar_UInt32_FStar_UInt16_FStar_UInt8.c</in>
+                </df>
+                <df name="legacy">
+                  <in>Hacl_Curve25519.c</in>
+                </df>
+                <in>Hacl_Curve25519.c</in>
+                <in>Hacl_Curve25519_joined.c</in>
+                <in>everest.c</in>
+                <in>x25519.c</in>
+              </df>
+              <in>Makefile.inc</in>
+            </df>
+            <df name="p256-m">
+              <df name="p256-m">
+                <in>p256-m.c</in>
+                <in>p256-m.h</in>
+              </df>
+              <in>Makefile.inc</in>
+              <in>p256-m_driver_entrypoints.c</in>
+              <in>p256-m_driver_entrypoints.h</in>
+            </df>
+            <in>Makefile.inc</in>
+          </df>
+          <df name="ChangeLog.d">
+          </df>
+          <df name="cmake">
+          </df>
+          <df name="configs">
+            <in>config-ccm-psk-dtls1_2.h</in>
+            <in>config-ccm-psk-tls1_2.h</in>
+            <in>config-no-entropy.h</in>
+            <in>config-suite-b.h</in>
+            <in>config-symmetric-only.h</in>
+            <in>config-thread.h</in>
+            <in>crypto-config-ccm-aes-sha256.h</in>
+            <in>crypto_config_profile_medium.h</in>
+            <in>tfm_mbedcrypto_config_profile_medium.h</in>
+          </df>
+          <df name="docs">
+            <df name="architecture">
+              <df name="psa-migration">
+              </df>
+              <df name="testing">
+              </df>
+            </df>
+            <df name="proposed">
+            </df>
+          </df>
+          <df name="doxygen">
+            <df name="input">
+              <in>doc_encdec.h</in>
+              <in>doc_hashing.h</in>
+              <in>doc_mainpage.h</in>
+              <in>doc_rng.h</in>
+              <in>doc_ssltls.h</in>
+              <in>doc_tcpip.h</in>
+              <in>doc_x509.h</in>
+            </df>
+          </df>
+          <df name="include">
+            <df name="mbedtls">
+              <in>aes.h</in>
+              <in>aria.h</in>
+              <in>asn1.h</in>
+              <in>asn1write.h</in>
+              <in>base64.h</in>
+              <in>bignum.h</in>
+              <in>build_info.h</in>
+              <in>camellia.h</in>
+              <in>ccm.h</in>
+              <in>chacha20.h</in>
+              <in>chachapoly.h</in>
+              <in>check_config.h</in>
+              <in>cipher.h</in>
+              <in>cmac.h</in>
+              <in>compat-2.x.h</in>
+              <in>config_adjust_legacy_crypto.h</in>
+              <in>config_adjust_legacy_from_psa.h</in>
+              <in>config_adjust_psa_from_legacy.h</in>
+              <in>config_adjust_psa_superset_legacy.h</in>
+              <in>config_adjust_ssl.h</in>
+              <in>config_adjust_x509.h</in>
+              <in>config_psa.h</in>
+              <in>constant_time.h</in>
+              <in>ctr_drbg.h</in>
+              <in>debug.h</in>
+              <in>des.h</in>
+              <in>dhm.h</in>
+              <in>ecdh.h</in>
+              <in>ecdsa.h</in>
+              <in>ecjpake.h</in>
+              <in>ecp.h</in>
+              <in>entropy.h</in>
+              <in>error.h</in>
+              <in>gcm.h</in>
+              <in>hkdf.h</in>
+              <in>hmac_drbg.h</in>
+              <in>lms.h</in>
+              <in>mbedtls_config.h</in>
+              <in>md.h</in>
+              <in>md5.h</in>
+              <in>memory_buffer_alloc.h</in>
+              <in>net_sockets.h</in>
+              <in>nist_kw.h</in>
+              <in>oid.h</in>
+              <in>pem.h</in>
+              <in>pk.h</in>
+              <in>pkcs12.h</in>
+              <in>pkcs5.h</in>
+              <in>pkcs7.h</in>
+              <in>platform.h</in>
+              <in>platform_time.h</in>
+              <in>platform_util.h</in>
+              <in>poly1305.h</in>
+              <in>private_access.h</in>
+              <in>psa_util.h</in>
+              <in>ripemd160.h</in>
+              <in>rsa.h</in>
+              <in>sha1.h</in>
+              <in>sha256.h</in>
+              <in>sha3.h</in>
+              <in>sha512.h</in>
+              <in>ssl.h</in>
+              <in>ssl_cache.h</in>
+              <in>ssl_ciphersuites.h</in>
+              <in>ssl_cookie.h</in>
+              <in>ssl_ticket.h</in>
+              <in>threading.h</in>
+              <in>timing.h</in>
+              <in>version.h</in>
+              <in>x509.h</in>
+              <in>x509_crl.h</in>
+              <in>x509_crt.h</in>
+              <in>x509_csr.h</in>
+            </df>
+            <df name="psa">
+              <in>build_info.h</in>
+              <in>crypto.h</in>
+              <in>crypto_adjust_auto_enabled.h</in>
+              <in>crypto_adjust_config_key_pair_types.h</in>
+              <in>crypto_adjust_config_synonyms.h</in>
+              <in>crypto_builtin_composites.h</in>
+              <in>crypto_builtin_key_derivation.h</in>
+              <in>crypto_builtin_primitives.h</in>
+              <in>crypto_compat.h</in>
+              <in>crypto_config.h</in>
+              <in>crypto_driver_common.h</in>
+              <in>crypto_driver_contexts_composites.h</in>
+              <in>crypto_driver_contexts_key_derivation.h</in>
+              <in>crypto_driver_contexts_primitives.h</in>
+              <in>crypto_extra.h</in>
+              <in>crypto_legacy.h</in>
+              <in>crypto_platform.h</in>
+              <in>crypto_se_driver.h</in>
+              <in>crypto_sizes.h</in>
+              <in>crypto_struct.h</in>
+              <in>crypto_types.h</in>
+              <in>crypto_values.h</in>
+            </df>
+          </df>
+          <df name="library">
+            <in>aes.c</in>
+            <in>aesce.c</in>
+            <in>aesce.h</in>
+            <in>aesni.c</in>
+            <in>aesni.h</in>
+            <in>alignment.h</in>
+            <in>aria.c</in>
+            <in>asn1parse.c</in>
+            <in>asn1write.c</in>
+            <in>base64.c</in>
+            <in>base64_internal.h</in>
+            <in>bignum.c</in>
+            <in>bignum_core.c</in>
+            <in>bignum_core.h</in>
+            <in>bignum_mod.c</in>
+            <in>bignum_mod.h</in>
+            <in>bignum_mod_raw.c</in>
+            <in>bignum_mod_raw.h</in>
+            <in>bignum_mod_raw_invasive.h</in>
+            <in>bn_mul.h</in>
+            <in>camellia.c</in>
+            <in>ccm.c</in>
+            <in>chacha20.c</in>
+            <in>chachapoly.c</in>
+            <in>check_crypto_config.h</in>
+            <in>cipher.c</in>
+            <in>cipher_wrap.c</in>
+            <in>cipher_wrap.h</in>
+            <in>cmac.c</in>
+            <in>common.h</in>
+            <in>constant_time.c</in>
+            <in>constant_time_impl.h</in>
+            <in>constant_time_internal.h</in>
+            <in>ctr_drbg.c</in>
+            <in>debug.c</in>
+            <in>des.c</in>
+            <in>dhm.c</in>
+            <in>ecdh.c</in>
+            <in>ecdsa.c</in>
+            <in>ecjpake.c</in>
+            <in>ecp.c</in>
+            <in>ecp_curves.c</in>
+            <in>ecp_curves_new.c</in>
+            <in>ecp_internal_alt.h</in>
+            <in>ecp_invasive.h</in>
+            <in>entropy.c</in>
+            <in>entropy_poll.c</in>
+            <in>entropy_poll.h</in>
+            <in>error.c</in>
+            <in>gcm.c</in>
+            <in>hkdf.c</in>
+            <in>hmac_drbg.c</in>
+            <in>lmots.c</in>
+            <in>lmots.h</in>
+            <in>lms.c</in>
+            <in>md.c</in>
+            <in>md5.c</in>
+            <in>md_psa.h</in>
+            <in>md_wrap.h</in>
+            <in>memory_buffer_alloc.c</in>
+            <in>mps_common.h</in>
+            <in>mps_error.h</in>
+            <in>mps_reader.c</in>
+            <in>mps_reader.h</in>
+            <in>mps_trace.c</in>
+            <in>mps_trace.h</in>
+            <in>net_sockets.c</in>
+            <in>nist_kw.c</in>
+            <in>oid.c</in>
+            <in>padlock.c</in>
+            <in>padlock.h</in>
+            <in>pem.c</in>
+            <in>pk.c</in>
+            <in>pk_internal.h</in>
+            <in>pk_wrap.c</in>
+            <in>pk_wrap.h</in>
+            <in>pkcs12.c</in>
+            <in>pkcs5.c</in>
+            <in>pkcs7.c</in>
+            <in>pkparse.c</in>
+            <in>pkwrite.c</in>
+            <in>pkwrite.h</in>
+            <in>platform.c</in>
+            <in>platform_util.c</in>
+            <in>poly1305.c</in>
+            <in>psa_crypto.c</in>
+            <in>psa_crypto_aead.c</in>
+            <in>psa_crypto_aead.h</in>
+            <in>psa_crypto_cipher.c</in>
+            <in>psa_crypto_cipher.h</in>
+            <in>psa_crypto_client.c</in>
+            <in>psa_crypto_core.h</in>
+            <in>psa_crypto_core_common.h</in>
+            <in>psa_crypto_driver_wrappers.h</in>
+            <in>psa_crypto_driver_wrappers_no_static.c</in>
+            <in>psa_crypto_driver_wrappers_no_static.h</in>
+            <in>psa_crypto_ecp.c</in>
+            <in>psa_crypto_ecp.h</in>
+            <in>psa_crypto_ffdh.c</in>
+            <in>psa_crypto_ffdh.h</in>
+            <in>psa_crypto_hash.c</in>
+            <in>psa_crypto_hash.h</in>
+            <in>psa_crypto_invasive.h</in>
+            <in>psa_crypto_its.h</in>
+            <in>psa_crypto_mac.c</in>
+            <in>psa_crypto_mac.h</in>
+            <in>psa_crypto_pake.c</in>
+            <in>psa_crypto_pake.h</in>
+            <in>psa_crypto_random_impl.h</in>
+            <in>psa_crypto_rsa.c</in>
+            <in>psa_crypto_rsa.h</in>
+            <in>psa_crypto_se.c</in>
+            <in>psa_crypto_se.h</in>
+            <in>psa_crypto_slot_management.c</in>
+            <in>psa_crypto_slot_management.h</in>
+            <in>psa_crypto_storage.c</in>
+            <in>psa_crypto_storage.h</in>
+            <in>psa_its_file.c</in>
+            <in>psa_util.c</in>
+            <in>psa_util_internal.h</in>
+            <in>ripemd160.c</in>
+            <in>rsa.c</in>
+            <in>rsa_alt_helpers.c</in>
+            <in>rsa_alt_helpers.h</in>
+            <in>sha1.c</in>
+            <in>sha256.c</in>
+            <in>sha3.c</in>
+            <in>sha512.c</in>
+            <in>ssl_cache.c</in>
+            <in>ssl_ciphersuites.c</in>
+            <in>ssl_client.c</in>
+            <in>ssl_client.h</in>
+            <in>ssl_cookie.c</in>
+            <in>ssl_debug_helpers.h</in>
+            <in>ssl_debug_helpers_generated.c</in>
+            <in>ssl_misc.h</in>
+            <in>ssl_msg.c</in>
+            <in>ssl_ticket.c</in>
+            <in>ssl_tls.c</in>
+            <in>ssl_tls12_client.c</in>
+            <in>ssl_tls12_server.c</in>
+            <in>ssl_tls13_client.c</in>
+            <in>ssl_tls13_generic.c</in>
+            <in>ssl_tls13_invasive.h</in>
+            <in>ssl_tls13_keys.c</in>
+            <in>ssl_tls13_keys.h</in>
+            <in>ssl_tls13_server.c</in>
+            <in>threading.c</in>
+            <in>timing.c</in>
+            <in>version.c</in>
+            <in>version_features.c</in>
+            <in>x509.c</in>
+            <in>x509_create.c</in>
+            <in>x509_crl.c</in>
+            <in>x509_crt.c</in>
+            <in>x509_csr.c</in>
+            <in>x509write.c</in>
+            <in>x509write_crt.c</in>
+            <in>x509write_csr.c</in>
+          </df>
+          <df name="programs">
+            <df name="aes">
+              <in>crypt_and_hash.c</in>
+            </df>
+            <df name="cipher">
+              <in>cipher_aead_demo.c</in>
+            </df>
+            <df name="fuzz">
+              <df name="corpuses">
+              </df>
+              <in>common.c</in>
+              <in>common.h</in>
+              <in>fuzz_client.c</in>
+              <in>fuzz_dtlsclient.c</in>
+              <in>fuzz_dtlsserver.c</in>
+              <in>fuzz_pkcs7.c</in>
+              <in>fuzz_privkey.c</in>
+              <in>fuzz_pubkey.c</in>
+              <in>fuzz_server.c</in>
+              <in>fuzz_x509crl.c</in>
+              <in>fuzz_x509crt.c</in>
+              <in>fuzz_x509csr.c</in>
+              <in>onefile.c</in>
+            </df>
+            <df name="hash">
+              <in>generic_sum.c</in>
+              <in>hello.c</in>
+              <in>md_hmac_demo.c</in>
+            </df>
+            <df name="pkey">
+              <in>dh_client.c</in>
+              <in>dh_genprime.c</in>
+              <in>dh_server.c</in>
+              <in>ecdh_curve25519.c</in>
+              <in>ecdsa.c</in>
+              <in>gen_key.c</in>
+              <in>key_app.c</in>
+              <in>key_app_writer.c</in>
+              <in>mpi_demo.c</in>
+              <in>pk_decrypt.c</in>
+              <in>pk_encrypt.c</in>
+              <in>pk_sign.c</in>
+              <in>pk_verify.c</in>
+              <in>rsa_decrypt.c</in>
+              <in>rsa_encrypt.c</in>
+              <in>rsa_genkey.c</in>
+              <in>rsa_sign.c</in>
+              <in>rsa_sign_pss.c</in>
+              <in>rsa_verify.c</in>
+              <in>rsa_verify_pss.c</in>
+            </df>
+            <df name="psa">
+              <in>aead_demo.c</in>
+              <in>crypto_examples.c</in>
+              <in>hmac_demo.c</in>
+              <in>key_ladder_demo.c</in>
+              <in>psa_constant_names.c</in>
+              <in>psa_constant_names_generated.c</in>
+            </df>
+            <df name="random">
+              <in>gen_entropy.c</in>
+              <in>gen_random_ctr_drbg.c</in>
+            </df>
+            <df name="ssl">
+              <in>dtls_client.c</in>
+              <in>dtls_server.c</in>
+              <in>mini_client.c</in>
+              <in>ssl_client1.c</in>
+              <in>ssl_client2.c</in>
+              <in>ssl_context_info.c</in>
+              <in>ssl_fork_server.c</in>
+              <in>ssl_mail_client.c</in>
+              <in>ssl_pthread_server.c</in>
+              <in>ssl_server.c</in>
+              <in>ssl_server2.c</in>
+              <in>ssl_test_common_source.c</in>
+              <in>ssl_test_lib.c</in>
+              <in>ssl_test_lib.h</in>
+            </df>
+            <df name="test">
+              <df name="cmake_package">
+                <in>cmake_package.c</in>
+              </df>
+              <df name="cmake_package_install">
+                <in>cmake_package_install.c</in>
+              </df>
+              <df name="cmake_subproject">
+                <in>cmake_subproject.c</in>
+              </df>
+              <in>benchmark.c</in>
+              <in>dlopen.c</in>
+              <in>query_compile_time_config.c</in>
+              <in>query_config.c</in>
+              <in>query_config.h</in>
+              <in>query_included_headers.c</in>
+              <in>selftest.c</in>
+              <in>udp_proxy.c</in>
+              <in>zeroize.c</in>
+            </df>
+            <df name="util">
+              <in>pem2der.c</in>
+              <in>strerror.c</in>
+            </df>
+            <df name="x509">
+              <in>cert_app.c</in>
+              <in>cert_req.c</in>
+              <in>cert_write.c</in>
+              <in>crl_app.c</in>
+              <in>load_roots.c</in>
+              <in>req_app.c</in>
+            </df>
+            <in>wince_main.c</in>
+          </df>
+          <df name="scripts">
+            <df name="data_files">
+              <df name="driver_jsons">
+              </df>
+              <df name="driver_templates">
+              </df>
+            </df>
+            <df name="mbedtls_dev">
+            </df>
+          </df>
+          <df name="tests">
+            <df name=".jenkins">
+            </df>
+            <df name="configs">
+              <in>tls13-only.h</in>
+              <in>user-config-for-test.h</in>
+              <in>user-config-malloc-0-null.h</in>
+              <in>user-config-zeroize-memset.h</in>
+            </df>
+            <df name="data_files">
+              <df name="base64">
+              </df>
+              <df name="dir-maxpath">
+              </df>
+              <df name="dir1">
+              </df>
+              <df name="dir2">
+              </df>
+              <df name="dir3">
+              </df>
+              <df name="dir4">
+              </df>
+              <df name="parse_input">
+              </df>
+            </df>
+            <df name="docker">
+              <df name="bionic">
+              </df>
+            </df>
+            <df name="git-scripts">
+            </df>
+            <df name="include">
+              <df name="alt-dummy">
+                <in>aes_alt.h</in>
+                <in>aria_alt.h</in>
+                <in>camellia_alt.h</in>
+                <in>ccm_alt.h</in>
+                <in>chacha20_alt.h</in>
+                <in>chachapoly_alt.h</in>
+                <in>cmac_alt.h</in>
+                <in>des_alt.h</in>
+                <in>dhm_alt.h</in>
+                <in>ecjpake_alt.h</in>
+                <in>ecp_alt.h</in>
+                <in>gcm_alt.h</in>
+                <in>md5_alt.h</in>
+                <in>nist_kw_alt.h</in>
+                <in>platform_alt.h</in>
+                <in>poly1305_alt.h</in>
+                <in>ripemd160_alt.h</in>
+                <in>rsa_alt.h</in>
+                <in>sha1_alt.h</in>
+                <in>sha256_alt.h</in>
+                <in>sha512_alt.h</in>
+                <in>threading_alt.h</in>
+                <in>timing_alt.h</in>
+              </df>
+              <df name="alt-extra">
+                <df name="psa">
+                  <in>crypto.h</in>
+                </df>
+              </df>
+              <df name="baremetal-override">
+                <in>time.h</in>
+              </df>
+              <df name="spe">
+                <in>crypto_spe.h</in>
+              </df>
+              <df name="test">
+                <df name="drivers">
+                  <in>aead.h</in>
+                  <in>asymmetric_encryption.h</in>
+                  <in>cipher.h</in>
+                  <in>config_test_driver.h</in>
+                  <in>crypto_config_test_driver_extension.h</in>
+                  <in>hash.h</in>
+                  <in>key_agreement.h</in>
+                  <in>key_management.h</in>
+                  <in>mac.h</in>
+                  <in>pake.h</in>
+                  <in>signature.h</in>
+                  <in>test_driver.h</in>
+                </df>
+                <in>arguments.h</in>
+                <in>asn1_helpers.h</in>
+                <in>bignum_helpers.h</in>
+                <in>certs.h</in>
+                <in>constant_flow.h</in>
+                <in>fake_external_rng_for_test.h</in>
+                <in>helpers.h</in>
+                <in>macros.h</in>
+                <in>psa_crypto_helpers.h</in>
+                <in>psa_exercise_key.h</in>
+                <in>psa_helpers.h</in>
+                <in>random.h</in>
+                <in>ssl_helpers.h</in>
+              </df>
+            </df>
+            <df name="opt-testcases">
+            </df>
+            <df name="scripts">
+            </df>
+            <df name="src">
+              <df name="drivers">
+                <in>hash.c</in>
+                <in>platform_builtin_keys.c</in>
+                <in>test_driver_aead.c</in>
+                <in>test_driver_asymmetric_encryption.c</in>
+                <in>test_driver_cipher.c</in>
+                <in>test_driver_key_agreement.c</in>
+                <in>test_driver_key_management.c</in>
+                <in>test_driver_mac.c</in>
+                <in>test_driver_pake.c</in>
+                <in>test_driver_signature.c</in>
+              </df>
+              <df name="test_helpers">
+                <in>ssl_helpers.c</in>
+              </df>
+              <in>asn1_helpers.c</in>
+              <in>bignum_helpers.c</in>
+              <in>certs.c</in>
+              <in>fake_external_rng_for_test.c</in>
+              <in>helpers.c</in>
+              <in>psa_crypto_helpers.c</in>
+              <in>psa_exercise_key.c</in>
+              <in>random.c</in>
+              <in>test_certs.h</in>
+              <in>threading_helpers.c</in>
+            </df>
+            <df name="suites">
+            </df>
+          </df>
+          <df name="visualc">
+            <df name="VS2013">
+            </df>
+          </df>
         </df>
         <df name="port">
           <df name="aes">
@@ -10513,6 +13772,7 @@
           <in>nvs_partition_lookup.hpp</in>
           <in>nvs_partition_manager.cpp</in>
           <in>nvs_partition_manager.hpp</in>
+          <in>nvs_platform.cpp</in>
           <in>nvs_platform.hpp</in>
           <in>nvs_storage.cpp</in>
           <in>nvs_storage.hpp</in>
@@ -12237,6 +15497,8 @@
         </df>
       </df>
       <df name="partition_table">
+        <df name="__pycache__">
+        </df>
         <df name="test_gen_esp32part_host">
         </df>
       </df>

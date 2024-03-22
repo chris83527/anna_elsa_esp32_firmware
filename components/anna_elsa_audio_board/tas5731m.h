@@ -38,7 +38,9 @@ extern "C" {
 
 #include "audio_hal.h"
 #include "esp_err.h"
-#include "driver/i2c.h"
+#include "esp_log.h"
+#include "driver/gpio.h"
+#include "driver/i2s_std.h"
 
 #ifdef __cplusplus
 extern "C" {
