@@ -42,7 +42,7 @@
 #include <cstdbool>
 #include <driver/gpio.h>
 #include <esp_err.h>
-#include <driver/i2c.h>
+#include "I2CManager.h"
 
 #define MCP23008_I2C_ADDR_BASE 0x20
 
@@ -81,7 +81,7 @@ public:
      * @param i2c_port The I2C port to use (default: 0)
      * @param i2c_address I2C-bus address (default: 0x20)     
      */
-    MCP23008(const i2c_port_t port, const uint8_t address);
+    MCP23008(const uint8_t address);
     ~MCP23008();
 
     /**
@@ -253,8 +253,8 @@ private:
     esp_err_t read_reg_bit(const uint8_t reg, bool& val, const uint8_t bit);
     esp_err_t write_reg_bit(const uint8_t reg, bool val, const uint8_t bit);
     
-    i2c_port_t i2c_port;
-    uint8_t i2c_address;
+    i2c_device_config_t deviceConfig;
+    i2c_master_dev_handle_t deviceHandle;
 };
 
 #endif /* __MCP23008_H__ */

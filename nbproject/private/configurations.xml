@@ -264,8 +264,6 @@
             </df>
             <df name="CheckTypeSize">
             </df>
-            <df name="CMakeScratch">
-            </df>
             <df name="git-data">
             </df>
             <df name="pkgRedirects">
@@ -454,8 +452,6 @@
           <df name="bootloader.dir">
           </df>
           <df name="CheckTypeSize">
-          </df>
-          <df name="CMakeScratch">
           </df>
           <df name="git-data">
           </df>
@@ -2573,17 +2569,9 @@
           </df>
           <in>ht16k33.cpp</in>
         </df>
-        <df name="i2c_manager">
-          <df name="i2c_manager">
-            <in>i2c_manager.c</in>
-            <in>i2c_manager.h</in>
-          </df>
-          <df name="i2cdev">
-            <in>i2cdev.c</in>
-            <in>i2cdev.h</in>
-          </df>
-          <df name="readme_assets">
-          </df>
+        <df name="i2cmanager">
+          <in>I2CManager.cpp</in>
+          <in>I2CManager.h</in>
         </df>
         <df name="m20ly02z">
           <df name="include">

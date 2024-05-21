@@ -39,8 +39,10 @@
 
 #include <cstddef>
 #include <cstdbool>
-#include <esp_err.h>
-#include "driver/i2c.h"
+#include <vector>
+#include "esp_err.h"
+#include "esp_log.h"
+#include "I2CManager.h"
 
 #define HT16K33_ADDR_BASE 0x70
 
@@ -48,7 +50,7 @@ class HT16K33 {
 public:
 
     HT16K33(const i2c_port_t port, const uint8_t address);
-    ~HT16K33();   
+    ~HT16K33();
 
     esp_err_t set_digits(uint8_t val);
     esp_err_t display_on();
@@ -60,8 +62,8 @@ private:
     esp_err_t write_cmd(const uint8_t cmd);
     esp_err_t write_pos(const uint8_t pos, const uint8_t mask, const bool dp);
 
-    i2c_port_t i2c_port;
-    uint8_t i2c_address;
+    i2c_device_config_t deviceConfig;
+    i2c_master_dev_handle_t deviceHandle;    
 };
 #endif
 

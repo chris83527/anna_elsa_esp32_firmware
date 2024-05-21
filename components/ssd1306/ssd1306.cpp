@@ -1,8 +1,7 @@
-#include <string>
+#include <cstring>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "i2c_manager.h"
 
 #include "sdkconfig.h"
 
@@ -18,13 +17,17 @@ typedef union out_column_t {
     uint8_t u8[4];
 } PACK8 out_column_t;
 
-SSD1306::SSD1306(const i2c_port_t port, const uint8_t address, const int width = 128, const int height = 64) {
+SSD1306::SSD1306(const uint8_t address, const int width = 128, const int height = 64) {
 
     ESP_LOGD(TAG, "i2c_port: %d, i2c_address: %d", port, address);
     ESP_LOGD(TAG, "width: %d, height: %d", width, height);
 
-    this->_port = port;
-    this->_address = address;
+    this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+    this->deviceConfig.device_address = address;
+    this->deviceConfig.scl_speed_hz = 100000;
+
+    I2CManager.addDevice(this->deviceConfig, this->deviceHandle);
+
     this->_width = width;
     this->_height = height;
 }
@@ -645,7 +648,7 @@ void SSD1306::i2c_init() {
 }
 
 void SSD1306::i2c_display_image(int page, int seg, uint8_t * images, int width) {
-   
+
     if (page >= this->_pages) return;
     if (seg >= this->_width) return;
 
@@ -670,7 +673,7 @@ void SSD1306::i2c_display_image(int page, int seg, uint8_t * images, int width) 
     imagedata[0] = OLED_CONTROL_BYTE_DATA_STREAM;
 
     memcpy(&imagedata[1], images, width);
-    
+
     i2c_manager_write(this->_port, this->_address, I2C_NO_REG, imagedata, width + 1);
 }
 

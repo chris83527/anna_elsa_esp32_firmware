@@ -5,8 +5,8 @@
 #include <string>
 #include <cstring>
 #include <vector>
-#include <driver/i2c.h>
-#include <esp_log.h>
+#include "I2CManager.h"
+#include "esp_log.h"
 
 // Following definitions are borrowed from 
 // http://robotcantalk.blogspot.com/2015/03/interfacing-arduino-with-ssd1306-driven.html
@@ -107,7 +107,7 @@ public:
      * @param i2c_port The I2C port to use (default: 0)
      * @param i2c_address I2C-bus address (default: 0x20)     
      */
-    SSD1306(const i2c_port_t i2c_port, const uint8_t i2c_address, const int width, const int height);
+    SSD1306(const uint8_t i2c_address, const int width, const int height);
     ~SSD1306();
 
     void init(void);
@@ -148,8 +148,9 @@ private:
     void i2c_contrast(int contrast);
     void i2c_hardware_scroll(scroll_type_t scroll);    
 
-    i2c_port_t _port;
-    int _address;
+    i2c_device_config_t deviceConfig;
+    i2c_master_dev_handle_t deviceHandle;
+    
     int _width;
     int _height;
     int _pages;

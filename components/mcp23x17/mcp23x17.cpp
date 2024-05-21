@@ -78,10 +78,13 @@ static const char *TAG = "mcp23x17";
 #define CHECK_ARG(VAL) do { if (!(VAL)) return ESP_ERR_INVALID_ARG; } while (0)
 #define BV(x) (1 << (x))
 
-MCP23x17::MCP23x17(const i2c_port_t port = I2C_NUM_0, const uint8_t address = MCP23X17_ADDR_BASE) {
-    ESP_LOGD(TAG, "i2c_port: %d, i2c_address: %d", port, address);
-    this->i2c_port = port;
-    this->i2c_address = address;
+MCP23x17::MCP23x17(const uint8_t address = MCP23X17_ADDR_BASE) {
+    ESP_LOGD(TAG, "i2c_address: %d", address);
+    this->i2c_device_config.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+    this->i2c_device_config.device_address = address;
+    this->i2c_device_config.scl_speed_hz = I2C_FREQ_HZ;
+    
+    I2CManager.addDevice(this->deviceConfig, this->deviceHandle);
 }
 
 MCP23x17::~MCP23x17() {

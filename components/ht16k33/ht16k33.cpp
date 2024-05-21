@@ -37,7 +37,6 @@
 #include <esp_log.h>
 #include <cstring>
 #include <cmath>
-#include "i2c_manager.h"
 
 #include "ht16k33.h"
 
@@ -113,8 +112,11 @@ static const uint8_t charmap[] = {
 
 HT16K33::HT16K33(const i2c_port_t port = I2C_NUM_0, const uint8_t address = HT16K33_ADDR_BASE) {
     ESP_LOGD(TAG, "i2c_port: %d, i2c_address: %d", port, address);
-    this->i2c_port = port;
-    this->i2c_address = address;
+    this->deviceConfig.device_address = address;
+    this->deviceConfig.scl_speed_hz = 100000;
+    this->deviceConfig.dev_addr_length = 7;
+    
+    I2CManager.addDevice(this->deviceConfig, this->deviceHandle);
 }
 
 HT16K33::~HT16K33() {
@@ -161,7 +163,10 @@ esp_err_t HT16K33::write_value( const char* fmt, const int value) {
 }
 
 esp_err_t HT16K33::write_cmd(const uint8_t cmd) {
-    esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, I2C_NO_REG, &cmd, 1);
+
+    std::vector<uint8_t> data;
+    data.push_back(cmd);
+    esp_err_t ret = I2CManager.write(this->deviceHandle, data);
 
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "An error occurred in HT16K33::write_cmd writing i2c data");
@@ -177,7 +182,10 @@ esp_err_t HT16K33::write_pos(const uint8_t pos, const uint8_t mask, const bool d
         new_mask |= SEG_DP; // dp
     }
 
-    esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, pos * 2, &new_mask, 1);
+    std::vector<uint8_t> data;
+    data.push_back(new_mask);
+    
+    esp_err_t ret = I2CManager.writeRegister(this->deviceHandle, pos * 2, data);
 
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "An error occurred in HT16K33::write_pos writing i2c data");

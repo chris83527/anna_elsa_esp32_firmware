@@ -1,2 +1,2 @@
 COMPONENT_ADD_INCLUDEDIRS = include
-COMPONENT_DEPENDS = log i2c_manager
+COMPONENT_DEPENDS = log i2cmanager

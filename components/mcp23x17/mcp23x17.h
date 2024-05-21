@@ -50,12 +50,8 @@
 
 /** mcp23x17 class
  *
- *  This is a driver code for the PCA9629A stepper motor controller.
- *  This class provides interface for PCA9629A operation and accessing its registers.
- *  Detail information is available here:
- *    https://www.nxp.com/docs/en/data-sheet/PCA9629A.pdf
- *    https://style.nxp.com/docs/en/application-note/AN11483.pdf
- *
+ *  This is a driver for the MCP23008 I2C 8-bit multiplexer
+ * 
  *  Example:
  *  @code
  *
@@ -97,7 +93,7 @@ public:
      * @param i2c_port The I2C port to use (default: 0)
      * @param i2c_address I2C-bus address (default: 0x20)     
      */
-    MCP23x17(const i2c_port_t i2c_port, const uint8_t i2c_address);
+    MCP23x17(const uint8_t i2c_address);
 
     ~MCP23x17();
 
@@ -273,8 +269,8 @@ private:
     esp_err_t read_reg_bit_8(const uint8_t reg, bool& val, uint8_t bit);
     esp_err_t write_reg_bit_8(const uint8_t reg, const bool val, const uint8_t bit);
     esp_err_t read_reg_bit_16(const uint8_t reg, bool& val, const uint8_t bit);
-
-    i2c_port_t i2c_port;
+    
+    i2c_device_config_t i2c_device_config;
     uint8_t i2c_address;
     
     std::mutex _mutex;

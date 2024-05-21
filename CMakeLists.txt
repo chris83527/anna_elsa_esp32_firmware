@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16.0)
 
 set(EXTRA_COMPONENT_DIRS 
-"components/i2c_manager"
+"components/i2cmanager"
 "components/cctalk"
 "components/anna_elsa_audio_board" 
 "components/ht16k33" 

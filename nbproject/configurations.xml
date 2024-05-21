@@ -13,6 +13,10 @@
           <in>cctalk_link_controller.cpp</in>
           <in>serial_worker.cpp</in>
         </df>
+        <df name="i2cmanager">
+          <in>I2CManager.cpp</in>
+          <in>I2CManager.h</in>
+        </df>
         <df name="m20ly02z">
           <in>m20ly02z.c</in>
         </df>
@@ -12246,6 +12250,7 @@
     <Elem>../esp/esp-idf-lib/components</Elem>
     <Elem>../esp/esp-idf/components</Elem>
     <Elem>../esp/esp-adf/components</Elem>
+    <Elem>components</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -12271,6 +12276,7 @@
           <cTool>
             <standard>10</standard>
             <incDir>
+              <pElem>components/i2cmanager</pElem>
               <pElem>components/anna_elsa_audio_board</pElem>
               <pElem>components/cctalk</pElem>
               <pElem>components/ht16k33</pElem>
@@ -12648,6 +12654,7 @@
           <ccTool>
             <standard>11</standard>
             <incDir>
+              <pElem>components/i2cmanager</pElem>
               <pElem>components/anna_elsa_audio_board</pElem>
               <pElem>components/cctalk</pElem>
               <pElem>components/ht16k33</pElem>
@@ -54230,6 +54237,13 @@
         <ccTool flags="0">
         </ccTool>
       </item>
+      <item path="components/i2cmanager/I2CManager.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="components/i2cmanager/I2CManager.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="components/m20ly02z/m20ly02z.c" ex="false" tool="0" flavor2="10">
         <cTool flags="1">
         </cTool>
@@ -54238,6 +54252,14 @@
         <ccTool flags="0">
         </ccTool>
       </item>
+      <folder path="0">
+        <cTool>
+          <standard>10</standard>
+        </cTool>
+        <ccTool>
+          <standard>11</standard>
+        </ccTool>
+      </folder>
       <folder path="0/components">
         <cTool>
           <incDir>

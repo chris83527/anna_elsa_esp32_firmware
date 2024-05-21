@@ -26,7 +26,7 @@
 #include <inttypes.h>
 
 #include "soc/io_mux_reg.h"
-#include "i2c_manager.h"
+#include "I2CManager.h"
 #include "board.h"
 #include "esp_log.h"
 #include "tas5731m.h"
