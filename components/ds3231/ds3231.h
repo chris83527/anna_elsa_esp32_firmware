@@ -45,7 +45,7 @@
 #include <cstdbool>
 #include <esp_err.h>
 #include <esp_log.h>
-#include "driver/i2c.h"
+#include "I2CManager.h"
 
 #define DS3231_ADDR 0x68 //!< I2C address
 
@@ -100,7 +100,7 @@ public:
      * @param i2c_port The I2C port to use (default: 0)
      * @param i2c_address I2C-bus address (default: 0x20)     
      */
-    DS3231(const i2c_port_t port, const uint8_t address);
+    DS3231(const uint8_t address);
 
     ~DS3231();
 
@@ -349,8 +349,8 @@ private:
     uint8_t dec2bcd(const uint8_t val);
     inline int days_since_january_1st(const int year, const int month, const int day);
 
-    i2c_port_t i2c_port;
-    uint8_t i2c_address;
+    i2c_device_config_t deviceConfig;
+    i2c_master_dev_handle_t deviceHandle;   
 };
 
 #endif  /* __DS3231_H__ */

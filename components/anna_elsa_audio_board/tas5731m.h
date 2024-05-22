@@ -40,7 +40,7 @@ extern "C" {
 #include "esp_err.h"
 #include "esp_log.h"
 #include "driver/gpio.h"
-#include "driver/i2s_std.h"
+#include "I2CManager.h"
 
 #ifdef __cplusplus
 extern "C" {

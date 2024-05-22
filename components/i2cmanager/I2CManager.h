@@ -32,11 +32,15 @@
 #ifndef I2CMANAGER_H
 #define I2CMANAGER_H
 
+#include <vector>
+#include <mutex>
+
+#include "driver/gpio.h"
 #include "driver/i2c_master.h"
 
 class I2CManager {
 public:
-    I2CManager();
+    I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin, gpio_num_t sdaPin);
     virtual ~I2CManager();
 
     /**
@@ -93,9 +97,11 @@ public:
      * @return 
      */
     esp_err_t readRegister(i2c_master_dev_handle_t& deviceHandle, uint8_t reg, std::vector<uint8_t>& data, int bytesToRead);
+    
+    esp_err_t readRegister(i2c_master_dev_handle_t& deviceHandle, uint8_t reg, uint8_t* data, int bytesToRead);
 
     
-    
+    esp_err_t read(i2c_master_dev_handle_t& deviceHandle, uint8_t* data, int size);
     
     
     /**
@@ -110,7 +116,7 @@ private:
     i2c_master_bus_config_t _i2c_mst_config;
     i2c_master_bus_handle_t _bus_handle;
     std::mutex _mutex;
-} I2CManager;
+} I2CManager(0, GPIO_NUM_22, GPIO_NUM_21);
 
 #endif /* I2CMANAGER_H */
 

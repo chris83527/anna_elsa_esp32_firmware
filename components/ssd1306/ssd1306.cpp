@@ -1,4 +1,5 @@
 #include <cstring>
+#include <vector>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -601,49 +602,49 @@ void SSD1306::i2c_init() {
     this->_pages = 8;
     if (this->_height == 32) this->_pages = 4;
 
-    uint8_t data[27];
-    data[0] = OLED_CONTROL_BYTE_CMD_STREAM;
-    data[1] = OLED_CMD_DISPLAY_OFF; // AE
-    data[2] = OLED_CMD_SET_MUX_RATIO; // AB
+    std::vector<uint8_t> data;
+    data.push_back(OLED_CONTROL_BYTE_CMD_STREAM);
+    data.push_back(OLED_CMD_DISPLAY_OFF); // AE
+    data.push_back(OLED_CMD_SET_MUX_RATIO); // AB
     if (this->_height == 64) {
-        data[3] = 0x3f; // 0x3f = height 64 // 0x1f = height 32,
+        data.push_back(0x3f); // 0x3f = height 64 // 0x1f = height 32,
     } else {
-        data[3] = 0x1f;
+        data.push_back(0x1f);
     }
-    data[4] = OLED_CMD_SET_DISPLAY_OFFSET;
-    data[5] = 0x00;
-    data[6] = OLED_CMD_SET_DISPLAY_START_LINE;
+    data.push_back(OLED_CMD_SET_DISPLAY_OFFSET);
+    data.push_back(0x00);
+    data.push_back(OLED_CMD_SET_DISPLAY_START_LINE);
     if (this->_flip) {
-        data[7] = OLED_CMD_SET_SEGMENT_REMAP_0;
+        data.push_back(OLED_CMD_SET_SEGMENT_REMAP_0);
     } else {
-        data[7] = OLED_CMD_SET_SEGMENT_REMAP_1;
+        data.push_back(OLED_CMD_SET_SEGMENT_REMAP_1);
     }
-    data[8] = OLED_CMD_SET_COM_SCAN_MODE;
-    data[9] = OLED_CMD_SET_DISPLAY_CLK_DIV;
-    data[10] = 0x80;
-    data[11] = OLED_CMD_SET_COM_PIN_MAP;
+    data.push_back(OLED_CMD_SET_COM_SCAN_MODE);
+    data.push_back(OLED_CMD_SET_DISPLAY_CLK_DIV);
+    data.push_back(0x80);
+    data.push_back(OLED_CMD_SET_COM_PIN_MAP);
     if (this->_height == 64) {
-        data[12] = 0x12; // height 64
+        data.push_back(0x12); // height 64
     } else {
-        data[12] = 0x02;
+        data.push_back(0x02);
     }
-    data[13] = OLED_CMD_SET_CONTRAST;
-    data[14] = 0xff;
-    data[15] = OLED_CMD_DISPLAY_RAM;
-    data[16] = OLED_CMD_SET_VCOMH_DESELCT;
-    data[17] = 0x40;
-    data[18] = OLED_CMD_SET_MEMORY_ADDR_MODE;
-    data[19] = OLED_CMD_SET_PAGE_ADDR_MODE;
-    data[20] = 0x00;
-    data[21] = 0x10;
-    data[22] = OLED_CMD_SET_CHARGE_PUMP;
-    data[23] = 0x14;
-    data[24] = OLED_CMD_DEACTIVE_SCROLL;
-    data[25] = OLED_CMD_DISPLAY_NORMAL;
-    data[26] = OLED_CMD_DISPLAY_ON;
+    data.push_back(OLED_CMD_SET_CONTRAST);
+    data.push_back(0xff);
+    data.push_back(OLED_CMD_DISPLAY_RAM);
+    data.push_back(OLED_CMD_SET_VCOMH_DESELCT);
+    data.push_back(0x40);
+    data.push_back(OLED_CMD_SET_MEMORY_ADDR_MODE);
+    data.push_back(OLED_CMD_SET_PAGE_ADDR_MODE);
+    data.push_back(0x00);
+    data.push_back(0x10);
+    data.push_back(OLED_CMD_SET_CHARGE_PUMP);
+    data.push_back(0x14);
+    data.push_back(OLED_CMD_DEACTIVE_SCROLL);
+    data.push_back(OLED_CMD_DISPLAY_NORMAL);
+    data.push_back(OLED_CMD_DISPLAY_ON);
 
-    // initialise display
-    i2c_manager_write(this->_port, this->_address, I2C_NO_REG, data, 27);
+    // initialise display    
+    I2CManager.write(this->deviceHandle, data);
 
 }
 
@@ -661,20 +662,20 @@ void SSD1306::i2c_display_image(int page, int seg, uint8_t * images, int width) 
         _page = (this->_pages - page) - 1;
     }
 
-    uint8_t data[4];
-    data[0] = OLED_CONTROL_BYTE_CMD_STREAM;
-    data[1] = (0x00 + columLow);
-    data[2] = (0x10 + columHigh);
-    data[3] = (0xB0 | _page);
+    std::vector<uint8_t> data;
+    data.push_back(OLED_CONTROL_BYTE_CMD_STREAM);
+    data.push_back((0x00 + columLow));
+    data.push_back((0x10 + columHigh));
+    data.push_back((0xB0 | _page));
 
-    i2c_manager_write(this->_port, this->_address, I2C_NO_REG, data, 4);
+    I2CManager.write(this->deviceHandle, data);
 
     uint8_t imagedata[width + 1];
     imagedata[0] = OLED_CONTROL_BYTE_DATA_STREAM;
 
     memcpy(&imagedata[1], images, width);
-
-    i2c_manager_write(this->_port, this->_address, I2C_NO_REG, imagedata, width + 1);
+    
+    I2CManager.write(this->deviceHandle, imagedata, width + 1);
 }
 
 void SSD1306::i2c_contrast(int contrast) {

@@ -38,7 +38,6 @@
  */
 #include <stdio.h>
 #include <esp_err.h>
-#include <i2c_manager.h>
 
 #include "ds3231.h"
 
@@ -87,10 +86,13 @@ static const char *TAG = "ds3231";
  * @param i2c_port The I2C port to use (default: 0)
  * @param i2c_address I2C-bus address (default: 0x20)     
  */
-DS3231::DS3231(const i2c_port_t port = I2C_NUM_0, const uint8_t address = DS3231_ADDR) {
+DS3231::DS3231(const uint8_t address = DS3231_ADDR) {
     ESP_LOGD(TAG, "i2c_port: %d, i2c_address: %d", port, address);
-    this->i2c_port = port;
-    this->i2c_address = address;
+    this->deviceConfig.device_address = address;
+    this->deviceConfig.scl_speed_hz = 100000;
+    this->deviceConfig.dev_addr_length = 7;
+    
+    I2CManager.addDevice(this->deviceConfig, this->deviceHandle);
 }
 
 DS3231::~DS3231() {
@@ -113,7 +115,7 @@ esp_err_t DS3231::set_time(const struct tm *time) {
     data[5] = dec2bcd(time->tm_mon + 1);
     data[6] = dec2bcd(time->tm_year - 100);
 
-    return i2c_manager_write(this->i2c_port, this->i2c_address, DS3231_ADDR_TIME, &data[0], 7);
+    return I2CManager.write(this->deviceHandle, DS3231_ADDR_TIME, &data[0], 7);
 }
 
 esp_err_t DS3231::set_alarm(const alarm_t alarms, struct tm *time1, const alarm1_rate_t option1, struct tm *time2, const alarm2_rate_t option2) {
@@ -141,7 +143,7 @@ esp_err_t DS3231::set_alarm(const alarm_t alarms, struct tm *time1, const alarm1
                 (option2 == DS3231_ALARM2_MATCH_MINHOURDATE ? dec2bcd(time2->tm_mday) : DS3231_ALARM_NOTSET));
     }
 
-    return i2c_manager_write(this->i2c_port, this->i2c_address, (alarms == DS3231_ALARM_2 ? DS3231_ADDR_ALARM2 : DS3231_ADDR_ALARM1), data, i);
+    return I2CManager.write(this->deviceHandle, (alarms == DS3231_ALARM_2 ? DS3231_ADDR_ALARM2 : DS3231_ADDR_ALARM1), data, i);
 }
 
 /* Get a byte containing just the requested bits
@@ -151,11 +153,11 @@ esp_err_t DS3231::set_alarm(const alarm_t alarms, struct tm *time1, const alarm1
  * of use a mask of 0xff to just return the whole register byte
  * returns true to indicate success
  */
-esp_err_t DS3231::get_flag(const uint8_t addr, const uint8_t mask, uint8_t& flag) {
+esp_err_t DS3231::get_flag(const uint8_t reg, const uint8_t mask, uint8_t& flag) {
     uint8_t data;
 
     /* get register */
-    esp_err_t res = i2c_manager_read(this->i2c_port, this->i2c_address, addr, &data, 1);
+    esp_err_t res = I2CManager.readRegister(this->deviceHandle, reg, &data, 1);
     if (res != ESP_OK)
         return res;
 
@@ -170,11 +172,11 @@ esp_err_t DS3231::get_flag(const uint8_t addr, const uint8_t mask, uint8_t& flag
  * DS3231_SET/DS3231_CLEAR/DS3231_REPLACE
  * returns true to indicate success
  */
-esp_err_t DS3231::set_flag(const uint8_t addr, const uint8_t bits, const uint8_t mode) {
+esp_err_t DS3231::set_flag(const uint8_t reg, const uint8_t bits, const uint8_t mode) {
     uint8_t data;
 
     /* get status register */
-    esp_err_t res = i2c_manager_read(this->i2c_port, this->i2c_address, addr, &data, 1);
+    esp_err_t res = I2CManager.readRegister(this->deviceHandle, &reg, data, 1);
     if (res != ESP_OK)
         return res;
     /* clear the flag */
@@ -185,7 +187,7 @@ esp_err_t DS3231::set_flag(const uint8_t addr, const uint8_t bits, const uint8_t
     else
         data &= ~bits;
 
-    return i2c_manager_write(this->i2c_port, this->i2c_address, addr, &data, 1);
+    return I2CManager.write(this->deviceHandle, reg, &data, 1);
 }
 
 esp_err_t DS3231::get_oscillator_stop_flag(bool& flag) {
@@ -271,7 +273,7 @@ esp_err_t DS3231::get_raw_temp(int16_t& temp) {
 
     uint8_t data[2];
 
-    i2c_manager_read(this->i2c_port, this->i2c_address, DS3231_ADDR_TEMP, data, sizeof (data));
+    I2CManager.readRegister(this->deviceHandle, DS3231_ADDR_TEMP, data, sizeof (data));
 
     temp = (int16_t) (int8_t) data[0] << 2 | data[1] >> 6;
 
@@ -307,7 +309,7 @@ esp_err_t DS3231::get_temp_float(float& temp) {
 esp_err_t DS3231::get_time(struct tm& time) {
     uint8_t data[7];
 
-    i2c_manager_read(this->i2c_port, this->i2c_address, DS3231_ADDR_TIME, data, 7);
+    I2CManager.readRegister(this->deviceHandle, DS3231_ADDR_TIME, data, 7);
 
     /* convert to unix time structure */
     time.tm_sec = bcd2dec(data[0]);
@@ -335,7 +337,7 @@ esp_err_t DS3231::set_aging_offset(int8_t age) {
 
     uint8_t age_u8 = (uint8_t) age;
 
-    i2c_manager_write(this->i2c_port, this->i2c_address, DS3231_ADDR_AGING, &age_u8, sizeof (uint8_t));
+    I2CManager.writeRegister(this->deviceHandle, DS3231_ADDR_AGING, &age_u8, sizeof (uint8_t));
 
     /**
      * To see the effects of the aging register on the 32kHz output
@@ -352,7 +354,7 @@ esp_err_t DS3231::get_aging_offset(int8_t& age) {
 
     uint8_t age_u8;
 
-    i2c_manager_read(this->i2c_port, this->i2c_address, DS3231_ADDR_AGING, &age_u8, sizeof (uint8_t));
+    I2CManager.readRegister(this->deviceHandle, DS3231_ADDR_AGING, &age_u8, sizeof (uint8_t));
 
     age = (int8_t) age_u8;
 

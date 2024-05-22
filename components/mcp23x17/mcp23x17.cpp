@@ -37,7 +37,7 @@
 
 #include <esp_log.h>
 #include <string.h>
-#include "i2c_manager.h"
+
 #include "mcp23x17.h"
 
 static const char *TAG = "mcp23x17";
@@ -80,10 +80,10 @@ static const char *TAG = "mcp23x17";
 
 MCP23x17::MCP23x17(const uint8_t address = MCP23X17_ADDR_BASE) {
     ESP_LOGD(TAG, "i2c_address: %d", address);
-    this->i2c_device_config.dev_addr_length = I2C_ADDR_BIT_LEN_7;
-    this->i2c_device_config.device_address = address;
-    this->i2c_device_config.scl_speed_hz = I2C_FREQ_HZ;
-    
+    this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+    this->deviceConfig.device_address = address;
+    this->deviceConfig.scl_speed_hz = I2C_FREQ_HZ;
+
     I2CManager.addDevice(this->deviceConfig, this->deviceHandle);
 }
 
@@ -221,7 +221,7 @@ esp_err_t MCP23x17::read_reg_16(const uint8_t reg, uint16_t& val) {
     _mutex.lock();
     uint8_t data[2];
 
-    esp_err_t res = i2c_manager_read(this->i2c_port, this->i2c_address, reg, data, 2);
+    esp_err_t res = I2CManager.readRegister(this->deviceHandle, reg, data, 2);
 
     val = (data[ 1 ] << 8 | data[ 0 ]);
 
@@ -235,7 +235,7 @@ esp_err_t MCP23x17::write_reg_16(const uint8_t reg, const uint16_t val) {
     data[0] = (val & 0xff);
     data[1] = (val >> 8);
 
-    esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, reg, data, 2);
+    esp_err_t ret = I2CManager.writeRegister(this->deviceHandle, reg, data, 2);
     _mutex.unlock();
 
     return ret;
@@ -245,7 +245,7 @@ esp_err_t MCP23x17::write_reg_bit_16(const uint8_t reg, bool val, uint8_t bit) {
     _mutex.lock();
     uint8_t data[2];
 
-    i2c_manager_read(this->i2c_port, this->i2c_address, reg, data, 2);
+    esp_err_t res = I2CManager.readRegister(this->deviceHandle, reg, data, 2);
 
     uint16_t buf16 = (data[ 1 ] << 8 | data[ 0 ]);
 
@@ -253,7 +253,7 @@ esp_err_t MCP23x17::write_reg_bit_16(const uint8_t reg, bool val, uint8_t bit) {
 
     data[0] = (buf16 & 0xff);
     data[1] = (buf16 >> 8);
-    esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, reg, data, 2);
+    esp_err_t ret = I2CManager.writeRegister(this->deviceHandle, reg, data, 2);
 
     _mutex.unlock();
 
@@ -264,7 +264,7 @@ esp_err_t MCP23x17::read_reg_bit_8(const uint8_t reg, bool& val, uint8_t bit) {
     _mutex.lock();
     uint8_t buf;
 
-    esp_err_t res = i2c_manager_read(this->i2c_port, this->i2c_address, reg, &buf, 1);
+    esp_err_t res = I2CManager.readRegister(this->deviceHandle, reg, &buf, 1);
 
     val = (buf & BV(bit)) >> bit;
     _mutex.unlock();
@@ -273,20 +273,20 @@ esp_err_t MCP23x17::read_reg_bit_8(const uint8_t reg, bool& val, uint8_t bit) {
 
 esp_err_t MCP23x17::write_reg_bit_8(const uint8_t reg, const bool val, const uint8_t bit) {
     _mutex.lock();
-    
+
     uint8_t buf;
 
-    i2c_manager_read(this->i2c_port, this->i2c_address, reg, &buf, 1);
+    I2CManager.readRegister(this->deviceHandle, reg, &buf, 1);
     buf = (buf & ~BV(bit)) | (val ? BV(bit) : 0);
-    esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address, reg, &buf, 1);
-    
+    esp_err_t ret = I2CManager.writeRegister(this->deviceHandle, reg, &buf, 1);
+
     _mutex.unlock();
-    
+
     return ret;
 
 }
 
-esp_err_t MCP23x17::read_reg_bit_16(const uint8_t reg, bool& val, const uint8_t bit) {    
+esp_err_t MCP23x17::read_reg_bit_16(const uint8_t reg, bool& val, const uint8_t bit) {
     uint16_t buf;
 
     CHECK(read_reg_16(reg, buf));

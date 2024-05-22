@@ -42,9 +42,9 @@
 #include <cstdint>
 #include <cstdbool>
 #include <mutex>
-#include <driver/gpio.h>
-#include <driver/i2c.h>
-#include <esp_err.h>
+#include "driver/gpio.h"
+#include "esp_err.h"
+#include "I2CManager.h"
 
 #define MCP23X17_ADDR_BASE 0x20
 
@@ -270,8 +270,9 @@ private:
     esp_err_t write_reg_bit_8(const uint8_t reg, const bool val, const uint8_t bit);
     esp_err_t read_reg_bit_16(const uint8_t reg, bool& val, const uint8_t bit);
     
-    i2c_device_config_t i2c_device_config;
-    uint8_t i2c_address;
+    i2c_device_config_t deviceConfig;
+    i2c_master_dev_handle_t deviceHandle;    
+    
     
     std::mutex _mutex;
 };

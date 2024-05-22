@@ -74,10 +74,10 @@ esp_err_t m20ly02z_init(gpio_num_t latchPin, gpio_num_t oePin, gpio_num_t clockP
     _clockPin = clockPin;
     _doutPin = doutPin;
 
-    gpio_pad_select_gpio(_latchPin);    
-    gpio_pad_select_gpio(_oePin);    
-    gpio_pad_select_gpio(_clockPin);    
-    gpio_pad_select_gpio(_doutPin);    
+    esp_rom_gpio_pad_select_gpio(_latchPin);    
+    esp_rom_gpio_pad_select_gpio(_oePin);    
+    esp_rom_gpio_pad_select_gpio(_clockPin);    
+    esp_rom_gpio_pad_select_gpio(_doutPin);    
     
     
     /* Set the GPIO as a push/pull output */

@@ -12250,7 +12250,6 @@
     <Elem>../esp/esp-idf-lib/components</Elem>
     <Elem>../esp/esp-idf/components</Elem>
     <Elem>../esp/esp-adf/components</Elem>
-    <Elem>components</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>

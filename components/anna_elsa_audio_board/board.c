@@ -23,9 +23,10 @@
  */
 #include "driver/gpio.h"
 #include "audio_mem.h"
-#include "driver/i2c_master.h"
 #include "esp_log.h"
 #include "board.h"
+
+#include "I2CManager.h"
 
 
 

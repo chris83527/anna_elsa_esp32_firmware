@@ -1,2 +1,2 @@
 COMPONENT_ADD_INCLUDEDIRS = .
-COMPONENT_DEPENDS = esp_driver_i2c driver log
+COMPONENT_DEPENDS = driver log
