@@ -45,11 +45,12 @@
 #include <bitset>
 #include <thread>
 
+#include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_pthread.h"
 
 #include "led_strip.h"
-#include "driver/rmt.h"
+#include "driver/rmt_tx.h"
 #include "mcp23x17.h"
 #include "m20ly02z.h"
 #include "ht16k33.h"
@@ -85,7 +86,8 @@ private:
 
 class DisplayController {
 public:
-    DisplayController(MainController *mainController);    
+    DisplayController(MainController& mainController, I2CManager& i2cmgr);    
+    ~DisplayController();
 
     esp_err_t initialise(void);
 
@@ -111,102 +113,153 @@ public:
     void beginAttractMode(void);
     void stopAttractMode(void);
 
-    HT16K33* getBankDisplay(void);
-    HT16K33* getCreditDisplay(void);
-    HT16K33* getMovesDisplay(void);
+    HT16K33& getBankDisplay(void);
+    HT16K33& getCreditDisplay(void);
+    HT16K33& getMovesDisplay(void);
 
-    led_strip_t* getLedStrip(void);
-    MCP23x17* getButtonIO(void);
+    led_strip_handle_t& getLedStripHandle(void);
+    MCP23x17& getButtonIO(void);
 
-
-    static const int NUDGE_LAMPS_LENGTH = 5;
-    static const int FEATURE_LAMPS_LENGTH = 12;
-    static const int TRAIL_LAMPS_LENGTH = 17;
-    static const int PRIZE_LADDER_LENGTH = 8;
-
+public:
     // WS2128B LEDs
-    static const int REEL_LAMP_L1 = 0;
-    static const int REEL_LAMP_L2 = 1;
-    static const int REEL_LAMP_L3 = 2;
-    static const int REEL_LAMP_C1 = 3;
-    static const int REEL_LAMP_C2 = 4;
-    static const int REEL_LAMP_C3 = 5;
-    static const int REEL_LAMP_R1 = 6;
-    static const int REEL_LAMP_R2 = 7;
-    static const int REEL_LAMP_R3 = 8;
+    static constexpr int REEL_LAMP_L1 = 0;
+    static constexpr int REEL_LAMP_L2 = 1;
+    static constexpr int REEL_LAMP_L3 = 2;
+    static constexpr int REEL_LAMP_C1 = 3;
+    static constexpr int REEL_LAMP_C2 = 4;
+    static constexpr int REEL_LAMP_C3 = 5;
+    static constexpr int REEL_LAMP_R1 = 6;
+    static constexpr int REEL_LAMP_R2 = 7;
+    static constexpr int REEL_LAMP_R3 = 8;
 
-    static const int LAMP_NUDGE_5 = 9;
-    static const int LAMP_NUDGE_4 = 10;
-    static const int LAMP_NUDGE_3 = 11;
-    static const int LAMP_NUDGE_2 = 12;
-    static const int LAMP_NUDGE_1 = 13;
+    static constexpr int LAMP_NUDGE_5 = 9;
+    static constexpr int LAMP_NUDGE_4 = 10;
+    static constexpr int LAMP_NUDGE_3 = 11;
+    static constexpr int LAMP_NUDGE_2 = 12;
+    static constexpr int LAMP_NUDGE_1 = 13;
 
-    static const int LAMP_PRIZE_PALACE = 14;
-    static const int LAMP_PRIZE_ANNA = 15;
-    static const int LAMP_PRIZE_ELSA = 16;
-    static const int LAMP_PRIZE_CHRISTOPH = 17;
-    static const int LAMP_PRIZE_SVEN = 18;
-    static const int LAMP_PRIZE_OLAF_3 = 19;
-    static const int LAMP_PRIZE_OLAF_ANY = 20;
-    static const int LAMP_PRIZE_HANS = 21;
-    static const int LAMP_PRIZE_20_CENT = 22;
-    static const int LAMP_PRIZE_40_CENT = 23;
-    static const int LAMP_PRIZE_80_CENT = 24;
-    static const int LAMP_PRIZE_120_CENT = 25;
-    static const int LAMP_PRIZE_160_CENT = 26;
-    static const int LAMP_PRIZE_200_CENT = 27;
-    static const int LAMP_PRIZE_300_CENT = 28;
-    static const int LAMP_PRIZE_400_CENT = 29;
+    static constexpr int LAMP_PRIZE_PALACE = 14;
+    static constexpr int LAMP_PRIZE_ANNA = 15;
+    static constexpr int LAMP_PRIZE_ELSA = 16;
+    static constexpr int LAMP_PRIZE_CHRISTOPH = 17;
+    static constexpr int LAMP_PRIZE_SVEN = 18;
+    static constexpr int LAMP_PRIZE_OLAF_3 = 19;
+    static constexpr int LAMP_PRIZE_OLAF_ANY = 20;
+    static constexpr int LAMP_PRIZE_HANS = 21;
+    static constexpr int LAMP_PRIZE_20_CENT = 22;
+    static constexpr int LAMP_PRIZE_40_CENT = 23;
+    static constexpr int LAMP_PRIZE_80_CENT = 24;
+    static constexpr int LAMP_PRIZE_120_CENT = 25;
+    static constexpr int LAMP_PRIZE_160_CENT = 26;
+    static constexpr int LAMP_PRIZE_200_CENT = 27;
+    static constexpr int LAMP_PRIZE_300_CENT = 28;
+    static constexpr int LAMP_PRIZE_400_CENT = 29;
 
-    static const int LAMP_HI = 30;
-    static const int LAMP_lO = 31;
+    static constexpr int LAMP_HI = 30;
+    static constexpr int LAMP_lO = 31;
 
-    static const int LAMP_MATRIX_SHUFFLE_1_1 = 32;
-    static const int LAMP_MATRIX_FREE_SPIN_1_2 = 33;
-    static const int LAMP_MATRIX_DOUBLE_MONEY_1_3 = 34;
-    static const int LAMP_MATRIX_PALACE_2_3 = 35;
-    static const int LAMP_MATRIX_LOSE_2_2 = 36;
-    static const int LAMP_MATRIX_PALACE_2_1 = 37;
-    static const int LAMP_MATRIX_FREE_SPIN_3_1 = 38;
-    static const int LAMP_MATRIX_SHUFFLE_3_2 = 39;
-    static const int LAMP_MATRIX_LOSE_3_3 = 40;
-    static const int LAMP_MATRIX_HI_LO_4_2 = 42;
-    static const int LAMP_MATRIX_FREE_SPIN_4_3 = 41;
-    static const int LAMP_MATRIX_PALACE_4_1 = 43;
+    static constexpr int LAMP_MATRIX_SHUFFLE_1_1 = 32;
+    static constexpr int LAMP_MATRIX_FREE_SPIN_1_2 = 33;
+    static constexpr int LAMP_MATRIX_DOUBLE_MONEY_1_3 = 34;
+    static constexpr int LAMP_MATRIX_PALACE_2_3 = 35;
+    static constexpr int LAMP_MATRIX_LOSE_2_2 = 36;
+    static constexpr int LAMP_MATRIX_PALACE_2_1 = 37;
+    static constexpr int LAMP_MATRIX_FREE_SPIN_3_1 = 38;
+    static constexpr int LAMP_MATRIX_SHUFFLE_3_2 = 39;
+    static constexpr int LAMP_MATRIX_LOSE_3_3 = 40;
+    static constexpr int LAMP_MATRIX_HI_LO_4_2 = 42;
+    static constexpr int LAMP_MATRIX_FREE_SPIN_4_3 = 41;
+    static constexpr int LAMP_MATRIX_PALACE_4_1 = 43;
 
-    static const int LAMP_TRAIL_20_CENT = 44;
-    static const int LAMP_TRAIL_40_CENT = 45;
-    static const int LAMP_TRAIL_60_CENT = 46;
-    static const int LAMP_TRAIL_80_CENT = 47;
-    static const int LAMP_TRAIL_ONE_EURO = 48;
-    static const int LAMP_TRAIL_ONE_TWENTY = 49;
-    static const int LAMP_TRAIL_ONE_FOURTY = 50;
-    static const int LAMP_TRAIL_ONE_SIXTY = 51;
-    static const int LAMP_TRAIL_ONE_EIGHTY = 52;
-    static const int LAMP_TRAIL_TWO_EURO = 53;
-    static const int LAMP_TRAIL_TWO_FOURTY = 54;
-    static const int LAMP_TRAIL_TWO_EIGHTY = 55;
-    static const int LAMP_TRAIL_THREE_FOURTY = 56;
-    static const int LAMP_TRAIL_THREE_EIGHTY = 57;
-    static const int LAMP_TRAIL_FOUR_TWENTY = 58;
-    static const int LAMP_TRAIL_FOUR_SIXTY = 59;
-    static const int LAMP_TRAIL_FIVE_EURO = 60;
+    static constexpr int LAMP_TRAIL_20_CENT = 44;
+    static constexpr int LAMP_TRAIL_40_CENT = 45;
+    static constexpr int LAMP_TRAIL_60_CENT = 46;
+    static constexpr int LAMP_TRAIL_80_CENT = 47;
+    static constexpr int LAMP_TRAIL_ONE_EURO = 48;
+    static constexpr int LAMP_TRAIL_ONE_TWENTY = 49;
+    static constexpr int LAMP_TRAIL_ONE_FOURTY = 50;
+    static constexpr int LAMP_TRAIL_ONE_SIXTY = 51;
+    static constexpr int LAMP_TRAIL_ONE_EIGHTY = 52;
+    static constexpr int LAMP_TRAIL_TWO_EURO = 53;
+    static constexpr int LAMP_TRAIL_TWO_FOURTY = 54;
+    static constexpr int LAMP_TRAIL_TWO_EIGHTY = 55;
+    static constexpr int LAMP_TRAIL_THREE_FOURTY = 56;
+    static constexpr int LAMP_TRAIL_THREE_EIGHTY = 57;
+    static constexpr int LAMP_TRAIL_FOUR_TWENTY = 58;
+    static constexpr int LAMP_TRAIL_FOUR_SIXTY = 59;
+    static constexpr int LAMP_TRAIL_FIVE_EURO = 60;
 
-    static const int LMP_START = 61;
-    static const int LMP_COLLECT = 62;
-    static const int LMP_HOLD_LO = 63;
-    static const int LMP_HOLD = 64;
-    static const int LMP_HOLD_HI = 65;
-    static const int LMP_TRANSFER = 66;
+    static constexpr int LMP_START = 61;
+    static constexpr int LMP_COLLECT = 62;
+    static constexpr int LMP_HOLD_LO = 63;
+    static constexpr int LMP_HOLD = 64;
+    static constexpr int LMP_HOLD_HI = 65;
+    static constexpr int LMP_TRANSFER = 66;
+    
+    static constexpr int NUDGE_LAMPS_LENGTH = 5;
+    static constexpr int FEATURE_LAMPS_LENGTH = 12;
+    static constexpr int TRAIL_LAMPS_LENGTH = 17;
+    static constexpr int PRIZE_LADDER_LENGTH = 8;
 
-    static std::array<int, 0> SEGMENTS;
-    static std::array<int, NUDGE_LAMPS_LENGTH> NUDGE_LAMPS;
-    static std::array<int, TRAIL_LAMPS_LENGTH> TRAIL_LAMPS;
-    static std::array<int, FEATURE_LAMPS_LENGTH> FEATURE_LAMPS;
-    // FIXME: Won't link
-    //static std::array<std::array<int, 2>, PRIZE_LADDER_LENGTH> PRIZE_LADDER_LAMPS;
+    //static constexpr std::array<int, 0> SEGMENTS;
+    
+    static constexpr std::array<int, NUDGE_LAMPS_LENGTH> NUDGE_LAMPS = {
+	LAMP_NUDGE_1,
+	LAMP_NUDGE_2,
+	LAMP_NUDGE_3,
+	LAMP_NUDGE_4,
+	LAMP_NUDGE_5,
+	};
+	
+    static constexpr std::array<int, TRAIL_LAMPS_LENGTH> TRAIL_LAMPS = {
+	LAMP_TRAIL_20_CENT,
+	LAMP_TRAIL_40_CENT,
+	LAMP_TRAIL_60_CENT,
+	LAMP_TRAIL_80_CENT,
+	LAMP_TRAIL_ONE_EURO,
+	LAMP_TRAIL_ONE_TWENTY,
+	LAMP_TRAIL_ONE_FOURTY,
+	LAMP_TRAIL_ONE_SIXTY,
+	LAMP_TRAIL_ONE_EIGHTY,
+	LAMP_TRAIL_TWO_EURO,
+	LAMP_TRAIL_TWO_FOURTY,
+	LAMP_TRAIL_TWO_EIGHTY,
+	LAMP_TRAIL_THREE_FOURTY,
+	LAMP_TRAIL_THREE_EIGHTY,
+	LAMP_TRAIL_FOUR_TWENTY,
+	LAMP_TRAIL_FOUR_SIXTY,
+	LAMP_TRAIL_FIVE_EURO,
+	};
+	
+    static constexpr std::array<int, FEATURE_LAMPS_LENGTH> FEATURE_LAMPS = {
+	LAMP_MATRIX_FREE_SPIN_1_2,
+  LAMP_MATRIX_DOUBLE_MONEY_1_3,
+  LAMP_MATRIX_SHUFFLE_1_1,
+  LAMP_MATRIX_LOSE_2_2,
+  LAMP_MATRIX_PALACE_2_3,
+  LAMP_MATRIX_PALACE_2_1,
+  LAMP_MATRIX_SHUFFLE_3_2,
+  LAMP_MATRIX_LOSE_3_3,
+  LAMP_MATRIX_FREE_SPIN_3_1,
+  LAMP_MATRIX_HI_LO_4_2,
+  LAMP_MATRIX_FREE_SPIN_4_3,
+  LAMP_MATRIX_PALACE_4_1,
+	};
+    
+ 
+  // Prize ladder
+  static constexpr std::array<std::array<int, 2>, 8> PRIZE_LADDER_LAMPS = { 
+  std::array{LAMP_PRIZE_HANS, LAMP_PRIZE_20_CENT},
+  std::array{LAMP_PRIZE_OLAF_3, LAMP_PRIZE_80_CENT},
+  std::array{LAMP_PRIZE_OLAF_ANY, LAMP_PRIZE_40_CENT},
+  std::array{LAMP_PRIZE_SVEN, LAMP_PRIZE_120_CENT},
+  std::array{LAMP_PRIZE_CHRISTOPH, LAMP_PRIZE_160_CENT},
+  std::array{LAMP_PRIZE_ELSA, LAMP_PRIZE_200_CENT},
+  std::array{LAMP_PRIZE_ANNA, LAMP_PRIZE_300_CENT},
+  std::array{LAMP_PRIZE_PALACE, LAMP_PRIZE_400_CENT},
+  };
 
-    static const int MAX_BRIGHTNESS = 230;
+    static constexpr int MAX_BRIGHTNESS = 230;
 
 
     /*
@@ -225,20 +278,34 @@ Row/Column	0               1               2               3                   4
 
 protected:
 private:
-    led_strip_t ledStrip;
+	void attractModeTask(void);
+    void updateSevenSegDisplaysTask(void);
+    void updateLampsTask(void);
+    void blinkLampsTask(void);
+ 	
+ 	void rainbowEffect();
+    void chaseEffect();
+    void fadeInOutEffect();
+       
+private:
+	static constexpr int LED_STRIP_RMT_RES_HZ = (10 * 1000 * 1000);
 
-    HT16K33* movesDisplay;
-    HT16K33* creditDisplay;
-    HT16K33* bankDisplay;
+    led_strip_handle_t ledStripHandle;
+    led_strip_config_t ledStripConfig;
+    led_strip_rmt_config_t rmtConfig;
 
-    MCP23x17* buttonIO;
+    HT16K33 movesDisplay;
+    HT16K33 creditDisplay;
+    HT16K33 bankDisplay;
+
+    MCP23x17 buttonIO;
 
     uint8_t buttonStatus;
     bool doorOpen;
 
     std::array<LampData, LED_COUNT + 6 > lampData;
 
-    MainController *mainController;
+    MainController& mainController;
 
     void testLamps(void);
 
@@ -257,22 +324,14 @@ private:
     //   e = A2   |         | c = A4
     //            |_________|
     //               d = A3
+	
 
-
-
-    std::thread attractModeThread;
-    void attractModeTask(void);
-    std::thread updateSevenSegDisplaysThread;
-    void updateSevenSegDisplaysTask(void);
-    std::thread updateLampsThread;
-    void updateLampsTask(void);
-    std::thread blinkLampsThread;
-    void blinkLampsTask(void);
-
-    void rainbowEffect();
-    void chaseEffect();
-    void fadeInOutEffect();
-       
+    std::thread attractModeThread;   
+    std::thread updateSevenSegDisplaysThread;    
+    std::thread updateLampsThread;    
+    std::thread blinkLampsThread; 
+            
+    I2CManager& i2cManager;      
 };
 
 

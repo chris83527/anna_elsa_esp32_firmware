@@ -244,29 +244,27 @@
         </df>
       </df>
       <df name="build">
-        <df name="CMakeFiles">
-          <df name="3.25.1">
-            <df name="CompilerIdASM">
-            </df>
-            <df name="CompilerIdC">
-              <df name="tmp">
+        <df name="default">
+          <df name="CMakeFiles">
+            <df name="3.25.1">
+              <df name="CompilerIdASM">
               </df>
-              <in>CMakeCCompilerId.c</in>
-            </df>
-            <df name="CompilerIdCXX">
-              <df name="tmp">
+              <df name="CompilerIdC">
+                <df name="tmp">
+                </df>
+                <in>CMakeCCompilerId.c</in>
               </df>
-              <in>CMakeCXXCompilerId.cpp</in>
+              <df name="CompilerIdCXX">
+                <df name="tmp">
+                </df>
+                <in>CMakeCXXCompilerId.cpp</in>
+              </df>
+            </df>
+            <df name="git-data">
+            </df>
+            <df name="pkgRedirects">
             </df>
           </df>
-          <df name="CMakeScratch">
-          </df>
-          <df name="git-data">
-          </df>
-          <df name="pkgRedirects">
-          </df>
-        </df>
-        <df name="log">
         </df>
       </df>
       <df name="components">
@@ -2667,6 +2665,14 @@
                 </df>
               </df>
             </df>
+          </df>
+          <df name="hci_log">
+            <df name="include">
+              <df name="hci_log">
+                <in>bt_hci_log.h</in>
+              </df>
+            </df>
+            <in>bt_hci_log.c</in>
           </df>
           <df name="include">
             <in>bt_common.h</in>
@@ -5238,10 +5244,22 @@
           </df>
         </df>
         <df name="test_apps">
+          <df name="basic_unit_test">
+            <df name="main">
+              <in>test_bt_common.c</in>
+              <in>test_bt_main.c</in>
+              <in>test_smp.c</in>
+            </df>
+          </df>
           <df name="main">
             <in>test_bt_common.c</in>
             <in>test_bt_main.c</in>
             <in>test_smp.c</in>
+          </df>
+          <df name="memory_release">
+            <df name="main">
+              <in>test_app_main.c</in>
+            </df>
           </df>
         </df>
       </df>
@@ -6514,6 +6532,7 @@
         <df name="private_include">
           <in>esp_tls_error_capture_internal.h</in>
           <in>esp_tls_mbedtls.h</in>
+          <in>esp_tls_platform_port.h</in>
           <in>esp_tls_private.h</in>
           <in>esp_tls_wolfssl.h</in>
         </df>
@@ -6528,6 +6547,7 @@
         <in>esp_tls_error_capture.c</in>
         <in>esp_tls_errors.h</in>
         <in>esp_tls_mbedtls.c</in>
+        <in>esp_tls_platform_port.c</in>
         <in>esp_tls_wolfssl.c</in>
       </df>
       <df name="esp_adc">
@@ -7665,6 +7685,8 @@
           </df>
           <df name="esp32c3">
           </df>
+          <df name="esp32c5">
+          </df>
           <df name="esp32c6">
           </df>
           <df name="esp32h2">
@@ -8787,6 +8809,7 @@
                 <in>test_stream_buffers.c</in>
               </df>
               <df name="tasks">
+                <in>test_app_task_tag.c</in>
                 <in>test_eTaskGetState.c</in>
                 <in>test_freertos_hooks.c</in>
                 <in>test_freertos_psram.c</in>
@@ -10606,19 +10629,26 @@
           <df name="cmake">
           </df>
           <df name="configs">
+            <df name="ext">
+              <in>config_tfm.h</in>
+              <in>crypto_config_profile_medium.h</in>
+              <in>mbedtls_entropy_nv_seed_config.h</in>
+              <in>tfm_mbedcrypto_config_profile_medium.h</in>
+            </df>
             <in>config-ccm-psk-dtls1_2.h</in>
             <in>config-ccm-psk-tls1_2.h</in>
             <in>config-no-entropy.h</in>
             <in>config-suite-b.h</in>
             <in>config-symmetric-only.h</in>
+            <in>config-tfm.h</in>
             <in>config-thread.h</in>
             <in>crypto-config-ccm-aes-sha256.h</in>
-            <in>crypto_config_profile_medium.h</in>
-            <in>tfm_mbedcrypto_config_profile_medium.h</in>
           </df>
           <df name="docs">
             <df name="architecture">
               <df name="psa-migration">
+              </df>
+              <df name="psa-thread-safety">
               </df>
               <df name="testing">
               </df>
@@ -10645,6 +10675,7 @@
               <in>asn1write.h</in>
               <in>base64.h</in>
               <in>bignum.h</in>
+              <in>block_cipher.h</in>
               <in>build_info.h</in>
               <in>camellia.h</in>
               <in>ccm.h</in>
@@ -10758,6 +10789,8 @@
             <in>bignum_mod_raw.c</in>
             <in>bignum_mod_raw.h</in>
             <in>bignum_mod_raw_invasive.h</in>
+            <in>block_cipher.c</in>
+            <in>block_cipher_internal.h</in>
             <in>bn_mul.h</in>
             <in>camellia.c</in>
             <in>ccm.c</in>
@@ -10772,8 +10805,10 @@
             <in>constant_time.c</in>
             <in>constant_time_impl.h</in>
             <in>constant_time_internal.h</in>
+            <in>ctr.h</in>
             <in>ctr_drbg.c</in>
             <in>debug.c</in>
+            <in>debug_internal.h</in>
             <in>des.c</in>
             <in>dhm.c</in>
             <in>ecdh.c</in>
@@ -10812,6 +10847,7 @@
             <in>padlock.h</in>
             <in>pem.c</in>
             <in>pk.c</in>
+            <in>pk_ecc.c</in>
             <in>pk_internal.h</in>
             <in>pk_wrap.c</in>
             <in>pk_wrap.h</in>
@@ -10863,12 +10899,14 @@
             <in>rsa.c</in>
             <in>rsa_alt_helpers.c</in>
             <in>rsa_alt_helpers.h</in>
+            <in>rsa_internal.h</in>
             <in>sha1.c</in>
             <in>sha256.c</in>
             <in>sha3.c</in>
             <in>sha512.c</in>
             <in>ssl_cache.c</in>
             <in>ssl_ciphersuites.c</in>
+            <in>ssl_ciphersuites_internal.h</in>
             <in>ssl_client.c</in>
             <in>ssl_client.h</in>
             <in>ssl_cookie.c</in>
@@ -10895,9 +10933,12 @@
             <in>x509_crl.c</in>
             <in>x509_crt.c</in>
             <in>x509_csr.c</in>
+            <in>x509_internal.h</in>
             <in>x509write.c</in>
             <in>x509write_crt.c</in>
             <in>x509write_csr.c</in>
+          </df>
+          <df name="pkgconfig">
           </df>
           <df name="programs">
             <df name="aes">
@@ -10957,6 +10998,7 @@
               <in>key_ladder_demo.c</in>
               <in>psa_constant_names.c</in>
               <in>psa_constant_names_generated.c</in>
+              <in>psa_hash.c</in>
             </df>
             <df name="random">
               <in>gen_entropy.c</in>
@@ -10990,6 +11032,7 @@
               </df>
               <in>benchmark.c</in>
               <in>dlopen.c</in>
+              <in>metatest.c</in>
               <in>query_compile_time_config.c</in>
               <in>query_config.c</in>
               <in>query_config.h</in>
@@ -11043,6 +11086,8 @@
               <df name="dir3">
               </df>
               <df name="dir4">
+              </df>
+              <df name="opensslcnf">
               </df>
               <df name="parse_input">
               </df>
@@ -11113,16 +11158,22 @@
                 <in>fake_external_rng_for_test.h</in>
                 <in>helpers.h</in>
                 <in>macros.h</in>
+                <in>memory.h</in>
                 <in>psa_crypto_helpers.h</in>
                 <in>psa_exercise_key.h</in>
                 <in>psa_helpers.h</in>
+                <in>psa_memory_poisoning_wrappers.h</in>
+                <in>psa_test_wrappers.h</in>
                 <in>random.h</in>
                 <in>ssl_helpers.h</in>
+                <in>threading_helpers.h</in>
               </df>
             </df>
             <df name="opt-testcases">
             </df>
             <df name="scripts">
+              <df name="quiet">
+              </df>
             </df>
             <df name="src">
               <df name="drivers">
@@ -11146,16 +11197,20 @@
               <in>fake_external_rng_for_test.c</in>
               <in>helpers.c</in>
               <in>psa_crypto_helpers.c</in>
+              <in>psa_crypto_stubs.c</in>
               <in>psa_exercise_key.c</in>
+              <in>psa_memory_poisoning_wrappers.c</in>
+              <in>psa_test_wrappers.c</in>
               <in>random.c</in>
               <in>test_certs.h</in>
+              <in>test_memory.c</in>
               <in>threading_helpers.c</in>
             </df>
             <df name="suites">
             </df>
           </df>
           <df name="visualc">
-            <df name="VS2013">
+            <df name="VS2017">
             </df>
           </df>
         </df>
@@ -11635,17 +11690,21 @@
                 <in>crypto.c</in>
                 <in>diag.c</in>
                 <in>dns.c</in>
+                <in>dnssd.c</in>
                 <in>dso_transport.c</in>
                 <in>entropy.c</in>
                 <in>flash.c</in>
                 <in>infra_if.c</in>
                 <in>logging.c</in>
+                <in>mdns_socket.c</in>
                 <in>misc.c</in>
                 <in>multipan.c</in>
                 <in>openthread-core-simulation-config.h</in>
                 <in>platform-config.h</in>
                 <in>platform-simulation.h</in>
                 <in>radio.c</in>
+                <in>simul_utils.c</in>
+                <in>simul_utils.h</in>
                 <in>spi-stubs.c</in>
                 <in>system.c</in>
                 <in>trel.c</in>
@@ -11686,11 +11745,13 @@
                 <in>debug_uart.h</in>
                 <in>diag.h</in>
                 <in>dns.h</in>
+                <in>dnssd.h</in>
                 <in>dso_transport.h</in>
                 <in>entropy.h</in>
                 <in>flash.h</in>
                 <in>infra_if.h</in>
                 <in>logging.h</in>
+                <in>mdns_socket.h</in>
                 <in>memory.h</in>
                 <in>messagepool.h</in>
                 <in>misc.h</in>
@@ -11738,6 +11799,7 @@
               <in>link_metrics.h</in>
               <in>link_raw.h</in>
               <in>logging.h</in>
+              <in>mdns.h</in>
               <in>mesh_diag.h</in>
               <in>message.h</in>
               <in>multi_radio.h</in>
@@ -11764,6 +11826,7 @@
               <in>thread_ftd.h</in>
               <in>trel.h</in>
               <in>udp.h</in>
+              <in>verhoeff_checksum.h</in>
             </df>
           </df>
           <df name="script">
@@ -11796,6 +11859,8 @@
               <in>cli_link_metrics.hpp</in>
               <in>cli_mac_filter.cpp</in>
               <in>cli_mac_filter.hpp</in>
+              <in>cli_mdns.cpp</in>
+              <in>cli_mdns.hpp</in>
               <in>cli_network_data.cpp</in>
               <in>cli_network_data.hpp</in>
               <in>cli_output.cpp</in>
@@ -11812,6 +11877,8 @@
               <in>cli_tcp.hpp</in>
               <in>cli_udp.cpp</in>
               <in>cli_udp.hpp</in>
+              <in>cli_utils.cpp</in>
+              <in>cli_utils.hpp</in>
               <in>x509_cert_key.hpp</in>
             </df>
             <df name="core">
@@ -11847,6 +11914,7 @@
                 <in>link_metrics_api.cpp</in>
                 <in>link_raw_api.cpp</in>
                 <in>logging_api.cpp</in>
+                <in>mdns_api.cpp</in>
                 <in>mesh_diag_api.cpp</in>
                 <in>message_api.cpp</in>
                 <in>multi_radio_api.cpp</in>
@@ -11871,6 +11939,7 @@
                 <in>thread_ftd_api.cpp</in>
                 <in>trel_api.cpp</in>
                 <in>udp_api.cpp</in>
+                <in>verhoeff_checksum_api.cpp</in>
               </df>
               <df name="backbone_router">
                 <in>backbone_tmf.cpp</in>
@@ -12006,6 +12075,7 @@
                 <in>link_raw.h</in>
                 <in>logging.h</in>
                 <in>mac.h</in>
+                <in>mdns.h</in>
                 <in>mesh_diag.h</in>
                 <in>mesh_forwarder.h</in>
                 <in>misc.h</in>
@@ -12135,6 +12205,8 @@
                 <in>dns_platform.cpp</in>
                 <in>dns_types.cpp</in>
                 <in>dns_types.hpp</in>
+                <in>dnssd.cpp</in>
+                <in>dnssd.hpp</in>
                 <in>dnssd_server.cpp</in>
                 <in>dnssd_server.hpp</in>
                 <in>icmp6.cpp</in>
@@ -12152,6 +12224,8 @@
                 <in>ip6_mpl.cpp</in>
                 <in>ip6_mpl.hpp</in>
                 <in>ip6_types.hpp</in>
+                <in>mdns.cpp</in>
+                <in>mdns.hpp</in>
                 <in>nat64_translator.cpp</in>
                 <in>nat64_translator.hpp</in>
                 <in>nd6.cpp</in>
@@ -12164,6 +12238,8 @@
                 <in>sntp_client.hpp</in>
                 <in>socket.cpp</in>
                 <in>socket.hpp</in>
+                <in>srp_advertising_proxy.cpp</in>
+                <in>srp_advertising_proxy.hpp</in>
                 <in>srp_client.cpp</in>
                 <in>srp_client.hpp</in>
                 <in>srp_server.cpp</in>
@@ -12318,6 +12394,8 @@
                 <in>slaac_address.hpp</in>
                 <in>srp_client_buffers.cpp</in>
                 <in>srp_client_buffers.hpp</in>
+                <in>verhoeff_checksum.cpp</in>
+                <in>verhoeff_checksum.hpp</in>
               </df>
               <in>openthread-core-config.h</in>
             </df>
@@ -12334,6 +12412,8 @@
               <df name="spinel">
                 <in>example_vendor_hook.cpp</in>
                 <in>example_vendor_hook.hpp</in>
+                <in>logger.cpp</in>
+                <in>logger.hpp</in>
                 <in>multi_frame_buffer.hpp</in>
                 <in>openthread-spinel-config.h</in>
                 <in>radio_spinel.cpp</in>
@@ -12346,6 +12426,8 @@
                 <in>spinel_buffer.hpp</in>
                 <in>spinel_decoder.cpp</in>
                 <in>spinel_decoder.hpp</in>
+                <in>spinel_driver.cpp</in>
+                <in>spinel_driver.hpp</in>
                 <in>spinel_encoder.cpp</in>
                 <in>spinel_encoder.hpp</in>
                 <in>spinel_encrypter.hpp</in>
@@ -12401,9 +12483,12 @@
                 <in>infra_if.cpp</in>
                 <in>infra_if.hpp</in>
                 <in>ip6_utils.hpp</in>
+                <in>logger.hpp</in>
                 <in>logging.cpp</in>
                 <in>mainloop.cpp</in>
                 <in>mainloop.hpp</in>
+                <in>mdns_socket.cpp</in>
+                <in>mdns_socket.hpp</in>
                 <in>memory.cpp</in>
                 <in>misc.cpp</in>
                 <in>multicast_routing.cpp</in>
@@ -12518,6 +12603,7 @@
               <in>test_lowpan.hpp</in>
               <in>test_mac_frame.cpp</in>
               <in>test_macros.cpp</in>
+              <in>test_mdns.cpp</in>
               <in>test_meshcop.cpp</in>
               <in>test_message.cpp</in>
               <in>test_message_queue.cpp</in>
@@ -12541,8 +12627,10 @@
               <in>test_spinel_buffer.cpp</in>
               <in>test_spinel_decoder.cpp</in>
               <in>test_spinel_encoder.cpp</in>
+              <in>test_srp_adv_proxy.cpp</in>
               <in>test_srp_server.cpp</in>
               <in>test_string.cpp</in>
+              <in>test_tcat.cpp</in>
               <in>test_timer.cpp</in>
               <in>test_tlv.cpp</in>
               <in>test_toolchain.cpp</in>
@@ -12636,6 +12724,7 @@
                 <df name="ChangeLog.d">
                 </df>
                 <df name="configs">
+                  <in>config-ccm-psk-dtls1_2.h</in>
                   <in>config-ccm-psk-tls1_2.h</in>
                   <in>config-mini-tls1_1.h</in>
                   <in>config-no-entropy.h</in>
@@ -12773,6 +12862,7 @@
                   <in>asn1write.c</in>
                   <in>base64.c</in>
                   <in>bignum.c</in>
+                  <in>bignum_internal.h</in>
                   <in>blowfish.c</in>
                   <in>camellia.c</in>
                   <in>ccm.c</in>
@@ -12998,6 +13088,8 @@
                   <df name="configs">
                     <in>config-wrapper-malloc-0-null.h</in>
                     <in>user-config-for-test.h</in>
+                    <in>user-config-malloc-0-null.h</in>
+                    <in>user-config-zeroize-memset.h</in>
                   </df>
                   <df name="data_files">
                     <df name="base64">
@@ -13012,6 +13104,8 @@
                     </df>
                     <df name="dir4">
                     </df>
+                    <df name="parse_input">
+                    </df>
                   </df>
                   <df name="docker">
                     <df name="bionic">
@@ -13020,6 +13114,9 @@
                   <df name="git-scripts">
                   </df>
                   <df name="include">
+                    <df name="baremetal-override">
+                      <in>time.h</in>
+                    </df>
                     <df name="spe">
                       <in>crypto_spe.h</in>
                     </df>
@@ -13036,6 +13133,7 @@
                         <in>size.h</in>
                         <in>test_driver.h</in>
                       </df>
+                      <in>arguments.h</in>
                       <in>asn1_helpers.h</in>
                       <in>constant_flow.h</in>
                       <in>fake_external_rng_for_test.h</in>
@@ -13045,6 +13143,7 @@
                       <in>psa_exercise_key.h</in>
                       <in>psa_helpers.h</in>
                       <in>random.h</in>
+                      <in>ssl_helpers.h</in>
                     </df>
                   </df>
                   <df name="scripts">
@@ -13059,6 +13158,13 @@
                       <in>test_driver_mac.c</in>
                       <in>test_driver_signature.c</in>
                       <in>test_driver_size.c</in>
+                    </df>
+                    <df name="external_timing">
+                      <in>external_timing_for_test.c</in>
+                      <in>timing_alt.h</in>
+                    </df>
+                    <df name="test_helpers">
+                      <in>ssl_helpers.c</in>
                     </df>
                     <in>asn1_helpers.c</in>
                     <in>fake_external_rng_for_test.c</in>
@@ -13184,6 +13290,20 @@
             </df>
             <df name="spi-hdlc-adapter">
               <in>spi-hdlc-adapter.c</in>
+            </df>
+            <df name="tcat_ble_client">
+              <df name="auth">
+              </df>
+              <df name="ble">
+              </df>
+              <df name="cli">
+              </df>
+              <df name="dataset">
+              </df>
+              <df name="tlv">
+              </df>
+              <df name="utils">
+              </df>
             </df>
           </df>
           <df name="zephyr">

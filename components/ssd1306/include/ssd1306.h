@@ -107,7 +107,7 @@ public:
      * @param i2c_port The I2C port to use (default: 0)
      * @param i2c_address I2C-bus address (default: 0x20)     
      */
-    SSD1306(const uint8_t i2c_address, const int width, const int height);
+    SSD1306(I2CManager& i2cmgr, const uint8_t i2c_address, const int width, const int height);
     ~SSD1306();
 
     void init(void);
@@ -161,6 +161,8 @@ private:
     int _scDirection;
     PAGE_t _page[8];
     bool _flip;
+    
+    I2CManager& i2c_manager;
 };
 
 #endif /* MAIN_SSD1306_H_ */

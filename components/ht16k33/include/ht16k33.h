@@ -49,7 +49,7 @@
 class HT16K33 {
 public:
 
-    HT16K33(const i2c_port_t port, const uint8_t address);
+    HT16K33(I2CManager & i2cmanager, const uint8_t address);
     ~HT16K33();
 
     esp_err_t set_digits(uint8_t val);
@@ -64,6 +64,8 @@ private:
 
     i2c_device_config_t deviceConfig;
     i2c_master_dev_handle_t deviceHandle;    
+    
+    I2CManager& i2c_manager;
 };
 #endif
 

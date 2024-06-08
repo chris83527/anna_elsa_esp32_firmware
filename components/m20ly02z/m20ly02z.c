@@ -39,7 +39,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <esp_log.h>
-#include <esp32/rom/ets_sys.h>
+#include <rom/ets_sys.h>
 
 #include "m20ly02z.h"
 

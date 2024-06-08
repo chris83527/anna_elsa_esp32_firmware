@@ -1,15 +1,15 @@
-cmake_minimum_required(VERSION 3.16.0)
+cmake_minimum_required(VERSION 3.16)
 
 set(EXTRA_COMPONENT_DIRS 
 "components/i2cmanager"
-"components/cctalk"
-"components/anna_elsa_audio_board" 
+"components/cctalk" 
 "components/ht16k33" 
 "components/m20ly02z" 
 "components/ssd1306"
 "components/mcp23x17" 
 "components/mcp23008" 
 "components/ds3231" 
+"components/led_strip" 
 "components/esp32-wifi-manager" 
 "/home/chris/esp/esp-idf/components/esp_hw_support" 
 "/home/chris/esp/esp-idf/components/nvs_flash" 
@@ -17,11 +17,9 @@ set(EXTRA_COMPONENT_DIRS
 "/home/chris/esp/esp-idf/components/spiffs" 
 "/home/chris/esp/esp-idf-lib/components/color" 
 "/home/chris/esp/esp-idf-lib/components/lib8tion" 
-"/home/chris/esp/esp-idf-lib/components/led_strip" 
-"/home/chris/esp/esp-idf-lib/components/esp_idf_lib_helpers" 
-"/home/chris/esp/esp-adf/components")
+"/home/chris/esp/esp-idf-lib/components/esp_idf_lib_helpers"
+)
 
-
-include(/home/chris/esp/esp-idf/tools/cmake/project.cmake)
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
 project(anna_elsa_esp32)

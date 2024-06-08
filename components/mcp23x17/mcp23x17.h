@@ -93,7 +93,7 @@ public:
      * @param i2c_port The I2C port to use (default: 0)
      * @param i2c_address I2C-bus address (default: 0x20)     
      */
-    MCP23x17(const uint8_t i2c_address);
+    MCP23x17(I2CManager& i2cmgr, const uint8_t i2c_address);
 
     ~MCP23x17();
 
@@ -273,6 +273,7 @@ private:
     i2c_device_config_t deviceConfig;
     i2c_master_dev_handle_t deviceHandle;    
     
+    I2CManager& i2c_manager;
     
     std::mutex _mutex;
 };

@@ -41,6 +41,7 @@
 #include <sstream>
 #include <memory>
 
+#include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_pthread.h"
 

@@ -26,30 +26,25 @@
 #include "esp_log.h"
 #include "board.h"
 
-#include "I2CManager.h"
-
-
 
 static const char *TAG = "ANNA_ELSA_AUDIO_BOARD";
 
-static audio_board_handle_t board_handle = 0;
 
-
-audio_board_handle_t audio_board_init(void) {
+audio_board_handle_t Board::audio_board_init() {
     ESP_LOGD(TAG, "audio_board_init called");
-    if (board_handle) {
+    if (this->boardHandle) {
         ESP_LOGW(TAG, "The board has already been initialized!");
-        return board_handle;
+        return boardHandle;
     }
-    board_handle = (audio_board_handle_t) audio_calloc(1, sizeof (struct audio_board_handle));
-    AUDIO_MEM_CHECK(TAG, board_handle, return NULL);  
+    this->boardHandle = (audio_board_handle_t) audio_calloc(1, sizeof (struct audio_board_handle));
+    AUDIO_MEM_CHECK(TAG, this->boardHandle, return NULL);  
     
-    board_handle->audio_hal = audio_board_codec_init();
+    this->boardHandle->audio_hal = audio_board_codec_init();
     
     return board_handle;
 }
 
-audio_hal_handle_t audio_board_codec_init(void) {
+audio_hal_handle_t Board::audio_board_codec_init(void) {
     ESP_LOGD(TAG, "audio_board_codec_init called");
     audio_hal_codec_config_t audio_codec_cfg = AUDIO_CODEC_DEFAULT_CONFIG();
     audio_hal_handle_t codec_hal = audio_hal_init(&audio_codec_cfg, &AUDIO_CODEC_TAS5731M_DEFAULT_HANDLE);
@@ -58,20 +53,20 @@ audio_hal_handle_t audio_board_codec_init(void) {
 
 }
 
-display_service_handle_t audio_board_led_init(void) {
+display_service_handle_t Board::audio_board_led_init(void) {
     return NULL;
 }
 
-esp_err_t audio_board_sdcard_init(esp_periph_set_handle_t set, periph_sdcard_mode_t mode) {
+esp_err_t Board::audio_board_sdcard_init(esp_periph_set_handle_t set, periph_sdcard_mode_t mode) {
     return ESP_OK;
 }
 
-esp_err_t audio_board_key_init(esp_periph_set_handle_t set) {
+esp_err_t Board::audio_board_key_init(esp_periph_set_handle_t set) {
     return ESP_OK;
 }
 
-audio_board_handle_t audio_board_get_handle(void) {
-    return board_handle;
+audio_board_handle_t Board::audio_board_get_handle(void) {
+    return this->boardHandle;
 }
 
 esp_err_t audio_board_deinit(audio_board_handle_t audio_board) {

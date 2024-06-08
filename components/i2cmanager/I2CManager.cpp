@@ -29,11 +29,9 @@
  * Created on May 21, 2024, 4:46 PM
  */
 
-#include <regex>
-#include <vector>
+#include <cstring>
 #include <shared_mutex>
 
-#include "driver/gpio.h"
 #include "I2CManager.h"
 
 I2CManager::I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin, gpio_num_t sdaPin) {
@@ -49,30 +47,22 @@ I2CManager::I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin, gpio_num_t 
 }
 
 I2CManager::~I2CManager() {
+	
 }
 
 esp_err_t I2CManager::addDevice(i2c_device_config_t& deviceConfig, i2c_master_dev_handle_t& deviceHandle) {
-    return i2c_master_bus_add_device(_bus_handle, deviceConfig, deviceHandle);
+    return i2c_master_bus_add_device(_bus_handle, &deviceConfig, &deviceHandle);
 }
 
-esp_err_t I2CManager::writeRegister(i2c_master_dev_handle_t& deviceHandle, uint8_t reg, std::vector<uint8_t>& data) {
-    _mutex.lock();
-    data.insert(0, reg); // this will be the register to transmit to. Adding it here to the beginning of the data
-    esp_err_t ret = i2c_master_transmit(deviceHandle, data.size(), data.data(), 2000);
-    _mutex.unlock();
-
-    return ret;
-}
-
-esp_err_t I2CManager::writeRegister(i2c_master_dev_handle_t& deviceHandle, uint8_t reg, uint8_t* data, int size) {
-
-
-}
-
-esp_err_t I2CManager::write(i2c_master_dev_handle_t& deviceHandle, std::vector<uint8_t> data) {
+esp_err_t I2CManager::writeRegister(i2c_master_dev_handle_t& deviceHandle, const uint8_t reg, uint8_t* data, int size) {
     _mutex.lock();
 
-    esp_err_t ret = i2c_master_transmit(deviceHandle, data.data(), data.size(), 2000);
+    uint8_t newdata[size + 1];
+    newdata[0] = reg;
+    std::memcpy(&(newdata[1]), data, size);
+
+    esp_err_t ret = i2c_master_transmit(deviceHandle, newdata, size + 1, 2000);
+
     _mutex.unlock();
 
     return ret;
@@ -86,24 +76,17 @@ esp_err_t I2CManager::write(i2c_master_dev_handle_t& deviceHandle, uint8_t* data
     return ret;
 }
 
-esp_err_t I2CManager::readRegister(i2c_master_dev_handle_t& deviceHandle, uint8_t reg, std::vector<uint8_t>& data, int bytesToRead) {
+esp_err_t I2CManager::readRegister(i2c_master_dev_handle_t& deviceHandle, const uint8_t reg, uint8_t* data, int size) {
     _mutex.lock();
-    
-    esp_err_t ret = i2c_master_transmit_receive(i2c_master_dev_handle_t& deviceHandle, reg, 1, data.data(), data.size());
+	
+	uint8_t writeBuffer[1];	
+	writeBuffer[0] = reg;	
+
+    esp_err_t ret = i2c_master_transmit_receive(deviceHandle, writeBuffer, 1, data, size, 2000);
 
     _mutex.unlock();
     return ret;
 }
-
-esp_err_t I2CManager::readRegister(i2c_master_dev_handle_t& deviceHandle, uint8_t reg, uint8_t* data, int size) {
-     _mutex.lock();
-
-    esp_err_t ret = i2c_master_transmit_receive(i2c_master_dev_handle_t& deviceHandle, reg, 1, data, size);
-
-    _mutex.unlock();
-    return ret;
-}
-
 
 esp_err_t I2CManager::read(i2c_master_dev_handle_t& deviceHandle, uint8_t* data, int size) {
     _mutex.lock();
@@ -117,5 +100,22 @@ bool I2CManager::probe(int address) {
     esp_err_t ret = i2c_master_probe(_bus_handle, address, 2000) == ESP_OK;
     _mutex.unlock();
     return ret;
+}
+
+void I2CManager::scan() {
+	bool res;
+    printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n");
+    printf("00:         ");
+    for (uint8_t i = 3; i < 0x78; i++) {
+        res = probe(i);
+        if (i % 16 == 0)
+            printf("\n%2x:", i);
+        if (res == 0) {
+            printf(" %2x", i);
+        } else{
+			printf(" --");	
+		}                  
+    }
+    printf("\n\n");
 }
 

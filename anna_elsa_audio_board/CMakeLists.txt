@@ -9,9 +9,9 @@ if(CONFIG_AUDIO_BOARD_CUSTOM)
     list(APPEND COMPONENT_ADD_INCLUDEDIRS .)
 
     set(COMPONENT_SRCS
-        ./tas5731m.c
-        ./board.c
-        ./board_pins_config.c           
+        ./tas5731m.cpp
+        ./board.cpp
+        ./board_pins_config.cpp           
     )
 endif()
 

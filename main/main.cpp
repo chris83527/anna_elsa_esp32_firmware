@@ -49,11 +49,7 @@ using namespace std;
 
 static const char *TAG = "main";
 
-extern "C" {
-    void app_main();
-}
-
-void app_main() {
+extern "C" void app_main() {
     ESP_LOGI(TAG, "app_main() called");
 
     // See https://github.com/espressif/esp-idf/issues/3544

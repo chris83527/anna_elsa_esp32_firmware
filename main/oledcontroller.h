@@ -38,8 +38,7 @@
 
 class oledcontroller {
 public:
-    oledcontroller();
-    oledcontroller(const oledcontroller& orig);
+    oledcontroller(I2CManager& i2cmgr, const int address);    
     virtual ~oledcontroller();
     void initialise(void);
     void displayText(std::string textToDisplay, int lineNumber, bool invert);
@@ -56,7 +55,7 @@ private:
     int bottom = 8;
     char lineChar[20];
 
-
+	I2CManager& i2c_manager;
 };
 
 #endif /* OLEDCONTROLLER_H */

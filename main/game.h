@@ -38,8 +38,11 @@
 #include <string>
 #include <array>
 
+#include "esp_random.h"
+
 #include "reelcontroller.h"
 #include "displaycontroller.h"
+
 
 #define HANS 0
 #define OLAF 1

@@ -40,7 +40,6 @@
 #include "esp_timer.h"
 
 #include "driver/uart.h"
-#include "esp32/rom/uart.h"
 
 #include "cctalk_enums.h"
 

@@ -109,7 +109,7 @@ public:
      * @param i2c_port The I2C port to use (default: 0)
      * @param i2c_address I2C-bus address (default: 0x20)     
      */
-    PCA9629A(const i2c_port_t i2c_port = I2C_NUM_0, const uint8_t i2c_address = PCA9629A_I2C_ADDR_BASE);
+    PCA9629A(I2CManager& i2cmgr, const uint8_t i2c_address = PCA9629A_I2C_ADDR_BASE);
 
     ~PCA9629A();
 
@@ -234,6 +234,8 @@ private:
     bool performingAction;
     
     std::mutex _mutex;
+    
+    I2CManager& i2c_manager;
 };
 
 

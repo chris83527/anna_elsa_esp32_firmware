@@ -32,6 +32,8 @@
 #ifndef FONT8X8_BASIC_H
 #define FONT8X8_BASIC_H
 
+#include <cstdint>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

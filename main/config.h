@@ -40,43 +40,41 @@
 #include <string>
 
 #include "driver/gpio.h"
-#include "ht16k33.h"
-#include "pca9629a.h"
-#include "mcp23x17.h"
+#include "driver/uart.h"
 
-#define I2C_FREQ_HZ 100000
+constexpr int I2C_FREQ_HZ = 100000;
 
 // Running LED
-#define CPU_LED_GPIO GPIO_NUM_19
+constexpr gpio_num_t CPU_LED_GPIO = GPIO_NUM_19;
 
 // ccTalk
-#define CCTALK_GPIO_RX GPIO_NUM_16
-#define CCTALK_GPIO_TX GPIO_NUM_17
-#define CCTALK_UART UART_NUM_1
+constexpr gpio_num_t CCTALK_GPIO_RX = GPIO_NUM_16;
+constexpr gpio_num_t CCTALK_GPIO_TX = GPIO_NUM_17;
+constexpr uart_port_t CCTALK_UART = UART_NUM_1;
 
 // I2C
-#define GPIO_I2C_SDA GPIO_NUM_21
-#define GPIO_I2C_SCL GPIO_NUM_22
+constexpr gpio_num_t GPIO_I2C_SDA = GPIO_NUM_21;
+constexpr gpio_num_t GPIO_I2C_SCL = GPIO_NUM_22;
 
 // LEDs
-#define LED_GPIO GPIO_NUM_18
+constexpr gpio_num_t LED_GPIO = GPIO_NUM_18;
 #define LED_COUNT (61)
 
 // VFD Display
-#define MD_OE GPIO_NUM_4
-#define MD_DATA GPIO_NUM_33
-#define MD_CLK GPIO_NUM_5
-#define MD_STROBE GPIO_NUM_32
+constexpr gpio_num_t MD_OE = GPIO_NUM_4;
+constexpr gpio_num_t MD_DATA = GPIO_NUM_33;
+constexpr gpio_num_t MD_CLK = GPIO_NUM_5;
+constexpr gpio_num_t MD_STROBE = GPIO_NUM_32;
 
 // I2S Audio
-#define AUDIO_MCLK GPIO_NUM_0
-#define AUDIO_PDWN GPIO_NUM_2
-#define AUDIO_LRCLK GPIO_NUM_25
-#define AUDIO_SCLK GPIO_NUM_26
-#define AUDIO_DOUT GPIO_NUM_27
+constexpr gpio_num_t AUDIO_MCLK = GPIO_NUM_0;
+constexpr gpio_num_t AUDIO_PDWN = GPIO_NUM_2;
+constexpr gpio_num_t AUDIO_LRCLK = GPIO_NUM_25;
+constexpr gpio_num_t AUDIO_SCLK = GPIO_NUM_26;
+constexpr gpio_num_t AUDIO_DOUT = GPIO_NUM_27;
 
 // reels
-#define GPIO_MOTOR_EN GPIO_NUM_23
+constexpr gpio_num_t GPIO_MOTOR_EN = GPIO_NUM_23;
 
 
 // Buttons and button lamps (interfaced via MCP23017)

@@ -49,18 +49,13 @@
 
 static const char *TAG = "oledcontroller";
 
-int i2c_address = 0x3c;
-
-oledcontroller::oledcontroller() {
+oledcontroller::oledcontroller(I2CManager& i2cmgr, const int address) : i2c_manager(i2cmgr) {
     #if CONFIG_SSD1306_128x64
-        ssd1306 = new SSD1306(I2C_NUM_0, i2c_address, 128, 64);
+        ssd1306 = new SSD1306(this->i2c_manager, address, 128, 64);
     #endif // CONFIG_SSD1306_128x64
     #if CONFIG_SSD1306_128x32
-        ssd1306 = new SSD1306(I2C_NUM_0, i2c_address, 128, 32);
+        ssd1306 = new SSD1306(this->i2c_manager, i2c_address, 128, 32);
     #endif
-}
-
-oledcontroller::oledcontroller(const oledcontroller& orig) {
 }
 
 oledcontroller::~oledcontroller() {

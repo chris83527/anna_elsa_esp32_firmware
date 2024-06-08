@@ -322,7 +322,7 @@ namespace esp32cc {
         // Check if it's present / alive
         ESP_LOGD(TAG, "Requesting checkAlive");
         requestCheckAlive([ & ](const std::string& error_msg, bool alive) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 error = error_msg;
                 doContinue = false;
             }
@@ -336,7 +336,7 @@ namespace esp32cc {
         // Get device manufacturing info
         ESP_LOGD(TAG, "Requesting manufacturing info");
         requestManufacturingInfo([ & ](const std::string& error_msg, CcCategory category, const std::string & info) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 error = error_msg;
             } else {
                 this->deviceCategory = category;
@@ -357,7 +357,7 @@ namespace esp32cc {
             ESP_LOGD(TAG, "Requesting polling interval");
             // Get recommended polling frequency        
             requestPollingInterval([ & ](const std::string& error_msg, uint64_t msec) {
-                if (!error_msg.size() == 0) {
+                if (error_msg.size() != 0) {
                     error = error_msg;
                 } else {
                     // For very large values and unsupported values pick reasonable defaults.
@@ -384,7 +384,7 @@ namespace esp32cc {
             if (this->deviceCategory == CcCategory::CoinAcceptor || this->deviceCategory == CcCategory::BillValidator) {
                 ESP_LOGD(TAG, "Requesting identifiers");
                 requestIdentifiers([ & ](const std::string& error_msg, const std::map<uint8_t, CcIdentifier>& identifiers) {
-                    if (!error_msg.size() == 0) {
+                    if (error_msg.size() != 0) {
                         error = error_msg;
                     } else {
                         this->identifiers = identifiers;
@@ -402,7 +402,7 @@ namespace esp32cc {
             // Modify bill validator operating mode - enable escrow and stacker        
             if (this->deviceCategory == CcCategory::BillValidator) {
                 modifyBillOperatingMode(true, true, [ & ](const std::string & error_msg) {
-                    if (!error_msg.size() == 0) {
+                    if (error_msg.size() != 0) {
                         error = error_msg;
                     }
                     if (error_msg.size() > 0) {
@@ -418,7 +418,7 @@ namespace esp32cc {
             // Set individual inhibit status on all bills / coins. The specification says
             // that this is not needed for coin acceptors, but the practice shows it is.        
             modifyInhibitStatus(0xff, 0xff, [ & ](const std::string & error_msg) {
-                if (!error_msg.size() == 0) {
+                if (error_msg.size() != 0) {
                     error = error_msg;
                 }
 
@@ -507,13 +507,13 @@ namespace esp32cc {
         ESP_LOGD(TAG, "Sending request for SimplePoll");
         std::vector<uint8_t> data;
         this->linkController->ccRequest(CcHeader::SimplePoll, this->deviceAddress, data, 200, [ & ](const std::string error_msg, const std::vector<uint8_t>& responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 ESP_LOGE(TAG, "Error checking for device alive status (simple poll): %s", error_msg.c_str());
                 finish_callback(error_msg, false);
                 return;
             }
 
-            if (!responseData.size() == 0) {
+            if (responseData.size() != 0) {
                 std::string error = "Non-empty data received while waiting for ACK.";
                 // //ccResponseDataDecodeError(request_id, error); // auto-logged
                 finish_callback(error, false);
@@ -534,7 +534,7 @@ namespace esp32cc {
 
         // Category                    
         this->linkController->ccRequest(CcHeader::RequestEquipmentCategoryId, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t>& responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 error = error_msg;
             } else {
                 // Decode the data
@@ -550,7 +550,7 @@ namespace esp32cc {
 
         // Product code        
         this->linkController->ccRequest(CcHeader::RequestProductCode, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 error = error_msg;
             } else {
                 // Decode the data                
@@ -561,7 +561,7 @@ namespace esp32cc {
 
         // Build code        
         this->linkController->ccRequest(CcHeader::RequestBuildCode, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 error = error_msg;
             } else {
                 // Decode the data
@@ -571,7 +571,7 @@ namespace esp32cc {
 
         // Manufacturer        
         this->linkController->ccRequest(CcHeader::RequestManufacturerId, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 error = error_msg;
             } else {
                 // Decode the data
@@ -582,7 +582,7 @@ namespace esp32cc {
 
         // S/N        
         this->linkController->ccRequest(CcHeader::RequestSerialNumber, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t>& responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 error = error_msg;
             } else {
                 // Decode the data                
@@ -593,7 +593,7 @@ namespace esp32cc {
 
         // Software revision           
         this->linkController->ccRequest(CcHeader::RequestSoftwareRevision, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t>& responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 error = error_msg;
             } else {
                 // Decode the data                
@@ -604,7 +604,7 @@ namespace esp32cc {
 
         // ccTalk command set revision        
         this->linkController->ccRequest(CcHeader::RequestCommsRevision, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t>& responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 error = error_msg;
             } else {
                 if (responseData.size() == 3) {
@@ -622,7 +622,7 @@ namespace esp32cc {
         std::vector<uint8_t> data;
 
         this->linkController->ccRequest(CcHeader::RequestPollingPriority, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 ESP_LOGE(TAG, " Error getting polling interval: %s", error_msg.c_str());
                 finish_callback(error_msg, 0);
                 return;
@@ -739,7 +739,7 @@ namespace esp32cc {
     void CctalkDevice::requestMasterInhibitStatus(const std::function<void(const std::string& error_msg, bool inhibit)>& finish_callback) {
         std::vector<uint8_t> data;
         this->linkController->ccRequest(CcHeader::RequestMasterInhibitStatus, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 ESP_LOGE(TAG, "Error getting master inhibit status: %s", error_msg.c_str());
                 finish_callback(error_msg, false);
                 return;
@@ -771,12 +771,12 @@ namespace esp32cc {
         command_arg.push_back(char(mask));
 
         this->linkController->ccRequest(CcHeader::ModifyBillOperatingMode, this->deviceAddress, command_arg, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 ESP_LOGE(TAG, "Error setting bill validator operating mode: %s", error_msg.c_str());
                 finish_callback(error_msg);
                 return;
             }
-            if (!responseData.size() == 0) {
+            if (responseData.size() != 0) {
                 std::string error = "Non-empty data received while waiting for ACK.";
                 //ccResponseDataDecodeError(request_id, error); // auto-logged
                 finish_callback(error);
@@ -811,7 +811,7 @@ namespace esp32cc {
             // Get variable set            
             std::vector<uint8_t> data;
             this->linkController->ccRequest(CcHeader::RequestVariableSet, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-                if (!error_msg.size() == 0) {
+                if (error_msg.size() != 0) {
                     // Do not set global error, this is a local error of an optional command.
                     // *shared_error = error_msg;
                 } else {
@@ -841,14 +841,14 @@ namespace esp32cc {
             data.clear();
             data.push_back(pos);
             this->linkController->ccRequest(get_command, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-                if (!error_msg.size() == 0) {
+                if (error_msg.size() != 0) {
                     error = error_msg;
 
                 } else {
                     // Decode the data.
                     // 6 dots mean empty by convention, but we've seen all-null too.
                     std::string decodedData = decodeResponseToString(responseData);
-                    if (!decodedData.size() == 0 && decodedData != "......" && decodedData.at(0) != 0) {
+                    if (decodedData.size() != 0 && decodedData != "......" && decodedData.at(0) != 0) {
                         CcIdentifier identifier(decodedData);
                         if (countryScalingData.count(identifier.country) > 0) {
                             identifier.setCountryScalingData(this->countryScalingData.at(identifier.country));
@@ -884,7 +884,7 @@ namespace esp32cc {
             if (this->deviceCategory != CcCategory::BillValidator) {
                 std::vector<uint8_t> countryVector = std::vector<uint8_t>(country.begin(), country.end());
                 this->linkController->ccRequest(CcHeader::RequestCountryScalingFactor, this->deviceAddress, countryVector, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-                    if (!error_msg.size() == 0) {
+                    if (error_msg.size() != 0) {
                         error = error_msg;
 
                     } else {
@@ -977,7 +977,7 @@ namespace esp32cc {
 
             std::vector<CcEventData> event_data;
 
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 ESP_LOGE(TAG, "Error getting %s buffered credit / events: %s", coin_bill.c_str(), error_msg.c_str());
                         finish_callback(error_msg, 0, event_data);
                 return;
@@ -1085,7 +1085,7 @@ namespace esp32cc {
         }
 
         // If an error occurred during polling, do nothing (?)
-        if (!event_log_cmd_error_msg.size() == 0) {
+        if (event_log_cmd_error_msg.size() != 0) {
             finish_callback();
             return;
         }
@@ -1328,7 +1328,7 @@ namespace esp32cc {
         command_arg.push_back(char(route));
         this->linkController->ccRequest(CcHeader::RouteBill, this->deviceAddress, command_arg, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
 
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 ESP_LOGE(TAG, "Error sending RouteBill command: %s", error_msg.c_str());
                 finish_callback(error_msg, CcBillRouteStatus::FailedToRoute);
                 return;
@@ -1387,7 +1387,7 @@ namespace esp32cc {
         // Send the request
         std::vector<uint8_t> data;
         this->linkController->ccRequest(CcHeader::ResetDevice, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 ESP_LOGE(TAG, "Error sending soft reset request: %s", error_msg.c_str());
                 finish_callback(error_msg);
                 return;
@@ -1420,7 +1420,7 @@ namespace esp32cc {
         data.push_back(coin_id);
         data.push_back(path);
         this->linkController->ccRequest(CcHeader::ModifySorterPaths, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 ESP_LOGE(TAG, "Error modifying sorter path %d: %s", int(path), error_msg.c_str());
                 finish_callback(error_msg);
                 return;
@@ -1440,7 +1440,7 @@ namespace esp32cc {
         std::vector<uint8_t> data;
         data.push_back(path);
         this->linkController->ccRequest(CcHeader::ModifyDefaultSorterPath, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 ESP_LOGE(TAG, "Error modifying sorter path %d: %s", int(path), error_msg.c_str());
                 finish_callback(error_msg);
                 return;
@@ -1460,7 +1460,7 @@ namespace esp32cc {
         std::vector<uint8_t> data;
         data.push_back(overrideStatus);
         this->linkController->ccRequest(CcHeader::ModifySorterOverrideStatus, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 ESP_LOGE(TAG, "Error modifying sorter override status %d: %s", int(overrideStatus), error_msg.c_str());
                 finish_callback(error_msg);
                 return;
@@ -1480,7 +1480,7 @@ namespace esp32cc {
         std::vector<uint8_t> data;
         data.push_back(165); // always send this byte
         this->linkController->ccRequest(CcHeader::EnableHopper, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 ESP_LOGE(TAG, "Error enabling hopper: %s", error_msg.c_str());
                 finish_callback(error_msg);
                 return;
@@ -1497,7 +1497,7 @@ namespace esp32cc {
     void CctalkDevice::requestCipherKey(const std::function<void(const std::string & error_msg, const std::vector<uint8_t>& cipherKey)>& finish_callback) {
         std::vector<uint8_t> data;
         this->linkController->ccRequest(CcHeader::RequestCipherKey, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 ESP_LOGE(TAG, "Error requesting cipher key: %s", error_msg.c_str());
                 finish_callback(error_msg, responseData);
                 return;
@@ -1517,7 +1517,7 @@ namespace esp32cc {
     void CctalkDevice::requestPayoutHighLowStatus(const std::function<void(const std::string & error_msg, const std::vector<uint8_t>& highLowStatus)>& finish_callback) {
         std::vector<uint8_t> data;
         this->linkController->ccRequest(CcHeader::RequestPayoutHighLowStatus, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 ESP_LOGE(TAG, "Error requesting payout high/low status: %s", error_msg.c_str());
                 finish_callback(error_msg, responseData);
                 return;
@@ -1531,7 +1531,7 @@ namespace esp32cc {
     void CctalkDevice::testHopper(const std::function<void(const std::string & error_msg, const std::vector<uint8_t>& hopperStatus)>& finish_callback) {
         std::vector<uint8_t> data;
         this->linkController->ccRequest(CcHeader::TestHopper, this->deviceAddress, data, 200, [ & ](const std::string& error_msg, const std::vector<uint8_t> & responseData) {
-            if (!error_msg.size() == 0) {
+            if (error_msg.size() != 0) {
                 ESP_LOGE(TAG, "Error testing hopper: %s", error_msg.c_str());
                 finish_callback(error_msg, responseData);
                 return;

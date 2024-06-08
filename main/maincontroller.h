@@ -20,6 +20,8 @@
 #include <utility>
 #include <chrono>
 
+#include "driver/i2c_types.h"
+#include "driver/gpio.h"
 #include "esp_pthread.h"
 
 #include "nvs_flash.h"
@@ -28,7 +30,6 @@
 #include "ds3231.h"
 #include "cctalkcontroller.h"
 #include "cctalk_enums.h"
-#include "httpcontroller.h"
 
 class ReelController;
 class DisplayController;
@@ -59,21 +60,21 @@ public:
     void writeValueToNVS(const char * key, uint16_t value);
     uint16_t readValueFromNVS(const char * key);
 
-    std::shared_ptr<AudioController> getAudioController();
-    std::shared_ptr<DisplayController> getDisplayController();
-    std::shared_ptr<ReelController> getReelController();
-    std::shared_ptr<CCTalkController> getCCTalkController();
-    std::shared_ptr<Game> getGame();
-    std::shared_ptr<MoneyController> getMoneyController();
-    std::shared_ptr<oledcontroller> getOledController();
+    AudioController* getAudioController();
+    DisplayController* getDisplayController();
+    ReelController* getReelController();
+    CCTalkController* getCCTalkController();
+    Game* getGame();
+    MoneyController* getMoneyController();
+    oledcontroller* getOledController();
     //std::shared_ptr<WIFI::Wifi> getWifiController();
 
-    DS3231* getDs3231();
+    DS3231& getDs3231();
 
 
 private:
 
-    DS3231* ds3231;
+    DS3231 ds3231;
 
     //EEProm_Data eeprom_data;    
     void blinkCPUStatusLEDTask(void);
@@ -95,23 +96,23 @@ private:
 
     uint8_t volume = 0;
 
-    std::shared_ptr<Game> game;
-    std::shared_ptr<ReelController> reelController;
-    std::shared_ptr<DisplayController> displayController;
-    std::shared_ptr<CCTalkController> cctalkController;
-    std::shared_ptr<AudioController> audioController;
-    std::shared_ptr<MoneyController> moneyController;
-    std::shared_ptr<oledcontroller> oledController;    
-    std::shared_ptr<HttpController> httpController;
+    Game* game;
+    ReelController* reelController;
+    DisplayController* displayController;
+    CCTalkController* cctalkController;
+    AudioController* audioController;
+    MoneyController* moneyController;
+    oledcontroller* oledController;    
+    //HttpController httpController;
 
-    std::unique_ptr<nvs::NVSHandle> nvs_handle;
+    std::unique_ptr<nvs::NVSHandle> nvsHandle;
     
     const char* NVS_PARTITION_SETTINGS = "settings";
 
     enum class MachineState : uint8_t {
         INITIALISING,
         IDLE,
-        ANIMATION,
+        ATTRACT,
         IN_GAME,
         PAYING_OUT
     };
@@ -119,6 +120,8 @@ private:
     std::thread updateStatisticsThread;
     std::thread blinkCPUStatusLEDThread;    
     std::thread gameThread;
+    
+    I2CManager i2c_manager = I2CManager(I2C_NUM_0, GPIO_NUM_22, GPIO_NUM_21);
 };
 
 

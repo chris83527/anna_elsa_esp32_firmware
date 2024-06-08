@@ -152,7 +152,7 @@ void Game::start() {
 
     mainController->getMoneyController()->incrementGameCount();
     mainController->getMoneyController()->removeFromCredit(20);
-    mainController->getAudioController()->playAudioFileSync(Sounds::SND_NOW_THATS_ICE);
+    mainController->getAudioController()->playAudioFile(Sounds::SND_NOW_THATS_ICE);
 
     spinReels(holdLeft, holdCentre, holdRight);
 
@@ -162,7 +162,7 @@ void Game::start() {
         playNudges(nudges);
     } else {
         ESP_LOGI(TAG, "Returning from game to main loop");
-        mainController->getAudioController()->playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
+        mainController->getAudioController()->playAudioFileAsync(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
     }
 
     mainController->getDisplayController()->getLampData().at(DisplayController::LMP_START).setLampState(LampState::off);
@@ -272,7 +272,7 @@ void Game::playNudges(int nudges) {
     if (isWinningLine()) {
         transferOrGamble();
     } else {
-        mainController->getAudioController()->playAudioFileSync(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
+        mainController->getAudioController()->playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
     }
 
     ESP_LOGD(TAG, "Exiting nudges()");
@@ -328,7 +328,7 @@ void Game::transferOrGamble() {
 
     if (btnStatus.test(BTN_TRANSFER)) {
         mainController->getMoneyController()->moveTransferToBank();
-        mainController->getAudioController()->playAudioFileSync(Sounds::SND_KERCHING);
+        mainController->getAudioController()->playAudioFile(Sounds::SND_KERCHING);
     } else if (btnStatus.test(BTN_START)) {
         playFeatureMatrix();
     }

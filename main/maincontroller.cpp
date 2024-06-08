@@ -25,6 +25,7 @@
 
 
 #include "config.h"
+#include "esp_event.h"
 #include "reelcontroller.h"
 #include "displaycontroller.h"
 #include "cctalkcontroller.h"
@@ -42,28 +43,25 @@
 static const char *TAG = "MainController";
 static int blinkDelay = 250;
 
-MainController::MainController() {
+MainController::MainController() : ds3231(DS3231(i2c_manager, DS3231_ADDR)) {
     ESP_LOGD(TAG, "Entering constructor");
     ESP_LOGD(TAG, "Leaving constructor");
-}
-
-MainController::MainController(const MainController& orig) {
 }
 
 void MainController::start() {
     ESP_LOGD(TAG, "start() called");
 
-    this->audioController.reset(new AudioController());
-    this->displayController.reset(new DisplayController(this));
-    this->reelController.reset(new ReelController(this));
-    this->oledController.reset(new oledcontroller());
-    this->moneyController.reset(new MoneyController(this));
-    this->game.reset(new Game(this));
-    this->cctalkController.reset(new CCTalkController());
-    this->httpController.reset(new HttpController());
+    this->audioController = new AudioController(i2c_manager);
+    this->displayController = new DisplayController(*this, i2c_manager);
+    this->reelController = new ReelController(*this, i2c_manager);
+    this->oledController = new oledcontroller(i2c_manager, 0x3c);
+    this->moneyController = new MoneyController(this);
+    this->game = new Game(this);
+    this->cctalkController = new CCTalkController();
+    //this->httpController = new HttpController();
 
     // CPU LED is on a GPIO
-    gpio_pad_select_gpio(CPU_LED_GPIO);
+    esp_rom_gpio_pad_select_gpio(CPU_LED_GPIO);    
     /* Set the GPIO as a push/pull output */
     gpio_set_direction(CPU_LED_GPIO, GPIO_MODE_OUTPUT);
     /* Switch off to start */
@@ -123,7 +121,7 @@ void MainController::start() {
     ESP_ERROR_CHECK(err);
 
     this->displayController->displayText("INITIALISING 07");
-    nvs_handle = nvs::open_nvs_handle_from_partition(NVS_PARTITION_SETTINGS, NVS_PARTITION_SETTINGS, NVS_READWRITE, &err);
+    nvsHandle = nvs::open_nvs_handle_from_partition(NVS_PARTITION_SETTINGS, NVS_PARTITION_SETTINGS, NVS_READWRITE, &err);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(err));
         oledController->scrollText("  -> failed");
@@ -140,7 +138,7 @@ void MainController::start() {
     this->displayController->displayText("INITIALISING 08");
     oledController->scrollText("Init RTC");
 
-    this->ds3231 = new DS3231(I2C_NUM_0, DS3231_ADDR);
+    
     setDateTime(); // Debug
 
     //    if (err != ESP_OK) {
@@ -178,7 +176,7 @@ void MainController::start() {
 
     this->displayController->displayText("INITIALISING 0A");
     oledController->scrollText("Init Webserver");
-    this->httpController->initialise(80, "/httpd", "INNUENDO", "woodsamusements");
+    //this->httpController->initialise(80, "/httpd", "INNUENDO", "woodsamusements");
 
     /* Mark current app as valid */
     const esp_partition_t *partition = esp_ota_get_running_partition();
@@ -196,25 +194,9 @@ void MainController::start() {
     oledController->scrollText("Init Audio");
     audioController->initialise();
 
-    esp_err_t res;
-    printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n");
-    printf("00:         ");
-    for (uint8_t i = 3; i < 0x78; i++) {
-        i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-        i2c_master_start(cmd);
-        i2c_master_write_byte(cmd, (i << 1) | I2C_MASTER_WRITE, 1 /* expect ack */);
-        i2c_master_stop(cmd);
-
-        res = i2c_master_cmd_begin(I2C_NUM_0, cmd, pdMS_TO_TICKS(10));
-        if (i % 16 == 0)
-            printf("\n%2x:", i);
-        if (res == 0)
-            printf(" %2x", i);
-        else
-            printf(" --");
-        i2c_cmd_link_delete(cmd);
-    }
-    printf("\n\n");
+    i2c_manager.scan();
+    
+    gpio_dump_io_configuration(stdout, SOC_GPIO_VALID_GPIO_MASK);
 
     this->displayController->displayText("INITIALISING 0C");
     oledController->scrollText("Init Display");
@@ -299,52 +281,43 @@ void MainController::setDateTime() {
     time.tm_year = (2023 - 1900); // tm_year = number of years since 1900
     time.tm_mday = 24;
 
-    ds3231->set_time(&time);
+    ds3231.set_time(&time);
 }
 
-std::shared_ptr<AudioController> MainController::getAudioController() {
-
+AudioController* MainController::getAudioController() {
     return audioController;
 }
 
-std::shared_ptr<ReelController> MainController::getReelController() {
-
+ReelController* MainController::getReelController() {
     return reelController;
 }
 
-std::shared_ptr<CCTalkController> MainController::getCCTalkController() {
-
+CCTalkController* MainController::getCCTalkController() {
     return cctalkController;
 }
 
-std::shared_ptr<DisplayController> MainController::getDisplayController() {
-
+DisplayController* MainController::getDisplayController() {
     return displayController;
 }
 
-std::shared_ptr<MoneyController> MainController::getMoneyController() {
-
+MoneyController* MainController::getMoneyController() {
     return moneyController;
 }
 
-std::shared_ptr<oledcontroller> MainController::getOledController() {
-
+oledcontroller* MainController::getOledController() {
     return oledController;
 }
 
-uint8_t MainController::getVolume() {
-
-    return volume;
-}
-
-std::shared_ptr<Game> MainController::getGame() {
-
+Game* MainController::getGame() {
     return game;
 }
 
-DS3231* MainController::getDs3231() {
-
+DS3231& MainController::getDs3231() {
     return this->ds3231;
+}
+
+uint8_t MainController::getVolume() {
+    return volume;
 }
 
 void MainController::error(int errorCode) {
@@ -366,7 +339,7 @@ void MainController::writeValueToNVS(const char * key, uint16_t value) {
     // Write
     ESP_LOGD(TAG, "Updating %s in NVS ... ", key);
 
-    err = nvs_handle->set_item<uint16_t>(key, value);
+    err = nvsHandle->set_item<uint16_t>(key, value);
     switch (err) {
         case ESP_OK:
             ESP_LOGD(TAG, "Done");
@@ -380,7 +353,7 @@ void MainController::writeValueToNVS(const char * key, uint16_t value) {
     // to flash storage. Implementations may write to storage at other times,
     // but this is not guaranteed.
     ESP_LOGD(TAG, "Committing updates in NVS ... ");
-    err = nvs_handle->commit();
+    err = nvsHandle->commit();
 
     switch (err) {
         case ESP_OK:
@@ -401,7 +374,7 @@ uint16_t MainController::readValueFromNVS(const char * key) {
     ESP_LOGD(TAG, "Reading %s from NVS ... ", key);
 
     uint16_t value = 0; // value will default to 0, if not set yet in NVS
-    err = nvs_handle->get_item<uint16_t>(key, value);
+    err = nvsHandle->get_item<uint16_t>(key, value);
     switch (err) {
         case ESP_OK:
             ESP_LOGD(TAG, "Done");
@@ -448,7 +421,7 @@ void MainController::updateStatisticsDisplayTask() {
 
     while (1) {
 
-        ret = ds3231->get_time(time);
+        ret = ds3231.get_time(time);
 
         if (ret == ESP_OK) {
 

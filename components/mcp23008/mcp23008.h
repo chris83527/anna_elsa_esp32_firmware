@@ -81,7 +81,7 @@ public:
      * @param i2c_port The I2C port to use (default: 0)
      * @param i2c_address I2C-bus address (default: 0x20)     
      */
-    MCP23008(const uint8_t address);
+    MCP23008(I2CManager& i2cmgr, const uint8_t address);
     ~MCP23008();
 
     /**
@@ -255,6 +255,8 @@ private:
     
     i2c_device_config_t deviceConfig;
     i2c_master_dev_handle_t deviceHandle;
+    
+    I2CManager& i2c_manager;
 };
 
 #endif /* __MCP23008_H__ */

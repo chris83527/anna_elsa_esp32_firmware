@@ -100,7 +100,7 @@ public:
      * @param i2c_port The I2C port to use (default: 0)
      * @param i2c_address I2C-bus address (default: 0x20)     
      */
-    DS3231(const uint8_t address);
+    DS3231(I2CManager& i2cmgr, const uint8_t address);
 
     ~DS3231();
 
@@ -351,6 +351,8 @@ private:
 
     i2c_device_config_t deviceConfig;
     i2c_master_dev_handle_t deviceHandle;   
+    
+    I2CManager& i2c_manager;
 };
 
 #endif  /* __DS3231_H__ */

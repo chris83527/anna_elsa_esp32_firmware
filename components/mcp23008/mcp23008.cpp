@@ -66,13 +66,13 @@ static const char *TAG = "mcp23008";
 #define CHECK_ARG(VAL) do { if (!(VAL)) return ESP_ERR_INVALID_ARG; } while (0)
 #define BV(x) (1 << (x))
 
-MCP23008::MCP23008(const uint8_t address = MCP23008_I2C_ADDR_BASE) {
-    ESP_LOGD(TAG, "i2c_port: %d, i2c_address: %d", port, address);
+MCP23008::MCP23008(I2CManager& i2cmgr, const uint8_t address) : i2c_manager(i2cmgr) {
+    ESP_LOGD(TAG, "i2c_address: %d", address);
     this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
     this->deviceConfig.device_address = address;
     this->deviceConfig.scl_speed_hz = I2C_FREQ_HZ;
     
-    I2CManager.addDevice(this->deviceConfig, this->deviceHandle);
+    i2c_manager.addDevice(this->deviceConfig, this->deviceHandle);
 }
 
 MCP23008::~MCP23008() {
@@ -217,11 +217,11 @@ esp_err_t MCP23008::set_interrupt(uint8_t pin, gpio_intr_t intr) {
 esp_err_t MCP23008::read_reg(const uint8_t reg, uint8_t& val) {
     CHECK_ARG(val);
 
-    return readRegister(this->i2c_port, this->i2c_address, reg, &val, 1);
+    return i2c_manager.readRegister(this->deviceHandle, reg, &val, 1);
 }
 
-esp_err_t MCP23008::write_reg(const uint8_t reg, const uint8_t val) {
-    return i2c_manager_write(this->i2c_port, this->i2c_address, reg, &val, 1);
+esp_err_t MCP23008::write_reg(const uint8_t reg, uint8_t val) {
+    return i2c_manager.writeRegister(this->deviceHandle, reg, &val, 1);
 }
 
 esp_err_t MCP23008::read_reg_bit(const uint8_t reg, bool& val, const uint8_t bit) {
@@ -229,7 +229,7 @@ esp_err_t MCP23008::read_reg_bit(const uint8_t reg, bool& val, const uint8_t bit
 
     uint8_t buf;
 
-    i2c_manager_read(this->i2c_port, this->i2c_address, reg, &buf, 1);
+    i2c_manager.readRegister(this->deviceHandle, reg, &buf, 1);
 
     val = (buf & BV(bit)) >> bit;
 
@@ -238,11 +238,11 @@ esp_err_t MCP23008::read_reg_bit(const uint8_t reg, bool& val, const uint8_t bit
 
 esp_err_t MCP23008::write_reg_bit(const uint8_t reg, const bool val, const uint8_t bit) {
     uint8_t buf;
-    i2c_manager_read(this->i2c_port, this->i2c_address, reg, &buf, 1);
+    i2c_manager.readRegister(this->deviceHandle, reg, &buf, 1);
 
     buf = (buf & ~BV(bit)) | (val ? BV(bit) : 0);
 
-    i2c_manager_write(this->i2c_port, this->i2c_address, reg, &buf, 1);
+    i2c_manager.writeRegister(this->deviceHandle, reg, &buf, 1);
 
     return ESP_OK;
 }

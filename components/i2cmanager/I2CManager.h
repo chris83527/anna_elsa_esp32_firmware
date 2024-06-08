@@ -32,17 +32,17 @@
 #ifndef I2CMANAGER_H
 #define I2CMANAGER_H
 
-#include <vector>
+#include <freertos/FreeRTOS.h>
+#include "driver/gpio.h"
 #include <mutex>
 
-#include "driver/gpio.h"
 #include "driver/i2c_master.h"
 
 class I2CManager {
 public:
-    I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin, gpio_num_t sdaPin);
-    virtual ~I2CManager();
-
+    I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin, gpio_num_t sdaPin);    
+	~I2CManager();
+	
     /**
      * Register a slave device on the bus with the given deviceConfig and return a handle to the device via deviceHandle
      * 
@@ -51,15 +51,7 @@ public:
      * @return A handle to the device
      */
     esp_err_t addDevice(i2c_device_config_t& deviceConfig, i2c_master_dev_handle_t& deviceHandle);
-    
-    /**
-     * 
-     * @param deviceHandle
-     * @param reg
-     * @param data
-     * @return 
-     */
-    esp_err_t writeRegister(i2c_master_dev_handle_t* deviceHandle, uint8_t reg, std::vector<uint8_t> data);
+      
     
     /**
      * 
@@ -69,18 +61,11 @@ public:
      * @param size
      * @return 
      */
-    esp_err_t writeRegister(i2c_master_dev_handle_t& deviceHandle, uint8_t reg, uint8_t* data, int size);
+    esp_err_t writeRegister(i2c_master_dev_handle_t& deviceHandle, const uint8_t reg, uint8_t* data, int size);
+       
     
     /**
-     * 
-     * @param deviceHandle
-     * @param data
-     * @return 
-     */
-    esp_err_t write(i2c_master_dev_handle_t& deviceHandle, std::vector<uint8_t> data);
-    
-    /**
-     * 
+     * Write data to an I2C device without specifying the register
      * 
      * @param deviceHandle
      * @param data
@@ -90,17 +75,23 @@ public:
     esp_err_t write(i2c_master_dev_handle_t& deviceHandle, uint8_t* data, int size);
     
     /**
+     * Read data from an I2C device from a specific register
      * 
      * @param deviceHandle
      * @param reg
      * @param data
      * @return 
-     */
-    esp_err_t readRegister(i2c_master_dev_handle_t& deviceHandle, uint8_t reg, std::vector<uint8_t>& data, int bytesToRead);
-    
-    esp_err_t readRegister(i2c_master_dev_handle_t& deviceHandle, uint8_t reg, uint8_t* data, int bytesToRead);
+     */    
+    esp_err_t readRegister(i2c_master_dev_handle_t& deviceHandle, const uint8_t reg, uint8_t* data, int bytesToRead);
 
-    
+    /**
+     * Read data from an I2C device without specifying a register
+     * 
+     * @param deviceHandle
+     * @param data
+     * @param size
+     * @return 
+     */
     esp_err_t read(i2c_master_dev_handle_t& deviceHandle, uint8_t* data, int size);
     
     
@@ -112,11 +103,16 @@ public:
      */
     bool probe(int address);
     
+    void scan();
+    
 private:
     i2c_master_bus_config_t _i2c_mst_config;
     i2c_master_bus_handle_t _bus_handle;
     std::mutex _mutex;
-} I2CManager(0, GPIO_NUM_22, GPIO_NUM_21);
+    
+};
+
+
 
 #endif /* I2CMANAGER_H */
 

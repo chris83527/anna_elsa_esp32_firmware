@@ -66,14 +66,14 @@
 
 class ReelController {
 public:
-    ReelController(MainController *mainController);
-    ReelController(const ReelController &orig);
+    ReelController(MainController& mainController, I2CManager& i2cmgr);
+    ~ReelController();
 
-    typedef struct {
+    struct reel_stop_info_t {
         uint8_t leftStop = 0;
         uint8_t centreStop = 0;
         uint8_t rightStop = 0;
-    } reel_stop_info_t;
+    };
 
     bool reelLeftInitOk;
     bool reelCentreInitOk;
@@ -101,11 +101,11 @@ private:
     uint8_t status;
     bool commandInProgress;
 
-    MainController* mainController;
+    MainController& mainController;
 
-    PCA9629A* leftReel;
-    PCA9629A* centreReel;
-    PCA9629A* rightReel;
+    PCA9629A leftReel;
+    PCA9629A centreReel;
+    PCA9629A rightReel;
 
     // Prepare and then apply the LEDC PWM timer configuration
     ledc_timer_config_t ledc_timer;
@@ -114,6 +114,7 @@ private:
     std::thread leftReelThread;
     std::thread centreReelThread;
     std::thread rightReelThread;
+       
 };
 
 #endif /* __WAVE_H__ */
