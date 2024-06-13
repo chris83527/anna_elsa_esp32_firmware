@@ -39,6 +39,9 @@
 
 static const char *TAG = "i2cmanager";
 
+std::mutex _mutex;
+
+
 I2CManager::I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin, gpio_num_t sdaPin) {
 
 	ESP_LOGD(TAG, "Entering i2cmanager constructor: port number: %d, sclPin: %d, sdaPin: %d", portNumber, sclPin, sdaPin);

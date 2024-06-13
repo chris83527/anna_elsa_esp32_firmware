@@ -107,8 +107,7 @@ public:
     
 private:
     i2c_master_bus_config_t _i2c_mst_config;
-    i2c_master_bus_handle_t _bus_handle;
-    std::mutex _mutex;
+    i2c_master_bus_handle_t _bus_handle;    
     
 };
 
