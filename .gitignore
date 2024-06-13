@@ -7,7 +7,6 @@
 /bootloader-prefix/
 /CMakeFiles/
 /CMakeCache.txt/
-/build/
 /.vscode/
 /test/
 *.bin

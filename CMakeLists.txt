@@ -11,6 +11,7 @@ set(EXTRA_COMPONENT_DIRS
 "components/ds3231" 
 "components/led_strip" 
 "components/esp32-wifi-manager" 
+"components/esp_littlefs"
 "/home/chris/esp/esp-idf-v5.2.1/components/esp_hw_support" 
 "/home/chris/esp/esp-idf-v5.2.1/components/nvs_flash" 
 "/home/chris/esp/esp-idf-v5.2.1/components/esp_common" 
