@@ -74,6 +74,7 @@ public:
 
 private:
 
+	I2CManager i2c_manager;
     DS3231 ds3231;
 
     //EEProm_Data eeprom_data;    
@@ -120,8 +121,7 @@ private:
     std::thread updateStatisticsThread;
     std::thread blinkCPUStatusLEDThread;    
     std::thread gameThread;
-    
-    I2CManager i2c_manager = I2CManager(I2C_NUM_0, GPIO_NUM_22, GPIO_NUM_21);
+       
 };
 
 

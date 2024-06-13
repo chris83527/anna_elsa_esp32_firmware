@@ -43,8 +43,10 @@
 static const char *TAG = "MainController";
 static int blinkDelay = 250;
 
-MainController::MainController() : ds3231(DS3231(i2c_manager, DS3231_ADDR)) {
+MainController::MainController() : i2c_manager(I2CManager(I2C_NUM_0, GPIO_NUM_22, GPIO_NUM_21)), ds3231(DS3231(i2c_manager, DS3231_ADDR)) {
     ESP_LOGD(TAG, "Entering constructor");
+        
+    
     ESP_LOGD(TAG, "Leaving constructor");
 }
 
