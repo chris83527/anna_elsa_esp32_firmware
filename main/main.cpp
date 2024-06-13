@@ -65,17 +65,11 @@ extern "C" void app_main() {
         printf("esp_pthread_set_cfg failed\n");
         abort();
     };
-
-    esp_log_level_set("ESP_AUDIO_CTRL", ESP_LOG_WARN);
-    esp_log_level_set("ESP_AUDIO_TASK", ESP_LOG_WARN);
-    esp_log_level_set("AUDIO_ELEMENT", ESP_LOG_WARN);
-    esp_log_level_set("AUDIO_PIPELINE", ESP_LOG_WARN);
-    esp_log_level_set("VORBIS_DECODER", ESP_LOG_WARN);
-    esp_log_level_set("I2S_STREAM", ESP_LOG_WARN);
+    
     esp_log_level_set("ReelController", ESP_LOG_INFO);
     esp_log_level_set("m20ly02z", ESP_LOG_WARN);
-    esp_log_level_set("i2cmanager", ESP_LOG_WARN);
-    esp_log_level_set("i2c", ESP_LOG_WARN);
+    esp_log_level_set("i2cmanager", ESP_LOG_DEBUG);
+    esp_log_level_set("i2c", ESP_LOG_DEBUG);
     //esp_log_level_set("cctalkDevice", ESP_LOG_DEBUG);
     //esp_log_level_set("cctalk_link_controller", ESP_LOG_DEBUG);
     esp_log_level_set("serial_worker", ESP_LOG_INFO);
