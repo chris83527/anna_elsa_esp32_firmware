@@ -32,9 +32,15 @@
 #include <cstring>
 #include <shared_mutex>
 
+#include "esp_log.h"
+
 #include "I2CManager.h"
 
+static const char *TAG = "i2cmanager";
+
 I2CManager::I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin, gpio_num_t sdaPin) {
+
+	ESP_LOGD(TAG, "Entering i2cmanager constructor: port number: %d, sclPin: %d, sdaPin: %d", portNumber, sclPin, sdaPin);
 
     _i2c_mst_config.clk_source = I2C_CLK_SRC_DEFAULT;
     _i2c_mst_config.i2c_port = portNumber;
@@ -43,7 +49,10 @@ I2CManager::I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin, gpio_num_t 
     _i2c_mst_config.glitch_ignore_cnt = 7;
     _i2c_mst_config.flags.enable_internal_pullup = true;
 
+	ESP_LOGD(TAG, "Calling i2c_new_master_bus... ");
     i2c_new_master_bus(&_i2c_mst_config, &_bus_handle);
+    
+    ESP_LOGD(TAG, "Leaving constructor");
 }
 
 I2CManager::~I2CManager() {
