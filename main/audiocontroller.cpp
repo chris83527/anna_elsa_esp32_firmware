@@ -164,7 +164,7 @@ esp_err_t AudioController::i2cInit() {
   i2cManager.writeRegister(this->deviceHandle, 0x07, buf, 1);
 
   // Read error status register
-  i2cManager.writeRegister(this->deviceHandle, 0x02, buf, 1);
+  i2cManager.readRegister(this->deviceHandle, 0x02, buf, 1);
 
   if (buf[0] & 2) {
     ESP_LOGW(TAG, "Overcurrent, overtemperature or undervoltage errors");

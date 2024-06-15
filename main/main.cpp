@@ -61,8 +61,8 @@ extern "C" void app_main() {
 
   //    cfg.prio = 1;
   // cfg.inherit_cfg = true;
-  cfg.pin_to_core = 1;
-  cfg.stack_size = (10240);
+  cfg.thread_name = "testStack";
+  cfg.stack_size = (8192);
   if (esp_pthread_set_cfg(&cfg) != ESP_OK) {
     printf("esp_pthread_set_cfg failed\n");
     abort();
@@ -76,6 +76,7 @@ extern "C" void app_main() {
   // esp_log_level_set("cctalkDevice", ESP_LOG_DEBUG);
   // esp_log_level_set("cctalk_link_controller", ESP_LOG_DEBUG);
   esp_log_level_set("serial_worker", ESP_LOG_INFO);
+  esp_log_level_set("AudioController", ESP_LOG_DEBUG);
   // esp_log_level_set("DisplayController", ESP_LOG_DEBUG);
 
   MainController mainController;
