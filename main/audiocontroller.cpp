@@ -101,6 +101,10 @@ void AudioController::initialise() {
 
   i2cInit();
   i2sInit();
+
+  setVolume(45);
+
+  playAudioFile(Sounds::SND_STARTUP);
 }
 
 esp_err_t AudioController::i2cInit() {

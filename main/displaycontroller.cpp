@@ -193,7 +193,7 @@ esp_err_t DisplayController::initialise() {
   cfg.thread_name = "UpdateSevenSeg";
   cfg.prio = 1;
   cfg.pin_to_core = 1;
-  cfg.stack_size = 1024;
+  cfg.stack_size = 2048;
   esp_pthread_set_cfg(&cfg);
   // Start a thread to update the 7-segment displays
   this->updateSevenSegDisplaysThread =
