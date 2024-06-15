@@ -175,21 +175,24 @@ esp_err_t DisplayController::initialise() {
   cfg.thread_name = "BlinkLamps";
   cfg.prio = 2;
   cfg.stack_size = 1024;
+  cfg.pin_to_core = 1;
   esp_pthread_set_cfg(&cfg);
-  this->blinkLampsThread = std::thread([this]() { blinkLampsTask(); });
+  this->blinkLampsThread = std::thread([&]() { blinkLampsTask(); });
   this->blinkLampsThread.detach();
 
   cfg = esp_pthread_get_default_config();
   cfg.thread_name = "UpdateLamps";
   cfg.prio = 2;
   cfg.stack_size = 1024;
+  cfg.pin_to_core = 1;
   esp_pthread_set_cfg(&cfg);
-  this->updateLampsThread = std::thread([this]() { updateLampsTask(); });
+  this->updateLampsThread = std::thread([&]() { updateLampsTask(); });
   this->updateLampsThread.detach();
 
   cfg = esp_pthread_get_default_config();
   cfg.thread_name = "UpdateSevenSeg";
   cfg.prio = 1;
+  cfg.pin_to_core = 1;
   cfg.stack_size = 1024;
   esp_pthread_set_cfg(&cfg);
   // Start a thread to update the 7-segment displays
@@ -203,9 +206,10 @@ esp_err_t DisplayController::initialise() {
   cfg = esp_pthread_get_default_config();
   cfg.thread_name = "AttractMode";
   cfg.prio = 1;
+  cfg.pin_to_core = 1;
   cfg.stack_size = 4096;
   esp_pthread_set_cfg(&cfg);
-  this->attractModeThread = std::thread([this]() { attractModeTask(); });
+  this->attractModeThread = std::thread([&]() { attractModeTask(); });
   this->attractModeThread.detach();
 
   ESP_LOGD(TAG, "Exiting DisplayController::initialise()");

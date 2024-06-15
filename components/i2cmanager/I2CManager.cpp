@@ -29,6 +29,7 @@
  * Created on May 21, 2024, 4:46 PM
  */
 
+#include <chrono>
 #include <cstring>
 #include <shared_mutex>
 
@@ -56,7 +57,7 @@ I2CManager::I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin,
   _i2c_mst_config.glitch_ignore_cnt = 7;
   _i2c_mst_config.flags.enable_internal_pullup = true;
   _i2c_mst_config.intr_priority = 0;
-  _i2c_mst_config.trans_queue_depth = 10;
+  _i2c_mst_config.trans_queue_depth = 0;
 
   ESP_LOGD(TAG, "Calling i2c_new_master_bus... ");
   i2c_new_master_bus(&_i2c_mst_config, &_bus_handle);
@@ -119,10 +120,10 @@ esp_err_t I2CManager::read(i2c_master_dev_handle_t &deviceHandle, uint8_t *data,
 }
 
 bool I2CManager::probe(int address) {
-  _mutex.lock();
-  esp_err_t ret = i2c_master_probe(_bus_handle, address, 2);
+  //_mutex.lock();
+  esp_err_t ret = i2c_master_probe(_bus_handle, address, 2000);
   bool result = (ret == ESP_OK);
-  _mutex.unlock();
+  //_mutex.unlock();
   return result;
 }
 
@@ -133,12 +134,13 @@ void I2CManager::scan() {
   for (int i = 3; i < 0x78; i++) {
     res = probe(i);
     if (i % 16 == 0)
-      printf("\n%2x:", i);
+      printf("\n%02x:", i);
     if (res) {
-      printf(" %2x", i);
+      printf(" %02x", i);
     } else {
       printf(" --");
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
   }
   printf("\n\n");
 }

@@ -81,10 +81,11 @@ void MainController::start() {
   auto cfg = esp_pthread_get_default_config();
   cfg.thread_name = "BlinkRunLED";
   cfg.prio = 1;
-  cfg.stack_size = 1024;
+  cfg.stack_size = 2048;
+  cfg.inherit_cfg = false;
   esp_pthread_set_cfg(&cfg);
   this->blinkCPUStatusLEDThread =
-      std::thread([this]() { blinkCPUStatusLEDTask(); });
+      std::thread([&]() { blinkCPUStatusLEDTask(); });
   this->blinkCPUStatusLEDThread.detach();
 
   this->displayController->displayText("INITIALISING 02");
