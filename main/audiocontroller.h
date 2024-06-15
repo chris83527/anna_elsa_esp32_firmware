@@ -70,7 +70,7 @@ public:
   static constexpr const char *SND_THATS_BETTER = "thatsbetter.wav";
   static constexpr const char *SND_KERCHING = "kerching.wav";
   static constexpr const char *SND_REEL_STOP = "reelstop.wav";
-  static constexpr const char *SND_STARTUP = "sstartup.wav";
+  static constexpr const char *SND_STARTUP = "startup.wav";
 };
 
 class AudioController {

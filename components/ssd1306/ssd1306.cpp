@@ -674,7 +674,7 @@ void SSD1306::i2c_init() {
 }
 
 void SSD1306::i2c_display_image(int page, int seg, uint8_t *images, int width) {
-  return; // DEBUG
+
   if (page >= this->_pages)
     return;
   if (seg >= this->_width)
