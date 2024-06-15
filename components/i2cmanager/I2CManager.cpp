@@ -120,10 +120,10 @@ esp_err_t I2CManager::read(i2c_master_dev_handle_t &deviceHandle, uint8_t *data,
 }
 
 bool I2CManager::probe(int address) {
-  //_mutex.lock();
+  _mutex.lock();
   esp_err_t ret = i2c_master_probe(_bus_handle, address, 2000);
   bool result = (ret == ESP_OK);
-  //_mutex.unlock();
+  _mutex.unlock();
   return result;
 }
 
@@ -140,7 +140,6 @@ void I2CManager::scan() {
     } else {
       printf(" --");
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
   }
   printf("\n\n");
 }
