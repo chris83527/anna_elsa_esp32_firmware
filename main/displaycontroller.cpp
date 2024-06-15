@@ -183,7 +183,7 @@ esp_err_t DisplayController::initialise() {
   cfg = esp_pthread_get_default_config();
   cfg.thread_name = "UpdateLamps";
   cfg.prio = 2;
-  cfg.stack_size = 2048;
+  cfg.stack_size = 4196;
   cfg.pin_to_core = 1;
   esp_pthread_set_cfg(&cfg);
   this->updateLampsThread = std::thread([&]() { updateLampsTask(); });
@@ -193,7 +193,7 @@ esp_err_t DisplayController::initialise() {
   cfg.thread_name = "UpdateSevenSeg";
   cfg.prio = 1;
   cfg.pin_to_core = 1;
-  cfg.stack_size = 2048;
+  cfg.stack_size = 4196;
   esp_pthread_set_cfg(&cfg);
   // Start a thread to update the 7-segment displays
   this->updateSevenSegDisplaysThread =
