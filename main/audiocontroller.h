@@ -47,34 +47,30 @@
 class Sounds {
 public:
   // Audio files
-  static constexpr const char *SND_ANNA_PUNCHES_HANS =
-      "spiffs/anna_punches_hans.wav";
-  static constexpr const char *SND_NOW_THATS_ICE = "spiffs/nowthatsice.wav";
-  static constexpr const char *SND_COME_ON_BUDDY =
-      "spiffs/come-on-buddy-faster.wav";
-  static constexpr const char *SND_DO_THE_MAGIC = "spiffs/do-the-magic.wav";
+  static constexpr const char *SND_ANNA_PUNCHES_HANS = "anna_punches_hans.wav";
+  static constexpr const char *SND_NOW_THATS_ICE = "nowthatsice.wav";
+  static constexpr const char *SND_COME_ON_BUDDY = "come-on-buddy-faster.wav";
+  static constexpr const char *SND_DO_THE_MAGIC = "do-the-magic.wav";
   static constexpr const char *SND_CANT_RUN_FROM_THIS =
-      "spiffs/you-cant-run-from-this.wav";
-  static constexpr const char *SND_BRING_BACK_SUMMER =
-      "spiffs/bring-back-summer.wav";
+      "you-cant-run-from-this.wav";
+  static constexpr const char *SND_BRING_BACK_SUMMER = "bring-back-summer.wav";
   static constexpr const char *SND_COLDER_BY_THE_MINUTE =
-      "spiffs/colder-by-the-minute.wav";
+      "colder-by-the-minute.wav";
   static constexpr const char *SND_MAYBE_NOT_RIGHT_THIS_SECOND =
-      "spiffs/not-right-this-second.wav";
+      "not-right-this-second.wav";
   static constexpr const char *SND_PRINCE_HANS = "spiffs/prince_hans.wav";
   static constexpr const char *SND_STAY_OUT_OF_SIGHT =
-      "spiffs/stay-out-of-sight-olaf.wav";
-  static constexpr const char *SND_SUPPLY_AND_DEMAND =
-      "spiffs/supply-and-demand.wav";
+      "stay-out-of-sight-olaf.wav";
+  static constexpr const char *SND_SUPPLY_AND_DEMAND = "supply-and-demand.wav";
   static constexpr const char *SND_WONT_GET_AWAY_WITH_THIS =
-      "spiffs/wont-get-away-with-this.wav";
-  static constexpr const char *SND_LET_IT_GO = "spiffs/letitgo.wav";
-  static constexpr const char *SND_THEYRE_TROLLES = "spiffs/theyretrolls.wav";
-  static constexpr const char *SND_CANT_FEEL_LEGS = "spiffs/cantfeellegs.wav";
-  static constexpr const char *SND_THATS_BETTER = "spiffs/thatsbetter.wav";
-  static constexpr const char *SND_KERCHING = "spiffs/kerching.wav";
-  static constexpr const char *SND_REEL_STOP = "spiffs/reelstop.wav";
-  static constexpr const char *SND_STARTUP = "spiffs/startup.wav";
+      "wont-get-away-with-this.wav";
+  static constexpr const char *SND_LET_IT_GO = "letitgo.wav";
+  static constexpr const char *SND_THEYRE_TROLLES = "theyretrolls.wav";
+  static constexpr const char *SND_CANT_FEEL_LEGS = "cantfeellegs.wav";
+  static constexpr const char *SND_THATS_BETTER = "thatsbetter.wav";
+  static constexpr const char *SND_KERCHING = "kerching.wav";
+  static constexpr const char *SND_REEL_STOP = "reelstop.wav";
+  static constexpr const char *SND_STARTUP = "sstartup.wav";
 };
 
 class AudioController {
