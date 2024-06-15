@@ -196,10 +196,8 @@ void MainController::start() {
   oledController->scrollText("Init Audio");
   audioController->initialise();
 
-  i2c_manager.scan();
-
   // not working
-  gpio_dump_io_configuration(stdout, SOC_GPIO_VALID_GPIO_MASK);
+  // gpio_dump_io_configuration(stdout, SOC_GPIO_VALID_GPIO_MASK);
 
   this->displayController->displayText("INITIALISING 0C");
   oledController->scrollText("Init Display");

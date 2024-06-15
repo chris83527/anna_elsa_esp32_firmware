@@ -102,7 +102,7 @@ private:
   i2c_device_config_t deviceConfig;
   i2c_master_dev_handle_t deviceHandle;
 
-  static constexpr int AUDIO_BUFFER = 2048;
+  static constexpr int AUDIO_BUFFER = 1024;
   static constexpr int TAS5731M_I2C_ADDRESS = 0x1a;
   static constexpr int MASTER_VOL_REG_ADDR = 0x07;
   static constexpr int MUTE_TIME_REG_ADDR = 0x51;

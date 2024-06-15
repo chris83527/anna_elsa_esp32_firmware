@@ -62,6 +62,8 @@ I2CManager::I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin,
   ESP_LOGD(TAG, "Calling i2c_new_master_bus... ");
   i2c_new_master_bus(&_i2c_mst_config, &_bus_handle);
 
+  scan();
+
   ESP_LOGD(TAG, "Leaving constructor");
 }
 
