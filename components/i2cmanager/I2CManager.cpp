@@ -22,10 +22,10 @@
  * THE SOFTWARE.
  */
 
-/* 
+/*
  * File:   I2CManager.cpp
  * Author: chris
- * 
+ *
  * Created on May 21, 2024, 4:46 PM
  */
 
@@ -41,97 +41,104 @@ static const char *TAG = "i2cmanager";
 
 std::mutex _mutex;
 
+I2CManager::I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin,
+                       gpio_num_t sdaPin) {
 
-I2CManager::I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin, gpio_num_t sdaPin) {
+  ESP_LOGD(TAG,
+           "Entering i2cmanager constructor: port number: %d, sclPin: %d, "
+           "sdaPin: %d",
+           portNumber, sclPin, sdaPin);
 
-	ESP_LOGD(TAG, "Entering i2cmanager constructor: port number: %d, sclPin: %d, sdaPin: %d", portNumber, sclPin, sdaPin);
- 
-    _i2c_mst_config.clk_source = I2C_CLK_SRC_DEFAULT;
-    _i2c_mst_config.i2c_port = portNumber;
-    _i2c_mst_config.scl_io_num = sclPin;
-    _i2c_mst_config.sda_io_num = sdaPin;
-    _i2c_mst_config.glitch_ignore_cnt = 7;
-    _i2c_mst_config.flags.enable_internal_pullup = true;
-    _i2c_mst_config.intr_priority = 0;
-    _i2c_mst_config.trans_queue_depth = 10;
-    
+  _i2c_mst_config.clk_source = I2C_CLK_SRC_DEFAULT;
+  _i2c_mst_config.i2c_port = portNumber;
+  _i2c_mst_config.scl_io_num = sclPin;
+  _i2c_mst_config.sda_io_num = sdaPin;
+  _i2c_mst_config.glitch_ignore_cnt = 7;
+  _i2c_mst_config.flags.enable_internal_pullup = true;
+  _i2c_mst_config.intr_priority = 0;
+  _i2c_mst_config.trans_queue_depth = 10;
 
-	ESP_LOGD(TAG, "Calling i2c_new_master_bus... ");
-    i2c_new_master_bus(&_i2c_mst_config, &_bus_handle);
-    
-    ESP_LOGD(TAG, "Leaving constructor");
+  ESP_LOGD(TAG, "Calling i2c_new_master_bus... ");
+  i2c_new_master_bus(&_i2c_mst_config, &_bus_handle);
+
+  ESP_LOGD(TAG, "Leaving constructor");
 }
 
-I2CManager::~I2CManager() {
-	
+I2CManager::~I2CManager() {}
+
+esp_err_t I2CManager::addDevice(i2c_device_config_t &deviceConfig,
+                                i2c_master_dev_handle_t &deviceHandle) {
+  return i2c_master_bus_add_device(_bus_handle, &deviceConfig, &deviceHandle);
 }
 
-esp_err_t I2CManager::addDevice(i2c_device_config_t& deviceConfig, i2c_master_dev_handle_t& deviceHandle) {
-    return i2c_master_bus_add_device(_bus_handle, &deviceConfig, &deviceHandle);
+esp_err_t I2CManager::writeRegister(i2c_master_dev_handle_t &deviceHandle,
+                                    const uint8_t reg, uint8_t *data,
+                                    int size) {
+  _mutex.lock();
+
+  uint8_t newdata[size + 1];
+  newdata[0] = reg;
+  std::memcpy(&(newdata[1]), data, size);
+
+  esp_err_t ret = i2c_master_transmit(deviceHandle, newdata, size + 1, 2000);
+
+  _mutex.unlock();
+
+  return ret;
 }
 
-esp_err_t I2CManager::writeRegister(i2c_master_dev_handle_t& deviceHandle, const uint8_t reg, uint8_t* data, int size) {
-    _mutex.lock();
+esp_err_t I2CManager::write(i2c_master_dev_handle_t &deviceHandle,
+                            uint8_t *data, int size) {
+  _mutex.lock();
+  esp_err_t ret = i2c_master_transmit(deviceHandle, data, size, 2000);
+  _mutex.unlock();
 
-    uint8_t newdata[size + 1];
-    newdata[0] = reg;
-    std::memcpy(&(newdata[1]), data, size);
-
-    esp_err_t ret = i2c_master_transmit(deviceHandle, newdata, size + 1, 2000);
-
-    _mutex.unlock();
-
-    return ret;
+  return ret;
 }
 
-esp_err_t I2CManager::write(i2c_master_dev_handle_t& deviceHandle, uint8_t* data, int size) {
-    _mutex.lock();
-    esp_err_t ret = i2c_master_transmit(deviceHandle, data, size, 2000);
-    _mutex.unlock();
+esp_err_t I2CManager::readRegister(i2c_master_dev_handle_t &deviceHandle,
+                                   const uint8_t reg, uint8_t *data, int size) {
+  _mutex.lock();
 
-    return ret;
+  uint8_t writeBuffer[1];
+  writeBuffer[0] = reg;
+
+  esp_err_t ret = i2c_master_transmit_receive(deviceHandle, writeBuffer, 1,
+                                              data, size, 2000);
+
+  _mutex.unlock();
+  return ret;
 }
 
-esp_err_t I2CManager::readRegister(i2c_master_dev_handle_t& deviceHandle, const uint8_t reg, uint8_t* data, int size) {
-    _mutex.lock();
-	
-	uint8_t writeBuffer[1];	
-	writeBuffer[0] = reg;	
-
-    esp_err_t ret = i2c_master_transmit_receive(deviceHandle, writeBuffer, 1, data, size, 2000);
-
-    _mutex.unlock();
-    return ret;
-}
-
-esp_err_t I2CManager::read(i2c_master_dev_handle_t& deviceHandle, uint8_t* data, int size) {
-    _mutex.lock();
-    esp_err_t ret = i2c_master_receive(deviceHandle, data, size, 2000);
-    _mutex.unlock();
-    return ret;
+esp_err_t I2CManager::read(i2c_master_dev_handle_t &deviceHandle, uint8_t *data,
+                           int size) {
+  _mutex.lock();
+  esp_err_t ret = i2c_master_receive(deviceHandle, data, size, 2000);
+  _mutex.unlock();
+  return ret;
 }
 
 bool I2CManager::probe(int address) {
-    _mutex.lock();
-    esp_err_t ret = i2c_master_probe(_bus_handle, address, 2000) == ESP_OK;
-    _mutex.unlock();
-    return ret;
+  _mutex.lock();
+  esp_err_t ret = i2c_master_probe(_bus_handle, address, 2);
+  bool result = (ret == ESP_OK);
+  _mutex.unlock();
+  return result;
 }
 
 void I2CManager::scan() {
-	bool res;
-    printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n");
-    printf("00:         ");
-    for (uint8_t i = 3; i < 0x78; i++) {
-        res = probe(i);
-        if (i % 16 == 0)
-            printf("\n%2x:", i);
-        if (res == 0) {
-            printf(" %2x", i);
-        } else{
-			printf(" --");	
-		}                  
+  bool res;
+  printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n");
+  printf("00:         ");
+  for (int i = 3; i < 0x78; i++) {
+    res = probe(i);
+    if (i % 16 == 0)
+      printf("\n%2x:", i);
+    if (res) {
+      printf(" %2x", i);
+    } else {
+      printf(" --");
     }
-    printf("\n\n");
+  }
+  printf("\n\n");
 }
-

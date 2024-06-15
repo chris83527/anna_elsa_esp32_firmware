@@ -36,19 +36,19 @@
  * BSD Licensed as described in the file LICENSE
  */
 #include <cstring>
+#include <fstream>
 #include <ios>
+#include <iostream>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <streambuf>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/unistd.h>
-#include <unistd.h>
-#include <iostream>
-#include <fstream>
-#include <streambuf>
-#include <vector>
 #include <thread>
+#include <unistd.h>
+#include <vector>
 
 #include "driver/i2s_common.h"
 #include "driver/i2s_std.h"
@@ -63,9 +63,7 @@
 
 static const char *TAG = "AudioController";
 
-AudioController::AudioController(I2CManager& i2cmgr) : i2cManager(i2cmgr) {
-	
-}
+AudioController::AudioController(I2CManager &i2cmgr) : i2cManager(i2cmgr) {}
 
 AudioController::~AudioController() {}
 
@@ -77,105 +75,127 @@ void AudioController::initialise() {
 
   init_spiffs();
 
+  ESP_LOGD(TAG, "Power ON CODEC with GPIO %d", TAS5731M_PDWN_GPIO);
+
+  esp_rom_gpio_pad_select_gpio(TAS5731M_RST_GPIO);
+  esp_rom_gpio_pad_select_gpio(TAS5731M_PDWN_GPIO);
+
+  gpio_set_direction(TAS5731M_RST_GPIO, GPIO_MODE_OUTPUT);
+  gpio_set_direction(TAS5731M_PDWN_GPIO, GPIO_MODE_OUTPUT);
+
+  uint32_t reg_val = REG_READ(PIN_CTRL);
+  ESP_LOGD(TAG, "PIN_CTRL before: %lu", reg_val);
+  REG_WRITE(PIN_CTRL, 0xFFFFFFF0);
+  reg_val = REG_READ(PIN_CTRL);
+  ESP_LOGD(TAG, "PIN_CTRL after: %lu", reg_val);
+  PIN_FUNC_SELECT(GPIO_PIN_REG_0, 1); // GPIO0 as CLK_OUT1
+
+  // See TI TAS5731M Datasheet page 63
+  gpio_set_level(TAS5731M_RST_GPIO, 0); // Drive /RESET = 0
+  gpio_set_level(TAS5731M_PDWN_GPIO, 0);
+  vTaskDelay(pdMS_TO_TICKS(200));
+  gpio_set_level(TAS5731M_PDWN_GPIO, 1);
+  vTaskDelay(pdMS_TO_TICKS(200));
+  gpio_set_level(TAS5731M_RST_GPIO, 1);
+  vTaskDelay(pdMS_TO_TICKS(500));
+
   i2cInit();
   i2sInit();
-  
 }
 
 esp_err_t AudioController::i2cInit() {
-	this->deviceConfig.device_address = TAS5731M_I2C_ADDRESS;
-    this->deviceConfig.scl_speed_hz = 100000;
-    this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
-		
-	i2cManager.addDevice(deviceConfig, deviceHandle);
-	
-	uint8_t buf[10];
-    buf[0] = 0x00;
-    // init sequence
-    i2cManager.writeRegister(this->deviceHandle, 0x1b, buf, 1);
-    vTaskDelay(pdMS_TO_TICKS(50));
-    buf[0] = 0x03;
-    i2cManager.writeRegister(this->deviceHandle,0x04, buf, 1);
-    buf[0] = 0x00;
-    i2cManager.writeRegister(this->deviceHandle,0x06, buf, 1);
-    buf[0] = 0x30;
-    i2cManager.writeRegister(this->deviceHandle,0x0a, buf, 1);
-    i2cManager.writeRegister(this->deviceHandle,0x09, buf, 1);
-    i2cManager.writeRegister(this->deviceHandle,0x08, buf, 1);
-    buf[0] = 0x54;
-    i2cManager.writeRegister(this->deviceHandle,0x14, buf, 1);
-    buf[0] = 0xac;
-    i2cManager.writeRegister(this->deviceHandle,0x13, buf, 1);
-    buf[0] = 0x54;
-    i2cManager.writeRegister(this->deviceHandle,0x12, buf, 1);
-    buf[0] = 0xac;
-    i2cManager.writeRegister(this->deviceHandle,0x11, buf, 1);
-    buf[0] = 0x91;
-    i2cManager.writeRegister(this->deviceHandle,0x0e, buf, 1);
-    buf[0] = 0x00;
-    buf[1] = 0x01;
-    buf[2] = 0x77;
-    buf[3] = 0x72;
-    i2cManager.writeRegister(this->deviceHandle,0x20, buf, 4);
-    buf[0] = 0x02;
-    i2cManager.writeRegister(this->deviceHandle,0x10, buf, 1);
-    buf[0] = 0x00;
-    i2cManager.writeRegister(this->deviceHandle,0x0b, buf, 1);
-    buf[0] = 0x02;
-    i2cManager.writeRegister(this->deviceHandle,0x10, buf, 1);
-    i2cManager.writeRegister(this->deviceHandle,0x1c, buf, 1);
-    buf[0] = 0x30;
-    i2cManager.writeRegister(this->deviceHandle,0x19, buf, 1);
-    buf[0] = 0x01;
-    buf[1] = 0x02;
-    buf[2] = 0x13;
-    buf[3] = 0x45;
-    i2cManager.writeRegister(this->deviceHandle,0x25, buf, 4);
-    buf[0] = 0xff;
-    i2cManager.writeRegister(this->deviceHandle,0x07, buf, 1);
-    buf[0] = 0x00;
-    i2cManager.writeRegister(this->deviceHandle,0x05, buf, 1);
-    buf[0] = 0x60;
-    i2cManager.writeRegister(this->deviceHandle,0x07, buf, 1);
-    
-    // Read error status register    
-    i2cManager.writeRegister(this->deviceHandle,0x02, buf, 1);   
+  this->deviceConfig.device_address = TAS5731M_I2C_ADDRESS;
+  this->deviceConfig.scl_speed_hz = 100000;
+  this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
 
-    if (buf[0] & 2) {
-        ESP_LOGW(TAG, "Overcurrent, overtemperature or undervoltage errors");
-    }
+  i2cManager.addDevice(deviceConfig, deviceHandle);
 
-    if (buf[0] & 4) {
-        ESP_LOGW(TAG, "Clip indicator");
-    }
+  uint8_t buf[10];
+  buf[0] = 0x00;
+  // init sequence
+  i2cManager.writeRegister(this->deviceHandle, 0x1b, buf, 1);
+  vTaskDelay(pdMS_TO_TICKS(50));
+  buf[0] = 0x03;
+  i2cManager.writeRegister(this->deviceHandle, 0x04, buf, 1);
+  buf[0] = 0x00;
+  i2cManager.writeRegister(this->deviceHandle, 0x06, buf, 1);
+  buf[0] = 0x30;
+  i2cManager.writeRegister(this->deviceHandle, 0x0a, buf, 1);
+  i2cManager.writeRegister(this->deviceHandle, 0x09, buf, 1);
+  i2cManager.writeRegister(this->deviceHandle, 0x08, buf, 1);
+  buf[0] = 0x54;
+  i2cManager.writeRegister(this->deviceHandle, 0x14, buf, 1);
+  buf[0] = 0xac;
+  i2cManager.writeRegister(this->deviceHandle, 0x13, buf, 1);
+  buf[0] = 0x54;
+  i2cManager.writeRegister(this->deviceHandle, 0x12, buf, 1);
+  buf[0] = 0xac;
+  i2cManager.writeRegister(this->deviceHandle, 0x11, buf, 1);
+  buf[0] = 0x91;
+  i2cManager.writeRegister(this->deviceHandle, 0x0e, buf, 1);
+  buf[0] = 0x00;
+  buf[1] = 0x01;
+  buf[2] = 0x77;
+  buf[3] = 0x72;
+  i2cManager.writeRegister(this->deviceHandle, 0x20, buf, 4);
+  buf[0] = 0x02;
+  i2cManager.writeRegister(this->deviceHandle, 0x10, buf, 1);
+  buf[0] = 0x00;
+  i2cManager.writeRegister(this->deviceHandle, 0x0b, buf, 1);
+  buf[0] = 0x02;
+  i2cManager.writeRegister(this->deviceHandle, 0x10, buf, 1);
+  i2cManager.writeRegister(this->deviceHandle, 0x1c, buf, 1);
+  buf[0] = 0x30;
+  i2cManager.writeRegister(this->deviceHandle, 0x19, buf, 1);
+  buf[0] = 0x01;
+  buf[1] = 0x02;
+  buf[2] = 0x13;
+  buf[3] = 0x45;
+  i2cManager.writeRegister(this->deviceHandle, 0x25, buf, 4);
+  buf[0] = 0xff;
+  i2cManager.writeRegister(this->deviceHandle, 0x07, buf, 1);
+  buf[0] = 0x00;
+  i2cManager.writeRegister(this->deviceHandle, 0x05, buf, 1);
+  buf[0] = 0x60;
+  i2cManager.writeRegister(this->deviceHandle, 0x07, buf, 1);
 
-    if (buf[0] & 8) {
-        ESP_LOGW(TAG, "Frame slip");
-    }
+  // Read error status register
+  i2cManager.writeRegister(this->deviceHandle, 0x02, buf, 1);
 
-    if (buf[0] & 16) {
-        ESP_LOGW(TAG, "LRCLK error");
-    }
+  if (buf[0] & 2) {
+    ESP_LOGW(TAG, "Overcurrent, overtemperature or undervoltage errors");
+  }
 
-    if (buf[0] & 32) {
-        ESP_LOGW(TAG, "SCLK error");
-    }
+  if (buf[0] & 4) {
+    ESP_LOGW(TAG, "Clip indicator");
+  }
 
-    if (buf[0] & 64) {
-        ESP_LOGW(TAG, "PLL autolock error");
-    }
+  if (buf[0] & 8) {
+    ESP_LOGW(TAG, "Frame slip");
+  }
 
-    if (buf[0] & 128) {
-        ESP_LOGW(TAG, "MCLK error");
-    }
+  if (buf[0] & 16) {
+    ESP_LOGW(TAG, "LRCLK error");
+  }
 
+  if (buf[0] & 32) {
+    ESP_LOGW(TAG, "SCLK error");
+  }
+
+  if (buf[0] & 64) {
+    ESP_LOGW(TAG, "PLL autolock error");
+  }
+
+  if (buf[0] & 128) {
+    ESP_LOGW(TAG, "MCLK error");
+  }
 
   return ESP_OK;
-
 }
 
 esp_err_t AudioController::i2sInit() {
-	this->channelConfig = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_AUTO, I2S_ROLE_MASTER);
+  this->channelConfig = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_0, I2S_ROLE_MASTER);
+  i2s_new_channel(&channelConfig, &channelHandle, NULL);
 
   this->i2sConfig = {
       .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(44100),
@@ -199,65 +219,92 @@ esp_err_t AudioController::i2sInit() {
   };
 
   return i2s_channel_init_std_mode(channelHandle, &i2sConfig);
- 
 }
-
 
 void AudioController::playAudioFile(const char *filepath) {
   stopPlaying();
-  
+
   std::string uri = "/spiffs/";
   uri = uri.append(filepath);
-  
+
   ESP_LOGI(TAG, "Playing %s", uri.c_str());
-  
-  std::ifstream file (uri.c_str(), std::ios::in|std::ios::binary|std::ios::ate);
+
+  std::ifstream file(uri.c_str(),
+                     std::ios::in | std::ios::binary | std::ios::ate);
   char audioBuffer[(AUDIO_BUFFER)];
-  
+
   if (!file.is_open()) {
     ESP_LOGE(TAG, "Failed to open file");
-    //return ESP_ERR_INVALID_ARG;
+    // return ESP_ERR_INVALID_ARG;
     return;
   }
 
-  // skip the header...  
+  // skip the header...
   file.seekg(44, std::ios::beg);
-      
+
   size_t bytes_written = 0;
-  
+
   i2s_channel_enable(this->channelHandle);
-  
-  while (file.good()) {
+
+  this->playing = true;
+
+  while (file.good() && this->playing) {
     file.read(audioBuffer, AUDIO_BUFFER);
     std::streamsize bytesRead = file.gcount();
-	i2s_channel_write(this->channelHandle, audioBuffer, bytesRead * sizeof(char), &bytes_written, portMAX_DELAY);
-    
+    i2s_channel_write(this->channelHandle, audioBuffer,
+                      bytesRead * sizeof(char), &bytes_written, portMAX_DELAY);
+
     ESP_LOGV(TAG, "Bytes read: %d", bytesRead);
   }
 
-  i2s_channel_disable(this->channelHandle);  
+  i2s_channel_disable(this->channelHandle);
 }
 
 void AudioController::playAudioFileAsync(const char *filepath) {
-	std::thread([&]() {
-		playAudioFile(filepath);
-	});
-  
+  std::thread([&]() { playAudioFile(filepath); });
 }
 
 void AudioController::setVolume(int volume) {
-  
+  esp_err_t ret = ESP_OK;
+
+  int vol_idx = 0;
+
+  if (vol < TAS5731M_VOLUME_MIN) {
+    vol = TAS5731M_VOLUME_MIN;
+  }
+  if (vol > TAS5731M_VOLUME_MAX) {
+    vol = TAS5731M_VOLUME_MAX;
+  }
+  vol_idx = vol / 5;
+
+  uint8_t cmd[1] = {0};
+
+  cmd[0] = tas5731m_volume[vol_idx];
+  this->i2cManager.writeRegister(this->deviceHandle, MASTER_VOL_REG_ADDR, cmd,
+                                 1);
+  ESP_LOGW(TAG, "volume = 0x%x", cmd[0]);
 }
 
-void AudioController::stopPlaying() {
-  
+void AudioController::getVolume(int &volume) {
+  esp_err_t ret = ESP_OK;
+  /// FIXME: Got the digit volume is not right.
+  uint8_t cmd[1] = {0x00};
+
+  ret = this->i2cManager.readRegister(this->deviceHandle, MASTER_VOL_REG_ADDR,
+                                      cmd, 1);
+  // TAS5731M_ASSERT(ret, "Failed to get volume", ESP_FAIL);
+  int i;
+  for (i = 0; i < sizeof(tas5731m_volume); i++) {
+    if (cmd[0] >= tas5731m_volume[i])
+      break;
+  }
+  ESP_LOGD(TAG, "Volume is %d", i * 5);
+  volume = 5 * i;
 }
 
-bool AudioController::isPlaying() {
-  // TODO - find a method that will enable us to find out if the playing has
-  // finished
-  return true;
-}
+void AudioController::stopPlaying() { this->playing = false; }
+
+bool AudioController::isPlaying() { return this->playing; }
 
 uint8_t AudioController::getErrors() {
 

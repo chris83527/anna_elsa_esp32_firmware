@@ -109,9 +109,7 @@ DisplayController::DisplayController(MainController &mainController,
   ESP_LOGD(TAG, "Leaving constructor");
 }
 
-DisplayController::~DisplayController() {
-	
-}
+DisplayController::~DisplayController() {}
 
 esp_err_t DisplayController::initialise() {
 
@@ -123,20 +121,18 @@ esp_err_t DisplayController::initialise() {
       .strip_gpio_num = LED_GPIO,
       .max_leds = LED_COUNT,
       .led_pixel_format = LED_PIXEL_FORMAT_GRB,
-      .led_model = LED_MODEL_WS2812,  
+      .led_model = LED_MODEL_WS2812,
       .flags = {},
   };
-  
+
   this->ledStripConfig.flags.invert_out = false;
 
   this->rmtConfig = {
       .clk_src = RMT_CLK_SRC_DEFAULT,
-      .resolution_hz = LED_STRIP_RMT_RES_HZ,    
+      .resolution_hz = LED_STRIP_RMT_RES_HZ,
       .mem_block_symbols = {},
-      .flags = {},  
+      .flags = {},
   };
-  
-  this->rmtConfig.flags.with_dma = true;
 
   if (led_strip_new_rmt_device(&this->ledStripConfig, &this->rmtConfig,
                                &this->ledStripHandle) != ESP_OK) {
@@ -157,7 +153,8 @@ esp_err_t DisplayController::initialise() {
   movesDisplay.write_value("%05d", 88);
   ESP_LOGD(TAG, "Moves display initialisation succeeded");
 
-  uint16_t portMode = 0x00ff; // PortA input, portB output (0 = output, 1 = input)
+  uint16_t portMode =
+      0x00ff;               // PortA input, portB output (0 = output, 1 = input)
   uint16_t pullup = 0x0000; // internal pullup resistors on button pins off - we
                             // pull them up in hardware.
 
@@ -299,7 +296,7 @@ void DisplayController::displayText(const string &text) {
 
 void DisplayController::clearText() { m20ly02z_clear(); }
 
-led_strip_handle_t& DisplayController::getLedStripHandle() {
+led_strip_handle_t &DisplayController::getLedStripHandle() {
   return this->ledStripHandle;
 }
 
@@ -628,8 +625,8 @@ void DisplayController::updateLampsTask() {
       // ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i,
       // tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);
       if (i < LED_COUNT) {
-		rgb_t ledRGB = getLampData().at(i).getActiveRgb();
-        led_strip_set_pixel(ledStripHandle, i,ledRGB.r, ledRGB.g, ledRGB.b);
+        rgb_t ledRGB = getLampData().at(i).getActiveRgb();
+        led_strip_set_pixel(ledStripHandle, i, ledRGB.r, ledRGB.g, ledRGB.b);
       } else {
         // GPB1 and GPB0 are unconnected
         // activeRgb value must be have have at least one channel (r, g or b)

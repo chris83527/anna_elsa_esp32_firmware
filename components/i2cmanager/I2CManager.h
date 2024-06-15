@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-/* 
+/*
  * File:   I2CManager.h
  * Author: chris
  *
@@ -32,86 +32,85 @@
 #ifndef I2CMANAGER_H
 #define I2CMANAGER_H
 
-#include <freertos/FreeRTOS.h>
 #include "driver/gpio.h"
+#include <freertos/FreeRTOS.h>
 #include <mutex>
 
 #include "driver/i2c_master.h"
 
 class I2CManager {
 public:
-    I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin, gpio_num_t sdaPin);    
-	~I2CManager();
-	
-    /**
-     * Register a slave device on the bus with the given deviceConfig and return a handle to the device via deviceHandle
-     * 
-     * @param deviceConfig 
-     * @param deviceHandle
-     * @return A handle to the device
-     */
-    esp_err_t addDevice(i2c_device_config_t& deviceConfig, i2c_master_dev_handle_t& deviceHandle);
-      
-    
-    /**
-     * 
-     * 
-     * @param deviceHandle
-     * @param data
-     * @param size
-     * @return 
-     */
-    esp_err_t writeRegister(i2c_master_dev_handle_t& deviceHandle, const uint8_t reg, uint8_t* data, int size);
-       
-    
-    /**
-     * Write data to an I2C device without specifying the register
-     * 
-     * @param deviceHandle
-     * @param data
-     * @param size
-     * @return 
-     */
-    esp_err_t write(i2c_master_dev_handle_t& deviceHandle, uint8_t* data, int size);
-    
-    /**
-     * Read data from an I2C device from a specific register
-     * 
-     * @param deviceHandle
-     * @param reg
-     * @param data
-     * @return 
-     */    
-    esp_err_t readRegister(i2c_master_dev_handle_t& deviceHandle, const uint8_t reg, uint8_t* data, int bytesToRead);
+  I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin, gpio_num_t sdaPin);
+  ~I2CManager();
 
-    /**
-     * Read data from an I2C device without specifying a register
-     * 
-     * @param deviceHandle
-     * @param data
-     * @param size
-     * @return 
-     */
-    esp_err_t read(i2c_master_dev_handle_t& deviceHandle, uint8_t* data, int size);
-    
-    
-    /**
-     * Probe an i2c device to see if it is found at the given address
-     * 
-     * @param address
-     * @return true if an i2c device was found at the given address
-     */
-    bool probe(int address);
-    
-    void scan();
-    
+  /**
+   * Register a slave device on the bus with the given deviceConfig and return a
+   * handle to the device via deviceHandle
+   *
+   * @param deviceConfig
+   * @param deviceHandle
+   * @return A handle to the device
+   */
+  esp_err_t addDevice(i2c_device_config_t &deviceConfig,
+                      i2c_master_dev_handle_t &deviceHandle);
+
+  /**
+   *
+   *
+   * @param deviceHandle
+   * @param data
+   * @param size
+   * @return
+   */
+  esp_err_t writeRegister(i2c_master_dev_handle_t &deviceHandle,
+                          const uint8_t reg, uint8_t *data, int size);
+
+  /**
+   * Write data to an I2C device without specifying the register
+   *
+   * @param deviceHandle
+   * @param data
+   * @param size
+   * @return
+   */
+  esp_err_t write(i2c_master_dev_handle_t &deviceHandle, uint8_t *data,
+                  int size);
+
+  /**
+   * Read data from an I2C device from a specific register
+   *
+   * @param deviceHandle
+   * @param reg
+   * @param data
+   * @return
+   */
+  esp_err_t readRegister(i2c_master_dev_handle_t &deviceHandle,
+                         const uint8_t reg, uint8_t *data, int bytesToRead);
+
+  /**
+   * Read data from an I2C device without specifying a register
+   *
+   * @param deviceHandle
+   * @param data
+   * @param size
+   * @return
+   */
+  esp_err_t read(i2c_master_dev_handle_t &deviceHandle, uint8_t *data,
+                 int size);
+
+  /**
+   * Probe an i2c device to see if it is found at the given address
+   *
+   * @param address
+   * @return true if an i2c device was found at the given address
+   */
+  bool probe(int address);
+
+  void scan();
+
 private:
-    i2c_master_bus_config_t _i2c_mst_config;
-    i2c_master_bus_handle_t _bus_handle;    
-    
+  i2c_master_bus_config_t _i2c_mst_config;
+  i2c_master_bus_handle_t _bus_handle;
 };
 
-
-
 #endif /* I2CMANAGER_H */
-

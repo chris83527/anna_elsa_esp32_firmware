@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-/* 
+/*
  * File:   oledcontroller.h
  * Author: chris
  *
@@ -38,25 +38,23 @@
 
 class oledcontroller {
 public:
-    oledcontroller(I2CManager& i2cmgr, const int address);    
-    virtual ~oledcontroller();
-    void initialise(void);
-    void displayText(std::string textToDisplay, int lineNumber, bool invert);
-    void scrollText(std::string textToDisplay);
-    void clearDisplay(void);
-    void testDisplay();    
+  oledcontroller(I2CManager &i2cmgr, const int address);
+  virtual ~oledcontroller();
+  void initialise(void);
+  void displayText(std::string textToDisplay, int lineNumber, bool invert);
+  void scrollText(std::string textToDisplay);
+  void clearDisplay(void);
+  void testDisplay();
 
 private:
+  SSD1306 ssd1306;
 
-    SSD1306* ssd1306;
-    
-    int top = 2;
-    int center = 3;
-    int bottom = 8;
-    char lineChar[20];
+  int top = 2;
+  int center = 3;
+  int bottom = 8;
+  char lineChar[20];
 
-	I2CManager& i2c_manager;
+  // I2CManager &i2c_manager;
 };
 
 #endif /* OLEDCONTROLLER_H */
-
