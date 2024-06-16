@@ -98,7 +98,7 @@ private:
   i2s_chan_handle_t channelHandle;
   i2s_chan_config_t channelConfig;
   i2s_std_config_t i2sConfig;
-  I2CManager &i2cManager;
+  I2CManager i2cManager;
   i2c_device_config_t deviceConfig;
   i2c_master_dev_handle_t deviceHandle;
 
