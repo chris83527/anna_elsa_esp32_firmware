@@ -235,7 +235,7 @@ private:
     
     std::mutex _mutex;
     
-    I2CManager& i2c_manager;
+    I2CManager i2c_manager;
 };
 
 

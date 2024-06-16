@@ -142,6 +142,7 @@ bool ReelController::initialise() {
   this->centreReel.initialise();
   this->rightReel.initialise();
 
+  // Switch on
   ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
   ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 

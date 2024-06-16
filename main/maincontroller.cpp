@@ -253,13 +253,17 @@ void MainController::start() {
   cfg = esp_pthread_get_default_config();
   cfg.thread_name = "UpdateStatistics";
   cfg.prio = 1;
-  cfg.stack_size = 2048;
+  cfg.stack_size = 4096;
   esp_pthread_set_cfg(&cfg);
   this->updateStatisticsThread =
       std::thread([this]() { updateStatisticsDisplayTask(); });
   this->updateStatisticsThread.detach();
 
   this->displayController->displayText("INITIALISING 13");
+  this->cctalkController->coinAcceptor.startPolling();
+  this->cctalkController->hopper.startPolling();
+
+  this->displayController->displayText("                    ");
 
   for (;;) {
     if ((!game->isGameInProgress()) &&
