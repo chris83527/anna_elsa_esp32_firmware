@@ -157,8 +157,11 @@ void MainController::start() {
   esp_vfs_littlefs_conf_t conf = {
       .base_path = "/httpd",
       .partition_label = "httpd",
+      .partition = NULL,
       .format_if_mount_failed = false,
+      .read_only = false,
       .dont_mount = false,
+      .grow_on_mount = false,
   };
 
   // Use settings defined above to initialize and mount LittleFS filesystem.

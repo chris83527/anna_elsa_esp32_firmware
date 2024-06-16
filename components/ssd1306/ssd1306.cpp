@@ -6,7 +6,6 @@
 
 #include "sdkconfig.h"
 
-#include "include/font8x8_basic.h"
 #include "include/ssd1306.h"
 
 #define TAG "ssd1306"
