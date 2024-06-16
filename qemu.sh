@@ -1,6 +1,8 @@
 #!/bin/sh
 
-. /home/chris/esp/esp-idf-v5.2.1/export.sh
+export IDF_PATH=/home/chris/esp/esp-idf-v5.2.2
+
+. /home/chris/esp/esp-idf-v5.2.2/export.sh
 
 idf.py build
 
