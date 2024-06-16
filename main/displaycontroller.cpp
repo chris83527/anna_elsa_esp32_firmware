@@ -174,7 +174,7 @@ esp_err_t DisplayController::initialise() {
   auto cfg = esp_pthread_get_default_config();
   cfg.thread_name = "BlinkLamps";
   cfg.prio = 2;
-  cfg.stack_size = 1024;
+  cfg.stack_size = 2048;
   cfg.pin_to_core = 1;
   esp_pthread_set_cfg(&cfg);
   this->blinkLampsThread = std::thread([&]() { blinkLampsTask(); });
