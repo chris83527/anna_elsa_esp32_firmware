@@ -286,7 +286,7 @@ void AudioController::setVolume(int volume) {
   cmd[0] = tas5731m_volume[vol_idx];
   this->i2cManager.writeRegister(this->deviceHandle, MASTER_VOL_REG_ADDR, cmd,
                                  1);
-  ESP_LOGW(TAG, "volume = 0x%x", cmd[0]);
+  ESP_LOGI(TAG, "volume = 0x%x", cmd[0]);
 }
 
 void AudioController::getVolume(int &volume) {
@@ -302,7 +302,7 @@ void AudioController::getVolume(int &volume) {
     if (cmd[0] >= tas5731m_volume[i])
       break;
   }
-  ESP_LOGD(TAG, "Volume is %d", i * 5);
+  ESP_LOGI(TAG, "Volume is %d", i * 5);
   volume = 5 * i;
 }
 
