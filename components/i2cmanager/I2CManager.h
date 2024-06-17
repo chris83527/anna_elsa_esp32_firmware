@@ -51,8 +51,8 @@ public:
    * @param deviceHandle
    * @return A handle to the device
    */
-  esp_err_t addDevice(i2c_device_config_t &deviceConfig,
-                      i2c_master_dev_handle_t &deviceHandle);
+  esp_err_t addDevice(const i2c_device_config_t& deviceConfig,
+                      const i2c_master_dev_handle_t &deviceHandle);
 
   /**
    *
@@ -62,7 +62,7 @@ public:
    * @param size
    * @return
    */
-  esp_err_t writeRegister(i2c_master_dev_handle_t &deviceHandle,
+  esp_err_t writeRegister(const i2c_master_dev_handle_t& deviceHandle,
                           const uint8_t reg, uint8_t *data, int size);
 
   /**
@@ -73,7 +73,7 @@ public:
    * @param size
    * @return
    */
-  esp_err_t write(i2c_master_dev_handle_t &deviceHandle, uint8_t *data,
+  esp_err_t write(const i2c_master_dev_handle_t& deviceHandle, uint8_t *data,
                   int size);
 
   /**
@@ -84,7 +84,7 @@ public:
    * @param data
    * @return
    */
-  esp_err_t readRegister(i2c_master_dev_handle_t &deviceHandle,
+  esp_err_t readRegister(const i2c_master_dev_handle_t& deviceHandle,
                          const uint8_t reg, uint8_t *data, int bytesToRead);
 
   /**
@@ -95,7 +95,7 @@ public:
    * @param size
    * @return
    */
-  esp_err_t read(i2c_master_dev_handle_t &deviceHandle, uint8_t *data,
+  esp_err_t read(const i2c_master_dev_handle_t& deviceHandle, uint8_t *data,
                  int size);
 
   /**
