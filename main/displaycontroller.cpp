@@ -76,26 +76,6 @@ using namespace std;
 static const char *TAG = "DisplayController";
 static string vfdText;
 
-LampData::LampData() {
-  this->setLampState(LampState::off);
-  this->setRgb(rgb_from_values(255, 255, 255));
-  this->setActiveRgb(rgb_from_values(255, 255, 255));
-}
-
-rgb_t LampData::getActiveRgb() { return this->activeRgb; }
-
-void LampData::setActiveRgb(rgb_t rgb) { this->activeRgb = rgb; }
-
-rgb_t LampData::getRgb() { return this->rgb; }
-
-void LampData::setRgb(rgb_t rgb) { this->rgb = rgb; }
-
-LampState LampData::getLampState() { return this->lampState; }
-
-void LampData::setLampState(LampState lampState) {
-  this->lampState = lampState;
-}
-
 DisplayController::DisplayController(MainController &mainController,
                                      I2CManager &i2cmgr)
     : movesDisplay(HT16K33(i2cmgr, MOVES_DISPLAY_ADDRESS)),
@@ -164,10 +144,6 @@ esp_err_t DisplayController::initialise() {
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-  for (int i = 0; i < LED_COUNT + 6; i++) {
-    lampData[i] = LampData();
-  }
-
   this->resetLampData();
 
   // Start a new thread to update the lamps
@@ -226,12 +202,12 @@ void DisplayController::resetLampData() {
   ESP_LOGD(TAG, "Entering resetLampData()");
   // initialise lamps
   for (int i = 0; i < (LED_COUNT + 6); i++) {
-    lampData.at(i).setLampState(LampState::off);
+    lampData.at(i).lampState = LampState::off;
     // set lamp colour to white
-    lampData.at(i).setRgb(rgb_from_values(
+    lampData.at(i).rgb = rgb_from_values(
         MAX_BRIGHTNESS, MAX_BRIGHTNESS,
-        MAX_BRIGHTNESS)); // changed from 255 to try and prevent voltage drop
-                          // browning out vfd display
+        MAX_BRIGHTNESS); // changed from 255 to try and prevent voltage drop
+                         // browning out vfd display
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
   ESP_LOGD(TAG, "Exiting resetLampData()");
@@ -245,7 +221,7 @@ void DisplayController::testLamps() {
   // switch all LEDs on;
   resetLampData();
   for (int i = 0; i < (LED_COUNT + 6); i++) {
-    lampData.at(i).setLampState(LampState::on);
+    lampData.at(i).lampState = LampState::on;
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
   resetLampData();
@@ -259,7 +235,8 @@ void DisplayController::setMoves(uint8_t value) {
   ESP_LOGD(TAG, "Exiting setMoves");
 }
 
-std::array<LampData, LED_COUNT + 6> &DisplayController::getLampData() {
+std::array<DisplayController::lamp_data_t, LED_COUNT + 6> &
+DisplayController::getLampData() {
 
   return this->lampData;
 }
@@ -372,9 +349,9 @@ void DisplayController::fadeInOutEffect() {
       if (!this->attractMode) {
         return;
       }
-      lampData[TRAIL_LAMPS[j]].setRgb(rgb_fade_light(
-          rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i));
-      lampData[TRAIL_LAMPS[j]].setLampState(LampState::on);
+      lampData[TRAIL_LAMPS[j]].rgb = rgb_fade_light(
+          rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i);
+      lampData[TRAIL_LAMPS[j]].lampState = LampState::on;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(30));
   }
@@ -385,9 +362,9 @@ void DisplayController::fadeInOutEffect() {
       if (!this->attractMode) {
         return;
       }
-      lampData[NUDGE_LAMPS[j]].setRgb(rgb_fade_light(
-          rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i));
-      lampData[NUDGE_LAMPS[j]].setLampState(LampState::on);
+      lampData[NUDGE_LAMPS[j]].rgb = rgb_fade_light(
+          rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i);
+      lampData[NUDGE_LAMPS[j]].lampState = LampState::on;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(30));
   }
@@ -398,9 +375,9 @@ void DisplayController::fadeInOutEffect() {
       if (!this->attractMode) {
         return;
       }
-      lampData[TRAIL_LAMPS[j]].setRgb(rgb_fade_light(
-          rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i));
-      lampData[TRAIL_LAMPS[j]].setLampState(LampState::on);
+      lampData[TRAIL_LAMPS[j]].rgb = rgb_fade_light(
+          rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i);
+      lampData[TRAIL_LAMPS[j]].lampState = LampState::on;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(30));
   }
@@ -411,9 +388,9 @@ void DisplayController::fadeInOutEffect() {
       if (!this->attractMode) {
         return;
       }
-      lampData[FEATURE_LAMPS[j]].setRgb(rgb_fade_light(
-          rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i));
-      lampData[FEATURE_LAMPS[j]].setLampState(LampState::on);
+      lampData[FEATURE_LAMPS[j]].rgb = rgb_fade_light(
+          rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i);
+      lampData[FEATURE_LAMPS[j]].lampState = LampState::on;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(30));
   }
@@ -424,9 +401,9 @@ void DisplayController::fadeInOutEffect() {
       if (!this->attractMode) {
         return;
       }
-      lampData[NUDGE_LAMPS[j]].setRgb(rgb_fade_light(
-          rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i));
-      lampData[NUDGE_LAMPS[j]].setLampState(LampState::on);
+      lampData[NUDGE_LAMPS[j]].rgb = rgb_fade_light(
+          rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i);
+      lampData[NUDGE_LAMPS[j]].lampState = LampState::on;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(30));
   }
@@ -437,9 +414,9 @@ void DisplayController::fadeInOutEffect() {
       if (!this->attractMode) {
         return;
       }
-      lampData[FEATURE_LAMPS[j]].setRgb(rgb_fade_light(
-          rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i));
-      lampData[FEATURE_LAMPS[j]].setLampState(LampState::on);
+      lampData[FEATURE_LAMPS[j]].rgb = rgb_fade_light(
+          rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS), i);
+      lampData[FEATURE_LAMPS[j]].lampState = (LampState::on);
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(30));
   }
@@ -456,9 +433,9 @@ void DisplayController::chaseEffect() {
       if (!this->attractMode) {
         return;
       }
-      lampData.at(TRAIL_LAMPS.at(i))
-          .setRgb(rgb_from_values(0, MAX_BRIGHTNESS, MAX_BRIGHTNESS));
-      lampData.at(TRAIL_LAMPS.at(i)).setLampState(LampState::on);
+      lampData.at(TRAIL_LAMPS.at(i)).rgb =
+          rgb_from_values(0, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+      lampData.at(TRAIL_LAMPS.at(i)).lampState = LampState::on;
       std::this_thread::sleep_for(std::chrono::milliseconds(25));
     }
 
@@ -466,7 +443,7 @@ void DisplayController::chaseEffect() {
       if (!this->attractMode) {
         return;
       }
-      lampData.at(TRAIL_LAMPS.at(i)).setLampState(LampState::off);
+      lampData.at(TRAIL_LAMPS.at(i)).lampState = (LampState::off);
       std::this_thread::sleep_for(std::chrono::milliseconds(25));
     }
   }
@@ -491,8 +468,8 @@ void DisplayController::rainbowEffect() {
         hsv_data.val = 255;
 
         // Write RGB values to strip driver
-        lampData.at(j).setRgb(hsv2rgb_rainbow(hsv_data));
-        lampData.at(j).setLampState(LampState::on);
+        lampData.at(j).rgb = hsv2rgb_rainbow(hsv_data);
+        lampData.at(j).lampState = LampState::on;
       }
 
       std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
@@ -503,7 +480,7 @@ void DisplayController::rainbowEffect() {
   // Trail lamps fade out
   for (int i = 255; i >= 0; i -= 2) {
     for (int j = 0; j < LED_COUNT; j++) {
-      lampData.at(j).setRgb(rgb_fade_light(lampData.at(j).getRgb(), i));
+      lampData.at(j).rgb = rgb_fade_light(lampData.at(j).rgb, i);
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(30));
   }
@@ -517,72 +494,72 @@ void DisplayController::blinkLampsTask() {
 
     for (int i = 0; i < (LED_COUNT + 6); i++) {
 
-      if (getLampData().at(i).getLampState() == LampState::on ||
-          getLampData().at(i).getLampState() == LampState::blinkfast ||
-          getLampData().at(i).getLampState() == LampState::blinkslow) {
+      if (this->lampData.at(i).lampState == LampState::on ||
+          this->lampData.at(i).lampState == LampState::blinkfast ||
+          this->lampData.at(i).lampState == LampState::blinkslow) {
         if (i < LED_COUNT) {
-          getLampData().at(i).setActiveRgb(getLampData().at(i).getRgb());
+          this->lampData.at(i).activeRgb = this->lampData.at(i).rgb;
         } else {
           // non- RGB button lamps
-          getLampData().at(i).setActiveRgb(
-              rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS));
+          this->lampData.at(i).activeRgb =
+              rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
         }
       } else {
         // Set active rgb value to 0 (off or black)
-        getLampData().at(i).setActiveRgb(rgb_from_values(0, 0, 0));
+        this->lampData.at(i).activeRgb = rgb_from_values(0, 0, 0);
       }
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     for (int i = 0; i < (LED_COUNT + 6); i++) {
-      if (getLampData().at(i).getLampState() == LampState::on ||
-          getLampData().at(i).getLampState() == LampState::blinkslow) {
+      if (this->lampData.at(i).lampState == LampState::on ||
+          this->lampData.at(i).lampState == LampState::blinkslow) {
         if (i < LED_COUNT) {
-          getLampData().at(i).setActiveRgb(getLampData().at(i).getRgb());
+          this->lampData.at(i).activeRgb = this->lampData.at(i).rgb;
         } else {
           // non- RGB button lamps
-          getLampData().at(i).setActiveRgb(
-              rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS));
+          this->lampData.at(i).activeRgb =
+              rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
         }
       } else {
         // Set active rgb value to 0 (off or black)
-        getLampData().at(i).setActiveRgb(rgb_from_values(0, 0, 0));
+        this->lampData.at(i).activeRgb = rgb_from_values(0, 0, 0);
       }
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     for (int i = 0; i < (LED_COUNT + 6); i++) {
-      if (getLampData().at(i).getLampState() == LampState::on) {
+      if (this->lampData.at(i).lampState == LampState::on) {
         if (i < LED_COUNT) {
-          getLampData().at(i).setActiveRgb(getLampData().at(i).getRgb());
+          this->lampData.at(i).activeRgb = this->lampData.at(i).rgb;
         } else {
           // non- RGB button lamps
-          getLampData().at(i).setActiveRgb(
-              rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS));
+          this->lampData.at(i).activeRgb =
+              rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
         }
       } else {
         // Set active rgb value to 0 (off or black)
-        getLampData().at(i).setActiveRgb(rgb_from_values(0, 0, 0));
+        this->lampData.at(i).activeRgb = rgb_from_values(0, 0, 0);
       }
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     for (int i = 0; i < (LED_COUNT + 6); i++) {
-      if (getLampData().at(i).getLampState() == LampState::on ||
-          getLampData().at(i).getLampState() == LampState::blinkfast) {
+      if (this->lampData.at(i).lampState == LampState::on ||
+          this->lampData.at(i).lampState == LampState::blinkfast) {
         if (i < LED_COUNT) {
-          getLampData().at(i).setActiveRgb(getLampData().at(i).getRgb());
+          this->lampData.at(i).activeRgb = this->lampData.at(i).rgb;
         } else {
           // non- RGB button lamps
-          getLampData().at(i).setActiveRgb(
-              rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS));
+          this->lampData.at(i).activeRgb =
+              rgb_from_values(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
         }
       } else {
         // Set active rgb value to 0 (off or black)
-        getLampData().at(i).setActiveRgb(rgb_from_values(0, 0, 0));
+        this->lampData.at(i).activeRgb = rgb_from_values(0, 0, 0);
       }
     }
 
@@ -629,15 +606,15 @@ void DisplayController::updateLampsTask() {
       // ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i,
       // tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);
       if (i < LED_COUNT) {
-        rgb_t ledRGB = getLampData().at(i).getActiveRgb();
+        rgb_t ledRGB = this->lampData.at(i).activeRgb;
         led_strip_set_pixel(ledStripHandle, i, ledRGB.r, ledRGB.g, ledRGB.b);
       } else {
         // GPB1 and GPB0 are unconnected
         // activeRgb value must be have have at least one channel (r, g or b)
         // with a positive value to light
-        if (getLampData().at(i).getActiveRgb().r > 0 ||
-            getLampData().at(i).getActiveRgb().g > 0 ||
-            getLampData().at(i).getActiveRgb().b > 0) {
+        if (this->lampData.at(i).activeRgb.r > 0 ||
+            this->lampData.at(i).activeRgb.g > 0 ||
+            this->lampData.at(i).activeRgb.b > 0) {
           switch (i) {
           case LED_COUNT:
             buttonVal |= (1 << 15); // GPB7 (Start)

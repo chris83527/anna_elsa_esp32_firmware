@@ -70,81 +70,94 @@ I2CManager::I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin,
 
 I2CManager::~I2CManager() {}
 
-esp_err_t I2CManager::addDevice(const i2c_device_config_t& deviceConfig,
-                                const i2c_master_dev_handle_t& deviceHandle) {
-	
-  return i2c_master_bus_add_device(_bus_handle, deviceConfig, deviceHandle);
+esp_err_t I2CManager::addDevice(const i2c_device_config_t &deviceConfig,
+                                i2c_master_dev_handle_t &deviceHandle) {
+
+  return i2c_master_bus_add_device(this->_bus_handle, &deviceConfig,
+                                   &deviceHandle);
 }
 
-esp_err_t I2CManager::writeRegister(const i2c_master_dev_handle_t& deviceHandle,
-                                    const uint8_t reg, uint8_t *data,
-                                    int size) {
+esp_err_t I2CManager::writeRegister(const i2c_master_dev_handle_t &deviceHandle,
+                                    const uint8_t reg,
+                                    std::vector<uint8_t> &data) {
   _mutex.lock();
 
   uint8_t newdata[size + 1];
   newdata[0] = reg;
   std::memcpy(&(newdata[1]), data, size);
+  data.
 
-  esp_err_t ret = i2c_master_transmit(deviceHandle, newdata, size + 1, 5000);
+      esp_err_t ret =
+      i2c_master_transmit(deviceHandle, newdata, size + 1, 5000);
 
-i2c_master_bus_wait_all_done(_bus_handle, 5000);
+  i2c_master_bus_wait_all_done(_bus_handle, 5000);
 
-	if (ret == ESP_ERR_TIMEOUT) {
-		i2c_master_bus_reset(_bus_handle);
-	}
-
+  if (ret == ESP_ERR_TIMEOUT) {
+    i2c_master_bus_reset(_bus_handle);
+  }
 
   _mutex.unlock();
 
   return ret;
 }
 
-esp_err_t I2CManager::write(const i2c_master_dev_handle_t& deviceHandle,
-                            uint8_t *data, int size) {
+esp_err_t I2CManager::write(const i2c_master_dev_handle_t &deviceHandle,
+                            std::vector<uint8_t> &data) {
   _mutex.lock();
-  esp_err_t ret = i2c_master_transmit(deviceHandle, data, size, 5000);
-  
-i2c_master_bus_wait_all_done(_bus_handle, 5000);
+  esp_err_t ret =
+      i2c_master_transmit(deviceHandle, data.data(), data.size(), 5000);
 
-	if (ret == ESP_ERR_TIMEOUT) {
-		i2c_master_bus_reset(_bus_handle);
-	}
-  
+  i2c_master_bus_wait_all_done(_bus_handle, 5000);
+
+  if (ret == ESP_ERR_TIMEOUT) {
+    i2c_master_bus_reset(_bus_handle);
+  }
+
   _mutex.unlock();
 
   return ret;
 }
 
-esp_err_t I2CManager::readRegister(consnt i2c_master_dev_handle_t& deviceHandle,
-                                   const uint8_t reg, uint8_t *data, int size) {
+esp_err_t I2CManager::readRegister(const i2c_master_dev_handle_t &deviceHandle,
+                                   const uint8_t reg,
+                                   std::vector<uint8_t> &data, int size) {
   _mutex.lock();
 
   uint8_t writeBuffer[1];
   writeBuffer[0] = reg;
 
+  uint8_t readBuffer[size];
+
   esp_err_t ret = i2c_master_transmit_receive(deviceHandle, writeBuffer, 1,
-                                              data, size, 5000);
+                                              readBuffer, size, 5000);
 
-i2c_master_bus_wait_all_done(_bus_handle, 5000);
+  data.insert(data.end(), &readBuffer[0], &readBuffer[size]);
 
-	if (ret == ESP_ERR_TIMEOUT) {
-		i2c_master_bus_reset(_bus_handle);
-	}
+  i2c_master_bus_wait_all_done(_bus_handle, 5000);
+
+  if (ret == ESP_ERR_TIMEOUT) {
+    i2c_master_bus_reset(_bus_handle);
+  }
 
   _mutex.unlock();
   return ret;
 }
 
-esp_err_t I2CManager::read(const i2c_master_dev_handle_t& deviceHandle, uint8_t *data,
-                           int size) {
+esp_err_t I2CManager::read(const i2c_master_dev_handle_t &deviceHandle,
+                           std::vector<uint8_t> &data, int size) {
   _mutex.lock();
-  esp_err_t ret = i2c_master_receive(deviceHandle, data, size, 5000);
-  
+
+  uint8_t readBuffer[size];
+
+  esp_err_t ret = i2c_master_receive(deviceHandle, readBuffer, size, 5000);
+
+  data.insert(data.end(), &readBuffer[0], &readBuffer[size]);
+
   i2c_master_bus_wait_all_done(_bus_handle, 5000);
 
-	if (ret == ESP_ERR_TIMEOUT) {
-		i2c_master_bus_reset(_bus_handle);
-	}
+  if (ret == ESP_ERR_TIMEOUT) {
+    i2c_master_bus_reset(_bus_handle);
+  }
 
   _mutex.unlock();
   return ret;
@@ -153,14 +166,13 @@ esp_err_t I2CManager::read(const i2c_master_dev_handle_t& deviceHandle, uint8_t 
 bool I2CManager::probe(int address) {
   _mutex.lock();
   esp_err_t ret = i2c_master_probe(_bus_handle, address, 5000);
-  
+
   i2c_master_bus_wait_all_done(_bus_handle, 5000);
 
-	if (ret == ESP_ERR_TIMEOUT) {
-		i2c_master_bus_reset(_bus_handle);
-	}
+  if (ret == ESP_ERR_TIMEOUT) {
+    i2c_master_bus_reset(_bus_handle);
+  }
 
-  
   bool result = (ret == ESP_OK);
   _mutex.unlock();
   return result;

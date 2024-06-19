@@ -35,6 +35,7 @@
 #include "driver/gpio.h"
 #include <freertos/FreeRTOS.h>
 #include <mutex>
+#include <vector>
 
 #include "driver/i2c_master.h"
 
@@ -51,8 +52,8 @@ public:
    * @param deviceHandle
    * @return A handle to the device
    */
-  esp_err_t addDevice(const i2c_device_config_t& deviceConfig,
-                      const i2c_master_dev_handle_t &deviceHandle);
+  esp_err_t addDevice(const i2c_device_config_t &deviceConfig,
+                      i2c_master_dev_handle_t &deviceHandle);
 
   /**
    *
@@ -62,8 +63,8 @@ public:
    * @param size
    * @return
    */
-  esp_err_t writeRegister(const i2c_master_dev_handle_t& deviceHandle,
-                          const uint8_t reg, uint8_t *data, int size);
+  esp_err_t writeRegister(const i2c_master_dev_handle_t &deviceHandle,
+                          const uint8_t reg, std::vector<uint8_t> &data);
 
   /**
    * Write data to an I2C device without specifying the register
@@ -73,8 +74,8 @@ public:
    * @param size
    * @return
    */
-  esp_err_t write(const i2c_master_dev_handle_t& deviceHandle, uint8_t *data,
-                  int size);
+  esp_err_t write(const i2c_master_dev_handle_t &deviceHandle,
+                  std::vector<uint8_t> &data);
 
   /**
    * Read data from an I2C device from a specific register
@@ -84,8 +85,9 @@ public:
    * @param data
    * @return
    */
-  esp_err_t readRegister(const i2c_master_dev_handle_t& deviceHandle,
-                         const uint8_t reg, uint8_t *data, int bytesToRead);
+  esp_err_t readRegister(const i2c_master_dev_handle_t &deviceHandle,
+                         const uint8_t reg, std::vector<uint8_t> &data,
+                         int size);
 
   /**
    * Read data from an I2C device without specifying a register
@@ -95,8 +97,8 @@ public:
    * @param size
    * @return
    */
-  esp_err_t read(const i2c_master_dev_handle_t& deviceHandle, uint8_t *data,
-                 int size);
+  esp_err_t read(const i2c_master_dev_handle_t &deviceHandle,
+                 std::vector<uint8_t> &data, int size);
 
   /**
    * Probe an i2c device to see if it is found at the given address
