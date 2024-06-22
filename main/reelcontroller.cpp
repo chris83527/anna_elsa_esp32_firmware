@@ -92,7 +92,7 @@ ReelController::reel_stop_info_t ReelController::getReelStopInfo() {
 bool ReelController::initialise() {
 
   ESP_LOGI(TAG, "ReelController::initialise() called");
-
+  return false;
   // MOTOR_EN is on a GPIO
   esp_rom_gpio_pad_select_gpio(GPIO_MOTOR_EN);
   // Set the GPIO as a push/pull output
@@ -153,7 +153,7 @@ bool ReelController::initialise() {
   // Wait for reels to stop
   while (!leftReel.isStopped() || !centreReel.isStopped() ||
          !rightReel.isStopped()) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
 
   ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
@@ -257,9 +257,6 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop,
 
   int count = 0;
 
-  // this->mainController.getCCTalkController()->hopper.stopPolling();
-  // this->mainController.getCCTalkController()->coinAcceptor.stopPolling();
-
   for (;;) {
 
     if (leftFinished && leftPlayAudio) {
@@ -308,9 +305,6 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop,
   // Switch off
   ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
   ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-
-  // this->mainController.getCCTalkController()->hopper.startPolling();
-  // this->mainController.getCCTalkController()->coinAcceptor.startPolling();
 
   this->commandInProgress = false;
 }

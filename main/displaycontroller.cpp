@@ -150,7 +150,7 @@ esp_err_t DisplayController::initialise() {
   auto cfg = esp_pthread_get_default_config();
   cfg.thread_name = "BlinkLamps";
   cfg.prio = 2;
-  cfg.stack_size = 2048;
+  cfg.stack_size = 3192;
   cfg.pin_to_core = 1;
   esp_pthread_set_cfg(&cfg);
   this->blinkLampsThread = std::thread([&]() { blinkLampsTask(); });
@@ -491,6 +491,7 @@ void DisplayController::rainbowEffect() {
 void DisplayController::blinkLampsTask() {
 
   for (;;) {
+    ESP_LOGD(TAG, "blink lamp loop");
 
     for (int i = 0; i < (LED_COUNT + 6); i++) {
 
@@ -574,7 +575,7 @@ void DisplayController::updateLampsTask() {
   uint16_t buttonVal;
 
   for (;;) {
-
+    ESP_LOGD(TAG, "update lamp loop");
     err = buttonIO.port_read(buttonVal);
 
     if (err == ESP_OK) {
@@ -643,7 +644,7 @@ void DisplayController::updateLampsTask() {
     led_strip_refresh(ledStripHandle);
     buttonIO.port_write(buttonVal);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(30));
   }
 }
 
@@ -661,6 +662,8 @@ void DisplayController::updateSevenSegDisplaysTask() {
   bool initialRun = true;
 
   for (;;) {
+
+    ESP_LOGD(TAG, "7 seg display loop");
 
     if (initialRun ||
         (bank != mainController.getMoneyController()->getBank())) {

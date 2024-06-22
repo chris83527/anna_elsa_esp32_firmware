@@ -286,7 +286,9 @@ void AudioController::setVolume(int volume) {
 
   data.push_back(tas5731m_volume[vol_idx]);
   this->i2cManager.writeRegister(this->deviceHandle, MASTER_VOL_REG_ADDR, data);
-  ESP_LOGI(TAG, "volume = 0x%x", data[0]);
+  ESP_LOGI(TAG, "volume = 0x%x",
+           data[1]); // the value is at index 1, because writeRegister places
+                     // the register address at index 0
 }
 
 void AudioController::getVolume(int &volume) {

@@ -175,9 +175,10 @@ esp_err_t PCA9629A::read(RegisterName register_name, uint8_t &result) {
 
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "An error occurred in PCA9629A::read reading i2c data");
+    result = -1;
+  } else {
+    result = data.at(0);
   }
-
-  result = data.at(0);
 
   return ret;
 }
@@ -191,9 +192,10 @@ esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t &result) {
 
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "An error occurred in PCA9629A::read16 reading i2c data");
+    result = -1; // return as error
+  } else {
+    result = (data[1] << 8 | data[0]);
   }
-
-  result = (data[1] << 8 | data[0]);
 
   return ret;
 }
@@ -229,7 +231,7 @@ void PCA9629A::startAfterHome(Direction direction, uint16_t step_count,
   uint8_t data;
   read(REG_MCNTL, data);
   while ((data & 0x80) != 0) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(40));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
     read(REG_MCNTL, data);
   }
 

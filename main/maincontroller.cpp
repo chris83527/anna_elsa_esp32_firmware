@@ -260,8 +260,8 @@ void MainController::start() {
   this->updateStatisticsThread.detach();
 
   this->displayController->displayText("INITIALISING 13");
-  this->cctalkController->coinAcceptor.startPolling();
-  this->cctalkController->hopper.startPolling();
+  // this->cctalkController->coinAcceptor.startPolling();
+  // this->cctalkController->hopper.startPolling();
 
   this->displayController->displayText("                    ");
 
@@ -419,7 +419,7 @@ void MainController::updateStatisticsDisplayTask() {
   esp_err_t ret;
 
   while (1) {
-
+    ESP_LOGD(TAG, "Updating statics loop");
     ret = ds3231.get_time(time);
 
     if (ret == ESP_OK) {
@@ -449,6 +449,6 @@ void MainController::updateStatisticsDisplayTask() {
       ESP_LOGW(TAG, "Couldn't read time from RTC!");
     }
 
-    std::this_thread::sleep_for(std::chrono::seconds(1)); // 1 second
+    std::this_thread::sleep_for(std::chrono::seconds(5)); // 5 seconds
   }
 }
