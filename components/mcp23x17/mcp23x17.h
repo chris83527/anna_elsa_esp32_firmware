@@ -261,6 +261,40 @@ public:
   esp_err_t set_interrupt(uint8_t pin, gpio_intr_t intr);
 
 private:
+  static constexpr int I2C_FREQ_HZ =
+      1000000; // Max 1MHz for esp-idf, but device supports up to 1.7Mhz
+
+  static constexpr uint8_t REG_IODIRA = 0x00;
+  static constexpr uint8_t REG_IODIRB = 0x01;
+  static constexpr uint8_t REG_IPOLA = 0x02;
+  static constexpr uint8_t REG_IPOLB = 0x03;
+  static constexpr uint8_t REG_GPINTENA = 0x04;
+  static constexpr uint8_t REG_GPINTENB = 0x05;
+  static constexpr uint8_t REG_DEFVALA = 0x06;
+  static constexpr uint8_t REG_DEFVALB = 0x07;
+  static constexpr uint8_t REG_INTCONA = 0x08;
+  static constexpr uint8_t REG_INTCONB = 0x09;
+  static constexpr uint8_t REG_IOCON = 0x0A;
+  static constexpr uint8_t REG_GPPUA = 0x0C;
+  static constexpr uint8_t REG_GPPUB = 0x0D;
+  static constexpr uint8_t REG_INTFA = 0x0E;
+  static constexpr uint8_t REG_INTFB = 0x0F;
+  static constexpr uint8_t REG_INTCAPA = 0x10;
+  static constexpr uint8_t REG_INTCAPB = 0x11;
+  static constexpr uint8_t REG_GPIOA = 0x12;
+  static constexpr uint8_t REG_GPIOB = 0x13;
+  static constexpr uint8_t REG_OLATA = 0x14;
+  static constexpr uint8_t REG_OLATB = 0x15;
+
+  static constexpr uint8_t BIT_IOCON_INTPOL = 1;
+  static constexpr uint8_t BIT_IOCON_ODR = 2;
+  static constexpr uint8_t BIT_IOCON_HAEN = 3;
+  static constexpr uint8_t BIT_IOCON_DISSLW = 4;
+  static constexpr uint8_t BIT_IOCON_SEQOP = 5;
+  static constexpr uint8_t BIT_IOCON_MIRROR = 6;
+  static constexpr uint8_t BIT_IOCON_BANK = 7;
+
+private:
   esp_err_t read_reg_16(const uint8_t reg, uint16_t &val);
   esp_err_t write_reg_16(const uint8_t reg, const uint16_t val);
   esp_err_t write_reg_bit_16(const uint8_t reg, bool val, uint8_t bit);

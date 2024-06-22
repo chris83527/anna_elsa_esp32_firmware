@@ -120,7 +120,6 @@ esp_err_t AudioController::i2cInit() {
   // init sequence
   i2cManager.writeRegister(this->deviceHandle, 0x1b, data, 1);
   vTaskDelay(pdMS_TO_TICKS(50));
-  data.clear();
   data[0] = 0x03;
   i2cManager.writeRegister(this->deviceHandle, 0x04, data, 1);
   data[0] = 0x00;
