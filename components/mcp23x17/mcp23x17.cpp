@@ -199,13 +199,15 @@ esp_err_t MCP23x17::read_reg_16(const uint8_t reg, uint16_t &val) {
   _mutex.lock();
   std::vector<uint8_t> data;
 
-  esp_err_t res =
-      this->i2c_manager.readRegister(this->deviceHandle, reg, data, 2);
+  //esp_err_t res =
+  //    this->i2c_manager.readRegister(this->deviceHandle, reg, data, 2);
 
-  val = (data[1] << 8 | data[0]);
+  //val = (data[1] << 8 | data[0]);
+val = 0;
 
   _mutex.unlock();
-  return res;
+  //return res;
+return ESP_OK;
 }
 
 esp_err_t MCP23x17::write_reg_16(const uint8_t reg, const uint16_t val) {
