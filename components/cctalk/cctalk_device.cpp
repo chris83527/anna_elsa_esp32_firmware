@@ -59,6 +59,10 @@ bool CctalkDevice::initialise(
     return false;
   }
 
+  requestSwitchDeviceState(
+      CcDeviceState::Initialized,
+      [&](const std::string &error_msg) { finish_callback(error_msg); });
+
   auto cfg = esp_pthread_get_default_config();
   cfg.thread_name =
       ccCategoryDisplayNameFromCategory(this->getStoredDeviceCategory())
@@ -71,9 +75,7 @@ bool CctalkDevice::initialise(
   this->pollThread = std::thread([this] { devicePollTask(); });
   this->pollThread.detach();
 
-  return requestSwitchDeviceState(
-      CcDeviceState::Initialized,
-      [&](const std::string &error_msg) { finish_callback(error_msg); });
+  return ESP_OK;
 }
 
 bool CctalkDevice::shutdown(
@@ -938,6 +940,8 @@ void CctalkDevice::requestIdentifiers(
     const std::function<void(
         const std::string &error_msg,
         const std::map<uint8_t, CcIdentifier> &identifiers)> &finish_callback) {
+
+  // Sanity check
   if (this->deviceCategory != CcCategory::CoinAcceptor &&
       this->deviceCategory != CcCategory::BillValidator) {
     ESP_LOGW(
@@ -954,6 +958,11 @@ void CctalkDevice::requestIdentifiers(
   } else {
     maxPositions = 16;
   }
+
+  ESP_LOGD(TAG, "requestIdentifiers for %s: maxPositions: %d",
+           this->deviceCategory == CcCategory::CoinAcceptor ? "CoinAcceptor"
+                                                            : "BillValidator",
+           maxPositions);
 
   std::string error;
   std::string coin_bill =
@@ -997,7 +1006,10 @@ void CctalkDevice::requestIdentifiers(
   std::vector<uint8_t> data;
   /// Get coin / bill IDs (and possibly country scaling data)
   for (uint8_t pos = 1; pos <= maxPositions; ++pos) {
-
+    ESP_LOGD(TAG, "requestIdentifiers for %s: position %d of maxPositions: %d",
+             this->deviceCategory == CcCategory::CoinAcceptor ? "CoinAcceptor"
+                                                              : "BillValidator",
+             pos, maxPositions);
     /// Fetch coin / bill ID at position pos.
     CcHeader get_command = (this->deviceCategory == CcCategory::CoinAcceptor
                                 ? CcHeader::RequestCoinId
