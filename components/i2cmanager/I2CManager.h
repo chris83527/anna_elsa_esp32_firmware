@@ -64,7 +64,8 @@ public:
    * @return
    */
   esp_err_t writeRegister(const i2c_master_dev_handle_t &deviceHandle,
-                          const uint8_t reg, std::vector<uint8_t> &data);
+                          const uint8_t reg, std::vector<uint8_t> &data,
+                          int size = 0);
 
   /**
    * Write data to an I2C device without specifying the register
@@ -75,7 +76,7 @@ public:
    * @return
    */
   esp_err_t write(const i2c_master_dev_handle_t &deviceHandle,
-                  std::vector<uint8_t> &data);
+                  std::vector<uint8_t> &data, int size = 0);
 
   /**
    * Read data from an I2C device from a specific register

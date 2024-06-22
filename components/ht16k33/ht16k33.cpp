@@ -178,9 +178,10 @@ esp_err_t HT16K33::write_value(const char *fmt, const int value) {
 
 esp_err_t HT16K33::write_cmd(const uint8_t cmd) {
 
-  uint8_t data[1];
-  data[0] = cmd;
-  esp_err_t ret = this->i2c_manager.write(this->deviceHandle, data, 1);
+  std::vector<uint8_t> data;
+  data.push_back(cmd);
+
+  esp_err_t ret = this->i2c_manager.write(this->deviceHandle, data);
 
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "An error occurred in HT16K33::write_cmd writing i2c data");
@@ -197,11 +198,11 @@ esp_err_t HT16K33::write_pos(const uint8_t pos, const uint8_t mask,
     new_mask |= SEG_DP; // dp
   }
 
-  uint8_t data[1];
-  data[0] = new_mask;
+  std::vector<uint8_t> data;
+  data.push_back(new_mask);
 
   esp_err_t ret =
-      this->i2c_manager.writeRegister(this->deviceHandle, pos * 2, data, 1);
+      this->i2c_manager.writeRegister(this->deviceHandle, pos * 2, data);
 
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "An error occurred in HT16K33::write_pos writing i2c data");

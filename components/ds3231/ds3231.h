@@ -41,11 +41,14 @@
 #ifndef __DS3231_H__
 #define __DS3231_H__
 
-#include "I2CManager.h"
 #include <chrono>
 #include <cstdbool>
-#include <esp_err.h>
-#include <esp_log.h>
+#include <vector>
+
+#include "esp_err.h"
+#include "esp_log.h"
+
+#include "I2CManager.h"
 
 #define DS3231_ADDR 0x68 //!< I2C address
 

@@ -114,83 +114,86 @@ esp_err_t AudioController::i2cInit() {
 
   i2cManager.addDevice(deviceConfig, deviceHandle);
 
-  uint8_t buf[10];
-  buf[0] = 0x00;
+  std::vector<uint8_t> data = std::vector<uint8_t>(4);
+
+  data[0] = 0x00;
   // init sequence
-  i2cManager.writeRegister(this->deviceHandle, 0x1b, buf, 1);
+  i2cManager.writeRegister(this->deviceHandle, 0x1b, data, 1);
   vTaskDelay(pdMS_TO_TICKS(50));
-  buf[0] = 0x03;
-  i2cManager.writeRegister(this->deviceHandle, 0x04, buf, 1);
-  buf[0] = 0x00;
-  i2cManager.writeRegister(this->deviceHandle, 0x06, buf, 1);
-  buf[0] = 0x30;
-  i2cManager.writeRegister(this->deviceHandle, 0x0a, buf, 1);
-  i2cManager.writeRegister(this->deviceHandle, 0x09, buf, 1);
-  i2cManager.writeRegister(this->deviceHandle, 0x08, buf, 1);
-  buf[0] = 0x54;
-  i2cManager.writeRegister(this->deviceHandle, 0x14, buf, 1);
-  buf[0] = 0xac;
-  i2cManager.writeRegister(this->deviceHandle, 0x13, buf, 1);
-  buf[0] = 0x54;
-  i2cManager.writeRegister(this->deviceHandle, 0x12, buf, 1);
-  buf[0] = 0xac;
-  i2cManager.writeRegister(this->deviceHandle, 0x11, buf, 1);
-  buf[0] = 0x91;
-  i2cManager.writeRegister(this->deviceHandle, 0x0e, buf, 1);
-  buf[0] = 0x00;
-  buf[1] = 0x01;
-  buf[2] = 0x77;
-  buf[3] = 0x72;
-  i2cManager.writeRegister(this->deviceHandle, 0x20, buf, 4);
-  buf[0] = 0x02;
-  i2cManager.writeRegister(this->deviceHandle, 0x10, buf, 1);
-  buf[0] = 0x00;
-  i2cManager.writeRegister(this->deviceHandle, 0x0b, buf, 1);
-  buf[0] = 0x02;
-  i2cManager.writeRegister(this->deviceHandle, 0x10, buf, 1);
-  i2cManager.writeRegister(this->deviceHandle, 0x1c, buf, 1);
-  buf[0] = 0x30;
-  i2cManager.writeRegister(this->deviceHandle, 0x19, buf, 1);
-  buf[0] = 0x01;
-  buf[1] = 0x02;
-  buf[2] = 0x13;
-  buf[3] = 0x45;
-  i2cManager.writeRegister(this->deviceHandle, 0x25, buf, 4);
-  buf[0] = 0xff;
-  i2cManager.writeRegister(this->deviceHandle, 0x07, buf, 1);
-  buf[0] = 0x00;
-  i2cManager.writeRegister(this->deviceHandle, 0x05, buf, 1);
-  buf[0] = 0x60;
-  i2cManager.writeRegister(this->deviceHandle, 0x07, buf, 1);
+  data.clear();
+  data[0] = 0x03;
+  i2cManager.writeRegister(this->deviceHandle, 0x04, data, 1);
+  data[0] = 0x00;
+  i2cManager.writeRegister(this->deviceHandle, 0x06, data, 1);
+  data[0] = 0x30;
+  i2cManager.writeRegister(this->deviceHandle, 0x0a, data, 1);
+  i2cManager.writeRegister(this->deviceHandle, 0x09, data, 1);
+  i2cManager.writeRegister(this->deviceHandle, 0x08, data, 1);
+  data[0] = 0x54;
+  i2cManager.writeRegister(this->deviceHandle, 0x14, data, 1);
+  data[0] = 0xac;
+  i2cManager.writeRegister(this->deviceHandle, 0x13, data, 1);
+  data[0] = 0x54;
+  i2cManager.writeRegister(this->deviceHandle, 0x12, data, 1);
+  data[0] = 0xac;
+  i2cManager.writeRegister(this->deviceHandle, 0x11, data, 1);
+  data[0] = 0x91;
+  i2cManager.writeRegister(this->deviceHandle, 0x0e, data);
+  data[0] = 0x00;
+  data[1] = 0x01;
+  data[2] = 0x77;
+  data[3] = 0x72;
+  i2cManager.writeRegister(this->deviceHandle, 0x20, data, 4);
+  data[0] = 0x02;
+  i2cManager.writeRegister(this->deviceHandle, 0x10, data, 1);
+  data[0] = 0x00;
+  i2cManager.writeRegister(this->deviceHandle, 0x0b, data, 1);
+  data[0] = 0x02;
+  i2cManager.writeRegister(this->deviceHandle, 0x10, data, 1);
+  i2cManager.writeRegister(this->deviceHandle, 0x1c, data, 1);
+  data[0] = 0x30;
+  i2cManager.writeRegister(this->deviceHandle, 0x19, data, 1);
+  data[0] = 0x01;
+  data[1] = 0x02;
+  data[2] = 0x13;
+  data[3] = 0x45;
+  i2cManager.writeRegister(this->deviceHandle, 0x25, data, 4);
+  data[0] = 0xff;
+  i2cManager.writeRegister(this->deviceHandle, 0x07, data, 1);
+  data[0] = 0x00;
+  i2cManager.writeRegister(this->deviceHandle, 0x05, data, 1);
+  data[0] = 0x60;
+  i2cManager.writeRegister(this->deviceHandle, 0x07, data, 1);
 
   // Read error status register
-  i2cManager.readRegister(this->deviceHandle, 0x02, buf, 1);
 
-  if (buf[0] & 2) {
+  i2cManager.readRegister(this->deviceHandle, 0x02, data, 1);
+
+  if (data[0] & 2) {
     ESP_LOGW(TAG, "Overcurrent, overtemperature or undervoltage errors");
   }
 
-  if (buf[0] & 4) {
+  if (data[0] & 4) {
     ESP_LOGW(TAG, "Clip indicator");
   }
 
-  if (buf[0] & 8) {
+  if (data[0] & 8) {
     ESP_LOGW(TAG, "Frame slip");
   }
 
-  if (buf[0] & 16) {
+  if (data[0] & 16) {
     ESP_LOGW(TAG, "LRCLK error");
   }
 
-  if (buf[0] & 32) {
+  if (data[0] & 32) {
     ESP_LOGW(TAG, "SCLK error");
   }
 
-  if (buf[0] & 64) {
+  if (data[0] & 64) {
     ESP_LOGW(TAG, "PLL autolock error");
   }
 
-  if (buf[0] & 128) {
+  if (data[0] & 128) {
     ESP_LOGW(TAG, "MCLK error");
   }
 
@@ -235,7 +238,7 @@ void AudioController::playAudioFile(const char *filepath) {
 
   std::ifstream file(uri.c_str(),
                      std::ios::in | std::ios::binary | std::ios::ate);
-  char audioBuffer[(AUDIO_BUFFER)];
+  char audiodatafer[(AUDIO_BUFFER)];
 
   if (!file.is_open()) {
     ESP_LOGE(TAG, "Failed to open file");
@@ -253,9 +256,9 @@ void AudioController::playAudioFile(const char *filepath) {
   this->playing = true;
 
   while (file.good() && this->playing) {
-    file.read(audioBuffer, AUDIO_BUFFER);
+    file.read(audiodatafer, AUDIO_BUFFER);
     std::streamsize bytesRead = file.gcount();
-    i2s_channel_write(this->channelHandle, audioBuffer,
+    i2s_channel_write(this->channelHandle, audiodatafer,
                       bytesRead * sizeof(char), &bytes_written, portMAX_DELAY);
 
     ESP_LOGV(TAG, "Bytes read: %d", bytesRead);
@@ -281,25 +284,24 @@ void AudioController::setVolume(int volume) {
   }
   vol_idx = vol / 5;
 
-  uint8_t cmd[1] = {0};
+  std::vector<uint8_t> data;
 
-  cmd[0] = tas5731m_volume[vol_idx];
-  this->i2cManager.writeRegister(this->deviceHandle, MASTER_VOL_REG_ADDR, cmd,
-                                 1);
-  ESP_LOGI(TAG, "volume = 0x%x", cmd[0]);
+  data.push_back(tas5731m_volume[vol_idx]);
+  this->i2cManager.writeRegister(this->deviceHandle, MASTER_VOL_REG_ADDR, data);
+  ESP_LOGI(TAG, "volume = 0x%x", data[0]);
 }
 
 void AudioController::getVolume(int &volume) {
-  esp_err_t ret = ESP_OK;
-  /// FIXME: Got the digit volume is not right.
-  uint8_t cmd[1] = {0x00};
 
-  ret = this->i2cManager.readRegister(this->deviceHandle, MASTER_VOL_REG_ADDR,
-                                      cmd, 1);
+  /// FIXME: Got the digit volume is not right.
+  std::vector<uint8_t> data;
+
+  this->i2cManager.readRegister(this->deviceHandle, MASTER_VOL_REG_ADDR, data,
+                                1);
   // TAS5731M_ASSERT(ret, "Failed to get volume", ESP_FAIL);
   int i;
   for (i = 0; i < sizeof(tas5731m_volume); i++) {
-    if (cmd[0] >= tas5731m_volume[i])
+    if (data[0] >= tas5731m_volume[i])
       break;
   }
   ESP_LOGI(TAG, "Volume is %d", i * 5);
@@ -321,7 +323,7 @@ uint8_t AudioController::getErrors() {
   //    I2C_DEV_CHECK(&i2c_dev, i2c_dev_read_reg(&i2c_dev, reg, err_data, 1));
   //    I2C_DEV_GIVE_MUTEX(&i2c_dev);
   //
-  //    ESP_LOG_BUFFER_HEX(TAG, err_data, 1);
+  //    ESP_LOG_dataFER_HEX(TAG, err_data, 1);
   //
   //    return err_data[0];
   return (uint8_t)0;

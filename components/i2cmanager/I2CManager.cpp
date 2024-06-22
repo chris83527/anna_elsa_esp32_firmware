@@ -79,18 +79,22 @@ esp_err_t I2CManager::addDevice(const i2c_device_config_t &deviceConfig,
 
 esp_err_t I2CManager::writeRegister(const i2c_master_dev_handle_t &deviceHandle,
                                     const uint8_t reg,
-                                    std::vector<uint8_t> &data) {
+                                    std::vector<uint8_t> &data, int size) {
+
+  // 0 is the default value if no parameter set, in this case we presume we can
+  // get the size from the vector
+  if (size == 0) {
+    size = data.size();
+  }
+
+  esp_err_t ret;
   _mutex.lock();
 
-  uint8_t newdata[size + 1];
-  newdata[0] = reg;
-  std::memcpy(&(newdata[1]), data, size);
-  data.
+  data.insert(data.begin(), reg);
 
-      esp_err_t ret =
-      i2c_master_transmit(deviceHandle, newdata, size + 1, 5000);
+  ret = i2c_master_transmit(deviceHandle, data.data(), size + 1, 5000);
 
-  i2c_master_bus_wait_all_done(_bus_handle, 5000);
+  ret |= i2c_master_bus_wait_all_done(_bus_handle, 5000);
 
   if (ret == ESP_ERR_TIMEOUT) {
     i2c_master_bus_reset(_bus_handle);
@@ -102,10 +106,16 @@ esp_err_t I2CManager::writeRegister(const i2c_master_dev_handle_t &deviceHandle,
 }
 
 esp_err_t I2CManager::write(const i2c_master_dev_handle_t &deviceHandle,
-                            std::vector<uint8_t> &data) {
+                            std::vector<uint8_t> &data, int size) {
+
+  // 0 is the default value if no parameter set, in this case we presume we can
+  // get the size from the vector
+  if (size == 0) {
+    size = data.size();
+  }
+
   _mutex.lock();
-  esp_err_t ret =
-      i2c_master_transmit(deviceHandle, data.data(), data.size(), 5000);
+  esp_err_t ret = i2c_master_transmit(deviceHandle, data.data(), size, 5000);
 
   i2c_master_bus_wait_all_done(_bus_handle, 5000);
 

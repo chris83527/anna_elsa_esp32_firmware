@@ -38,6 +38,8 @@
 #ifndef __AUDIOCONTROLLER_H__
 #define __AUDIOCONTROLLER_H__
 
+#include <vector>
+
 #include "I2CManager.h"
 #include "driver/i2s_std.h"
 #include "soc/io_mux_reg.h"
