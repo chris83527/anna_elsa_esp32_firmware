@@ -271,7 +271,6 @@ void AudioController::playAudioFileAsync(const char *filepath) {
 }
 
 void AudioController::setVolume(int volume) {
-  esp_err_t ret = ESP_OK;
 
   int vol_idx = 0;
 
