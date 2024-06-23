@@ -124,7 +124,7 @@ uint64_t CctalkLinkController::ccRequest(
 
   ESP_LOGD(TAG, "Checking no existing request in process");
   while (this->serialWorker.isRequestInProgress()) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(25));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
 
   if (callbackFunction != nullptr) {

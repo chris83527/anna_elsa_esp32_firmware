@@ -367,7 +367,6 @@ bool CctalkDevice::switchStateInitialized(
   }
 
   // Get device manufacturing info
-  ESP_LOGD(TAG, "Requesting manufacturing info");
   requestManufacturingInfo([&](const std::string &error_msg,
                                CcCategory category, const std::string &info) {
     if (error_msg.size() != 0) {
@@ -391,7 +390,7 @@ bool CctalkDevice::switchStateInitialized(
 
   if (this->deviceCategory == CcCategory::CoinAcceptor ||
       this->deviceCategory == CcCategory::BillValidator) {
-    ESP_LOGD(TAG, "Requesting polling interval");
+
     // Get recommended polling frequency
     requestPollingInterval([&](const std::string &error_msg, uint64_t msec) {
       if (error_msg.size() != 0) {
@@ -597,6 +596,8 @@ void CctalkDevice::requestManufacturingInfo(
   std::string info;
   std::vector<uint8_t> data;
 
+  ESP_LOGD(TAG, "Requesting manufacturing info");
+
   // Category
   this->linkController->ccRequest(
       CcHeader::RequestEquipmentCategoryId, this->deviceAddress, data, 200,
@@ -715,6 +716,8 @@ void CctalkDevice::requestPollingInterval(
     const std::function<void(const std::string &error_msg, uint64_t msec)>
         &finish_callback) {
   std::vector<uint8_t> data;
+
+  ESP_LOGD(TAG, "Requesting polling interval");
 
   this->linkController->ccRequest(
       CcHeader::RequestPollingPriority, this->deviceAddress, data, 200,
