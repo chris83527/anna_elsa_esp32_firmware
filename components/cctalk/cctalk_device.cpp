@@ -1043,6 +1043,9 @@ void CctalkDevice::requestIdentifiers(
           }
         });
 
+if (!error.empty()) return;
+
+
     // If this is a Bill Validator, get country scaling data.
     // For coin acceptors, use a fixed, predefined country scaling data.
     if (this->identifiers.count(pos) == 0) { // empty position
