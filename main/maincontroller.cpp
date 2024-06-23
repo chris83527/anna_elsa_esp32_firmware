@@ -58,7 +58,7 @@ void MainController::start() {
   this->oledController = new oledcontroller(i2c_manager, 0x3c);
   this->moneyController = new MoneyController(this);
   this->game = new Game(this);
-  this->cctalkController = new CCTalkController();
+  //this->cctalkController = new CCTalkController();
   // this->httpController = new HttpController();
 
   // CPU LED is on a GPIO
@@ -218,7 +218,7 @@ void MainController::start() {
 
   this->displayController->displayText("INITIALISING 0E");
   oledController->scrollText("Init cctalk");
-  cctalkController->setCreditAcceptedCallback(
+  cctalkController.setCreditAcceptedCallback(
       [&](uint8_t coin_id, const esp32cc::CcIdentifier &identifier) {
         ESP_LOGI(TAG, "Credit accepted: Coin id: %d, Identifier: %s", coin_id,
                  identifier.id_string.c_str());
@@ -226,7 +226,7 @@ void MainController::start() {
       });
 
   this->displayController->displayText("INITIALISING 0F");
-  if (cctalkController->initialise() != ESP_OK) {
+  if (cctalkController.initialise() != ESP_OK) {
     ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
     oledController->scrollText("  -> failed");
   } else {
@@ -295,7 +295,7 @@ AudioController *MainController::getAudioController() {
 
 ReelController *MainController::getReelController() { return reelController; }
 
-CCTalkController *MainController::getCCTalkController() {
+CCTalkController &MainController::getCCTalkController() {
   return cctalkController;
 }
 

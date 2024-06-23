@@ -43,8 +43,13 @@ CctalkLinkController::CctalkLinkController(const uart_port_t uartNumber,
                                            const gpio_num_t rxPin,
                                            bool isChecksum16bit,
                                            bool isDesEncrypted)
-    : uartNumber(uartNumber), txPin(txPin), rxPin(rxPin),
-      isChecksum16bit(isChecksum16bit), isDesEncrypted(isDesEncrypted) {}
+    : m_uartNumber{uartNumber}, m_txPin{txPin}, m_rxPin{rxPin},
+      m_isChecksum16bit{isChecksum16bit}, m_isDesEncrypted{isDesEncrypted},
+      serialWorker(uartNumber, txPin, rxPin) {
+		
+		ESP_LOGD(TAG, "Entering CctalkLinkCotroller constructor: uartNumber %d, txPin %d, rxPin %d", uartNumber, txPin, rxPin);
+		ESP_LOGD(TAG, "Leaving CctalkLinkController constructor");
+	  }
 
 CctalkLinkController::~CctalkLinkController() {}
 
@@ -56,7 +61,7 @@ esp_err_t CctalkLinkController::initialise() {
         this->onResponseReceive(requestId, responseData);
       });
 
-  openPort(uartNumber, this->txPin, this->rxPin);
+  //openPort(this->m_uartNumber, this->m_txPin, this->m_rxPin);
 
   if (isPortOpen) {
     return ESP_OK;
@@ -76,8 +81,7 @@ void CctalkLinkController::openPort(const uart_port_t uartNumber,
                                     const int txPin, const int rxPin) {
 
   if (!isPortOpen) {
-    this->uartNumber = uartNumber;
-    this->isPortOpen = serialWorker.openPort(uartNumber, txPin, rxPin);
+    //this->isPortOpen = serialWorker.openPort(uartNumber, txPin, rxPin);
   }
 }
 
@@ -146,20 +150,20 @@ uint64_t CctalkLinkController::ccRequest(
 
   if (data.size() > 255) {
     ESP_LOGE(TAG, "Size of additional data too large! Aborting request.");
-    return -1;
+    return 0;
   }
 
-  if (this->isDesEncrypted) {
+  if (this->m_isDesEncrypted) {
     ESP_LOGE(TAG,
              "ccTalk encryption requested, unsupported! Aborting request.");
-    return -1;
+    return 0;
   }
 
-  if (this->isChecksum16bit) {
+  if (this->m_isChecksum16bit) {
     // TODO support this
     ESP_LOGE(TAG, "ccTalk 16-bit CRC checksums requested, unsupported! "
                   "Aborting request.");
-    return -1;
+    return 0;
   }
 
   if (this->showCctalkRequest) {

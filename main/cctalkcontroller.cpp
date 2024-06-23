@@ -16,11 +16,11 @@
 static const char *TAG = "CCTALK_CONTROLLER";
 
 CCTalkController::CCTalkController()
-    : cctalkLinkController(CCTALK_UART, CCTALK_GPIO_TX, CCTALK_GPIO_RX, false,
-                           false),
-      hopper(esp32cc::CoinHopperDevice(cctalkLinkController, CCTALK_HOPPER)),
-      coinAcceptor(esp32cc::CoinAcceptorDevice(cctalkLinkController,
-                                               CCTALK_COIN_VALIDATOR)) {
+    : cctalkLinkController{CCTALK_UART, CCTALK_GPIO_TX, CCTALK_GPIO_RX, false,
+                           false},
+      hopper{esp32cc::CoinHopperDevice{cctalkLinkController, CCTALK_HOPPER}},
+      coinAcceptor{esp32cc::CoinAcceptorDevice{cctalkLinkController,
+                                               CCTALK_COIN_VALIDATOR}} {
   ESP_LOGD(TAG, "Entering constructor");
 
   ESP_LOGD(TAG, "Leaving constructor");
@@ -30,6 +30,8 @@ CCTalkController::~CCTalkController() {}
 
 esp_err_t CCTalkController::initialise() {
   ESP_LOGD(TAG, "CCTalkController::initialise called");
+
+cctalkLinkController.initialise();
 
   //  ESP_LOGI(TAG, "Initialising hopper");
   //  this->hopper.initialise(

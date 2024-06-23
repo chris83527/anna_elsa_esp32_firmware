@@ -73,7 +73,7 @@ private:
 
 class SerialWorker {
 public:
-  SerialWorker();
+  SerialWorker(uart_port_t uartNumber, int txPin, int rxPin);
   virtual ~SerialWorker();
 
   void setOnResponseReceiveCallback(
@@ -82,7 +82,7 @@ public:
           callback);
   void setLoggingOptions(bool showFullResponse, bool showSerialRequest,
                          bool showSerialResponse);
-  bool openPort(uart_port_t uartNumber, int txPin, int rxPin);
+  bool openPort();
   bool closePort();
   void sendRequest(const uint64_t requestId,
                    const std::vector<uint8_t> &requestData,
@@ -104,9 +104,9 @@ private:
   // A queue to handle UART event.
   QueueHandle_t cctalkUartQueueHandle;
 
-  uart_port_t uartNumber;
-  int txPin;
-  int rxPin;
+  uart_port_t m_uartNumber;
+  int m_txPin;
+  int m_rxPin;
 
   Timer timer;
 

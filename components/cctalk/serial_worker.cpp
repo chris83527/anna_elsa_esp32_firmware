@@ -39,20 +39,23 @@ static const char* TAG = "serial_worker";
 
 namespace esp32cc {
 
-    SerialWorker::SerialWorker() {
+    SerialWorker::SerialWorker(uart_port_t uartNumber, int txPin, int rxPin) : m_uartNumber(uartNumber), m_txPin(txPin), m_rxPin(rxPin) {
+		ESP_LOGD(TAG, "Enterinc SerialWorker constructor: uartNumber %d, txPin %d, rxPin %d", uartNumber, txPin, rxPin);
+		
+		openPort();
+		
+		ESP_LOGD(TAG, "Leaving SerialWorker constructor");
     }
 
     SerialWorker::~SerialWorker() {
 
     }
 
-    bool SerialWorker::openPort(uart_port_t uartNumber, int txPin, int rxPin) {
+    bool SerialWorker::openPort() {
+		
         esp_err_t xErr = ESP_OK;
         if (!this->portOpen) {
-            this->uartNumber = uartNumber;
-            this->txPin = txPin;
-            this->rxPin = rxPin;
-
+            
             uart_config_t xUartConfig = {
                 .baud_rate = 9600,
                 .data_bits = UART_DATA_8_BITS,
@@ -70,14 +73,14 @@ namespace esp32cc {
 #endif
 
             // Set UART config   
-            xErr = uart_driver_install(uartNumber, MAX_BUFFER_SIZE, 0, 0, NULL, intr_alloc_flags);
+            xErr = uart_driver_install(this->m_uartNumber, MAX_BUFFER_SIZE, 0, 0, NULL, intr_alloc_flags);
 
             CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk serial driver failure, uart_driver_install() returned (0x%x).", xErr);
 
-            xErr = uart_set_pin(uartNumber, txPin, rxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+            xErr = uart_set_pin(this->m_uartNumber, this->m_txPin, this->m_rxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
             CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk config failure, uart_set_pin() returned (0x%x).", xErr);
 
-            xErr = uart_param_config(uartNumber, &xUartConfig);
+            xErr = uart_param_config(this->m_uartNumber, &xUartConfig);
             CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk config failure, uart_param_config() returned (0x%x).", xErr);
 
 
@@ -90,7 +93,7 @@ namespace esp32cc {
     }
 
     bool SerialWorker::closePort() {
-        esp_err_t xErr = uart_driver_delete(this->uartNumber);
+        esp_err_t xErr = uart_driver_delete(this->m_uartNumber);
         this->portOpen = false;
         return xErr != ESP_OK;
     }
@@ -107,6 +110,7 @@ namespace esp32cc {
         this->responseTimeoutMsec = responseTimeoutMsec;
 
         // Set the UART receive timeout
+        ESP_LOGD(TAG, "Using UART %d", this->getUartNumber());
         ESP_LOGD(TAG, "Setting RX Timeout %d msec", responseTimeoutMsec);
         //uart_set_rx_timeout(this->getUartNumber(), pdMS_TO_TICKS(responseTimeoutMsec));
         //CCTALK_PORT_CHECK((xErr == ESP_OK), false, "cctalk set rx timeout failure, uart_set_rx_timeout() returned (0x%x).", xErr);        
@@ -187,7 +191,7 @@ namespace esp32cc {
     }
 
     uart_port_t SerialWorker::getUartNumber() {
-        return this->uartNumber;
+        return this->m_uartNumber;
     }
 
     uint64_t SerialWorker::getRequestId() {

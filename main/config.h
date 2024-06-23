@@ -42,39 +42,39 @@
 #include "driver/gpio.h"
 #include "driver/uart.h"
 
-constexpr int I2C_FREQ_HZ = 100000;
+static constexpr int I2C_FREQ_HZ = 400000;
 
 // Running LED
-constexpr gpio_num_t CPU_LED_GPIO = GPIO_NUM_19;
+static constexpr gpio_num_t CPU_LED_GPIO = GPIO_NUM_19;
 
 // ccTalk
-constexpr gpio_num_t CCTALK_GPIO_RX = GPIO_NUM_16;
-constexpr gpio_num_t CCTALK_GPIO_TX = GPIO_NUM_17;
-constexpr uart_port_t CCTALK_UART = UART_NUM_1;
+static constexpr gpio_num_t CCTALK_GPIO_RX = GPIO_NUM_16;
+static constexpr gpio_num_t CCTALK_GPIO_TX = GPIO_NUM_17;
+static constexpr uart_port_t CCTALK_UART = UART_NUM_1;
 
 // I2C
-constexpr gpio_num_t GPIO_I2C_SDA = GPIO_NUM_21;
-constexpr gpio_num_t GPIO_I2C_SCL = GPIO_NUM_22;
+static constexpr gpio_num_t GPIO_I2C_SDA = GPIO_NUM_21;
+static constexpr gpio_num_t GPIO_I2C_SCL = GPIO_NUM_22;
 
 // LEDs
-constexpr gpio_num_t LED_GPIO = GPIO_NUM_18;
-#define LED_COUNT (61)
+static constexpr gpio_num_t LED_GPIO = GPIO_NUM_18;
+static constexpr int  LED_COUNT =  61;
 
 // VFD Display
-constexpr gpio_num_t MD_OE = GPIO_NUM_4;
-constexpr gpio_num_t MD_DATA = GPIO_NUM_33;
-constexpr gpio_num_t MD_CLK = GPIO_NUM_5;
-constexpr gpio_num_t MD_STROBE = GPIO_NUM_32;
+static constexpr gpio_num_t MD_OE = GPIO_NUM_4;
+static constexpr gpio_num_t MD_DATA = GPIO_NUM_33;
+static constexpr gpio_num_t MD_CLK = GPIO_NUM_5;
+static constexpr gpio_num_t MD_STROBE = GPIO_NUM_32;
 
 // I2S Audio
-constexpr gpio_num_t AUDIO_MCLK = GPIO_NUM_0;
-constexpr gpio_num_t AUDIO_PDWN = GPIO_NUM_2;
-constexpr gpio_num_t AUDIO_LRCLK = GPIO_NUM_25;
-constexpr gpio_num_t AUDIO_SCLK = GPIO_NUM_26;
-constexpr gpio_num_t AUDIO_DOUT = GPIO_NUM_27;
+static constexpr gpio_num_t AUDIO_MCLK = GPIO_NUM_0;
+static constexpr gpio_num_t AUDIO_PDWN = GPIO_NUM_2;
+static constexpr gpio_num_t AUDIO_LRCLK = GPIO_NUM_25;
+static constexpr gpio_num_t AUDIO_SCLK = GPIO_NUM_26;
+static constexpr gpio_num_t AUDIO_DOUT = GPIO_NUM_27;
 
 // reels
-constexpr gpio_num_t GPIO_MOTOR_EN = GPIO_NUM_23;
+static constexpr gpio_num_t GPIO_MOTOR_EN = GPIO_NUM_23;
 
 
 // Buttons and button lamps (interfaced via MCP23017)

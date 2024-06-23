@@ -63,7 +63,7 @@ public:
     AudioController* getAudioController();
     DisplayController* getDisplayController();
     ReelController* getReelController();
-    CCTalkController* getCCTalkController();
+    CCTalkController &getCCTalkController();
     Game* getGame();
     MoneyController* getMoneyController();
     oledcontroller* getOledController();
@@ -100,7 +100,7 @@ private:
     Game* game;
     ReelController* reelController;
     DisplayController* displayController;
-    CCTalkController* cctalkController;
+    CCTalkController cctalkController;
     AudioController* audioController;
     MoneyController* moneyController;
     oledcontroller* oledController;    
