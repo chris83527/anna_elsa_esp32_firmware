@@ -15,28 +15,24 @@
 
 static const char *TAG = "CCTALK_CONTROLLER";
 
-CCTalkController::CCTalkController() {
+CCTalkController::CCTalkController()
+    : cctalkLinkController(CCTALK_UART, CCTALK_GPIO_TX, CCTALK_GPIO_RX, false,
+                           false),
+      hopper(esp32cc::CoinHopperDevice(cctalkLinkController, CCTALK_HOPPER)),
+      coinAcceptor(esp32cc::CoinAcceptorDevice(cctalkLinkController,
+                                               CCTALK_COIN_VALIDATOR)) {
   ESP_LOGD(TAG, "Entering constructor");
 
   ESP_LOGD(TAG, "Leaving constructor");
 }
 
-CCTalkController::CCTalkController(const CCTalkController &orig) {}
-
 CCTalkController::~CCTalkController() {}
 
 esp_err_t CCTalkController::initialise() {
-
   ESP_LOGD(TAG, "CCTalkController::initialise called");
-
-  cctalkLinkController = new esp32cc::CctalkLinkController();
-
-  cctalkLinkController->initialise(CCTALK_UART, CCTALK_GPIO_TX, CCTALK_GPIO_RX,
-                                   false, false);
 
   //  ESP_LOGI(TAG, "Initialising hopper");
   //  this->hopper.initialise(
-  //      this->cctalkLinkController, CCTALK_HOPPER,
   //      [=](const std::string &error_msg) {
   //        if (error_msg.size() > 0) {
   //          ESP_LOGE(TAG, "An error occurred initialising the hopper: %s",
@@ -46,14 +42,12 @@ esp_err_t CCTalkController::initialise() {
   //      });
 
   ESP_LOGI(TAG, "Initialising coin validator");
-  this->coinAcceptor.initialise(
-      this->cctalkLinkController, CCTALK_COIN_VALIDATOR,
-      [=](const std::string &error_msg) {
-        if (error_msg.size() > 0) {
-          ESP_LOGE(TAG, "An error occurred initialising the coin acceptor: %s",
-                   error_msg.c_str());
-        }
-      });
+  this->coinAcceptor.initialise([=](const std::string &error_msg) {
+    if (error_msg.size() > 0) {
+      ESP_LOGE(TAG, "An error occurred initialising the coin acceptor: %s",
+               error_msg.c_str());
+    }
+  });
 
   this->hopper.requestResetDevice([=](const std::string &error_msg) {
     if (error_msg.size() > 0) {
@@ -154,4 +148,10 @@ esp_err_t CCTalkController::initialise() {
 void CCTalkController::setCreditAcceptedCallback(
     esp32cc::CoinAcceptorDevice::CreditAcceptedFunc creditAcceptedCallback) {
   this->coinAcceptor.setCreditAcceptedCallback(creditAcceptedCallback);
+}
+
+void CCTalkController::dispenseCoins(
+    const int numberOfCoins,
+    const std::function<void(const std::string &error_msg)> &finish_callback) {
+  this->hopper.dispenseCoins(numberOfCoins, finish_callback);
 }

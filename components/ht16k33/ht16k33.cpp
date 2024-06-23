@@ -124,7 +124,7 @@ static const uint8_t charmap[] = {
 };
 
 HT16K33::HT16K33(I2CManager &i2cmgr, const uint8_t address)
-    : i2c_manager(i2cmgr) {
+    : i2c_manager{i2cmgr} {
   ESP_LOGD(TAG, "i2c_address: %d", address);
 
   this->deviceConfig.device_address = address;

@@ -149,8 +149,9 @@ public:
   using ResponseErrorFunc = std::function<void(const std::string &error_msg)>;
 
   /// Constructor
-  CctalkDevice();
-  virtual ~CctalkDevice();
+  CctalkDevice(const CctalkLinkController &linkController,
+               const uint8_t deviceAddress);
+  ~CctalkDevice();
 
   /// Start event-handling timer
   void startPolling();
@@ -335,7 +336,7 @@ public:
   void setDeviceState(CcDeviceState state);
 
   /// Get link controller
-  CctalkLinkController *getLinkController();
+  CctalkLinkController getLinkController();
 
   /// This function is called in NormalAccepting state when a bill is inserted
   /// and should be checked for validity by us. If the function returns true,
@@ -346,7 +347,6 @@ public:
   /// Starts event timer.
   /// \return true if the request was successfully sent.
   bool initialise(
-      CctalkLinkController *linkController, const uint8_t deviceAddress,
       const std::function<void(const std::string &error_msg)> &finish_callback);
 
   void setCreditAcceptedCallback(CreditAcceptedFunc callback);
@@ -384,11 +384,10 @@ private:
   std::string decodeResponseToHex(const std::vector<uint8_t> &responseData);
   std::string decodeSerialNumber(const std::vector<uint8_t> &responseData);
 
-  virtual void devicePollTask();
+  void devicePollTask();
 
-  CctalkLinkController
-      *linkController; ///< Controller for serial worker thread with cctalk link
-                       ///< management support.
+  CctalkLinkController linkController; ///< Controller for serial worker thread
+                                       ///< with cctalk link management support.
 
   int normalPollingIntervalMsec =
       200; ///< Polling interval for normal and diagnostics modes.

@@ -78,7 +78,7 @@ static const char *TAG = "mcp23008";
 #define BV(x) (1 << (x))
 
 MCP23008::MCP23008(I2CManager &i2cmgr, const uint8_t address)
-    : i2c_manager(i2cmgr) {
+    : i2c_manager{i2cmgr} {
   ESP_LOGD(TAG, "i2c_address: %d", address);
   this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
   this->deviceConfig.device_address = address;

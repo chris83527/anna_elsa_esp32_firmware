@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-/* 
+/*
  * File:   serial_worker.h
  * Author: chris
  *
@@ -34,79 +34,86 @@
 
 #include <mutex>
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
 #include "esp_timer.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
+#include "freertos/task.h"
 
 #include "driver/uart.h"
 
 #include "cctalk_enums.h"
 
-#define CCTALK_QUEUE_LENGTH                 (255)
+#define CCTALK_QUEUE_LENGTH (255)
 
-#define CCTALK_SERIAL_TASK_PRIO             (15)
-#define CCTALK_SERIAL_TASK_STACK_SIZE       (4096)
-#define CCTALK_SERIAL_TIMEOUT               (200) // 3.5*8 = 28 ticks, TOUT=3 -> ~24..33 ticks
-#define CCTALK_PORT_SERIAL_ISR_FLAG         ESP_INTR_FLAG_IRAM
+#define CCTALK_SERIAL_TASK_PRIO (15)
+#define CCTALK_SERIAL_TASK_STACK_SIZE (4096)
+#define CCTALK_SERIAL_TIMEOUT (200) // 3.5*8 = 28 ticks, TOUT=3 -> ~24..33 ticks
+#define CCTALK_PORT_SERIAL_ISR_FLAG ESP_INTR_FLAG_IRAM
 
 #define MAX_BUFFER_SIZE 1024
 
-#define CCTALK_PORT_CHECK(a, ret_val, str, ...) \
-    if (!(a)) { \
-        ESP_LOGE(TAG, "%s(%u): " str, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
-        return ret_val; \
-    }
+#define CCTALK_PORT_CHECK(a, ret_val, str, ...)                                \
+  if (!(a)) {                                                                  \
+    ESP_LOGE(TAG, "%s(%u): " str, __FUNCTION__, __LINE__, ##__VA_ARGS__);      \
+    return ret_val;                                                            \
+  }
 
 namespace esp32cc {
 
-    class Timer {
-    public:
-        void startTimer(int tdelay); // start the countdown with tdelay in milliseconds
-        bool isReady(void); // return true if timer expired
-        unsigned long millis();
-    private:
-        unsigned long target;
-    };
+class Timer {
+public:
+  void
+  startTimer(int tdelay); // start the countdown with tdelay in milliseconds
+  bool isReady(void);     // return true if timer expired
+  unsigned long millis();
 
-    class SerialWorker {
-    public:
-        SerialWorker();
-        virtual ~SerialWorker();
+private:
+  unsigned long target;
+};
 
-        void setOnResponseReceiveCallback(std::function<void(const uint64_t requestId, const std::vector<uint8_t>& responseData) > callback);
-        void setLoggingOptions(bool showFullResponse, bool showSerialRequest, bool showSerialResponse);
-        bool openPort(uart_port_t uartNumber, int txPin, int rxPin);
-        bool closePort();
-        void sendRequest(const uint64_t requestId, const std::vector<uint8_t>& requestData, const int writeTimeoutMsec, const int responseTimeoutMsec);
+class SerialWorker {
+public:
+  SerialWorker();
+  virtual ~SerialWorker();
 
-        uart_port_t getUartNumber();
-        uint64_t getRequestId();
-        int getResponseTimeoutMsec();
-        bool isRequestInProgress();
+  void setOnResponseReceiveCallback(
+      std::function<void(const uint64_t requestId,
+                         const std::vector<uint8_t> &responseData)>
+          callback);
+  void setLoggingOptions(bool showFullResponse, bool showSerialRequest,
+                         bool showSerialResponse);
+  bool openPort(uart_port_t uartNumber, int txPin, int rxPin);
+  bool closePort();
+  void sendRequest(const uint64_t requestId,
+                   const std::vector<uint8_t> &requestData,
+                   const int writeTimeoutMsec, const int responseTimeoutMsec);
 
-    protected:
+  uart_port_t getUartNumber();
+  uint64_t getRequestId();
+  int getResponseTimeoutMsec();
+  bool isRequestInProgress();
 
-    private:
+protected:
+private:
+  std::function<void(const uint64_t requestId,
+                     const std::vector<uint8_t> &responseData)>
+      onResponseReceiveCallback;
+  uint64_t requestId;
+  int responseTimeoutMsec;
 
-        std::function<void(const uint64_t requestId, const std::vector<uint8_t>& responseData) > onResponseReceiveCallback;
-        uint64_t requestId;
-        int responseTimeoutMsec;
+  // A queue to handle UART event.
+  QueueHandle_t cctalkUartQueueHandle;
 
-        // A queue to handle UART event.
-        QueueHandle_t cctalkUartQueueHandle;
+  uart_port_t uartNumber;
+  int txPin;
+  int rxPin;
 
-        uart_port_t uartNumber;
-        int txPin;
-        int rxPin;
+  Timer timer;
 
-        Timer timer;
+  bool portOpen = false;
 
-        bool portOpen = false;   
-        
-        volatile bool requestInProgress = false;
-    };
-}
+  bool requestInProgress = false;
+};
+} // namespace esp32cc
 
 #endif /* SERIAL_WORKER_H */
-

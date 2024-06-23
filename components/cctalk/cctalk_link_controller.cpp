@@ -38,14 +38,17 @@ static const char *TAG = "cctalk_link_controller";
 
 namespace esp32cc {
 
-CctalkLinkController::CctalkLinkController() {}
+CctalkLinkController::CctalkLinkController(const uart_port_t uartNumber,
+                                           const gpio_num_t txPin,
+                                           const gpio_num_t rxPin,
+                                           bool isChecksum16bit,
+                                           bool isDesEncrypted)
+    : uartNumber(uartNumber), txPin(txPin), rxPin(rxPin),
+      isChecksum16bit(isChecksum16bit), isDesEncrypted(isDesEncrypted) {}
 
 CctalkLinkController::~CctalkLinkController() {}
 
-esp_err_t CctalkLinkController::initialise(const uart_port_t uartNumber,
-                                           const int txPin, const int rxPin,
-                                           bool isChecksum16bit,
-                                           bool isDesEncrypted) {
+esp_err_t CctalkLinkController::initialise() {
 
   this->serialWorker.setOnResponseReceiveCallback(
       [this](const uint64_t requestId,
@@ -53,11 +56,7 @@ esp_err_t CctalkLinkController::initialise(const uart_port_t uartNumber,
         this->onResponseReceive(requestId, responseData);
       });
 
-  this->isChecksum16bit = isChecksum16bit;
-  this->isDesEncrypted = isDesEncrypted;
-  this->uartNumber = uartNumber;
-
-  openPort(uartNumber, txPin, rxPin);
+  openPort(uartNumber, this->txPin, this->rxPin);
 
   if (isPortOpen) {
     return ESP_OK;

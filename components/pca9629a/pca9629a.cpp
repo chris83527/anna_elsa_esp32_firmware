@@ -44,7 +44,7 @@ const char *reg_name[] = {
 };
 
 PCA9629A::PCA9629A(I2CManager &i2cmgr, const uint8_t i2c_address)
-    : i2c_manager(i2cmgr) {
+    : i2c_manager{i2cmgr} {
 
   ESP_LOGD(TAG, "i2c_address: %d", i2c_address);
 

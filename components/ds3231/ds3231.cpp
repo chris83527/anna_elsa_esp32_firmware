@@ -91,7 +91,7 @@ static const char *TAG = "ds3231";
  * @param i2c_address I2C-bus address (default: 0x20)
  */
 DS3231::DS3231(I2CManager &i2cmgr, const uint8_t address)
-    : i2c_manager(i2cmgr) {
+    : i2c_manager{i2cmgr} {
   ESP_LOGD(TAG, "i2c_address: %d", address);
   this->deviceConfig.device_address = address;
   this->deviceConfig.scl_speed_hz = 100000;

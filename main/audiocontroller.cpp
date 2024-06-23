@@ -63,7 +63,7 @@
 
 static const char *TAG = "AudioController";
 
-AudioController::AudioController(I2CManager &i2cmgr) : i2cManager(i2cmgr) {}
+AudioController::AudioController(I2CManager &i2cmgr) : i2cManager{i2cmgr} {}
 
 AudioController::~AudioController() {}
 

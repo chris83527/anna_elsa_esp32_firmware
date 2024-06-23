@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-/* 
+/*
  * File:   CCTalkController.h
  * Author: chris
  *
@@ -19,40 +19,42 @@
 
 #include <stdint.h>
 
+#include "cctalk_device.h"
 #include "cctalk_enums.h"
 #include "cctalk_link_controller.h"
 #include "coin_acceptor_device.h"
 #include "coin_hopper_device.h"
 
-#define CCTALK_HOST (1)
-#define CCTALK_HOPPER (3)
-#define CCTALK_COIN_VALIDATOR (2)
-
 class MainController;
 
 class CCTalkController {
 public:
-    CCTalkController();
-    CCTalkController(const CCTalkController& orig);
-    virtual ~CCTalkController();
+  CCTalkController();
+  virtual ~CCTalkController();
 
-    void setCreditAcceptedCallback(esp32cc::CoinAcceptorDevice::CreditAcceptedFunc creditAcceptedCallback);
-    
-    esp_err_t initialise(void);        
+  void setCreditAcceptedCallback(
+      esp32cc::CoinAcceptorDevice::CreditAcceptedFunc creditAcceptedCallback);
 
-    const static unsigned long VALIDATOR_POLL_INTERVAL = 250;
-    const static unsigned long HOPPER_STATUS_POLL_INTERVAL = 100;
-    
-    // These should be private
-    esp32cc::CoinHopperDevice hopper;
-    esp32cc::CoinAcceptorDevice coinAcceptor;
+  esp_err_t initialise(void);
+
+  void dispenseCoins(
+      const int numberOfCoins,
+      const std::function<void(const std::string &error_msg)> &finish_callback);
+
+public:
+  static constexpr uint8_t COIN_VALUES[] = {0, 5, 10, 20, 50, 100, 200};
+
+  static constexpr unsigned long VALIDATOR_POLL_INTERVAL = 250;
+  static constexpr unsigned long HOPPER_STATUS_POLL_INTERVAL = 100;
+
+  static constexpr uint8_t CCTALK_HOST = 1;
+  static constexpr uint8_t CCTALK_COIN_VALIDATOR = 2;
+  static constexpr uint8_t CCTALK_HOPPER = 3;
+
 private:
-
-    esp32cc::CctalkLinkController* cctalkLinkController;
-       
+  esp32cc::CctalkLinkController cctalkLinkController;
+  esp32cc::CoinHopperDevice hopper;
+  esp32cc::CoinAcceptorDevice coinAcceptor;
 };
 
-const static uint8_t COIN_VALUES[] = {0, 5, 10, 20, 50, 100, 200};
-
 #endif /* CCTALKCONTROLLER_H */
-

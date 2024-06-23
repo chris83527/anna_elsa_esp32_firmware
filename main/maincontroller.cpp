@@ -222,7 +222,7 @@ void MainController::start() {
       [&](uint8_t coin_id, const esp32cc::CcIdentifier &identifier) {
         ESP_LOGI(TAG, "Credit accepted: Coin id: %d, Identifier: %s", coin_id,
                  identifier.id_string.c_str());
-        moneyController->addToCredit(COIN_VALUES[coin_id]);
+        moneyController->addToCredit(CCTalkController::COIN_VALUES[coin_id]);
       });
 
   this->displayController->displayText("INITIALISING 0F");

@@ -57,7 +57,7 @@ static const char *TAG = "mcp23x17";
 #define BV(x) (1 << (x))
 
 MCP23x17::MCP23x17(const I2CManager &i2cmgr, const uint8_t address)
-    : i2c_manager(i2cmgr) {
+    : i2c_manager{i2cmgr} {
   ESP_LOGD(TAG, "i2c_address: %d", address);
   this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
   this->deviceConfig.device_address = address;
@@ -199,15 +199,15 @@ esp_err_t MCP23x17::read_reg_16(const uint8_t reg, uint16_t &val) {
   _mutex.lock();
   std::vector<uint8_t> data;
 
-  //esp_err_t res =
-  //    this->i2c_manager.readRegister(this->deviceHandle, reg, data, 2);
+  // esp_err_t res =
+  //     this->i2c_manager.readRegister(this->deviceHandle, reg, data, 2);
 
-  //val = (data[1] << 8 | data[0]);
-val = 0;
+  // val = (data[1] << 8 | data[0]);
+  val = 0;
 
   _mutex.unlock();
-  //return res;
-return ESP_OK;
+  // return res;
+  return ESP_OK;
 }
 
 esp_err_t MCP23x17::write_reg_16(const uint8_t reg, const uint16_t val) {

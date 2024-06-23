@@ -19,14 +19,14 @@ typedef union out_column_t {
 
 SSD1306::SSD1306(I2CManager &i2cmgr, const uint8_t address,
                  const int width = 128, const int height = 64)
-    : i2c_manager(i2cmgr) {
+    : i2c_manager{i2cmgr} {
 
   ESP_LOGD(TAG, "i2c_address: %d", address);
   ESP_LOGD(TAG, "width: %d, height: %d", width, height);
 
   this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
   this->deviceConfig.device_address = address;
-  this->deviceConfig.scl_speed_hz = 100000;
+  this->deviceConfig.scl_speed_hz = 400000;
 
   i2c_manager.addDevice(this->deviceConfig, this->deviceHandle);
 

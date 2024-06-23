@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-/* 
+/*
  * File:   bill_validator_device.h
  * Author: chris
  *
@@ -33,17 +33,19 @@
 #define COIN_HOPPER_DEVICE_H
 
 #include "cctalk_device.h"
-
+#include "cctalk_link_controller.h"
 
 namespace esp32cc {
 
-    // Coin acceptor controller
+// Coin acceptor controller
 
-    class CoinHopperDevice : public CctalkDevice {
-    
-    };
+class CoinHopperDevice : public CctalkDevice {
+public:
+  CoinHopperDevice(const CctalkLinkController &linkController,
+                   const uint8_t deviceAddress);
+  ~CoinHopperDevice();
+};
 
-}
+} // namespace esp32cc
 
 #endif /* BILL_VALIDATOR_DEVICE_H */
-

@@ -520,7 +520,7 @@ void Game::collectOrContinue() {
   if (btnStatus.test(BTN_COLLECT)) {
     ESP_LOGI(TAG, "Calling payout...");
 
-    this->mainController->getCCTalkController()->hopper.dispenseCoins(
+    this->mainController->getCCTalkController()->dispenseCoins(
         (this->mainController->getMoneyController()->getBank() / 20),
         [&](const std::string &error_msg) {
           // TODO: Check status and see how many coins were returned and
