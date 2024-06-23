@@ -69,7 +69,7 @@ bool CctalkDevice::initialise(
           .append("Polling")
           .c_str();
   cfg.prio = 9;
-  cfg.stack_size = 8192;
+  cfg.stack_size = 9000;
   cfg.pin_to_core = 0;
   esp_pthread_set_cfg(&cfg);
   this->pollThread = std::thread([this] { devicePollTask(); });
@@ -775,9 +775,10 @@ void CctalkDevice::requestPollingInterval(
           ms_multiplier = 1000UL * 31557600;
 
           break;
-          // default: assert(true);
+        default:
+          assert(true);
 
-          //  break;
+          break;
         }
 
         // 0,0 means "see the device docs".
@@ -951,7 +952,7 @@ void CctalkDevice::requestIdentifiers(
     return;
   }
 
-  int maxPositions;
+  int maxPositions = 0;
 
   if (this->deviceCategory == CcCategory::CoinAcceptor) {
     maxPositions = 6;
@@ -1021,6 +1022,10 @@ void CctalkDevice::requestIdentifiers(
         [&](const std::string &error_msg,
             const std::vector<uint8_t> &responseData) {
           if (error_msg.size() != 0) {
+            ESP_LOGE(
+                TAG,
+                "An error occurred calling requestCoinId/requestBillID: %s",
+                error_msg.c_str());
             error = error_msg;
 
           } else {
@@ -1043,8 +1048,9 @@ void CctalkDevice::requestIdentifiers(
           }
         });
 
-if (!error.empty()) return;
-
+    if (!error.empty()) {
+      return;
+    }
 
     // If this is a Bill Validator, get country scaling data.
     // For coin acceptors, use a fixed, predefined country scaling data.

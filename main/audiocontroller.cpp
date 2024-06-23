@@ -102,7 +102,7 @@ void AudioController::initialise() {
   i2cInit();
   i2sInit();
 
-  setVolume(45);
+  setVolume(20);
 
   playAudioFile(Sounds::SND_STARTUP);
 }

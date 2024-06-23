@@ -259,10 +259,6 @@ void MainController::start() {
       std::thread([this]() { updateStatisticsDisplayTask(); });
   this->updateStatisticsThread.detach();
 
-  this->displayController->displayText("INITIALISING 13");
-  // this->cctalkController->coinAcceptor.startPolling();
-  // this->cctalkController->hopper.startPolling();
-
   this->displayController->displayText("                    ");
 
   for (;;) {
