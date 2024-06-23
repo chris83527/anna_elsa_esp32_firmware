@@ -46,10 +46,13 @@ CctalkLinkController::CctalkLinkController(const uart_port_t uartNumber,
     : m_uartNumber{uartNumber}, m_txPin{txPin}, m_rxPin{rxPin},
       m_isChecksum16bit{isChecksum16bit}, m_isDesEncrypted{isDesEncrypted},
       serialWorker(uartNumber, txPin, rxPin) {
-		
-		ESP_LOGD(TAG, "Entering CctalkLinkCotroller constructor: uartNumber %d, txPin %d, rxPin %d", uartNumber, txPin, rxPin);
-		ESP_LOGD(TAG, "Leaving CctalkLinkController constructor");
-	  }
+
+  ESP_LOGD(TAG,
+           "Entering CctalkLinkCotroller constructor: uartNumber %d, txPin %d, "
+           "rxPin %d",
+           uartNumber, txPin, rxPin);
+  ESP_LOGD(TAG, "Leaving CctalkLinkController constructor");
+}
 
 CctalkLinkController::~CctalkLinkController() {}
 
@@ -61,7 +64,7 @@ esp_err_t CctalkLinkController::initialise() {
         this->onResponseReceive(requestId, responseData);
       });
 
-  //openPort(this->m_uartNumber, this->m_txPin, this->m_rxPin);
+  // openPort(this->m_uartNumber, this->m_txPin, this->m_rxPin);
 
   if (isPortOpen) {
     return ESP_OK;
@@ -81,7 +84,7 @@ void CctalkLinkController::openPort(const uart_port_t uartNumber,
                                     const int txPin, const int rxPin) {
 
   if (!isPortOpen) {
-    //this->isPortOpen = serialWorker.openPort(uartNumber, txPin, rxPin);
+    // this->isPortOpen = serialWorker.openPort(uartNumber, txPin, rxPin);
   }
 }
 

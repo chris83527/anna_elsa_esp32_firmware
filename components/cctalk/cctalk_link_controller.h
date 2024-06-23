@@ -90,7 +90,6 @@ private:
   /// Close the serial port.
   void closePort();
 
-  
 private:
   uart_port_t m_uartNumber;
   gpio_num_t m_txPin;
@@ -98,8 +97,9 @@ private:
   bool m_isChecksum16bit =
       false; /// If true, use 16-bit CRC checksum. Otherwise use simple 8-bit
              /// checksum. The device must be set to the same value.
-  bool m_isDesEncrypted = false; ///< If true, use DES encryption. The device must
-                               ///< be set to the same value. NOTE: Unsupported.
+  bool m_isDesEncrypted =
+      false; ///< If true, use DES encryption. The device must
+             ///< be set to the same value. NOTE: Unsupported.
 
   uint64_t requestNumber = 0; ///< Request number. This is used to identify
                               ///< which response came from which request.
@@ -118,11 +118,10 @@ private:
   SerialWorker serialWorker;
 
   bool isPortOpen = false;
-  
+
   std::function<void(const std::string &error_msg,
                      const std::vector<uint8_t> &command_data)>
       executeOnReturnCallback;
-
 };
 } // namespace esp32cc
 
