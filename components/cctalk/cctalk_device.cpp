@@ -293,7 +293,9 @@ bool CctalkDevice::requestSwitchDeviceState(
   case CcDeviceState::Initialized: {
     bool success = switchStateInitialized(finish_callback);
     this->pollingInterval = normalPollingIntervalMsec;
-    startPolling();
+    if (success) {
+      startPolling();
+    }
     return success;
   }
 
@@ -301,7 +303,7 @@ bool CctalkDevice::requestSwitchDeviceState(
     setDeviceState(state);
     this->pollingInterval = notAlivePollingIntervalMsec;
     finish_callback("");
-    return true;
+    return false;
 
   case CcDeviceState::NormalAccepting:
     return switchStateNormalAccepting(finish_callback);
@@ -340,22 +342,6 @@ bool CctalkDevice::switchStateInitialized(
   bool isAlive = false;
   bool doContinue = true;
 
-  if (error.size() == 0) {
-    setDeviceState(CcDeviceState::Initialized);
-    finish_callback(error);
-  } else if (isAlive) {
-    requestSwitchDeviceState(CcDeviceState::InitializationFailed,
-                             finish_callback);
-    doContinue = false;
-  } else {
-    requestSwitchDeviceState(CcDeviceState::UninitializedDown, finish_callback);
-    doContinue = false;
-  }
-
-  if (!doContinue) {
-    return false;
-  }
-
   // Check if it's present / alive
   ESP_LOGD(TAG, "Requesting checkAlive");
   requestCheckAlive([&](const std::string &error_msg, bool alive) {
@@ -366,7 +352,9 @@ bool CctalkDevice::switchStateInitialized(
     isAlive = alive;
   });
 
-  if (!doContinue) {
+  if (!isAlive) {
+    requestSwitchDeviceState(CcDeviceState::InitializationFailed,
+                             finish_callback);
     return false;
   }
 
@@ -479,14 +467,22 @@ bool CctalkDevice::switchStateInitialized(
     });
   }
 
-  return doContinue;
+  if (error.size() == 0 && isAlive) {
+    setDeviceState(CcDeviceState::Initialized);
+    finish_callback(error);
+    return true;
+  } else {
+  }
+  requestSwitchDeviceState(CcDeviceState::UninitializedDown, finish_callback);
+  return false;
 }
 
 bool CctalkDevice::switchStateNormalAccepting(
     const std::function<void(const std::string &error_msg)> &finish_callback) {
   // assert((this->deviceState == CcDeviceState::Initialized
   //         || this->deviceState == CcDeviceState::NormalRejecting ||
-  //         this->deviceState == CcDeviceState::DiagnosticsPolling) != false);
+  //         this->deviceState == CcDeviceState::DiagnosticsPolling) !=
+  //         false);
 
   // Disable master inhibit.
   modifyMasterInhibitStatus(false, [&](const std::string &error_msg) {
@@ -508,7 +504,8 @@ bool CctalkDevice::switchStateNormalRejecting(
     const std::function<void(const std::string &error_msg)> &finish_callback) {
   // assert((this->deviceState == CcDeviceState::Initialized
   //         || this->deviceState == CcDeviceState::NormalAccepting ||
-  //         this->deviceState == CcDeviceState::DiagnosticsPolling) == false);
+  //         this->deviceState == CcDeviceState::DiagnosticsPolling) ==
+  //         false);
 
   // Enable master inhibit.
   modifyMasterInhibitStatus(true, [&](const std::string &error_msg) {
@@ -848,22 +845,23 @@ void CctalkDevice::modifyMasterInhibitStatus(
         ESP_LOGD(TAG, "Master inhibit status set to: %s",
                  inhibit ? "reject" : "accept");
         /*
-                         ESP_LOGD(TAG, "Verifying that master inhibit status was
-           set correctly...")); requestMasterInhibitStatus([=](const
+                         ESP_LOGD(TAG, "Verifying that master inhibit status
+           was set correctly...")); requestMasterInhibitStatus([=](const
            std::string& verify_error_msg, bool fetched_inhibit) { if
-           (!verify_error_msg.size() == 0) { finish_callback(verify_error_msg);
+           (!verify_error_msg.size() == 0) {
+           finish_callback(verify_error_msg);
 
                                 } else if (fetched_inhibit != inhibit) {
-                                        std::string error = tr("! Current master
-           inhibit status set to: %1, which differs from the one we
+                                        std::string error = tr("! Current
+           master inhibit status set to: %1, which differs from the one we
            requested.",fetched_inhibit ? tr("reject") : tr("accept"));
                                          logMessage(error);
                                         finish_callback(error);
 
                                 } else {
                                          ESP_LOGD(TAG, "Master inhibit status
-           verified to be: %1",fetched_inhibit ? tr("reject") : tr("accept")));
-                                        finish_callback(std::string());
+           verified to be: %1",fetched_inhibit ? tr("reject") :
+           tr("accept"))); finish_callback(std::string());
                                 }
                         });
          */
@@ -1064,8 +1062,8 @@ void CctalkDevice::requestIdentifiers(
       // Do nothing
     }
 
-    // Predefined rules for Georgia. TODO Make this configurable and / or remove
-    // it from here.
+    // Predefined rules for Georgia. TODO Make this configurable and / or
+    // remove it from here.
     if (this->deviceCategory == CcCategory::CoinAcceptor && country == "GE") {
       CcCountryScalingData data;
       data.scaling_factor = 1;
@@ -1180,15 +1178,16 @@ void CctalkDevice::requestBufferedCreditEvents(
   // Bill validators use ReadBufferedBillEvents command.
   // Both commands return data in approximately the same format.
 
-  // The response format is: [event_counter] [result 1A] [result 1B] [result 2A]
-  // [result 2B] ... [result 5B]. There are usually 5 events. 1A/1B is the
+  // The response format is: [event_counter] [result 1A] [result 1B] [result
+  // 2A] [result 2B] ... [result 5B]. There are usually 5 events. 1A/1B is the
   // newest one. diff (event_counter, last_event_counter) indicates the number
-  // of results that are new. If > 5, it means data was lost. [event_counter] ==
-  // 0 means power-up or reset condition. Note that [event_counter] wraps from
-  // 255 to 1, not 0. [result A]: If in 1-255 range, it's credit (coin/bill
-  // position). If 0, see error code in [result B]. [result B]: If A is 0, B is
-  // error code, see CcCoinAcceptorEventCode / CcBillValidatorErrorCode. If A is
-  // credit, B is sorter path (0 unsupported, 1-8 path number).
+  // of results that are new. If > 5, it means data was lost. [event_counter]
+  // == 0 means power-up or reset condition. Note that [event_counter] wraps
+  // from 255 to 1, not 0. [result A]: If in 1-255 range, it's credit
+  // (coin/bill position). If 0, see error code in [result B]. [result B]: If
+  // A is 0, B is error code, see CcCoinAcceptorEventCode /
+  // CcBillValidatorErrorCode. If A is credit, B is sorter path (0
+  // unsupported, 1-8 path number).
 
   std::string coin_bill =
       (this->deviceCategory == CcCategory::CoinAcceptor ? "Coin" : "Bill");
@@ -1221,10 +1220,11 @@ void CctalkDevice::requestBufferedCreditEvents(
         }
 
         if (responseData.size() % 2 != 1) {
-          std::string error = std::string(
-              "Invalid " + coin_bill +
-              " buffered credit / event data size received, unexpected size: " +
-              std::to_string(responseData.size()));
+          std::string error =
+              std::string("Invalid " + coin_bill +
+                          " buffered credit / event data size received, "
+                          "unexpected size: " +
+                          std::to_string(responseData.size()));
           finish_callback(error, 0, event_data);
           return;
         }
@@ -1295,24 +1295,24 @@ void CctalkDevice::processHopperStatus(
  * The specification says:
  * If ReadBufferedCredit times out, do nothing.
  * If [event_counter] == 0 and last_event_num == 0, the device is operating
- * normally (just initialized). If [event_counter] == 0 and last_event_num != 0,
- * the device lost power (possible loss of credits). If [event_counter] ==
+ * normally (just initialized). If [event_counter] == 0 and last_event_num !=
+ * 0, the device lost power (possible loss of credits). If [event_counter] ==
  * last_event_counter, no new credits. If diff([event_counter],
  * last_event_counter) > 5, one or more credits lost. if diff([event_counter],
  * last_event_counter) <= 5, new credit/event info.
  *
  * The general mode of operation:
- * If in coin event polling and an error event is received, set status to error
- * and start error event polling instead. If in error event polling and all ok
- * event is received, switch to coin event polling.
+ * If in coin event polling and an error event is received, set status to
+ * error and start error event polling instead. If in error event polling and
+ * all ok event is received, switch to coin event polling.
  *
  * if master inhibit ON is detected there, switch to NormalRejecting (?).
  * if an error is detected there, switch to diagnostics state.
  * If bill is held in escrow, call validator function and accept / reject it.
  *  creditAccepted().
  *
- * @param accepting Are we accepting coins at present? If we are, then call the
- * callback method
+ * @param accepting Are we accepting coins at present? If we are, then call
+ * the callback method
  * @param event_log_cmd_error_msg
  * @param eventCounter
  * @param event_data
@@ -1364,11 +1364,11 @@ void CctalkDevice::processCreditEventLog(
     return;
   }
 
-  // If true, it means that we're processing the events that are in the device.
-  // We should not give credit in this case, since that was probably processed
-  // during previous application run.
-  //        const bool processing_app_startup_events = (this->lastEventNumber ==
-  //        0); if (processing_app_startup_events && eventCounter != 0) {
+  // If true, it means that we're processing the events that are in the
+  // device. We should not give credit in this case, since that was probably
+  // processed during previous application run.
+  //        const bool processing_app_startup_events = (this->lastEventNumber
+  //        == 0); if (processing_app_startup_events && eventCounter != 0) {
   //            ESP_LOGD(TAG, "last event number: %d, event counter: %d",
   //            this->lastEventNumber, eventCounter); ESP_LOGE(TAG, "Detected
   //            device that was up (and generating events) before the host
@@ -1426,9 +1426,9 @@ void CctalkDevice::processCreditEventLog(
 
         // Bill Validator
       } else {
-        // Events may be just status events (Bill Returned From Escrow, Stacker
-        // OK, ...), or they may be ones that cause the PerformSelfCheck command
-        // to return a fault code.
+        // Events may be just status events (Bill Returned From Escrow,
+        // Stacker OK, ...), or they may be ones that cause the
+        // PerformSelfCheck command to return a fault code.
         ESP_LOGD(TAG, "Bill status/error event %s found, event type: %s.",
                  ccBillValidatorErrorCodeGetDisplayableName(ev.bill_error_code)
                      .c_str(),
@@ -1454,10 +1454,11 @@ void CctalkDevice::processCreditEventLog(
           //                            ESP_LOGD(TAG, "The following is a
           //                            startup event message, ignore it:");
           //                        }
-          ESP_LOGD(
-              TAG,
-              "Coin (position %d, ID %s) has been accepted to sorter path %d.",
-              int(ev.coin_id), id.id_string.c_str(), int(ev.coin_sorter_path));
+          ESP_LOGD(TAG,
+                   "Coin (position %d, ID %s) has been accepted to sorter "
+                   "path %d.",
+                   int(ev.coin_id), id.id_string.c_str(),
+                   int(ev.coin_sorter_path));
           // if (!accepting && !processing_app_startup_events) {
           if (!accepting) {
             ESP_LOGE(TAG, "Coin accepted even though we're in rejecting mode; "
@@ -1479,12 +1480,12 @@ void CctalkDevice::processCreditEventLog(
             CcBillValidatorSuccessCode::ValidatedAndHeldInEscrow) {
           // We send the RouteBill command ONLY if this is the last event in
           // event log, otherwise there may be an inhibit or rejection or
-          // accepted any other event after it and we do not want to operate on
-          // old data and assumptions.
+          // accepted any other event after it and we do not want to operate
+          // on old data and assumptions.
           if (!processing_last_event) {
             //                            if (processing_app_startup_events) {
-            //                                ESP_LOGD(TAG, "The following is a
-            //                                startup event message, ignore
+            //                                ESP_LOGD(TAG, "The following is
+            //                                a startup event message, ignore
             //                                it:");
             //                            }
             ESP_LOGD(TAG,
@@ -1495,8 +1496,8 @@ void CctalkDevice::processCreditEventLog(
           }
           if (!accepting) {
             //                            if (processing_app_startup_events) {
-            //                                ESP_LOGD(TAG, "The following is a
-            //                                startup event message, ignore
+            //                                ESP_LOGD(TAG, "The following is
+            //                                a startup event message, ignore
             //                                it:");
             //                            }
             ESP_LOGD(TAG,
@@ -1690,8 +1691,8 @@ void CctalkDevice::requestSelfCheck(
         //            if (responseData.size() > 0) {
         //                // Decode the data
         //                auto fault_code = static_cast<CcFaultCode>
-        //                (responseData.at(0)); ESP_LOGD(TAG, "Self-check fault
-        //                code: %s",
+        //                (responseData.at(0)); ESP_LOGD(TAG, "Self-check
+        //                fault code: %s",
         //                ccFaultCodeGetDisplayableName(fault_code).c_str());
         //                finish_callback(ccFaultCodeGetDisplayableName(fault_code),
         //                fault_code);
@@ -1725,9 +1726,8 @@ void CctalkDevice::requestResetDevice(
           return;
         }
 
-        ESP_LOGD(
-            TAG,
-            "Soft reset acknowledged, waiting for the device to get back up.");
+        ESP_LOGD(TAG, "Soft reset acknowledged, waiting for the device to "
+                      "get back up.");
       });
 }
 
