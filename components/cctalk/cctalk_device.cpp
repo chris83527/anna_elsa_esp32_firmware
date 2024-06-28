@@ -337,14 +337,17 @@ bool CctalkDevice::switchStateInitialized(
 
   // Check if it's present / alive
   ESP_LOGD(TAG, "Requesting checkAlive");
-  requestCheckAlive([&](const std::string &error_msg, bool alive) {
-    ESP_LOGD(TAG, "requestCheckAlive callback called");
-    if (error_msg.size() != 0) {
-      error = error_msg;
-      doContinue = false;
-    }
-    isAlive = alive;
-  });
+  std::function<void(const std::string, bool alive)> callback =
+      [&](const std::string &error_msg, bool alive) {
+        ESP_LOGD(TAG, "requestCheckAlive callback called");
+        if (error_msg.size() != 0) {
+          error = error_msg;
+          doContinue = false;
+        }
+        isAlive = alive;
+      };
+
+  requestCheckAlive(callback);
 
   if (!isAlive) {
     requestSwitchDeviceState(CcDeviceState::InitializationFailed,
@@ -553,8 +556,8 @@ bool CctalkDevice::switchStateShutDown(
 }
 
 void CctalkDevice::requestCheckAlive(
-    std::function<void(const std::string &errorMsg, bool alive)>
-        finish_callback) {
+    std::function<void(const std::string &errorMsg, bool alive)> const
+        &finish_callback) {
 
   ESP_LOGD(TAG, "Sending request for SimplePoll to device address %d",
            this->deviceAddress);

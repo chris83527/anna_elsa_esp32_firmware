@@ -190,8 +190,8 @@ public:
 
   /// Send SimplePoll and return for ACK.
   void requestCheckAlive(
-      const std::function<void(const std::string &error_msg, bool alive)>
-          finish_callback);
+      std::function<void(const std::string &error_msg, bool alive)> const
+          &finish_callback);
 
   /// Request manufacturing information info from the device.
   /// This includes category, serial number, manufacturer, ...
