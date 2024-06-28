@@ -41,12 +41,13 @@ namespace esp32cc {
 
 SerialWorker::SerialWorker(uart_port_t uartNumber, int txPin, int rxPin)
     : m_uartNumber(uartNumber), m_txPin(txPin), m_rxPin(rxPin) {
+
   ESP_LOGD(
       TAG,
-      "Enterinc SerialWorker constructor: uartNumber %d, txPin %d, rxPin %d",
+      "Entering SerialWorker constructor: uartNumber %d, txPin %d, rxPin %d",
       uartNumber, txPin, rxPin);
 
-  // openPort();
+  openPort();
 
   ESP_LOGD(TAG, "Leaving SerialWorker constructor");
 }
@@ -224,7 +225,7 @@ void SerialWorker::setOnResponseReceiveCallback(
                        const std::vector<uint8_t> &responseData)>
         callback) {
 
-  ESP_LOGD(TAG, "setOnREsponseReceiveCallback called");
+  ESP_LOGD(TAG, "setOnResponseReceiveCallback called");
 
   if (callback == nullptr) {
     ESP_LOGE(TAG, "An invalid callback was passed to "

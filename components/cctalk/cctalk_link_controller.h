@@ -68,8 +68,6 @@ public:
                          bool showSerialResponse, bool showCctalkRequest,
                          bool showCctalkResponse);
 
-  esp_err_t initialise();
-
   /// Send request to serial port.
   /// The returned value is request ID which can be used to identify which
   /// response comes from which request.

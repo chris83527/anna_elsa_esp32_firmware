@@ -31,7 +31,6 @@ CCTalkController::~CCTalkController() {}
 esp_err_t CCTalkController::initialise() {
   ESP_LOGD(TAG, "CCTalkController::initialise called");
 
-  cctalkLinkController.initialise();
   bool validatorInitialised = false;
   bool hopperInitialised = false;
   //  ESP_LOGI(TAG, "Initialising hopper");

@@ -47,6 +47,13 @@ CctalkLinkController::CctalkLinkController(const uart_port_t uartNumber,
       m_isChecksum16bit{isChecksum16bit}, m_isDesEncrypted{isDesEncrypted},
       serialWorker(uartNumber, txPin, rxPin) {
 
+  auto callback = [this](const uint64_t requestId,
+                         const std::vector<uint8_t> &responseData) {
+    this->onResponseReceive(requestId, responseData);
+  };
+
+  serialWorker.setOnResponseReceiveCallback(callback);
+
   ESP_LOGD(TAG,
            "Entering CctalkLinkCotroller constructor: uartNumber %d, txPin %d, "
            "rxPin %d",
@@ -55,28 +62,6 @@ CctalkLinkController::CctalkLinkController(const uart_port_t uartNumber,
 }
 
 CctalkLinkController::~CctalkLinkController() {}
-
-esp_err_t CctalkLinkController::initialise() {
-
-  ESP_LOGD(TAG, "cctalk_link_device initialise() called");
-
-  // FIXME: Some how this is getting destroyed at some point and is no longer
-  // valid when serial_worker goes to call the callback
-  this->serialWorker.setOnResponseReceiveCallback(
-      [this](const uint64_t requestId,
-             const std::vector<uint8_t> &responseData) {
-        this->onResponseReceive(requestId, responseData);
-      });
-
-  openPort(this->m_uartNumber, this->m_txPin, this->m_rxPin);
-
-  // FIXME: this smells -> relying on the calling of another method
-  if (this->isPortOpen) {
-    return ESP_OK;
-  } else {
-    return ESP_FAIL;
-  }
-}
 
 /**
  * Open the serial port
