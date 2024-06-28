@@ -166,6 +166,6 @@ void CCTalkController::setCreditAcceptedCallback(
 
 void CCTalkController::dispenseCoins(
     const int numberOfCoins,
-    const std::function<void(const std::string &error_msg)> &finish_callback) {
+    const std::function<void(const std::string &error_msg)> finish_callback) {
   this->hopper.dispenseCoins(numberOfCoins, finish_callback);
 }

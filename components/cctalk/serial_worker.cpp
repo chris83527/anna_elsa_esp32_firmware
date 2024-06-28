@@ -172,11 +172,15 @@ namespace esp32cc {
                 ESP_LOGD(TAG, "Read %d bytes - response size %d (with local echo). Executing callback", bytesRead, receivedData.size());
                 ESP_LOGD(TAG, "Response size: %d", (receivedData.size() - requestData.size()));
 
+				if (this->onResponseReceiveCallback == nullptr) {
+		ESP_LOGE(TAG, "this->onResponseReceiveCallback is invalid");
+} else {
                 if (receivedData.size() > 5) {
                     this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>(receivedData.begin() + requestData.size(), receivedData.end()));
                 } else {
                     this->onResponseReceiveCallback(this->getRequestId(), std::vector<uint8_t>());
                 }
+                } 
             }
 
 
