@@ -46,7 +46,7 @@ esp_err_t CCTalkController::initialise() {
 
   ESP_LOGI(TAG, "Initialising coin validator");
   validatorInitialised =
-      this->coinAcceptor.initialise([=](const std::string &error_msg) {
+      this->coinAcceptor.initialise([&](const std::string &error_msg) {
         if (error_msg.size() > 0) {
           ESP_LOGE(TAG, "An error occurred initialising the coin acceptor: %s",
                    error_msg.c_str());
@@ -54,7 +54,7 @@ esp_err_t CCTalkController::initialise() {
       });
 
   if (hopperInitialised) {
-    this->hopper.requestResetDevice([=](const std::string &error_msg) {
+    this->hopper.requestResetDevice([&](const std::string &error_msg) {
       if (error_msg.size() > 0) {
         ESP_LOGE(TAG, "%s", error_msg.c_str());
       }
@@ -62,7 +62,7 @@ esp_err_t CCTalkController::initialise() {
   }
 
   if (validatorInitialised) {
-    this->coinAcceptor.requestResetDevice([=](const std::string &error_msg) {
+    this->coinAcceptor.requestResetDevice([&](const std::string &error_msg) {
       if (error_msg.size() > 0) {
         ESP_LOGE(TAG, "%s", error_msg.c_str());
       }

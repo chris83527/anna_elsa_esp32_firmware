@@ -58,7 +58,7 @@ CctalkLinkController::~CctalkLinkController() {}
 
 esp_err_t CctalkLinkController::initialise() {
 
-ESP_LOGD(TAG, "cctalk_link_device initialise() called");
+  ESP_LOGD(TAG, "cctalk_link_device initialise() called");
 
   this->serialWorker.setOnResponseReceiveCallback(
       [this](const uint64_t requestId,
@@ -66,8 +66,9 @@ ESP_LOGD(TAG, "cctalk_link_device initialise() called");
         this->onResponseReceive(requestId, responseData);
       });
 
-   openPort(this->m_uartNumber, this->m_txPin, this->m_rxPin);
+  openPort(this->m_uartNumber, this->m_txPin, this->m_rxPin);
 
+  // FIXME: this smells -> relying on the calling of another method
   if (isPortOpen) {
     return ESP_OK;
   } else {
@@ -86,7 +87,7 @@ void CctalkLinkController::openPort(const uart_port_t uartNumber,
                                     const int txPin, const int rxPin) {
 
   if (!isPortOpen) {
-     this->isPortOpen = serialWorker.openPort();
+    this->isPortOpen = serialWorker.openPort();
   }
 }
 
