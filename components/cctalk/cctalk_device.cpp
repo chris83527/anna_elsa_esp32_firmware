@@ -331,12 +331,6 @@ bool CctalkDevice::requestSwitchDeviceState(
 bool CctalkDevice::switchStateInitialized(
     std::function<void(const std::string &error_msg)> finish_callback) {
 
-  //        assert((this->deviceState == CcDeviceState::ShutDown ||
-  //        this->deviceState == CcDeviceState::ExternalReset
-  //                || this->deviceState == CcDeviceState::UnexpectedDown ||
-  //                this->deviceState == CcDeviceState::UninitializedDown) ==
-  //                false);
-
   std::string error;
   bool isAlive = false;
   bool doContinue = true;
@@ -344,7 +338,7 @@ bool CctalkDevice::switchStateInitialized(
   // Check if it's present / alive
   ESP_LOGD(TAG, "Requesting checkAlive");
   requestCheckAlive([&](const std::string &error_msg, bool alive) {
-	ESP_LOGD(TAG, "requestCheckAlive callback called");
+    ESP_LOGD(TAG, "requestCheckAlive callback called");
     if (error_msg.size() != 0) {
       error = error_msg;
       doContinue = false;
@@ -562,7 +556,8 @@ void CctalkDevice::requestCheckAlive(
     std::function<void(const std::string &errorMsg, bool alive)>
         finish_callback) {
 
-  ESP_LOGD(TAG, "Sending request for SimplePoll");
+  ESP_LOGD(TAG, "Sending request for SimplePoll to device address %d",
+           this->deviceAddress);
   std::vector<uint8_t> data;
   this->linkController.ccRequest(
       CcHeader::SimplePoll, this->deviceAddress, data, 200,
@@ -591,13 +586,15 @@ void CctalkDevice::requestCheckAlive(
 
 void CctalkDevice::requestManufacturingInfo(
     std::function<void(const std::string &error_msg, CcCategory &category,
-                             const std::string &info)> finish_callback) {
+                       const std::string &info)>
+        finish_callback) {
   std::string error;
   CcCategory category;
   std::string info;
   std::vector<uint8_t> data;
 
-  ESP_LOGD(TAG, "Requesting manufacturing info");
+  ESP_LOGD(TAG, "Requesting manufacturing info from device %d",
+           this->deviceAddress);
 
   // Category
   this->linkController.ccRequest(
@@ -937,9 +934,9 @@ void CctalkDevice::modifyBillOperatingMode(
 }
 
 void CctalkDevice::requestIdentifiers(
-    std::function<void(
-        const std::string &error_msg,
-        const std::map<uint8_t, CcIdentifier> &identifiers)> finish_callback) {
+    std::function<void(const std::string &error_msg,
+                       const std::map<uint8_t, CcIdentifier> &identifiers)>
+        finish_callback) {
 
   // Sanity check
   if (this->deviceCategory != CcCategory::CoinAcceptor &&
@@ -1140,7 +1137,7 @@ void CctalkDevice::requestIdentifiers(
 
 void CctalkDevice::requestHopperStatus(
     std::function<void(const std::string &error_msg, uint8_t eventCounter,
-                             const std::vector<CcEventData> &event_data)>
+                       const std::vector<CcEventData> &event_data)>
         finish_callback) {
   std::vector<uint8_t> data;
   this->linkController.ccRequest(
@@ -1171,9 +1168,9 @@ void CctalkDevice::requestHopperStatus(
 }
 
 void CctalkDevice::requestBufferedCreditEvents(
-    std::function<
-        void(const std::string &error_msg, uint8_t event_counter,
-             const std::vector<CcEventData> &event_data)> finish_callback) {
+    std::function<void(const std::string &error_msg, uint8_t event_counter,
+                       const std::vector<CcEventData> &event_data)>
+        finish_callback) {
   // Coin acceptors use ReadBufferedCredit command.
   // Bill validators use ReadBufferedBillEvents command.
   // Both commands return data in approximately the same format.
@@ -1630,8 +1627,8 @@ void CctalkDevice::processCreditEventLog(
 
 void CctalkDevice::requestRouteBill(
     CcBillRouteCommandType route,
-    std::function<void(const std::string &error_msg,
-                             CcBillRouteStatus status)> finish_callback) {
+    std::function<void(const std::string &error_msg, CcBillRouteStatus status)>
+        finish_callback) {
   std::vector<uint8_t> command_arg;
   command_arg.push_back(char(route));
   this->linkController.ccRequest(
@@ -1668,8 +1665,8 @@ void CctalkDevice::requestRouteBill(
 }
 
 void CctalkDevice::requestSelfCheck(
-    std::function<void(const std::string &error_msg,
-                             CcFaultCode fault_code)> finish_callback) {
+    std::function<void(const std::string &error_msg, CcFaultCode fault_code)>
+        finish_callback) {
   std::vector<uint8_t> data;
   this->linkController.ccRequest(
       CcHeader::PerformSelfCheck, this->deviceAddress, data, 200,
@@ -1848,7 +1845,7 @@ void CctalkDevice::enableHopper(
 
 void CctalkDevice::requestCipherKey(
     std::function<void(const std::string &error_msg,
-                             const std::vector<uint8_t> &cipherKey)>
+                       const std::vector<uint8_t> &cipherKey)>
         finish_callback) {
   std::vector<uint8_t> data;
   this->linkController.ccRequest(
@@ -1874,7 +1871,7 @@ void CctalkDevice::requestCipherKey(
 
 void CctalkDevice::requestPayoutHighLowStatus(
     std::function<void(const std::string &error_msg,
-                             const std::vector<uint8_t> &highLowStatus)>
+                       const std::vector<uint8_t> &highLowStatus)>
         finish_callback) {
   std::vector<uint8_t> data;
   this->linkController.ccRequest(
@@ -1895,7 +1892,7 @@ void CctalkDevice::requestPayoutHighLowStatus(
 
 void CctalkDevice::testHopper(
     std::function<void(const std::string &error_msg,
-                             const std::vector<uint8_t> &hopperStatus)>
+                       const std::vector<uint8_t> &hopperStatus)>
         finish_callback) {
   std::vector<uint8_t> data;
   this->linkController.ccRequest(
