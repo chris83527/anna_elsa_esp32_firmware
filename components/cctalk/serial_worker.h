@@ -78,8 +78,8 @@ public:
 
   void setOnResponseReceiveCallback(
       std::function<void(const uint64_t requestId,
-                         const std::vector<uint8_t> &responseData)>
-          callback);
+                         const std::vector<uint8_t> &responseData)> const
+          &callback);
   void setLoggingOptions(bool showFullResponse, bool showSerialRequest,
                          bool showSerialResponse);
   bool openPort();

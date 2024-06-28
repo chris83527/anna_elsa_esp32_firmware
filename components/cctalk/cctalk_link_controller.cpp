@@ -47,17 +47,25 @@ CctalkLinkController::CctalkLinkController(const uart_port_t uartNumber,
       m_isChecksum16bit{isChecksum16bit}, m_isDesEncrypted{isDesEncrypted},
       serialWorker(uartNumber, txPin, rxPin) {
 
-  auto callback = [this](const uint64_t requestId,
-                         const std::vector<uint8_t> &responseData) {
-    this->onResponseReceive(requestId, responseData);
-  };
-
-  serialWorker.setOnResponseReceiveCallback(callback);
-
   ESP_LOGD(TAG,
            "Entering CctalkLinkCotroller constructor: uartNumber %d, txPin %d, "
            "rxPin %d",
            uartNumber, txPin, rxPin);
+
+  //  auto callback = [this](const uint64_t requestId,
+  //                         const std::vector<uint8_t> &responseData) mutable {
+  //							std::bind(&CctalkLinkController::onResponseRe)
+  //
+  //    this->onResponseReceive(requestId, responseData);
+  //  };
+  //
+  // std::bind(&CctalkLinkController::onResponseReceive, this,
+  // std::placeholders::_1, std::placeholders::_2);
+
+  serialWorker.setOnResponseReceiveCallback(
+      std::bind(&CctalkLinkController::onResponseReceive, this,
+                std::placeholders::_1, std::placeholders::_2));
+
   ESP_LOGD(TAG, "Leaving CctalkLinkController constructor");
 }
 
@@ -115,8 +123,8 @@ uint64_t CctalkLinkController::ccRequest(
     CcHeader command, uint8_t devAddress, std::vector<uint8_t> &data,
     int responseTimeoutMsec,
     std::function<void(const std::string &error_msg,
-                       const std::vector<uint8_t> &command_data)>
-        callbackFunction) {
+                       const std::vector<uint8_t> &command_data)> const
+        &callbackFunction) {
 
   ESP_LOGD(TAG, "Checking no existing request in process");
   while (this->serialWorker.isRequestInProgress()) {

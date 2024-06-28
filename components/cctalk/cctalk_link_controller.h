@@ -72,11 +72,11 @@ public:
   /// The returned value is request ID which can be used to identify which
   /// response comes from which request.
   uint64_t
-  ccRequest(CcHeader command, uint8_t deviceAddress,
+  ccRequest(CcHeader command, const uint8_t deviceAddress,
             std::vector<uint8_t> &additionalData, int responseTimeoutMsec,
             std::function<void(const std::string &error_msg,
-                               const std::vector<uint8_t> &command_data)>
-                callbackFunction);
+                               const std::vector<uint8_t> &command_data)> const
+                &callbackFunction);
 
   /// Handle generic serial response and emit ccResponse
   void onResponseReceive(const uint64_t request_id,

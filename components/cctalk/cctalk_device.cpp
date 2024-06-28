@@ -37,7 +37,7 @@ static const char *TAG = "cctalkDevice";
 
 namespace esp32cc {
 
-CctalkDevice::CctalkDevice(const CctalkLinkController &controller,
+CctalkDevice::CctalkDevice(CctalkLinkController &controller,
                            const uint8_t devAddress)
     : linkController{controller}, deviceAddress{devAddress} {
   ESP_LOGD(TAG, "Entering constructor. Device address: %d",

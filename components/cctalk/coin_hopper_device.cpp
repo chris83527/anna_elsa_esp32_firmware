@@ -8,7 +8,7 @@
 #include "coin_hopper_device.h"
 
 esp32cc::CoinHopperDevice::CoinHopperDevice(
-    const CctalkLinkController &linkController, const uint8_t deviceAddress)
+    CctalkLinkController &linkController, const uint8_t deviceAddress)
     : CctalkDevice{linkController, deviceAddress} {}
 
 esp32cc::CoinHopperDevice::~CoinHopperDevice() {}

@@ -36,6 +36,7 @@
  *
  * BSD Licensed as described in the file LICENSE
  */
+#include <chrono>
 #include <cstdio>
 #include <cstring>
 
@@ -146,13 +147,28 @@ bool ReelController::initialise() {
   ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
   ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
+  this->leftReel.start(PCA9629A::Direction::CW, 75, 1);   // 3x complete turn
+  this->centreReel.start(PCA9629A::Direction::CW, 50, 1); // 2x complete turn
+  this->rightReel.start(PCA9629A::Direction::CW, 25, 1);  // 1x complete turn
+
+  for (int i = 0; i < 100; i++) {
+    if (leftReel.isStopped() && centreReel.isStopped() &&
+        rightReel.isStopped()) {
+      break;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  }
+
   this->leftReel.home(PCA9629A::Direction::CW);   // return to home
   this->centreReel.home(PCA9629A::Direction::CW); // return to home
   this->rightReel.home(PCA9629A::Direction::CW);  // return to home
 
-  // Wait for reels to stop
-  while (!leftReel.isStopped() || !centreReel.isStopped() ||
-         !rightReel.isStopped()) {
+  // Wait for reels to stop (max 10 seconds)
+  for (int i = 0; i < 20; i++) {
+    if (leftReel.isStopped() && centreReel.isStopped() &&
+        rightReel.isStopped()) {
+      break;
+    }
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
 

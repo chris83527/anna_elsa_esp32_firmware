@@ -222,8 +222,8 @@ void SerialWorker::sendRequest(const uint64_t requestId,
 
 void SerialWorker::setOnResponseReceiveCallback(
     std::function<void(const uint64_t requestId,
-                       const std::vector<uint8_t> &responseData)>
-        callback) {
+                       const std::vector<uint8_t> &responseData)> const
+        &callback) {
 
   ESP_LOGD(TAG, "setOnResponseReceiveCallback called");
 

@@ -8,7 +8,7 @@
 #include "coin_acceptor_device.h"
 
 esp32cc::CoinAcceptorDevice::CoinAcceptorDevice(
-    const CctalkLinkController &linkController, const uint8_t deviceAddress)
+    CctalkLinkController &linkController, const uint8_t deviceAddress)
     : CctalkDevice{linkController, deviceAddress} {}
 
 esp32cc::CoinAcceptorDevice::~CoinAcceptorDevice() {}

@@ -149,7 +149,7 @@ public:
   using ResponseErrorFunc = std::function<void(const std::string &error_msg)>;
 
   /// Constructor
-  CctalkDevice(const CctalkLinkController &linkController,
+  CctalkDevice(CctalkLinkController &linkController,
                const uint8_t deviceAddress);
   ~CctalkDevice();
 
@@ -242,36 +242,34 @@ public:
   void enableHopper(
       std::function<void(const std::string &error_msg)> finish_callback);
 
-  void requestCipherKey(
-      std::function<void(const std::string &error_msg,
-                               const std::vector<uint8_t> &cipherKey)>
-          finish_callback);
+  void
+  requestCipherKey(std::function<void(const std::string &error_msg,
+                                      const std::vector<uint8_t> &cipherKey)>
+                       finish_callback);
 
   void requestPayoutHighLowStatus(
       std::function<void(const std::string &error_msg,
-                               const std::vector<uint8_t> &highLowStatus)>
+                         const std::vector<uint8_t> &highLowStatus)>
           finish_callback);
 
-  void
-  testHopper(std::function<void(const std::string &error_msg,
-                                      const std::vector<uint8_t> &hopperStatus)>
-                 finish_callback);
+  void testHopper(std::function<void(const std::string &error_msg,
+                                     const std::vector<uint8_t> &hopperStatus)>
+                      finish_callback);
 
   void dispenseCoins(
       const int numberOfCoins,
       std::function<void(const std::string &error_msg)> finish_callback);
 
-  void purgeHopper(
-      std::function<void(const std::string &error_msg,
-                               const std::vector<uint8_t> &hopperStatus)>
-          finish_callback);
+  void purgeHopper(std::function<void(const std::string &error_msg,
+                                      const std::vector<uint8_t> &hopperStatus)>
+                       finish_callback);
 
   /// Request coin / bill identifiers (quantity for bills, bill/coin names) and
   /// country scaling data (bills).
   void requestIdentifiers(
       std::function<void(const std::string &error_msg,
-                               const std::map<uint8_t, CcIdentifier>
-                                   &identifiers)> finish_callback);
+                         const std::map<uint8_t, CcIdentifier> &identifiers)>
+          finish_callback);
 
   /// Request buffered credit (coins / bills) events or error events using
   /// ReadBufferedBillEvents or ReadBufferedCredit commands. This function
@@ -281,9 +279,9 @@ public:
   // an empty error message are returned. The caller should ignore this and
   // continue normally.
   void requestBufferedCreditEvents(
-      std::function<
-          void(const std::string &error_msg, uint8_t event_counter,
-               const std::vector<CcEventData> &event_data)> finish_callback);
+      std::function<void(const std::string &error_msg, uint8_t event_counter,
+                         const std::vector<CcEventData> &event_data)>
+          finish_callback);
 
   /**
    * The data field consist in four bytes , an event counter similar to the
@@ -297,9 +295,9 @@ public:
    * values
    */
   void requestHopperStatus(
-       std::function<
-          void(const std::string &error_msg, uint8_t event_counter,
-               const std::vector<CcEventData> &event_data)> finish_callback);
+      std::function<void(const std::string &error_msg, uint8_t event_counter,
+                         const std::vector<CcEventData> &event_data)>
+          finish_callback);
 
   /// Process the credit/event log. This is used by timerIteration().
   void processCreditEventLog(bool accepting,
@@ -312,16 +310,16 @@ public:
                            std::function<void()> finish_callback);
 
   /// Route a bill that is held in escrow.
-  void requestRouteBill(
-      CcBillRouteCommandType route,
-      std::function<void(const std::string &error_msg,
-                               CcBillRouteStatus status)> finish_callback);
+  void requestRouteBill(CcBillRouteCommandType route,
+                        std::function<void(const std::string &error_msg,
+                                           CcBillRouteStatus status)>
+                            finish_callback);
 
   /// Request self-check (diagnostics mode). This function should be executed
   /// repeatedly when polling in diagnostics mode.
   void requestSelfCheck(
-      std::function<void(const std::string &error_msg,
-                               CcFaultCode fault_code)> finish_callback);
+      std::function<void(const std::string &error_msg, CcFaultCode fault_code)>
+          finish_callback);
 
   /// Request soft reset. Finish callback is called when the device accepts the
   /// reset command.
@@ -346,16 +344,16 @@ public:
   /// Request initialising the device from ShutDown state.
   /// Starts event timer.
   /// \return true if the request was successfully sent.
-  bool initialise(
-       std::function<void(const std::string &error_msg)> finish_callback);
+  bool
+  initialise(std::function<void(const std::string &error_msg)> finish_callback);
 
   void setCreditAcceptedCallback(CreditAcceptedFunc callback);
 
   /// Request the device to be switched to ShutDown state.
   /// Stops event timer.
   /// \return true if the request was successfully sent.
-  bool shutdown(
-      std::function<void(const std::string &error_msg)> finish_callback);
+  bool
+  shutdown(std::function<void(const std::string &error_msg)> finish_callback);
 
   /// Get device status as set by the latest status-updating function
   CcDeviceState getDeviceState() const;
@@ -386,8 +384,9 @@ private:
 
   void devicePollTask();
 
-  CctalkLinkController linkController; ///< Controller for serial worker thread
-                                       ///< with cctalk link management support.
+  CctalkLinkController
+      &linkController; ///< Controller for serial worker thread
+                       ///< with cctalk link management support.
 
   int normalPollingIntervalMsec =
       200; ///< Polling interval for normal and diagnostics modes.

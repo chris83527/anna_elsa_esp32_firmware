@@ -41,7 +41,7 @@ namespace esp32cc {
 
 class CoinHopperDevice : public CctalkDevice {
 public:
-  CoinHopperDevice(const CctalkLinkController &linkController,
+  CoinHopperDevice(CctalkLinkController &linkController,
                    const uint8_t deviceAddress);
   ~CoinHopperDevice();
 };
