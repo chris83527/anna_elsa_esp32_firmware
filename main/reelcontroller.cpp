@@ -92,7 +92,7 @@ ReelController::reel_stop_info_t ReelController::getReelStopInfo() {
 bool ReelController::initialise() {
 
   ESP_LOGI(TAG, "ReelController::initialise() called");
-  return false;
+
   // MOTOR_EN is on a GPIO
   esp_rom_gpio_pad_select_gpio(GPIO_MOTOR_EN);
   // Set the GPIO as a push/pull output
@@ -111,7 +111,7 @@ bool ReelController::initialise() {
   if (ledc_timer_config(&ledc_timer) != ESP_OK) {
     ESP_LOGE(TAG, "An error occurred initialising PWM subsystem for reels "
                   "(timer config)");
-    return ESP_FAIL;
+    return false;
   }
 
   // Prepare and then apply the LEDC PWM channel configuration
@@ -129,7 +129,7 @@ bool ReelController::initialise() {
   if (ledc_channel_config(&ledc_channel) != ESP_OK) {
     ESP_LOGE(TAG, "An error occurred initialising PWM subsystem for reels "
                   "(channel config)");
-    return ESP_FAIL;
+    return false;
   }
 
   ledc_bind_channel_timer(LEDC_MODE, LEDC_CHANNEL_0, LEDC_TIMER_0);

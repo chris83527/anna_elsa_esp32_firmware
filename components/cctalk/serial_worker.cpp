@@ -234,9 +234,9 @@ void SerialWorker::setOnResponseReceiveCallback(
             const std::vector<uint8_t> &responseData) {
           ESP_LOGD(TAG, "Executing dummy onResponseReceiveCalback");
         };
+  } else {
+    this->onResponseReceiveCallback = callback;
   }
-
-  this->onResponseReceiveCallback = callback;
 }
 
 uart_port_t SerialWorker::getUartNumber() { return this->m_uartNumber; }
