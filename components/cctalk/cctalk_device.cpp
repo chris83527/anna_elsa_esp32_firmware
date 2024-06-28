@@ -87,8 +87,7 @@ void CctalkDevice::startPolling() {
           .append("Polling")
           .c_str();
   cfg.prio = 9;
-  cfg.stack_size = 9000;
-  cfg.pin_to_core = 0;
+  cfg.stack_size = 10000;
   esp_pthread_set_cfg(&cfg);
   this->pollThread = std::thread([this] { devicePollTask(); });
   this->pollThread.detach();
@@ -345,6 +344,7 @@ bool CctalkDevice::switchStateInitialized(
   // Check if it's present / alive
   ESP_LOGD(TAG, "Requesting checkAlive");
   requestCheckAlive([&](const std::string &error_msg, bool alive) {
+	ESP_LOGD(TAG, "requestCheckAlive callback called");
     if (error_msg.size() != 0) {
       error = error_msg;
       doContinue = false;

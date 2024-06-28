@@ -58,13 +58,15 @@ CctalkLinkController::~CctalkLinkController() {}
 
 esp_err_t CctalkLinkController::initialise() {
 
+ESP_LOGD(TAG, "cctalk_link_device initialise() called");
+
   this->serialWorker.setOnResponseReceiveCallback(
       [this](const uint64_t requestId,
              const std::vector<uint8_t> responseData) {
         this->onResponseReceive(requestId, responseData);
       });
 
-  // openPort(this->m_uartNumber, this->m_txPin, this->m_rxPin);
+   openPort(this->m_uartNumber, this->m_txPin, this->m_rxPin);
 
   if (isPortOpen) {
     return ESP_OK;
@@ -84,7 +86,7 @@ void CctalkLinkController::openPort(const uart_port_t uartNumber,
                                     const int txPin, const int rxPin) {
 
   if (!isPortOpen) {
-    // this->isPortOpen = serialWorker.openPort(uartNumber, txPin, rxPin);
+     this->isPortOpen = serialWorker.openPort();
   }
 }
 

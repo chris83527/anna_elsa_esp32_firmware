@@ -119,9 +119,7 @@ private:
 
   bool isPortOpen = false;
 
-  std::function<void(const std::string &error_msg,
-                     const std::vector<uint8_t> &command_data)>
-      executeOnReturnCallback;
+  std::function<void(const std::string &error_msg, const std::vector<uint8_t> &command_data)> executeOnReturnCallback;
 };
 } // namespace esp32cc
 
