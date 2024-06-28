@@ -78,7 +78,7 @@ public:
 
   void setOnResponseReceiveCallback(
       std::function<void(const uint64_t requestId,
-                        const std::vector<uint8_t> &responseData)>
+                         const std::vector<uint8_t> &responseData)>
           callback);
   void setLoggingOptions(bool showFullResponse, bool showSerialRequest,
                          bool showSerialResponse);
@@ -95,7 +95,10 @@ public:
 
 protected:
 private:
-  std::function<void(const uint64_t requestId, const std::vector<uint8_t> &responseData)> onResponseReceiveCallback;
+  std::function<void(const uint64_t requestId,
+                     const std::vector<uint8_t> &responseData)>
+      onResponseReceiveCallback;
+
   uint64_t requestId;
   int responseTimeoutMsec;
 

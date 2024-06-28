@@ -60,16 +60,18 @@ esp_err_t CctalkLinkController::initialise() {
 
   ESP_LOGD(TAG, "cctalk_link_device initialise() called");
 
+  // FIXME: Some how this is getting destroyed at some point and is no longer
+  // valid when serial_worker goes to call the callback
   this->serialWorker.setOnResponseReceiveCallback(
       [this](const uint64_t requestId,
-             const std::vector<uint8_t> responseData) {
+             const std::vector<uint8_t> &responseData) {
         this->onResponseReceive(requestId, responseData);
       });
 
   openPort(this->m_uartNumber, this->m_txPin, this->m_rxPin);
 
   // FIXME: this smells -> relying on the calling of another method
-  if (isPortOpen) {
+  if (this->isPortOpen) {
     return ESP_OK;
   } else {
     return ESP_FAIL;
@@ -137,12 +139,9 @@ uint64_t CctalkLinkController::ccRequest(
   }
 
   if (callbackFunction != nullptr) {
-    ESP_LOGD(TAG, "Setting callback function");
-    try {
-      executeOnReturnCallback = callbackFunction;
-    } catch (const std::exception &e) {
-      ESP_LOGE(TAG, "An exception occurred assigning callback: %s", e.what());
-    }
+    ESP_LOGD(TAG, "Setting callback function for %s",
+             ccHeaderGetDisplayableName(command).c_str());
+    executeOnReturnCallback = callbackFunction;
   } else {
     ESP_LOGE(TAG, "executeOnReturn: callbackFunction was null");
   }
@@ -203,7 +202,7 @@ uint64_t CctalkLinkController::ccRequest(
   uint64_t requestId = ++this->requestNumber;
 
   const int writeTimeoutMsec =
-      500 + requestData.size() * 2; // should be more than enough at 9600 baud.
+      500 + requestData.size() * 2; // should be more than enough at 9600bps.
 
   ESP_LOGD(TAG, "Sending request");
 
