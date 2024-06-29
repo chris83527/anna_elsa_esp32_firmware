@@ -62,7 +62,7 @@ extern "C" void app_main() {
   //    cfg.prio = 1;
   // cfg.inherit_cfg = true;
   cfg.thread_name = "testStack";
-  cfg.stack_size = (8192);
+  cfg.stack_size = (9216);
   if (esp_pthread_set_cfg(&cfg) != ESP_OK) {
     printf("esp_pthread_set_cfg failed\n");
     abort();
@@ -74,13 +74,13 @@ extern "C" void app_main() {
   esp_log_level_set("i2cmanager", ESP_LOG_WARN);
   esp_log_level_set("i2c.master", ESP_LOG_WARN);
   esp_log_level_set("ssd1306", ESP_LOG_INFO);
-  esp_log_level_set("cctalkDevice", ESP_LOG_DEBUG);
-  esp_log_level_set("cctalk_link_controller", ESP_LOG_DEBUG);
-  esp_log_level_set("serial_worker", ESP_LOG_DEBUG);
+  esp_log_level_set("cctalkDevice", ESP_LOG_INFO);
+  esp_log_level_set("cctalk_link_controller", ESP_LOG_INFO);
+  esp_log_level_set("serial_worker", ESP_LOG_INFO);
   esp_log_level_set("AudioController", ESP_LOG_INFO);
   esp_log_level_set("DisplayController", ESP_LOG_INFO);
   esp_log_level_set("MainController", ESP_LOG_INFO);
-  esp_log_level_set("CCTALK_CONTROLLER", ESP_LOG_DEBUG);
+  esp_log_level_set("CCTALK_CONTROLLER", ESP_LOG_INFO);
 
   MainController mainController;
   mainController.start();

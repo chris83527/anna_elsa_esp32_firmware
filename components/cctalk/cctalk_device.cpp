@@ -67,7 +67,7 @@ bool CctalkDevice::initialise(
       CcDeviceState::Initialized,
       [&](const std::string &error_msg) { finish_callback(error_msg); });
 
-  return ESP_OK;
+  return true;
 }
 
 bool CctalkDevice::shutdown(
@@ -87,7 +87,7 @@ void CctalkDevice::startPolling() {
           .append("Polling")
           .c_str();
   cfg.prio = 9;
-  cfg.stack_size = 10000;
+  cfg.stack_size = 8192;
   esp_pthread_set_cfg(&cfg);
   this->pollThread = std::thread([this] { devicePollTask(); });
   this->pollThread.detach();
@@ -337,9 +337,9 @@ bool CctalkDevice::switchStateInitialized(
 
   // Check if it's present / alive
   ESP_LOGD(TAG, "Requesting checkAlive");
-  std::function<void(const std::string, bool alive)> callback =
+  std::function<void(const std::string, bool alive)> const &callback =
       [&](const std::string &error_msg, bool alive) {
-        ESP_LOGD(TAG, "requestCheckAlive callback called");
+        //ESP_LOGD(TAG, "requestCheckAlive callback called");
         if (error_msg.size() != 0) {
           error = error_msg;
           doContinue = false;

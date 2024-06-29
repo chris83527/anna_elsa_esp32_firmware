@@ -267,7 +267,7 @@ void AudioController::playAudioFile(const char *filepath) {
 }
 
 void AudioController::playAudioFileAsync(const char *filepath) {
-  std::thread([&]() { playAudioFile(filepath); });
+  std::thread([&]() { playAudioFile(filepath); }).detach();
 }
 
 void AudioController::setVolume(int volume) {
