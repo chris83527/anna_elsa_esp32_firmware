@@ -133,13 +133,10 @@ esp_err_t I2CManager::readRegister(const i2c_master_dev_handle_t &deviceHandle,
                                    std::vector<uint8_t> &data, int size) {
   _mutex.lock();
 
-  uint8_t writeBuffer[1];
-  writeBuffer[0] = reg;
+  uint8_t readBuffer[1024] = {0};
 
-  uint8_t readBuffer[1024];
-
-  esp_err_t ret = i2c_master_transmit_receive(deviceHandle, writeBuffer, 1,
-                                              readBuffer, size, 5000);
+  esp_err_t ret = i2c_master_transmit_receive(deviceHandle, &reg, 1, readBuffer,
+                                              size, 5000);
 
   data.clear();
   data.resize(size);
@@ -159,7 +156,7 @@ esp_err_t I2CManager::read(const i2c_master_dev_handle_t &deviceHandle,
                            std::vector<uint8_t> &data, int size) {
   _mutex.lock();
 
-  uint8_t readBuffer[1024];
+  uint8_t readBuffer[1024] = {0};
 
   esp_err_t ret = i2c_master_receive(deviceHandle, readBuffer, size, 5000);
 
