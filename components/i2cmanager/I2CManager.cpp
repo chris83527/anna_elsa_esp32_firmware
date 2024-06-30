@@ -36,6 +36,7 @@
 #include "driver/i2c_master.h"
 #include "driver/i2c_types.h"
 #include "esp_log.h"
+#include "esp_err.h"
 
 #include "I2CManager.h"
 
@@ -158,7 +159,7 @@ esp_err_t I2CManager::read(const i2c_master_dev_handle_t &deviceHandle,
   uint8_t readBuffer[1024] = {0};
 
   esp_err_t ret = i2c_master_receive(deviceHandle, readBuffer, size, 5000);
-
+ESP_ERROR_CHECK(ret);
   data.clear();
   data.insert(data.begin(), std::begin(readBuffer), &readBuffer[0] + size);
 

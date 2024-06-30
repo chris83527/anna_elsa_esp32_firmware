@@ -37,6 +37,8 @@
 #include <mutex>
 #include <vector>
 
+#include "esp_err.h"
+
 #include "driver/i2c_master.h"
 
 class I2CManager {

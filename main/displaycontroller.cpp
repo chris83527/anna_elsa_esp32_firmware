@@ -159,7 +159,7 @@ esp_err_t DisplayController::initialise() {
   cfg = esp_pthread_get_default_config();
   cfg.thread_name = "UpdateLamps";
   cfg.prio = 2;
-  cfg.stack_size = 2048;
+  cfg.stack_size = 4096;
   cfg.pin_to_core = 1;
   esp_pthread_set_cfg(&cfg);
   this->updateLampsThread = std::thread([&]() { updateLampsTask(); });
