@@ -203,7 +203,6 @@ esp_err_t MCP23x17::read_reg_16(const uint8_t reg, uint16_t &val) {
       this->i2c_manager.readRegister(this->deviceHandle, reg, data, 2);
 
   val = (data[1] << 8 | data[0]);
-  val = 0;
 
   _mutex.unlock();
 
