@@ -68,134 +68,247 @@ MCP23x17::MCP23x17(const I2CManager &i2cmgr, const uint8_t address)
 
 MCP23x17::~MCP23x17() {}
 
-esp_err_t MCP23x17::get_int_out_mode(int_out_mode_t &mode) {
+esp_err_t MCP23x17::getGPIOExpanderConfiguration(uint8_t &mode) {
 
   bool buf;
-  CHECK(read_reg_bit_8(REG_IOCON, buf, BIT_IOCON_ODR));
+  CHECK(readRegisterBit8(REG_IOCON, buf, BIT_IOCON_ODR));
   if (buf) {
     mode = MCP23X17_OPEN_DRAIN;
     return ESP_OK;
   }
-  CHECK(read_reg_bit_8(REG_IOCON, buf, BIT_IOCON_INTPOL));
+  CHECK(readRegisterBit8(REG_IOCON, buf, BIT_IOCON_INTPOL));
   mode = buf ? MCP23X17_ACTIVE_HIGH : MCP23X17_ACTIVE_LOW;
 
   return ESP_OK;
 }
 
-esp_err_t MCP23x17::set_int_out_mode(const int_out_mode_t mode) {
+esp_err_t MCP23x17::setGPIOExpanderConfiguration(const uint8_t mode) {
   if (mode == MCP23X17_OPEN_DRAIN)
-    return write_reg_bit_8(REG_IOCON, true, BIT_IOCON_ODR);
+    return writeRegisterBit8(REG_IOCON, true, BIT_IOCON_ODR);
 
   // The INTPOL bit is only functional if the ODR bit is cleared.
-  write_reg_bit_8(REG_IOCON, false, BIT_IOCON_ODR);
-  return write_reg_bit_8(REG_IOCON, mode == MCP23X17_ACTIVE_HIGH,
-                         BIT_IOCON_INTPOL);
+  writeRegisterBit8(REG_IOCON, false, BIT_IOCON_ODR);
+  return writeRegisterBit8(REG_IOCON, mode == MCP23X17_ACTIVE_HIGH,
+                           BIT_IOCON_INTPOL);
 }
 
-esp_err_t MCP23x17::port_get_mode(uint16_t &val) {
-  return read_reg_16(REG_IODIRA, val);
+esp_err_t MCP23x17::getGPIOAInputOutputMode(uint8_t &val) {
+
+  esp_err_t ret = readRegister8(REG_IODIRA, val);
+
+  return ret;
 }
 
-esp_err_t MCP23x17::port_set_mode(const uint16_t val) {
-  return write_reg_16(REG_IODIRA, val);
+esp_err_t MCP23x17::getGPIOBInputOutputMode(uint8_t &val) {
+
+  esp_err_t ret = readRegister8(REG_IODIRB, val);
+
+  return ret;
 }
 
-esp_err_t MCP23x17::port_get_pullup(uint16_t &val) {
-  return read_reg_16(REG_GPPUA, val);
+esp_err_t MCP23x17::setGPIOAInputOutputMode(const uint8_t val) {
+  return writeRegister8(REG_IODIRA, val);
 }
 
-esp_err_t MCP23x17::port_set_pullup(const uint16_t val) {
-  return write_reg_16(REG_GPPUA, val);
+esp_err_t MCP23x17::setGPIOBInputOutputMode(const uint8_t val) {
+  return writeRegister8(REG_IODIRA, val);
 }
 
-esp_err_t MCP23x17::port_read(uint16_t &val) {
-  return read_reg_16(REG_GPIOA, val);
+esp_err_t MCP23x17::getGPIOAPullup(uint8_t &val) {
+  return readRegister8(REG_GPPUA, val);
 }
 
-esp_err_t MCP23x17::port_write(const uint16_t val) {
-  return write_reg_16(REG_GPIOA, val);
+esp_err_t MCP23x17::setGPIOAPullup(const uint8_t val) {
+  return writeRegister8(REG_GPPUA, val);
 }
 
-esp_err_t MCP23x17::get_mode(const uint8_t pin, gpio_mode_t &mode) {
+esp_err_t MCP23x17::getGPIOBPullup(uint8_t &val) {
+  return readRegister8(REG_GPPUB, val);
+}
+
+esp_err_t MCP23x17::setGPIOBPullup(const uint8_t val) {
+  return writeRegister8(REG_GPPUB, val);
+}
+
+esp_err_t MCP23x17::readGPIOA(uint8_t &val) {
+  return readRegister8(REG_GPIOA, val);
+}
+esp_err_t MCP23x17::readGPIOB(uint8_t &val) {
+  return readRegister8(REG_GPIOB, val);
+}
+esp_err_t MCP23x17::writeGPIOA(uint8_t val) {
+  return writeRegister8(REG_GPIOA, val);
+}
+esp_err_t MCP23x17::writeGPIOB(uint8_t val) {
+  return writeRegister8(REG_GPIOB, val);
+}
+
+esp_err_t MCP23x17::setGPIOAInputPolarity(uint8_t val) {
+  return writeRegister8(REG_IPOLA, val);
+}
+
+esp_err_t MCP23x17::setGPIOBInputPolarity(uint8_t val) {
+  return writeRegister8(REG_IPOLA, val);
+}
+
+esp_err_t MCP23x17::getGPIOAInputPolarity(uint8_t &val) {
+  return readRegister8(REG_IPOLA, val);
+}
+
+esp_err_t MCP23x17::getGPIOBInputPolarity(uint8_t &val) {
+  return readRegister8(REG_IPOLA, val);
+}
+
+esp_err_t MCP23x17::getGPIOAPinMode(const uint8_t pin, gpio_mode_t &mode) {
 
   bool buf;
-  CHECK(read_reg_bit_16(REG_IODIRA, buf, pin));
+  CHECK(readRegisterBit8(REG_IODIRA, buf, pin));
   mode = buf ? MCP23X17_GPIO_INPUT : MCP23X17_GPIO_OUTPUT;
 
   return ESP_OK;
 }
 
-esp_err_t MCP23x17::set_mode(const uint8_t pin, const gpio_mode_t mode) {
-  return write_reg_bit_16(REG_IODIRA, mode, pin);
-}
-
-esp_err_t MCP23x17::get_pullup(const uint8_t pin, bool &enable) {
-  return read_reg_bit_16(REG_GPPUA, enable, pin);
-}
-
-esp_err_t MCP23x17::set_pullup(const uint8_t pin, const bool enable) {
-  return write_reg_bit_16(REG_GPPUA, enable, pin);
-}
-
-esp_err_t MCP23x17::get_level(uint8_t pin, uint32_t &val) {
+esp_err_t MCP23x17::getGPIOBPinMode(const uint8_t pin, gpio_mode_t &mode) {
 
   bool buf;
-  CHECK(read_reg_bit_16(REG_GPIOA, buf, pin));
-  val = buf ? 1 : 0;
+  CHECK(readRegisterBit8(REG_IODIRB, buf, pin));
+  mode = buf ? MCP23X17_GPIO_INPUT : MCP23X17_GPIO_OUTPUT;
 
   return ESP_OK;
 }
 
-esp_err_t MCP23x17::set_level(const uint8_t pin, const uint32_t val) {
-  return write_reg_bit_16(REG_GPIOA, val, pin);
+esp_err_t MCP23x17::setGPIOAPinMode(const uint8_t pin, const gpio_mode_t mode) {
+  return writeRegisterBit8(REG_IODIRA, mode, pin);
 }
 
-esp_err_t MCP23x17::port_set_interrupt(const uint16_t mask,
-                                       const gpio_intr_t intr) {
-  uint16_t int_en;
-  CHECK(read_reg_16(REG_GPINTENA, int_en));
+esp_err_t MCP23x17::setGPIOBPinMode(const uint8_t pin, const gpio_mode_t mode) {
+  return writeRegisterBit8(REG_IODIRB, mode, pin);
+}
+
+esp_err_t MCP23x17::getGPIOAPinLevel(uint8_t pin, bool &val) {
+
+  uint8_t buf;
+  CHECK(readRegister8(REG_GPIOA, buf));
+  val = ((buf & pin) == 1) ? true : false;
+
+  return ESP_OK;
+}
+
+esp_err_t MCP23x17::getGPIOBPinLevel(uint8_t pin, bool &val) {
+
+  uint8_t buf;
+  CHECK(readRegister8(REG_GPIOB, buf));
+  val = ((buf & pin) == 1) ? true : false;
+
+  return ESP_OK;
+}
+
+esp_err_t MCP23x17::setGPIOAPinLevel(const uint8_t pin, const bool val) {
+  return writeRegisterBit8(REG_GPIOA, val, pin);
+}
+
+esp_err_t MCP23x17::setGPIOAInterrupt(const uint8_t mask,
+                                      const gpio_intr_t intr) {
+  uint8_t int_en;
+  CHECK(readRegister8(REG_GPINTENA, int_en));
 
   if (intr == MCP23X17_INT_DISABLED) {
     // disable interrupts
     int_en &= ~mask;
-    CHECK(write_reg_16(REG_GPINTENA, int_en));
+    CHECK(writeRegister8(REG_GPINTENA, int_en));
 
     return ESP_OK;
   }
 
-  uint16_t int_con;
-  CHECK(read_reg_16(REG_INTCONA, int_con));
+  uint8_t int_con;
+  CHECK(readRegister8(REG_INTCONA, int_con));
 
   if (intr == MCP23X17_INT_ANY_EDGE)
     int_con &= ~mask;
   else {
     int_con |= mask;
 
-    uint16_t int_def;
-    CHECK(read_reg_16(REG_DEFVALA, int_def));
+    uint8_t int_def;
+    CHECK(readRegister8(REG_DEFVALA, int_def));
     if (intr == MCP23X17_INT_LOW_EDGE)
       int_def |= mask;
     else
       int_def &= ~mask;
-    CHECK(write_reg_16(REG_DEFVALA, int_def));
+    CHECK(writeRegister8(REG_DEFVALA, int_def));
   }
 
-  CHECK(write_reg_16(REG_INTCONA, int_con));
+  CHECK(writeRegister8(REG_INTCONA, int_con));
 
   // enable interrupts
   int_en |= mask;
-  CHECK(write_reg_16(REG_GPINTENA, int_en));
+  CHECK(writeRegister8(REG_GPINTENA, int_en));
 
   return ESP_OK;
 }
 
-// ---------------------
+esp_err_t MCP23x17::setGPIOBInterrupt(const uint8_t mask,
+                                      const gpio_intr_t intr) {
+  uint8_t int_en;
+  CHECK(readRegister8(REG_GPINTENB, int_en));
 
-esp_err_t MCP23x17::set_interrupt(uint8_t pin, gpio_intr_t intr) {
-  return port_set_interrupt(BV(pin), intr);
+  if (intr == MCP23X17_INT_DISABLED) {
+    // disable interrupts
+    int_en &= ~mask;
+    CHECK(writeRegister8(REG_GPINTENB, int_en));
+
+    return ESP_OK;
+  }
+
+  uint8_t int_con;
+  CHECK(readRegister8(REG_INTCONB, int_con));
+
+  if (intr == MCP23X17_INT_ANY_EDGE)
+    int_con &= ~mask;
+  else {
+    int_con |= mask;
+
+    uint8_t int_def;
+    CHECK(readRegister8(REG_DEFVALB, int_def));
+    if (intr == MCP23X17_INT_LOW_EDGE)
+      int_def |= mask;
+    else
+      int_def &= ~mask;
+    CHECK(writeRegister8(REG_DEFVALB, int_def));
+  }
+
+  CHECK(writeRegister8(REG_INTCONB, int_con));
+
+  // enable interrupts
+  int_en |= mask;
+  CHECK(writeRegister8(REG_GPINTENB, int_en));
+
+  return ESP_OK;
 }
 
-esp_err_t MCP23x17::read_reg_16(const uint8_t reg, uint16_t &val) {
+esp_err_t MCP23x17::setGPIOAPinInterrupt(uint8_t pin, gpio_intr_t intr) {
+  return setGPIOAInterrupt(BV(pin), intr);
+}
+
+esp_err_t MCP23x17::setGPIOBPinInterrupt(uint8_t pin, gpio_intr_t intr) {
+  return setGPIOBInterrupt(BV(pin), intr);
+}
+
+// ---------------------
+
+esp_err_t MCP23x17::readRegister8(const uint8_t reg, uint8_t &val) {
+  _mutex.lock();
+
+  std::vector<uint8_t> data;
+
+  esp_err_t res =
+      this->i2c_manager.readRegister(this->deviceHandle, reg, data, 1);
+
+  _mutex.unlock();
+
+  return res;
+}
+
+esp_err_t MCP23x17::readRegister16(const uint8_t reg, uint16_t &val) {
   _mutex.lock();
   std::vector<uint8_t> data;
 
@@ -209,7 +322,31 @@ esp_err_t MCP23x17::read_reg_16(const uint8_t reg, uint16_t &val) {
   return res;
 }
 
-esp_err_t MCP23x17::write_reg_16(const uint8_t reg, const uint16_t val) {
+esp_err_t MCP23x17::readRegisterBit16(const uint8_t reg, bool &val,
+                                      const uint16_t bit) {
+  uint16_t buf;
+
+  CHECK(readRegister16(reg, buf));
+
+  val = (buf & BV(bit)) >> bit;
+
+  return ESP_OK;
+}
+
+esp_err_t MCP23x17::readRegisterBit8(const uint8_t reg, bool &val,
+                                     uint8_t bit) {
+  _mutex.lock();
+  std::vector<uint8_t> data;
+
+  esp_err_t ret =
+      this->i2c_manager.readRegister(this->deviceHandle, reg, data, 1);
+
+  val = (data.at(0) & BV(bit)) >> bit;
+  _mutex.unlock();
+  return ret;
+}
+
+esp_err_t MCP23x17::writeRegister16(const uint8_t reg, const uint16_t val) {
   _mutex.lock();
   std::vector<uint8_t> data;
   data.push_back((val & 0xff));
@@ -222,7 +359,8 @@ esp_err_t MCP23x17::write_reg_16(const uint8_t reg, const uint16_t val) {
   return ret;
 }
 
-esp_err_t MCP23x17::write_reg_bit_16(const uint8_t reg, bool val, uint8_t bit) {
+esp_err_t MCP23x17::writeRegisterBit16(const uint8_t reg, bool val,
+                                       uint16_t bit) {
   _mutex.lock();
   std::vector<uint8_t> data;
 
@@ -243,20 +381,22 @@ esp_err_t MCP23x17::write_reg_bit_16(const uint8_t reg, bool val, uint8_t bit) {
   return ret;
 }
 
-esp_err_t MCP23x17::read_reg_bit_8(const uint8_t reg, bool &val, uint8_t bit) {
+esp_err_t MCP23x17::writeRegister8(const uint8_t reg, const uint8_t val) {
+
   _mutex.lock();
   std::vector<uint8_t> data;
+  data.push_back(val);
 
   esp_err_t ret =
-      this->i2c_manager.readRegister(this->deviceHandle, reg, data, 1);
+      this->i2c_manager.writeRegister(this->deviceHandle, reg, data);
 
-  val = (data.at(0) & BV(bit)) >> bit;
   _mutex.unlock();
+
   return ret;
 }
 
-esp_err_t MCP23x17::write_reg_bit_8(const uint8_t reg, const bool val,
-                                    const uint8_t bit) {
+esp_err_t MCP23x17::writeRegisterBit8(const uint8_t reg, const bool val,
+                                      const uint8_t bit) {
   _mutex.lock();
 
   std::vector<uint8_t> data;
@@ -269,15 +409,4 @@ esp_err_t MCP23x17::write_reg_bit_8(const uint8_t reg, const bool val,
   _mutex.unlock();
 
   return ret;
-}
-
-esp_err_t MCP23x17::read_reg_bit_16(const uint8_t reg, bool &val,
-                                    const uint8_t bit) {
-  uint16_t buf;
-
-  CHECK(read_reg_16(reg, buf));
-
-  val = (buf & BV(bit)) >> bit;
-
-  return ESP_OK;
 }

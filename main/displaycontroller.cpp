@@ -133,13 +133,13 @@ esp_err_t DisplayController::initialise() {
   movesDisplay.write_value("%05d", 88);
   ESP_LOGD(TAG, "Moves display initialisation succeeded");
 
-  uint16_t portMode =
-      0x00ff;               // PortA input, portB output (0 = output, 1 = input)
-  uint16_t pullup = 0x0000; // internal pullup resistors on button pins off - we
-                            // pull them up in hardware.
-
-  buttonIO.port_set_mode(portMode);
-  buttonIO.port_set_pullup(pullup);
+  buttonIO.setGPIOAInputOutputMode(0x00); // PORT A - input
+  buttonIO.setGPIOBInputOutputMode(0xff); // PORT B - output
+  buttonIO.setGPIOAPullup(0x00);          // GPIOA Pullups off
+  buttonIO.setGPIOBPullup(0x00);          // GPIOB Pullups off
+  buttonIO.setGPIOBInputPolarity(
+      0xff); // Invert polarity (bit refelcts the opposite logic state of the
+             // input pin)
   ESP_LOGI(TAG, "Button interface initialisation succeeded");
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -572,15 +572,14 @@ void DisplayController::updateLampsTask() {
   ESP_LOGI(TAG, "Update Lamps task started");
 
   esp_err_t err;
-  uint16_t buttonVal;
+
+  uint8_t lampVal = 0;
 
   for (;;) {
     ESP_LOGD(TAG, "update lamp loop");
-    err = buttonIO.port_read(buttonVal);
+    err = buttonIO.readGPIOB(this->buttonStatus);
 
     if (err == ESP_OK) {
-      this->buttonStatus = (uint8_t) ~(
-          buttonVal & 0xff); // Invert because we are pulling low in hardware.
 
       if ((this->buttonStatus & (1 << BTN_DOOR)) == 0) {
         if (!this->doorOpen) {
@@ -601,7 +600,7 @@ void DisplayController::updateLampsTask() {
     }
 
     // set leds
-    buttonVal = 0;
+    lampVal = 0;
     for (int i = 0; i < (LED_COUNT + 6); i++) {
 
       // ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i,
@@ -618,22 +617,22 @@ void DisplayController::updateLampsTask() {
             this->lampData.at(i).activeRgb.b > 0) {
           switch (i) {
           case LED_COUNT:
-            buttonVal |= (1 << 15); // GPB7 (Start)
+            lampVal |= (1 << 15); // GPB7 (Start)
             break;
           case LED_COUNT + 1:
-            buttonVal |= (1 << 14); // GPB6 (Collect)
+            lampVal |= (1 << 14); // GPB6 (Collect)
             break;
           case LED_COUNT + 2:
-            buttonVal |= (1 << 13); // GPB5
+            lampVal |= (1 << 13); // GPB5
             break;
           case LED_COUNT + 3:
-            buttonVal |= (1 << 12); // GPB4
+            lampVal |= (1 << 12); // GPB4
             break;
           case LED_COUNT + 4:
-            buttonVal |= (1 << 11); // GPB3
+            lampVal |= (1 << 11); // GPB3
             break;
           case LED_COUNT + 5:
-            buttonVal |= (1 << 10); // GPB2
+            lampVal |= (1 << 10); // GPB2
 
             break;
           }
@@ -642,7 +641,7 @@ void DisplayController::updateLampsTask() {
     }
 
     led_strip_refresh(ledStripHandle);
-    buttonIO.port_write(buttonVal);
+    buttonIO.writeGPIOA(lampVal);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(30));
   }

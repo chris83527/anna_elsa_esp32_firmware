@@ -73,7 +73,9 @@ public:
     MCP23X17_ACTIVE_LOW = 0, //!< Low level on interrupt
     MCP23X17_ACTIVE_HIGH,    //!< High level on interrupt
     MCP23X17_OPEN_DRAIN      //!< Open drain
-  } int_out_mode_t;
+  } in_out_mode_t;
+
+  typedef enum { MCP23X17_SAME = 0, MCP23X17_OPPOSITE } direction_mode_t;
 
   /**
    * Interrupt mode
@@ -95,23 +97,30 @@ public:
 
   ~MCP23x17();
 
-  /**
-   * @brief Get INTA/INTB pins mode
-   *
-   * @param dev Pointer to device descriptor
-   * @param[out] mode Buffer to store mode
-   * @return `ESP_OK` on success
-   */
-  esp_err_t get_int_out_mode(int_out_mode_t &mode);
+  esp_err_t setGPIOAInputPolarity(const uint8_t polarity);
+  esp_err_t setGPIOBInputPolarity(const uint8_t polarity);
+
+  esp_err_t getGPIOAInputPolarity(uint8_t &polarity);
+  esp_err_t getGPIOBInputPolarity(uint8_t &polarity);
+
+  esp_err_t getGPIOAPinInputPolarity(const uint8_t pin,
+                                     direction_mode_t &polarity);
+  esp_err_t getGPIOBPinInputPolarity(const uint8_t pin,
+                                     direction_mode_t &polarity);
 
   /**
-   * @brief Set INTA/INTB pins mode
+   * @brief Get the current value of the I/O expander configuration register
+   * (ADDR 0x05)
    *
-   * @param dev Pointer to device descriptor
-   * @param mode INTA/INTB pins mode
-   * @return `ESP_OK` on success
    */
-  esp_err_t set_int_out_mode(int_out_mode_t mode);
+  esp_err_t getGPIOExpanderConfiguration(uint8_t &config);
+
+  /**
+   * @brief Set the value of the I/O expander configuration register
+   * (ADDR 0x05)
+   *
+   */
+  esp_err_t setGPIOExpanderConfiguration(const uint8_t config);
 
   /**
    * @brief Get GPIO pins mode
@@ -123,7 +132,8 @@ public:
    * PORTB/GPIO7
    * @return
    */
-  esp_err_t port_get_mode(uint16_t &val);
+  esp_err_t getGPIOAInputOutputMode(uint8_t &val);
+  esp_err_t getGPIOBInputOutputMode(uint8_t &val);
 
   /**
    * @brief Set GPIO pins mode
@@ -134,89 +144,101 @@ public:
    * @param val Mode, 0 bit for PORTA/GPIO0..15 bit for PORTB/GPIO7
    * @return `ESP_OK` on success
    */
-  esp_err_t port_set_mode(uint16_t val);
+  esp_err_t setGPIOAInputOutputMode(const uint8_t val);
+  esp_err_t setGPIOBInputOutputMode(const uint8_t val);
 
   /**
-   * @brief Get GPIO pullups status
+   * @brief Get GPIO A pullups status
    *
    * 0 - pullup disabled, 1 - pullup enabled for each bit in `val`
    *
    * @param dev Pointer to device descriptor
-   * @param[out] val Pullup status, 0 bit for PORTA/GPIO0..15 bit for
-   * PORTB/GPIO7
+   * @param[out] val Pullup status, 0..7
    * @return `ESP_OK` on success
    */
-  esp_err_t port_get_pullup(uint16_t &val);
+  esp_err_t getGPIOAPullup(uint8_t &val);
 
   /**
-   * @brief Set GPIO pullups status
+   * @brief Get GPIO B pullups status
    *
    * 0 - pullup disabled, 1 - pullup enabled for each bit in `val`
    *
-   * @param dev Pointer to device descriptor
+   * @param[out] val Pullup status, 0..7
+   * @return `ESP_OK` on success
+   */
+  esp_err_t getGPIOBPullup(uint8_t &val);
+
+  /**
+   * @brief Set GPIO A pullups status
+   *
+   * 0 - pullup disabled, 1 - pullup enabled for each bit in `val`
+   *
    * @param val Pullup status, 0 bit for PORTA/GPIO0..15 bit for PORTB/GPIO7
    * @return `ESP_OK` on success
    */
-  esp_err_t port_set_pullup(uint16_t val);
+  esp_err_t setGPIOAPullup(const uint8_t val);
+  esp_err_t setGPIOBPullup(const uint8_t val);
 
   /**
-   * @brief Read GPIO port value
+   * @brief Read value from GPIO port A
    *
-   * @param dev Pointer to device descriptor
-   * @param[out] val 16-bit GPIO port value, 0 bit for PORTA/GPIO0..15 bit for
-   * PORTB/GPIO7
+   * @param val Reference to variable to store value
    * @return `ESP_OK` on success
    */
-  esp_err_t port_read(uint16_t &val);
+  esp_err_t readGPIOA(uint8_t &val);
 
   /**
-   * @brief Write value to GPIO port
+   * @brief Read value from GPIO port B
    *
-   * @param dev Pointer to device descriptor
-   * @param val GPIO port value, 0 bit for PORTA/GPIO0..15 bit for PORTB/GPIO7
+   * @param val Reference to variable to store value
    * @return `ESP_OK` on success
    */
-  esp_err_t port_write(uint16_t val);
+  esp_err_t readGPIOB(uint8_t &val);
 
   /**
-   * @brief Get GPIO pin mode
+   * @brief Write value to GPIO port A
+   *
+   * @param val Reference to variable to store value
+   * @return `ESP_OK` on success
+   */
+  esp_err_t writeGPIOA(const uint8_t val);
+
+  /**
+   * @brief Write value to GPIO port B
+   *
+   * @param val GPIO port value
+   * @return `ESP_OK` on success
+   */
+  esp_err_t writeGPIOB(const uint8_t val);
+
+  /**
+   * @brief Get GPIO pin mode for GPIO A
    *
    * @param dev Pointer to device descriptor
-   * @param pin Pin number, 0 for PORTA/GPIO0..15 for PORTB/GPIO7
+   * @param pin Pin number, 0..7 of the port
    * @param[out] mode GPIO pin mode
    * @return `ESP_OK` on success
    */
-  esp_err_t get_mode(uint8_t pin, gpio_mode_t &mode);
+  esp_err_t getGPIOAPinMode(uint8_t pin, gpio_mode_t &mode);
+
+  /**
+   * @brief Get GPIO pin mode for GPIO B
+   *
+   * @param pin Pin number, 0..7 of the port
+   * @param[out] mode GPIO pin mode
+   * @return `ESP_OK` on success
+   */
+  esp_err_t getGPIOBPinMode(uint8_t pin, gpio_mode_t &mode);
 
   /**
    * @brief Set GPIO pin mode
    *
-   * @param dev Pointer to device descriptor
    * @param pin Pin number, 0 for PORTA/GPIO0..15 for PORTB/GPIO7
    * @param mode GPIO pin mode
    * @return `ESP_OK` on success
    */
-  esp_err_t set_mode(uint8_t pin, gpio_mode_t mode);
-
-  /**
-   * @brief Get pullup mode of GPIO pin
-   *
-   * @param dev Pointer to device descriptor
-   * @param pin Pin number, 0 for PORTA/GPIO0..15 for PORTB/GPIO7
-   * @param[out] enable pullup mode
-   * @return `ESP_OK` on success
-   */
-  esp_err_t get_pullup(uint8_t pin, bool &enable);
-
-  /**
-   * @brief Set pullup mode of GPIO pin
-   *
-   * @param dev Pointer to device descriptor
-   * @param pin Pin number, 0 for PORTA/GPIO0..15 for PORTB/GPIO7
-   * @param enable `true` to enable pullup
-   * @return `ESP_OK` on success
-   */
-  esp_err_t set_pullup(uint8_t pin, bool enable);
+  esp_err_t setGPIOAPinMode(const uint8_t pin, const gpio_mode_t mode);
+  esp_err_t setGPIOBPinMode(const uint8_t pin, const gpio_mode_t mode);
 
   /**
    * @brief Read GPIO pin level
@@ -226,43 +248,44 @@ public:
    * @param[out] val `true` if pin currently in high state
    * @return `ESP_OK` on success
    */
-  esp_err_t get_level(uint8_t pin, uint32_t &val);
+  esp_err_t getGPIOAPinLevel(uint8_t pin, bool &val);
+  esp_err_t getGPIOBPinLevel(uint8_t pin, bool &val);
 
   /**
    * @brief Set GPIO pin level
    *
    * Pin must be set up as output
    *
-   * @param dev Pointer to device descriptor
-   * @param pin Pin number, 0 for PORTA/GPIO0..15 for PORTB/GPIO7
+   * @param pin Pin number, 0..7
    * @param[out] val `true` if pin currently in high state
    * @return `ESP_OK` on success
    */
-  esp_err_t set_level(uint8_t pin, uint32_t val);
+  esp_err_t setGPIOAPinLevel(const uint8_t pin, const bool val);
+  esp_err_t setGPIOBPinLevel(const uint8_t pin, const bool val);
 
   /**
    * @brief Setup interrupt for group of GPIO pins
    *
-   * @param dev Pointer to device descriptor
-   * @param mask Pins to setup
+   * @param mask Pins to setup (0..7)
    * @param intr Interrupt mode
    * @return `ESP_OK` on success
    */
-  esp_err_t port_set_interrupt(uint16_t mask, gpio_intr_t intr);
+  esp_err_t setGPIOAInterrupt(const uint8_t mask, const gpio_intr_t intr);
+  esp_err_t setGPIOBInterrupt(const uint8_t mask, const gpio_intr_t intr);
 
   /**
    * @brief Setup interrupt for GPIO pin
    *
-   * @param dev Pointer to device descriptor
-   * @param pin Pin number, 0 for PORTA/GPIO0..15 for PORTB/GPIO7
+   * @param pin Pin number, 0..7
    * @param intr Interrupt mode
    * @return `ESP_OK` on success
    */
-  esp_err_t set_interrupt(uint8_t pin, gpio_intr_t intr);
+  esp_err_t setGPIOAPinInterrupt(const uint8_t pin, const gpio_intr_t intr);
+  esp_err_t setGPIOBPinInterrupt(const uint8_t pin, const gpio_intr_t intr);
 
 private:
   static constexpr int I2C_FREQ_HZ =
-      1000000; // Max 1MHz for esp-idf, but device supports up to 1.7Mhz
+      100000; // Max 1MHz for esp-idf, but device supports up to 1.7Mhz
 
   static constexpr uint8_t REG_IODIRA = 0x00;
   static constexpr uint8_t REG_IODIRB = 0x01;
@@ -295,13 +318,15 @@ private:
   static constexpr uint8_t BIT_IOCON_BANK = 7;
 
 private:
-  esp_err_t read_reg_16(const uint8_t reg, uint16_t &val);
-  esp_err_t write_reg_16(const uint8_t reg, const uint16_t val);
-  esp_err_t write_reg_bit_16(const uint8_t reg, bool val, uint8_t bit);
-  esp_err_t read_reg_bit_8(const uint8_t reg, bool &val, uint8_t bit);
-  esp_err_t write_reg_bit_8(const uint8_t reg, const bool val,
-                            const uint8_t bit);
-  esp_err_t read_reg_bit_16(const uint8_t reg, bool &val, const uint8_t bit);
+  esp_err_t readRegister8(const uint8_t reg, uint8_t &val);
+  esp_err_t readRegister16(const uint8_t reg, uint16_t &val);
+  esp_err_t writeRegister8(const uint8_t reg, const uint8_t val);
+  esp_err_t writeRegister16(const uint8_t reg, const uint16_t val);
+  esp_err_t writeRegisterBit16(const uint8_t reg, bool val, uint16_t bit);
+  esp_err_t readRegisterBit16(const uint8_t reg, bool &val, const uint16_t bit);
+  esp_err_t readRegisterBit8(const uint8_t reg, bool &val, uint8_t bit);
+  esp_err_t writeRegisterBit8(const uint8_t reg, const bool val,
+                              const uint8_t bit);
 
   i2c_device_config_t deviceConfig;
   i2c_master_dev_handle_t deviceHandle;
