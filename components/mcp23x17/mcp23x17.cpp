@@ -111,7 +111,7 @@ esp_err_t MCP23x17::setGPIOAInputOutputMode(const uint8_t val) {
 }
 
 esp_err_t MCP23x17::setGPIOBInputOutputMode(const uint8_t val) {
-  return writeRegister8(REG_IODIRA, val);
+  return writeRegister8(REG_IODIRB, val);
 }
 
 esp_err_t MCP23x17::getGPIOAPullup(uint8_t &val) {
@@ -148,7 +148,7 @@ esp_err_t MCP23x17::setGPIOAInputPolarity(uint8_t val) {
 }
 
 esp_err_t MCP23x17::setGPIOBInputPolarity(uint8_t val) {
-  return writeRegister8(REG_IPOLA, val);
+  return writeRegister8(REG_IPOLB, val);
 }
 
 esp_err_t MCP23x17::getGPIOAInputPolarity(uint8_t &val) {
@@ -156,7 +156,7 @@ esp_err_t MCP23x17::getGPIOAInputPolarity(uint8_t &val) {
 }
 
 esp_err_t MCP23x17::getGPIOBInputPolarity(uint8_t &val) {
-  return readRegister8(REG_IPOLA, val);
+  return readRegister8(REG_IPOLB, val);
 }
 
 esp_err_t MCP23x17::getGPIOAPinMode(const uint8_t pin, gpio_mode_t &mode) {
@@ -205,6 +205,10 @@ esp_err_t MCP23x17::getGPIOBPinLevel(uint8_t pin, bool &val) {
 
 esp_err_t MCP23x17::setGPIOAPinLevel(const uint8_t pin, const bool val) {
   return writeRegisterBit8(REG_GPIOA, val, pin);
+}
+
+esp_err_t MCP23x17::setGPIOBPinLevel(const uint8_t pin, const bool val) {
+  return writeRegisterBit8(REG_GPIOB, val, pin);
 }
 
 esp_err_t MCP23x17::setGPIOAInterrupt(const uint8_t mask,

@@ -133,8 +133,8 @@ esp_err_t DisplayController::initialise() {
   movesDisplay.write_value("%05d", 88);
   ESP_LOGD(TAG, "Moves display initialisation succeeded");
 
-  buttonIO.setGPIOAInputOutputMode(0x00); // PORT A - input
-  buttonIO.setGPIOBInputOutputMode(0xff); // PORT B - output
+  buttonIO.setGPIOAInputOutputMode(0xff); // PORT A - input
+  buttonIO.setGPIOBInputOutputMode(0x00); // PORT B - output
   buttonIO.setGPIOAPullup(0x00);          // GPIOA Pullups off
   buttonIO.setGPIOBPullup(0x00);          // GPIOB Pullups off
   buttonIO.setGPIOBInputPolarity(
@@ -169,7 +169,7 @@ esp_err_t DisplayController::initialise() {
   cfg.thread_name = "UpdateSevenSeg";
   cfg.prio = 1;
   cfg.pin_to_core = 1;
-  cfg.stack_size = 2048;
+  cfg.stack_size = 4096;
   esp_pthread_set_cfg(&cfg);
   // Start a thread to update the 7-segment displays
   this->updateSevenSegDisplaysThread =
@@ -577,7 +577,7 @@ void DisplayController::updateLampsTask() {
 
   for (;;) {
     ESP_LOGD(TAG, "update lamp loop");
-    err = buttonIO.readGPIOB(this->buttonStatus);
+    err = buttonIO.readGPIOA(this->buttonStatus);
 
     if (err == ESP_OK) {
 
@@ -641,7 +641,7 @@ void DisplayController::updateLampsTask() {
     }
 
     led_strip_refresh(ledStripHandle);
-    buttonIO.writeGPIOA(lampVal);
+    buttonIO.writeGPIOB(lampVal);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(30));
   }
