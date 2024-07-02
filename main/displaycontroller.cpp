@@ -249,15 +249,14 @@ uint8_t DisplayController::getButtonStatus() {
 }
 
 uint8_t DisplayController::waitForButton(uint8_t mask) {
-  uint8_t btnStatus = getButtonStatus();
+
   // loop waiting for button press.
-  while ((btnStatus & mask) == 0) {
+  while ((this->buttonStatus & mask) == 0) {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    btnStatus = getButtonStatus();
   }
 
-  return btnStatus;
+  return this->buttonStatus;
 }
 
 void DisplayController::displayText(const string &text) {

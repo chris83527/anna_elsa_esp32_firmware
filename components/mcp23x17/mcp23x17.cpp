@@ -303,6 +303,8 @@ esp_err_t MCP23x17::readRegister8(const uint8_t reg, uint8_t &val) {
   esp_err_t res =
       this->i2c_manager.readRegister(this->deviceHandle, reg, data, 1);
 
+  val = data[0];
+
   _mutex.unlock();
 
   return res;
