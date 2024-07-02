@@ -94,16 +94,12 @@ esp_err_t MCP23x17::setGPIOExpanderConfiguration(const uint8_t mode) {
 
 esp_err_t MCP23x17::getGPIOAInputOutputMode(uint8_t &val) {
 
-  esp_err_t ret = readRegister8(REG_IODIRA, val);
-
-  return ret;
+  return readRegister8(REG_IODIRA, val);
 }
 
 esp_err_t MCP23x17::getGPIOBInputOutputMode(uint8_t &val) {
 
-  esp_err_t ret = readRegister8(REG_IODIRB, val);
-
-  return ret;
+  return readRegister8(REG_IODIRB, val);
 }
 
 esp_err_t MCP23x17::setGPIOAInputOutputMode(const uint8_t val) {

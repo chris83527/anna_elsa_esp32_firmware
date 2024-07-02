@@ -133,11 +133,11 @@ esp_err_t DisplayController::initialise() {
   movesDisplay.write_value("%05d", 88);
   ESP_LOGD(TAG, "Moves display initialisation succeeded");
 
-  buttonIO.setGPIOAInputOutputMode(0xff); // PORT A - input
-  buttonIO.setGPIOBInputOutputMode(0x00); // PORT B - output
+  buttonIO.setGPIOAInputOutputMode(0xff); // PORT A (switches) - input
+  buttonIO.setGPIOBInputOutputMode(0x00); // PORT B (button lamps) - output
   buttonIO.setGPIOAPullup(0x00);          // GPIOA Pullups off
   buttonIO.setGPIOBPullup(0x00);          // GPIOB Pullups off
-  buttonIO.setGPIOBInputPolarity(
+  buttonIO.setGPIOAInputPolarity(
       0xff); // Invert polarity (bit refelcts the opposite logic state of the
              // input pin)
   ESP_LOGI(TAG, "Button interface initialisation succeeded");
@@ -617,22 +617,22 @@ void DisplayController::updateLampsTask() {
             this->lampData.at(i).activeRgb.b > 0) {
           switch (i) {
           case LED_COUNT:
-            lampVal |= (1 << 15); // GPB7 (Start)
+            lampVal |= (1 << 7); // GPB7 (Start)
             break;
           case LED_COUNT + 1:
-            lampVal |= (1 << 14); // GPB6 (Collect)
+            lampVal |= (1 << 6); // GPB6 (Collect)
             break;
           case LED_COUNT + 2:
-            lampVal |= (1 << 13); // GPB5
+            lampVal |= (1 << 5); // GPB5
             break;
           case LED_COUNT + 3:
-            lampVal |= (1 << 12); // GPB4
+            lampVal |= (1 << 4); // GPB4
             break;
           case LED_COUNT + 4:
-            lampVal |= (1 << 11); // GPB3
+            lampVal |= (1 << 3); // GPB3
             break;
           case LED_COUNT + 5:
-            lampVal |= (1 << 10); // GPB2
+            lampVal |= (1 << 2); // GPB2
 
             break;
           }
