@@ -102,7 +102,7 @@ void AudioController::initialise() {
   i2cInit();
   i2sInit();
 
-  setVolume(20);
+  setVolume(40);
 
   playAudioFile(Sounds::SND_STARTUP);
 }
@@ -267,11 +267,11 @@ void AudioController::playAudioFile(const char *filepath) {
 }
 
 void AudioController::playAudioFileAsync(const char *filepath) {
-	  auto cfg = esp_pthread_get_default_config();
-	  cfg.thread_name = "PlayAudioAsync";
-    cfg.prio = 5;
-    cfg.stack_size = 4192;
-    esp_pthread_set_cfg(&cfg);
+  auto cfg = esp_pthread_get_default_config();
+  cfg.thread_name = "PlayAudioAsync";
+  cfg.prio = 5;
+  cfg.stack_size = 4192;
+  esp_pthread_set_cfg(&cfg);
   std::thread([&]() { playAudioFile(filepath); }).detach();
 }
 
