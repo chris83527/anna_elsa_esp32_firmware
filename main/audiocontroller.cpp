@@ -102,7 +102,7 @@ void AudioController::initialise() {
   i2cInit();
   i2sInit();
 
-  setVolume(60); // TODO: get this volume from NVRAM
+  setVolume(40); // TODO: get this volume from NVRAM
 
   playAudioFile(Sounds::SND_STARTUP);
 }
@@ -279,13 +279,13 @@ void AudioController::setVolume(int volume) {
 
   int vol_idx = 0;
 
-  if (vol < TAS5731M_VOLUME_MIN) {
-    vol = TAS5731M_VOLUME_MIN;
+  if (volume < TAS5731M_VOLUME_MIN) {
+    volume = TAS5731M_VOLUME_MIN;
   }
-  if (vol > TAS5731M_VOLUME_MAX) {
-    vol = TAS5731M_VOLUME_MAX;
+  if (volume > TAS5731M_VOLUME_MAX) {
+    volume = TAS5731M_VOLUME_MAX;
   }
-  vol_idx = vol / 5;
+  vol_idx = volume / 5;
 
   std::vector<uint8_t> data;
 

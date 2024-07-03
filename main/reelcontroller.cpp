@@ -63,13 +63,13 @@ bool reelCentreInitOk;
 bool reelRightInitOk;
 
 #define LEDC_TIMER LEDC_TIMER_0
-#define LEDC_MODE LEDC_LOW_SPEED_MODE
+#define LEDC_MODE LEDC_HIGH_SPEED_MODE
 #define LEDC_CHANNEL LEDC_CHANNEL_0
-#define LEDC_DUTY_RES LEDC_TIMER_10_BIT // Set duty resolution to 10 bits
+#define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 10 bits
 #define LEDC_DUTY_QUARTER (127)         // Set duty to 12,5%
 // Don't set this to 100%, otherwise cctalk fails (presumably something gets
 // blocked somewhere)
-#define LEDC_DUTY_FULL (767) // Set duty to 80%.((2 ** 10) - 1)  = 1023
+#define LEDC_DUTY_FULL (767) // Set duty to 80%. (2 ** 13) * 80%  = 6554
 #define LEDC_FREQUENCY (150) // Frequency in Hertz. Set frequency at 100Hz
 
 ReelController::ReelController(MainController &mainController,
@@ -103,7 +103,7 @@ bool ReelController::initialise() {
 
   // Prepare and then apply the LEDC PWM timer configuration
   ledc_timer = {
-      .speed_mode = LEDC_MODE,
+      .speed_mode = LEDC_HIGH_SPEED_MODE,
       .duty_resolution = LEDC_DUTY_RES,
       .timer_num = LEDC_TIMER,
       .freq_hz = LEDC_FREQUENCY, // Set output frequency at 100Hz
@@ -120,7 +120,7 @@ bool ReelController::initialise() {
   // Prepare and then apply the LEDC PWM channel configuration
   ledc_channel = {
       .gpio_num = GPIO_MOTOR_EN,
-      .speed_mode = LEDC_MODE,
+      .speed_mode = LEDC_HIGH_SPEED_MODE,
       .channel = LEDC_CHANNEL,
       .intr_type = LEDC_INTR_DISABLE,
       .timer_sel = LEDC_TIMER,
