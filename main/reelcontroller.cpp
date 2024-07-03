@@ -67,9 +67,10 @@ bool reelRightInitOk;
 #define LEDC_CHANNEL LEDC_CHANNEL_0
 #define LEDC_DUTY_RES LEDC_TIMER_10_BIT // Set duty resolution to 10 bits
 #define LEDC_DUTY_QUARTER (127)         // Set duty to 12,5%
-// Don't set this to 100%, otherwise cctalk fails (presumably something gets blocked somewhere)
+// Don't set this to 100%, otherwise cctalk fails (presumably something gets
+// blocked somewhere)
 #define LEDC_DUTY_FULL (767) // Set duty to 80%.((2 ** 10) - 1)  = 1023
-#define LEDC_FREQUENCY (150)   // Frequency in Hertz. Set frequency at 100Hz
+#define LEDC_FREQUENCY (150) // Frequency in Hertz. Set frequency at 100Hz
 
 ReelController::ReelController(MainController &mainController,
                                I2CManager &i2cmgr)
@@ -319,6 +320,8 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop,
     }
   }
 
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
   // Switch off
   ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
   ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
@@ -361,18 +364,18 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
   gpio_set_level(GPIO_MOTOR_EN, 1);
   std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-  auto leftReelThread = std::thread([this, &leftSteps]() {
+  this->leftReelThread = std::thread([this, &leftSteps]() {
     leftReel.startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
   });
-  auto centreReelThread = std::thread([this, &centreSteps]() {
+  this->centreReelThread = std::thread([this, &centreSteps]() {
     centreReel.startAfterHome(PCA9629A::Direction::CCW, centreSteps, 1);
   });
-  auto rightReelThread = std::thread([this, &rightSteps]() {
+  this->rightReelThread = std::thread([this, &rightSteps]() {
     rightReel.startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
   });
-  leftReelThread.join();
-  centreReelThread.join();
-  rightReelThread.join();
+  this->leftReelThread.join();
+  this->centreReelThread.join();
+  this->rightReelThread.join();
 
   bool leftPlayAudio = true;
   bool centrePlayAudio = true;
@@ -412,6 +415,8 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
     centreFinished = centreReel.isStopped();
     rightFinished = rightReel.isStopped();
   }
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Switch off
   ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
@@ -458,28 +463,56 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
   ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
   ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-  auto leftReelThread = std::thread([this, &leftSteps]() {
-    leftReel.start(PCA9629A::Direction::CW, leftSteps, 1);
-  });
+  if (leftSteps > 0) {
+    this->leftReelThread = std::thread([this, &leftSteps]() {
+      leftReel.start(PCA9629A::Direction::CW, leftSteps, 1);
+    });
+  }
 
-  auto centreReelThread = std::thread([this, &centreSteps]() {
-    centreReel.start(PCA9629A::Direction::CW, centreSteps, 1);
-  });
-  auto rightReelThread = std::thread([this, &rightSteps]() {
-    rightReel.start(PCA9629A::Direction::CW, rightSteps, 1);
-  });
-  leftReelThread.join();
-  centreReelThread.join();
-  rightReelThread.join();
+  if (centreSteps > 0) {
+    this->centreReelThread = std::thread([this, &centreSteps]() {
+      centreReel.start(PCA9629A::Direction::CW, centreSteps, 1);
+    });
+  }
+
+  if (rightSteps > 0) {
+    this->rightReelThread = std::thread([this, &rightSteps]() {
+      rightReel.start(PCA9629A::Direction::CW, rightSteps, 1);
+    });
+  }
 
   bool leftPlayAudio = true;
   bool centrePlayAudio = true;
   bool rightPlayAudio = true;
 
   // Loop waiting for reels to stop
-  bool leftFinished = leftReel.isStopped();
-  bool centreFinished = centreReel.isStopped();
-  bool rightFinished = rightReel.isStopped();
+  bool leftFinished;
+  bool centreFinished;
+  bool rightFinished;
+
+  if (leftSteps > 0) {
+    this->leftReelThread.join();
+    leftFinished = leftReel.isStopped();
+  } else {
+    leftPlayAudio = false;
+    leftFinished = true;
+  }
+
+  if (centreSteps > 0) {
+    this->centreReelThread.join();
+    centreFinished = centreReel.isStopped();
+  } else {
+    centrePlayAudio = false;
+    centreFinished = true;
+  }
+
+  if (rightSteps > 0) {
+    this->rightReelThread.join();
+    rightFinished = rightReel.isStopped();
+  } else {
+    rightPlayAudio = false;
+    rightFinished = true;
+  }
 
   while (!leftFinished || !centreFinished || !rightFinished) {
 
@@ -501,15 +534,22 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
       rightPlayAudio = false;
     }
 
-    uint8_t moves = random8_to(13);
+    uint8_t moves = random8_to(12);
     this->mainController.getDisplayController()->setMoves(moves);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-    leftFinished = leftReel.isStopped();
-    centreFinished = centreReel.isStopped();
-    rightFinished = rightReel.isStopped();
+    if (leftSteps > 0) {
+      leftFinished = leftReel.isStopped();
+    }
+    if (centreSteps > 0) {
+      centreFinished = centreReel.isStopped();
+    }
+    if (rightSteps > 0) {
+      rightFinished = rightReel.isStopped();
+    }
   }
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Switch off
   ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);

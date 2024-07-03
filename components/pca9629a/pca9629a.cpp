@@ -147,18 +147,15 @@ esp_err_t PCA9629A::write(RegisterName register_name, const uint8_t value) {
 
 esp_err_t PCA9629A::write16(RegisterName register_name, const uint16_t value) {
 
-  std::vector<uint8_t> data1;
-  std::vector<uint8_t> data2;
+  std::vector<uint8_t> data;
 
-  data1.push_back(value & 0xFF);
-  data2.push_back(value >> 8);
+  data.push_back(value & 0xFF);
+  data.push_back(value >> 8);
 
   // TODO:
   esp_err_t ret = i2c_manager.writeRegister(
-      this->deviceHandle, static_cast<uint8_t>(register_name), data1);
-
-  ret |= i2c_manager.writeRegister(
-      this->deviceHandle, static_cast<uint8_t>(register_name) + 1, data2);
+      this->deviceHandle, static_cast<uint8_t>(register_name) + 0x80,
+      data); // + 0x80 for autoincrement
 
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "An error occurred in PCA9629A::write16 writing i2c data");
