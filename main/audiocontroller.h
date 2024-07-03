@@ -40,9 +40,9 @@
 
 #include <vector>
 
-#include "esp_pthread.h"
 #include "I2CManager.h"
 #include "driver/i2s_std.h"
+#include "esp_pthread.h"
 #include "soc/io_mux_reg.h"
 
 #include "spiffs.h"
@@ -111,7 +111,7 @@ private:
   static constexpr int MUTE_TIME_REG_ADDR = 0x51;
 
   static constexpr int TAS5731M_VOLUME_MAX = 100;
-  static constexpr int TAS5731M_VOLUME_MIN = 100;
+  static constexpr int TAS5731M_VOLUME_MIN = 5;
 
   static constexpr gpio_num_t TAS5731M_RST_GPIO = GPIO_NUM_14;
   static constexpr gpio_num_t TAS5731M_PDWN_GPIO = GPIO_NUM_2;
