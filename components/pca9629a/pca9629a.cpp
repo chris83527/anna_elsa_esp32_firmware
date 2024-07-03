@@ -58,7 +58,7 @@ PCA9629A::PCA9629A(I2CManager &i2cmgr, const uint8_t i2c_address)
 PCA9629A::~PCA9629A() {}
 
 void PCA9629A::initialise() {
-  // software_reset();
+  software_reset();
   init_registers();
 }
 

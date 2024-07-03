@@ -149,6 +149,8 @@ bool ReelController::initialise() {
   ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
   ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
+  return ESP_OK; // DEBUG
+
   this->leftReel.start(PCA9629A::Direction::CW, 75, 1);   // 3x complete turn
   this->centreReel.start(PCA9629A::Direction::CW, 50, 1); // 2x complete turn
   this->rightReel.start(PCA9629A::Direction::CW, 25, 1);  // 1x complete turn
