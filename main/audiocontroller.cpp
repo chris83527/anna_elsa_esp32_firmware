@@ -102,7 +102,7 @@ void AudioController::initialise() {
   i2cInit();
   i2sInit();
 
-  setVolume(40); // TODO: get this volume from NVRAM
+  setVolume(60); // TODO: get this volume from NVRAM
 
   playAudioFile(Sounds::SND_STARTUP);
 }

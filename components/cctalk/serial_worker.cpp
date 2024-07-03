@@ -153,7 +153,7 @@ void SerialWorker::sendRequest(const uint64_t requestId,
   while (!receiveComplete) {
 
     if (timer.isReady()) {
-      ESP_LOGI(TAG, "Timer hit");
+      ESP_LOGD(TAG, "Timer hit");
       uart_flush(this->getUartNumber());
       this->onResponseReceiveCallback(this->getRequestId(),
                                       std::vector<uint8_t>());

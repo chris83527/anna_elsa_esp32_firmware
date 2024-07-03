@@ -149,7 +149,7 @@ bool ReelController::initialise() {
   ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
   ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-  //return ESP_OK; // DEBUG
+  // return ESP_OK; // DEBUG
 
   this->leftReel.start(PCA9629A::Direction::CW, 75, 1);   // 3x complete turn
   this->centreReel.start(PCA9629A::Direction::CW, 50, 1); // 2x complete turn
@@ -226,45 +226,45 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop,
   auto cfg = esp_pthread_get_default_config();
 
   if (leftStop > 0) { // Check if reel is held
-    cfg.thread_name = "LeftReelThread";
-    cfg.prio = 1;
-    cfg.stack_size = 3000;
-    esp_pthread_set_cfg(&cfg);
-    this->leftReelThread = std::thread([this, &leftSteps]() {
-      leftReel.startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
-    });
+                      //  cfg.thread_name = "LeftReelThread";
+                      //  cfg.prio = 1;
+                      //  cfg.stack_size = 3000;
+                      //  esp_pthread_set_cfg(&cfg);
+    //  this->leftReelThread = std::thread([this, &leftSteps]() {
+    leftReel.startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
+    // });
   }
 
   if (centreStop > 0) { // Check if reel is held
-    cfg.thread_name = "CentreReelThread";
-    cfg.prio = 1;
-    cfg.stack_size = 3000;
-    esp_pthread_set_cfg(&cfg);
-    this->centreReelThread = std::thread([this, &centreSteps]() {
-      centreReel.startAfterHome(PCA9629A::Direction::CW, centreSteps, 1);
-    });
+                        // cfg.thread_name = "CentreReelThread";
+                        // cfg.prio = 1;
+                        // cfg.stack_size = 3000;
+                        // esp_pthread_set_cfg(&cfg);
+    // this->centreReelThread = std::thread([this, &centreSteps]() {
+    centreReel.startAfterHome(PCA9629A::Direction::CW, centreSteps, 1);
+    // });
   }
 
   if (rightStop > 0) {
-    auto cfg = esp_pthread_get_default_config();
-    cfg.thread_name = "RightReelThread";
-    cfg.prio = 1;
-    cfg.stack_size = 3000;
-    esp_pthread_set_cfg(&cfg);
-    this->rightReelThread = std::thread([this, &rightSteps]() {
-      rightReel.startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
-    });
+    // auto cfg = esp_pthread_get_default_config();
+    // cfg.thread_name = "RightReelThread";
+    // cfg.prio = 1;
+    // cfg.stack_size = 3000;
+    // esp_pthread_set_cfg(&cfg);
+    // this->rightReelThread = std::thread([this, &rightSteps]() {
+    rightReel.startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
+    //});
   }
 
-  if (leftStop > 0) {
-    this->leftReelThread.join();
-  }
-  if (centreStop > 0) {
-    this->centreReelThread.join();
-  }
-  if (rightStop > 0) {
-    this->rightReelThread.join();
-  }
+  //  if (leftStop > 0) {
+  //    this->leftReelThread.join();
+  //  }
+  //  if (centreStop > 0) {
+  //    this->centreReelThread.join();
+  //  }
+  //  if (rightStop > 0) {
+  //    this->rightReelThread.join();
+  //  }
 
   bool leftPlayAudio = true;
   bool centrePlayAudio = true;
