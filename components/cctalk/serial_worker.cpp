@@ -69,7 +69,7 @@ bool SerialWorker::openPort() {
         .source_clk = UART_SCLK_APB,
     };
 
-    int intr_alloc_flags = UART_RX_TOUT;
+    int intr_alloc_flags = 0;
 
 #if CONFIG_UART_ISR_IN_IRAM
     intr_alloc_flags = ESP_INTR_FLAG_IRAM;
@@ -140,7 +140,7 @@ void SerialWorker::sendRequest(const uint64_t requestId,
 
   ESP_LOGD(TAG, "Send complete. Waiting for response");
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  std::this_thread::sleep_for(std::chrono::milliseconds(60));
 
   std::vector<uint8_t> receivedData;
 
@@ -176,7 +176,7 @@ void SerialWorker::sendRequest(const uint64_t requestId,
       ESP_LOGD(TAG, "No more data available.");
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    std::this_thread::sleep_for(std::chrono::milliseconds(60));
   }
 
   if (receiveComplete) {
