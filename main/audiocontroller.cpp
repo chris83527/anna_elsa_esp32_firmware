@@ -267,6 +267,11 @@ void AudioController::playAudioFile(const char *filepath) {
 }
 
 void AudioController::playAudioFileAsync(const char *filepath) {
+	  auto cfg = esp_pthread_get_default_config();
+	  cfg.thread_name = "PlayAudioAsync";
+    cfg.prio = 5;
+    cfg.stack_size = 4192;
+    esp_pthread_set_cfg(&cfg);
   std::thread([&]() { playAudioFile(filepath); }).detach();
 }
 

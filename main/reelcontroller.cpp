@@ -68,8 +68,8 @@ bool reelRightInitOk;
 #define LEDC_DUTY_RES LEDC_TIMER_10_BIT // Set duty resolution to 10 bits
 #define LEDC_DUTY_QUARTER (127)         // Set duty to 12,5%
 // Don't set this to 100%, otherwise cctalk fails (presumably something gets blocked somewhere)
-#define LEDC_DUTY_FULL (767) // Set duty to 100%.((2 ** 10) - 1)  = 1023
-#define LEDC_FREQUENCY (100)   // Frequency in Hertz. Set frequency at 100Hz
+#define LEDC_DUTY_FULL (767) // Set duty to 80%.((2 ** 10) - 1)  = 1023
+#define LEDC_FREQUENCY (150)   // Frequency in Hertz. Set frequency at 100Hz
 
 ReelController::ReelController(MainController &mainController,
                                I2CManager &i2cmgr)
@@ -225,7 +225,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop,
   if (leftStop > 0) { // Check if reel is held
     cfg.thread_name = "LeftReelThread";
     cfg.prio = 1;
-    cfg.stack_size = 2048;
+    cfg.stack_size = 3000;
     esp_pthread_set_cfg(&cfg);
     this->leftReelThread = std::thread([this, &leftSteps]() {
       leftReel.startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
@@ -235,7 +235,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop,
   if (centreStop > 0) { // Check if reel is held
     cfg.thread_name = "CentreReelThread";
     cfg.prio = 1;
-    cfg.stack_size = 2048;
+    cfg.stack_size = 3000;
     esp_pthread_set_cfg(&cfg);
     this->centreReelThread = std::thread([this, &centreSteps]() {
       centreReel.startAfterHome(PCA9629A::Direction::CW, centreSteps, 1);
@@ -246,7 +246,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop,
     auto cfg = esp_pthread_get_default_config();
     cfg.thread_name = "RightReelThread";
     cfg.prio = 1;
-    cfg.stack_size = 2048;
+    cfg.stack_size = 3000;
     esp_pthread_set_cfg(&cfg);
     this->rightReelThread = std::thread([this, &rightSteps]() {
       rightReel.startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);

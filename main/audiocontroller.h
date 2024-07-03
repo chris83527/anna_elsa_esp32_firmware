@@ -40,6 +40,7 @@
 
 #include <vector>
 
+#include "esp_pthread.h"
 #include "I2CManager.h"
 #include "driver/i2s_std.h"
 #include "soc/io_mux_reg.h"
