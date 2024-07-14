@@ -33,7 +33,7 @@ esp_err_t CCTalkController::initialise() {
 
   bool validatorInitialised = false;
   bool hopperInitialised = false;
-  
+
   ESP_LOGI(TAG, "Initialising coin validator");
   validatorInitialised =
       this->coinAcceptor.initialise([&](const std::string &error_msg) {
@@ -41,10 +41,9 @@ esp_err_t CCTalkController::initialise() {
           ESP_LOGE(TAG, "An error occurred initialising the coin acceptor: %s",
                    error_msg.c_str());
         } else {
-			ESP_LOGI(TAG, "Coin acceptor initialisation complete");
-		}
+          ESP_LOGI(TAG, "Coin acceptor initialisation complete");
+        }
       });
-
 
   if (validatorInitialised) {
     this->coinAcceptor.requestResetDevice([&](const std::string &error_msg) {
@@ -125,49 +124,50 @@ esp_err_t CCTalkController::initialise() {
           }
         });
 
-    
     this->coinAcceptor.requestSwitchDeviceState(
-        esp32cc::CcDeviceState::NormalAccepting, [&]([[maybe_unused]] const std::string &error_msg) {
+        esp32cc::CcDeviceState::NormalAccepting,
+        [&]([[maybe_unused]] const std::string &error_msg) {
           if (error_msg.size() > 0) {
             ESP_LOGE(TAG, "An error occurred switching to accept state: %s",
                      error_msg.c_str());
           } else {
-			ESP_LOGI(TAG, "Requested switch to NormalAccepting state");
-		  }
+            ESP_LOGI(TAG, "Requested switch to NormalAccepting state");
+          }
         });
   }
 
   ESP_LOGI(TAG, "Initialising hopper");
-   hopperInitialised =  this->hopper.initialise(
-        [&](const std::string &error_msg) {
-          if (error_msg.size() > 0) {
-            ESP_LOGE(TAG, "An error occurred initialising the hopper: %s",
-                     error_msg.c_str());
-          } else {
-			ESP_LOGI(TAG, "Hopper initialisation complete");
-          }
-        });
+  hopperInitialised =
+      this->hopper.initialise([&](const std::string &error_msg) {
+        if (error_msg.size() > 0) {
+          ESP_LOGE(TAG, "An error occurred initialising the hopper: %s",
+                   error_msg.c_str());
+        } else {
+          ESP_LOGI(TAG, "Hopper initialisation complete");
+        }
+      });
 
+  // if (hopperInitialised) {
+  this->hopper.requestResetDevice([&](const std::string &error_msg) {
+    if (error_msg.size() > 0) {
+      ESP_LOGE(TAG, "An error occurred attempting to reset hopper: %s",
+               error_msg.c_str());
+    }
+  });
 
-  if (hopperInitialised) {
-    this->hopper.requestResetDevice([&](const std::string &error_msg) {
-      if (error_msg.size() > 0) {
-        ESP_LOGE(TAG, "%s", error_msg.c_str());
-      }
-    });
-
-    this->hopper.requestSwitchDeviceState(
-        esp32cc::CcDeviceState::NormalAccepting, [&]([[maybe_unused]] const std::string &error_msg) {
-          if (error_msg.size() > 0) {
-            ESP_LOGE(TAG, "An error occurred switching to accept state: %s",
-                     error_msg.c_str());
-          } else {
-			ESP_LOGI(TAG, "Requested switch to NormalAccepting state for hopper");
-		  }
-        });
-} else {
-	ESP_LOGE(TAG, "An error occurred initialising hopper");
-}
+  this->hopper.requestSwitchDeviceState(
+      esp32cc::CcDeviceState::NormalAccepting,
+      [&]([[maybe_unused]] const std::string &error_msg) {
+        if (error_msg.size() > 0) {
+          ESP_LOGE(TAG, "An error occurred switching to accept state: %s",
+                   error_msg.c_str());
+        } else {
+          ESP_LOGI(TAG, "Requested switch to NormalAccepting state for hopper");
+        }
+      });
+  //} else {
+  //  ESP_LOGE(TAG, "An error occurred initialising hopper");
+  // }
 
   return ESP_OK;
 }
