@@ -66,11 +66,11 @@ bool reelRightInitOk;
 #define LEDC_MODE LEDC_HIGH_SPEED_MODE
 #define LEDC_CHANNEL LEDC_CHANNEL_0
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 10 bits
-#define LEDC_DUTY_QUARTER (127)         // Set duty to 12,5%
+#define LEDC_DUTY_QUARTER (1638)         // Set duty to 12,5% (2**13) * 12,5%
 // Don't set this to 100%, otherwise cctalk fails (presumably something gets
 // blocked somewhere)
-#define LEDC_DUTY_FULL (767) // Set duty to 80%. (2 ** 13) * 80%  = 6554
-#define LEDC_FREQUENCY (150) // Frequency in Hertz. Set frequency at 100Hz
+#define LEDC_DUTY_FULL (6554) // Set duty to 80%. (2 ** 13) * 80%  = 6554
+#define LEDC_FREQUENCY (30) // Frequency in Hertz. Set frequency at 100Hz
 
 ReelController::ReelController(AudioController &audioController,
                                DisplayController &displayController,
