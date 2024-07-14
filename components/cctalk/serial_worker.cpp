@@ -219,6 +219,7 @@ void SerialWorker::sendRequest(const uint64_t requestId,
   } else {
     uart_flush(this->getUartNumber());
   }
+    std::this_thread::sleep_for(std::chrono::milliseconds(60));
 }
 
 void SerialWorker::setOnResponseReceiveCallback(
