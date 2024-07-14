@@ -57,17 +57,17 @@
 #include "led_strip.h"
 #include "m20ly02z.h"
 #include "mcp23x17.h"
+#include "moneycontroller.h"
+#include "oledcontroller.h"
 
 #define RMT_TX_CHANNEL RMT_CHANNEL_0
 #define CHASE_SPEED_MS (100)
-
-class MainController;
 
 enum class LampState { off, blinkslow, blinkfast, on };
 
 class DisplayController {
 public:
-  DisplayController(MainController &mainController, I2CManager &i2cmgr);
+  DisplayController(MoneyController &moneyController, I2CManager &i2cmgr);
   ~DisplayController();
 
   struct lamp_data_t {
@@ -85,7 +85,10 @@ public:
   std::array<lamp_data_t, LED_COUNT + 6> &getLampData(void);
 
   void clearText(void);
-  void displayText(const std::string &text);
+  void displayVFDText(const std::string &text);
+  void scrollOledText(const std::string &text);
+  void clearOledDisplay(void);
+  void displayOledText(const std::string &text, int lineNumber, bool invert);
 
   bool isAttractMode();
 
@@ -273,12 +276,13 @@ private:
 
   MCP23x17 buttonIO;
 
+  MoneyController moneyController;
+  OledController oledController;
+
   uint8_t buttonStatus;
   bool doorOpen;
 
   std::array<lamp_data_t, LED_COUNT + 6> lampData;
-
-  MainController &mainController;
 
   void testLamps(void);
 

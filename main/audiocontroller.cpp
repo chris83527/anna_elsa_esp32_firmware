@@ -84,10 +84,10 @@ void AudioController::initialise() {
   gpio_set_direction(TAS5731M_PDWN_GPIO, GPIO_MODE_OUTPUT);
 
   uint32_t reg_val = REG_READ(PIN_CTRL);
-  ESP_LOGD(TAG, "PIN_CTRL before: %lu", reg_val);
+  ESP_LOGD(TAG, "PIN_CTRL before: %" PRIu32 "", reg_val);
   REG_WRITE(PIN_CTRL, 0xFFFFFFF0);
   reg_val = REG_READ(PIN_CTRL);
-  ESP_LOGD(TAG, "PIN_CTRL after: %lu", reg_val);
+  ESP_LOGD(TAG, "PIN_CTRL after: %" PRIu32 "", reg_val);
   PIN_FUNC_SELECT(GPIO_PIN_REG_0, 1); // GPIO0 as CLK_OUT1
 
   // See TI TAS5731M Datasheet page 63

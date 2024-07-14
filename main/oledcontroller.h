@@ -36,10 +36,10 @@
 
 #include <cstring>
 
-class oledcontroller {
+class OledController {
 public:
-  oledcontroller(I2CManager &i2cmgr, const int address);
-  virtual ~oledcontroller();
+  OledController(I2CManager &i2cmgr, const int address);
+  virtual ~OledController();
   void initialise(void);
   void displayText(std::string textToDisplay, int lineNumber, bool invert);
   void scrollText(std::string textToDisplay);

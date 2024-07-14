@@ -10,19 +10,20 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 3. Neither the name of the copyright holder nor the names of itscontributors
- *    may be used to endorse or promote products derived from this software without
- *    specific prior written permission.
+ *    may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
 /**
@@ -46,7 +47,8 @@
 #include "driver/ledc.h"
 #include "pca9629a.h"
 
-#include "maincontroller.h"
+#include "audiocontroller.h"
+#include "displaycontroller.h"
 
 #define REEL_LEFT (1 << 0)
 #define REEL_CENTRE (1 << 1)
@@ -66,55 +68,58 @@
 
 class ReelController {
 public:
-    ReelController(MainController& mainController, I2CManager& i2cmgr);
-    ~ReelController();
+  ReelController(AudioController &audioController,
+                 DisplayController &displayController, I2CManager &i2cmgr);
+  ~ReelController();
 
-    struct reel_stop_info_t {
-        uint8_t leftStop = 0;
-        uint8_t centreStop = 0;
-        uint8_t rightStop = 0;
-    };
+  struct reel_stop_info_t {
+    uint8_t leftStop = 0;
+    uint8_t centreStop = 0;
+    uint8_t rightStop = 0;
+  };
 
-    bool reelLeftInitOk;
-    bool reelCentreInitOk;
-    bool reelRightInitOk;
+  bool reelLeftInitOk;
+  bool reelCentreInitOk;
+  bool reelRightInitOk;
 
-    bool initialise(void);
+  bool initialise(void);
 
-    void spin(const uint8_t leftStop, const uint8_t midStop, const uint8_t rightStop);
-    void nudge(const uint8_t leftStop, const uint8_t midStop, const uint8_t rightStop);
-    void shuffle(const uint8_t leftStop, const uint8_t midStop, const uint8_t rightStop);
+  void spin(const uint8_t leftStop, const uint8_t midStop,
+            const uint8_t rightStop);
+  void nudge(const uint8_t leftStop, const uint8_t midStop,
+             const uint8_t rightStop);
+  void shuffle(const uint8_t leftStop, const uint8_t midStop,
+               const uint8_t rightStop);
 
-    reel_stop_info_t getReelStopInfo(void);
+  reel_stop_info_t getReelStopInfo(void);
 
-    bool isCommandInProgress(void);
+  bool isCommandInProgress(void);
 
-    void calibrate(void);
-    void test(void);
-
+  void calibrate(void);
+  void test(void);
 
 private:
-    const int MAX_STOPS = 25; // total number of stops (i.e. symbols)    
+  const int MAX_STOPS = 25; // total number of stops (i.e. symbols)
 
-    reel_stop_info_t reelStopInfo;
+  reel_stop_info_t reelStopInfo;
 
-    uint8_t status;
-    bool commandInProgress;
+  uint8_t status;
+  bool commandInProgress;
 
-    MainController& mainController;
+  AudioController &audioController;
+  DisplayController &displayController;
 
-    PCA9629A leftReel;
-    PCA9629A centreReel;
-    PCA9629A rightReel;
+  PCA9629A leftReel;
+  PCA9629A centreReel;
+  PCA9629A rightReel;
 
-    // Prepare and then apply the LEDC PWM timer configuration
-    ledc_timer_config_t ledc_timer;
-    ledc_channel_config_t ledc_channel;
+  // Prepare and then apply the LEDC PWM timer configuration
+  ledc_timer_config_t ledc_timer;
+  ledc_channel_config_t ledc_channel;
 
-    std::thread leftReelThread;
-    std::thread centreReelThread;
-    std::thread rightReelThread;
-       
+  std::thread leftReelThread;
+  std::thread centreReelThread;
+  std::thread rightReelThread;
 };
 
 #endif /* __WAVE_H__ */

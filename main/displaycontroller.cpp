@@ -67,7 +67,7 @@
 #include "audiocontroller.h"
 #include "displaycontroller.h"
 #include "game.h"
-#include "maincontroller.h"
+// #include "maincontroller.h"
 #include "moneycontroller.h"
 #include "soc/clk_tree_defs.h"
 
@@ -76,13 +76,14 @@ using namespace std;
 static const char *TAG = "DisplayController";
 static string vfdText;
 
-DisplayController::DisplayController(MainController &mainController,
+DisplayController::DisplayController(MoneyController &moneyController,
                                      I2CManager &i2cmgr)
     : movesDisplay(HT16K33(i2cmgr, MOVES_DISPLAY_ADDRESS)),
       creditDisplay(HT16K33(i2cmgr, CREDIT_DISPLAY_ADDRESS)),
       bankDisplay(HT16K33(i2cmgr, BANK_DISPLAY_ADDRESS)),
       buttonIO(MCP23x17(i2cmgr, BUTTONS_I2C_ADDRESS)),
-      mainController(mainController), i2cManager(i2cmgr) {
+      moneyController(moneyController),
+      oledController(OledController(i2cmgr, 0x3c)), i2cManager(i2cmgr) {
 
   ESP_LOGD(TAG, "Entering constructor");
 
@@ -94,6 +95,8 @@ DisplayController::~DisplayController() {}
 esp_err_t DisplayController::initialise() {
 
   ESP_LOGI(TAG, "Entering DisplayController::initialise()");
+
+  oledController.initialise();
 
   this->buttonStatus = 0;
 
@@ -213,6 +216,18 @@ void DisplayController::resetLampData() {
   ESP_LOGD(TAG, "Exiting resetLampData()");
 }
 
+void DisplayController::scrollOledText(const std::string &text) {
+  oledController.scrollText(text);
+}
+
+void DisplayController::clearOledDisplay(void) {
+  oledController.clearDisplay();
+}
+void DisplayController::displayOledText(const std::string &text, int lineNumber,
+                                        bool invert) {
+  oledController.displayText(text, lineNumber, invert);
+}
+
 bool DisplayController::isAttractMode() { return attractMode; }
 
 void DisplayController::testLamps() {
@@ -259,7 +274,7 @@ uint8_t DisplayController::waitForButton(uint8_t mask) {
   return this->buttonStatus;
 }
 
-void DisplayController::displayText(const string &text) {
+void DisplayController::displayVFDText(const string &text) {
 
   // Only update if we need to
   if (vfdText.compare(text) != 0) {
@@ -296,7 +311,7 @@ void DisplayController::attractModeTask() {
     if (this->isAttractMode()) {
 
       if (this->isAttractMode())
-        this->displayText("       FROZEN       ");
+        this->displayVFDText("       FROZEN       ");
       if (this->isAttractMode())
         this->resetLampData();
 
@@ -310,7 +325,7 @@ void DisplayController::attractModeTask() {
         resetLampData();
 
       if (this->isAttractMode())
-        this->displayText("      PLAY ME       ");
+        this->displayVFDText("      PLAY ME       ");
       if (this->isAttractMode())
         this->chaseEffect();
 
@@ -318,7 +333,7 @@ void DisplayController::attractModeTask() {
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
       if (this->isAttractMode())
-        this->displayText("     20CT GAME      ");
+        this->displayVFDText("     20CT GAME      ");
       if (this->isAttractMode())
         this->fadeInOutEffect();
 
@@ -326,7 +341,7 @@ void DisplayController::attractModeTask() {
         std::this_thread::sleep_for(std::chrono::seconds(5));
 
       if (this->isAttractMode())
-        this->displayText("    INSERT COINS    ");
+        this->displayVFDText("    INSERT COINS    ");
 
       if (this->isAttractMode())
         std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -663,15 +678,13 @@ void DisplayController::updateSevenSegDisplaysTask() {
 
     ESP_LOGD(TAG, "7 seg display loop");
 
-    if (initialRun ||
-        (bank != mainController.getMoneyController()->getBank())) {
-      bank = mainController.getMoneyController()->getBank();
+    if (initialRun || (bank != this->moneyController.getBank())) {
+      bank = this->moneyController.getBank();
       bankDisplay.write_value("%05d", bank);
     }
 
-    if (initialRun ||
-        (credit != mainController.getMoneyController()->getCredit())) {
-      credit = mainController.getMoneyController()->getCredit();
+    if (initialRun || (credit != this->moneyController.getCredit())) {
+      credit = this->moneyController.getCredit();
       creditDisplay.write_value("%05d", credit);
     }
 

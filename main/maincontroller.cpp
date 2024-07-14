@@ -43,6 +43,13 @@ static int blinkDelay = 250;
 
 MainController::MainController()
     : i2c_manager(I2CManager(I2C_NUM_0, GPIO_NUM_22, GPIO_NUM_21)),
+      nvsController(NvsController()),
+      moneyController(nvsController, cctalkController),
+      displayController(DisplayController(moneyController, i2c_manager)),
+      audioController(i2c_manager),
+      reelController(audioController, displayController, i2c_manager),
+      game(Game(displayController, audioController, moneyController,
+                reelController)),
       ds3231(DS3231(i2c_manager, DS3231_ADDR)) {
   ESP_LOGD(TAG, "Entering constructor");
 
@@ -52,15 +59,6 @@ MainController::MainController()
 void MainController::start() {
   ESP_LOGD(TAG, "start() called");
 
-  this->audioController = new AudioController(i2c_manager);
-  this->displayController = new DisplayController(*this, i2c_manager);
-  this->reelController = new ReelController(*this, i2c_manager);
-  this->oledController = new oledcontroller(i2c_manager, 0x3c);
-  this->moneyController = new MoneyController(this);
-  this->game = new Game(this);
-  //this->cctalkController = new CCTalkController();
-  // this->httpController = new HttpController();
-
   // CPU LED is on a GPIO
   esp_rom_gpio_pad_select_gpio(CPU_LED_GPIO);
   /* Set the GPIO as a push/pull output */
@@ -68,14 +66,12 @@ void MainController::start() {
   /* Switch off to start */
   gpio_set_level(CPU_LED_GPIO, 0);
 
-  esp_err_t err;
-
   esp_event_loop_create_default();
 
   if (m20ly02z_init(MD_STROBE, MD_OE, MD_CLK, MD_DATA) != ESP_OK) {
     ESP_LOGE(TAG, "Failed to initialise VFD display");
   } else {
-    this->displayController->displayText("INITIALISING 01");
+    this->displayController.displayVFDText("INITIALISING 01");
   }
 
   auto cfg = esp_pthread_get_default_config();
@@ -88,72 +84,40 @@ void MainController::start() {
       std::thread([&]() { blinkCPUStatusLEDTask(); });
   this->blinkCPUStatusLEDThread.detach();
 
-  this->displayController->displayText("INITIALISING 02");
-  // Removed
-
-  this->displayController->displayText("INITIALISING 03");
-  // start outputting to status oled
-  oledController->initialise();
-
-  this->displayController->displayText("INITIALISING 04");
+  this->displayController.displayVFDText("INITIALISING 02");
   // Initialize NVS
   ESP_LOGD(TAG, "Setting up NVS");
-  // oledController->scrollText("Init NVS");
-
-  // Initialize NVS
-  this->displayController->displayText("INITIALISING 05");
-  err = nvs_flash_init();
-  if (err == ESP_ERR_NVS_NO_FREE_PAGES ||
-      err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-    // NVS partition was truncated and needs to be erased
-    // Retry nvs_flash_init
-    ESP_ERROR_CHECK(nvs_flash_erase());
-    err = nvs_flash_init();
-  }
-  ESP_ERROR_CHECK(err);
-
-  this->displayController->displayText("INITIALISING 06");
-  err = nvs_flash_init_partition(NVS_PARTITION_SETTINGS);
-  if (err == ESP_ERR_NVS_NO_FREE_PAGES ||
-      err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-    // NVS partition was truncated and needs to be erased
-    // Retry nvs_flash_init
-    ESP_ERROR_CHECK(nvs_flash_erase_partition(NVS_PARTITION_SETTINGS));
-    err = nvs_flash_init_partition(NVS_PARTITION_SETTINGS);
-  }
-  ESP_ERROR_CHECK(err);
-
-  this->displayController->displayText("INITIALISING 07");
-  nvsHandle = nvs::open_nvs_handle_from_partition(
-      NVS_PARTITION_SETTINGS, NVS_PARTITION_SETTINGS, NVS_READWRITE, &err);
+  this->displayController.scrollOledText("Init NVS");
+  esp_err_t err = this->nvsController.initialise();
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(err));
-    oledController->scrollText("  -> failed");
+    this->displayController.scrollOledText("  -> failed");
   } else {
     ESP_LOGD(TAG, "NVS opened ok.");
-    oledController->scrollText("  -> ok");
+    this->displayController.scrollOledText("  -> ok");
   }
 
   // Initialise WiFi
-  oledController->scrollText("Init WiFi");
+  this->displayController.displayVFDText("INITIALISING 03");
+  this->displayController.scrollOledText("Init WiFi");
 
   // initialise ds3231 RTC
-  this->displayController->displayText("INITIALISING 08");
-  oledController->scrollText("Init RTC");
+  this->displayController.displayVFDText("INITIALISING 04");
+  this->displayController.scrollOledText("Init RTC");
 
   setDateTime(); // Debug
 
   //    if (err != ESP_OK) {
   //        ESP_LOGE(TAG, "Error initialising RTC!");
-  //        oledController->scrollText("  -> failed");
+  //        oledController->scrollOledText("  -> failed");
   //    } else {
   //        //this->setDateTime(); // Debug only
   ESP_LOGI(TAG, "RTC initialised ok");
-  oledController->scrollText("  -> ok");
+  this->displayController.scrollOledText("  -> ok");
   //}
 
-  this->displayController->displayText("INITIALISING 09");
-  oledController->scrollText("Init LittleFS");
+  this->displayController.displayVFDText("INITIALISING 05");
+  this->displayController.scrollOledText("Init LittleFS");
   esp_vfs_littlefs_conf_t conf = {
       .base_path = "/httpd",
       .partition_label = "httpd",
@@ -178,8 +142,8 @@ void MainController::start() {
     }
   }
 
-  this->displayController->displayText("INITIALISING 0A");
-  oledController->scrollText("Init Webserver");
+  this->displayController.displayVFDText("INITIALISING 06");
+  this->displayController.scrollOledText("Init Webserver");
   // this->httpController->initialise(80, "/httpd", "INNUENDO",
   // "woodsamusements");
 
@@ -195,61 +159,58 @@ void MainController::start() {
   }
 
   // initialise audio subsystem
-  this->displayController->displayText("INITIALISING 0B");
-  oledController->scrollText("Init Audio");
-  audioController->initialise();
+  this->displayController.displayVFDText("INITIALISING 07");
+  this->displayController.scrollOledText("Init Audio");
+  this->audioController.initialise();
 
-  // not working
-  // gpio_dump_io_configuration(stdout, SOC_GPIO_VALID_GPIO_MASK);
-
-  this->displayController->displayText("INITIALISING 0C");
-  oledController->scrollText("Init Display");
-  if (displayController->initialise() != ESP_OK) {
+  this->displayController.displayVFDText("INITIALISING 08");
+  this->displayController.scrollOledText("Init Display");
+  if (this->displayController.initialise() != ESP_OK) {
     ESP_LOGE(TAG, "Failed to initialise tableau subsystem");
-    oledController->scrollText("  -> failed");
+    this->displayController.scrollOledText("  -> failed");
   } else {
     ESP_LOGD(TAG, "Display controller initialisation ok.");
-    oledController->scrollText("  -> ok");
+    this->displayController.scrollOledText("  -> ok");
   }
 
-  this->displayController->displayText("INITIALISING 0D");
-  oledController->scrollText("Load stats");
-  moneyController->initialise();
+  this->displayController.displayVFDText("INITIALISING 09");
+  this->displayController.scrollOledText("Load stats");
+  moneyController.initialise();
 
-  this->displayController->displayText("INITIALISING 0E");
-  oledController->scrollText("Init cctalk");
+  this->displayController.displayVFDText("INITIALISING 0A");
+  this->displayController.scrollOledText("Init cctalk");
   cctalkController.setCreditAcceptedCallback(
       [&](uint8_t coin_id, const esp32cc::CcIdentifier &identifier) {
         ESP_LOGI(TAG, "Credit accepted: Coin id: %d, Identifier: %s", coin_id,
                  identifier.id_string.c_str());
-        moneyController->addToCredit(CCTalkController::COIN_VALUES[coin_id]);
+        moneyController.addToCredit(CCTalkController::COIN_VALUES[coin_id]);
       });
 
-  this->displayController->displayText("INITIALISING 0F");
+  this->displayController.displayVFDText("INITIALISING 0B");
   if (cctalkController.initialise() != ESP_OK) {
     ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
-    oledController->scrollText("  -> failed");
+    this->displayController.scrollOledText("  -> failed");
   } else {
-    oledController->scrollText("  -> ok");
+    this->displayController.scrollOledText("  -> ok");
   }
 
-  this->displayController->displayText("INITIALISING 10");
-  oledController->scrollText("Init reels");
-  if (!reelController->initialise()) {
-    oledController->scrollText("  -> failed");
+  this->displayController.displayVFDText("INITIALISING 0C");
+  this->displayController.scrollOledText("Init reels");
+  if (!reelController.initialise()) {
+    this->displayController.scrollOledText("  -> failed");
     ESP_LOGE(TAG, "Failed to initialise reel controller subsystem");
   } else {
-    oledController->scrollText("  -> ok");
+    this->displayController.scrollOledText("  -> ok");
     ESP_LOGD(TAG, "Reel controller initialisation ok.");
   }
 
   blinkDelay = 1000;
 
-  this->displayController->displayText("INITIALISING 11");
-  oledController->scrollText("Init game");
-  game->initialise();
+  this->displayController.displayVFDText("INITIALISING 0D");
+  this->displayController.scrollOledText("Init game");
+  this->game.initialise();
 
-  this->displayController->displayText("INITIALISING 12");
+  this->displayController.displayVFDText("INITIALISING 0E");
   cfg = esp_pthread_get_default_config();
   cfg.thread_name = "UpdateStatistics";
   cfg.prio = 1;
@@ -259,16 +220,16 @@ void MainController::start() {
       std::thread([this]() { updateStatisticsDisplayTask(); });
   this->updateStatisticsThread.detach();
 
-  this->displayController->displayText("                    ");
+  this->displayController.displayVFDText("                    ");
 
   for (;;) {
-    if ((!game->isGameInProgress()) &&
-        (this->moneyController->getCredit() >= 20)) {
+    if ((!this->game.isGameInProgress()) &&
+        (this->moneyController.getCredit() >= 20)) {
       ESP_LOGD(TAG, "Starting game...");
-      game->start();
+      this->game.start();
     } else {
-      if (!getDisplayController()->isAttractMode()) {
-        getDisplayController()->beginAttractMode();
+      if (!getDisplayController().isAttractMode()) {
+        getDisplayController().beginAttractMode();
       }
     }
     std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -289,35 +250,31 @@ void MainController::setDateTime() {
   ds3231.set_time(&time);
 }
 
-AudioController *MainController::getAudioController() {
+AudioController &MainController::getAudioController() {
   return audioController;
 }
 
-ReelController *MainController::getReelController() { return reelController; }
+ReelController &MainController::getReelController() { return reelController; }
 
 CCTalkController &MainController::getCCTalkController() {
   return cctalkController;
 }
 
-DisplayController *MainController::getDisplayController() {
+DisplayController &MainController::getDisplayController() {
   return displayController;
 }
 
-MoneyController *MainController::getMoneyController() {
+MoneyController &MainController::getMoneyController() {
   return moneyController;
 }
 
-oledcontroller *MainController::getOledController() { return oledController; }
-
-Game *MainController::getGame() { return game; }
+Game &MainController::getGame() { return game; }
 
 DS3231 &MainController::getDs3231() { return this->ds3231; }
 
-uint8_t MainController::getVolume() { return volume; }
-
 void MainController::error(int errorCode) {
   //    displayController->clearText();
-  //    //displayController->scrollText(errors[errorCode].errorMsg);
+  //    //displayController->scrollOledText(errors[errorCode].errorMsg);
   //
   //    if (errors[errorCode].attendantRequired) {
   //        // loop with blinking lights
@@ -326,71 +283,6 @@ void MainController::error(int errorCode) {
   //        }
   //    }
 }
-
-void MainController::writeValueToNVS(const char *key, uint16_t value) {
-
-  esp_err_t err;
-
-  // Write
-  ESP_LOGD(TAG, "Updating %s in NVS ... ", key);
-
-  err = nvsHandle->set_item<uint16_t>(key, value);
-  switch (err) {
-  case ESP_OK:
-    ESP_LOGD(TAG, "Done");
-    break;
-  default:
-    ESP_LOGE(TAG, "Failed!");
-  }
-
-  // Commit written value.
-  // After setting any values, nvs_commit() must be called to ensure changes are
-  // written to flash storage. Implementations may write to storage at other
-  // times, but this is not guaranteed.
-  ESP_LOGD(TAG, "Committing updates in NVS ... ");
-  err = nvsHandle->commit();
-
-  switch (err) {
-  case ESP_OK:
-    ESP_LOGD(TAG, "Commit Done");
-
-    break;
-  default:
-    ESP_LOGE(TAG, "Commit Failed!");
-  }
-}
-
-uint16_t MainController::readValueFromNVS(const char *key) {
-
-  esp_err_t err;
-
-  // Read
-  ESP_LOGD(TAG, "Reading %s from NVS ... ", key);
-
-  uint16_t value = 0; // value will default to 0, if not set yet in NVS
-  err = nvsHandle->get_item<uint16_t>(key, value);
-  switch (err) {
-  case ESP_OK:
-    ESP_LOGD(TAG, "Done");
-    ESP_LOGD(TAG, "%s = %d", key, value);
-    break;
-  case ESP_ERR_NVS_NOT_FOUND:
-    ESP_LOGE(TAG,
-             "The value for %s is not initialized yet! Initialising now to 0",
-             key);
-    writeValueToNVS(key, 0);
-
-    break;
-  default:
-    ESP_LOGE(TAG, "Error reading %s!", esp_err_to_name(err));
-  }
-
-  return value;
-}
-
-// std::shared_ptr<WIFI::Wifi> MainController::getWifiController() {
-//     return wifi;
-// }
 
 void MainController::blinkCPUStatusLEDTask() {
   while (1) {
@@ -409,7 +301,7 @@ void MainController::updateStatisticsDisplayTask() {
   tm time;
   std::string dateString;
 
-  this->oledController->clearDisplay();
+  this->displayController.clearOledDisplay();
 
   char buf[21];
   esp_err_t ret;
@@ -426,21 +318,21 @@ void MainController::updateStatisticsDisplayTask() {
 
       dateString.clear();
       dateString.append(buf);
-      oledController->displayText(dateString, 0, true);
+      this->displayController.displayOledText(dateString, 0, true);
 
       std::sprintf(buf, "Games    : %05d",
-                   this->moneyController->getGameCount());
-      oledController->displayText(buf, 2, false);
+                   this->moneyController.getGameCount());
+      this->displayController.displayOledText(buf, 2, false);
       std::sprintf(buf, "Total in : %05d",
-                   this->moneyController->getIncomeTotal());
-      oledController->displayText(buf, 3, false);
+                   this->moneyController.getIncomeTotal());
+      this->displayController.displayOledText(buf, 3, false);
       std::sprintf(buf, "Total out: %05d",
-                   this->moneyController->getPayoutTotal());
-      oledController->displayText(buf, 4, false);
-      std::sprintf(buf, "Credit   : %05d", this->moneyController->getCredit());
-      oledController->displayText(buf, 5, false);
-      std::sprintf(buf, "Bank     : %05d", this->moneyController->getBank());
-      oledController->displayText(buf, 6, false);
+                   this->moneyController.getPayoutTotal());
+      this->displayController.displayOledText(buf, 4, false);
+      std::sprintf(buf, "Credit   : %05d", this->moneyController.getCredit());
+      this->displayController.displayOledText(buf, 5, false);
+      std::sprintf(buf, "Bank     : %05d", this->moneyController.getBank());
+      this->displayController.displayOledText(buf, 6, false);
     } else {
       ESP_LOGW(TAG, "Couldn't read time from RTC!");
     }

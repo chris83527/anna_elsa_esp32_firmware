@@ -23,7 +23,7 @@
  */
 
 /*
- * File:   oledcontroller.cpp
+ * File:   OledController.cpp
  * Author: chris
  *
  * Created on January 11, 2023, 9:53 PM
@@ -46,14 +46,14 @@
 
 #include <cstring>
 
-static const char *TAG = "oledcontroller";
+static const char *TAG = "OledController";
 
-oledcontroller::oledcontroller(I2CManager &i2cmgr, const int address)
+OledController::OledController(I2CManager &i2cmgr, const int address)
     : ssd1306(SSD1306(i2cmgr, address, 128, 64)) {}
 
-oledcontroller::~oledcontroller() {}
+OledController::~OledController() {}
 
-void oledcontroller::initialise() {
+void OledController::initialise() {
   ssd1306.init();
 
 #if CONFIG_FLIP
@@ -65,15 +65,15 @@ void oledcontroller::initialise() {
   ssd1306.contrast(0xff);
 }
 
-void oledcontroller::clearDisplay() { ssd1306.clear_screen(false); }
+void OledController::clearDisplay() { ssd1306.clear_screen(false); }
 
-void oledcontroller::scrollText(std::string textToDisplay) {
+void OledController::scrollText(std::string textToDisplay) {
   ssd1306.software_scroll((ssd1306.get_pages() - 1), 1);
   ssd1306.scroll_text(textToDisplay.append(20 - textToDisplay.size(), ' '),
                       false);
 }
 
-void oledcontroller::displayText(std::string textToDisplay, int lineNumber,
+void OledController::displayText(std::string textToDisplay, int lineNumber,
                                  bool invert) {
   // ESP_LOGI(TAG, "Displaying text %s", textToDisplay.c_str());
   if (textToDisplay.size() > 20) {
@@ -83,7 +83,7 @@ void oledcontroller::displayText(std::string textToDisplay, int lineNumber,
       lineNumber, textToDisplay.append(20 - textToDisplay.size(), ' '), invert);
 }
 
-// void oledcontroller::testDisplay() {
+// void OledController::testDisplay() {
 //     ssd1306->display_text_x3(0, "Test", 4, false);
 //     vTaskDelay(3000 / portTICK_PERIOD_MS);
 //
