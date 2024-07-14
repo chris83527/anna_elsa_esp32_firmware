@@ -120,7 +120,7 @@ void CctalkLinkController::setLoggingOptions(bool showFullResponse,
  * @return The requestId corresponding to this request or -1 if error
  */
 uint64_t CctalkLinkController::ccRequest(
-    CcHeader command, uint8_t devAddress, std::vector<uint8_t> &data,
+    CcHeader command, uint8_t devAddress, const std::vector<uint8_t> &data,
     int responseTimeoutMsec,
     std::function<void(const std::string &error_msg,
                        const std::vector<uint8_t> &command_data)> const
@@ -178,7 +178,7 @@ uint64_t CctalkLinkController::ccRequest(
 
   // Build the data structure
   std::vector<uint8_t> requestData;
-  // requestData.resize(data.size());
+  requestData.clear();
   requestData.push_back(uint8_t(devAddress));
   requestData.push_back(uint8_t(data.size()));
   requestData.push_back(uint8_t(this->controllerAddress));

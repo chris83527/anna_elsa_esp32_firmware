@@ -73,7 +73,7 @@ public:
   /// response comes from which request.
   uint64_t
   ccRequest(CcHeader command, const uint8_t deviceAddress,
-            std::vector<uint8_t> &additionalData, int responseTimeoutMsec,
+            const std::vector<uint8_t> &additionalData, int responseTimeoutMsec,
             std::function<void(const std::string &error_msg,
                                const std::vector<uint8_t> &command_data)> const
                 &callbackFunction);

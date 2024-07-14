@@ -76,8 +76,9 @@ bool SerialWorker::openPort() {
 #endif
 
     // Set UART config
-    xErr = uart_driver_install(this->m_uartNumber, MAX_BUFFER_SIZE, 0, 0, NULL,
-                               intr_alloc_flags);
+    xErr = uart_driver_install(this->m_uartNumber, MAX_BUFFER_SIZE,
+                               MAX_BUFFER_SIZE, 10,
+                               &this->cctalkUartQueueHandle, intr_alloc_flags);
 
     CCTALK_PORT_CHECK(
         (xErr == ESP_OK), false,
