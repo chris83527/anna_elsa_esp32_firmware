@@ -276,7 +276,7 @@ private:
 
   MCP23x17 buttonIO;
 
-  MoneyController moneyController;
+  MoneyController &moneyController;
   OledController oledController;
 
   uint8_t buttonStatus;
