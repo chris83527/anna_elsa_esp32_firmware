@@ -97,6 +97,7 @@ void MainController::start() {
     this->displayController.scrollOledText("  -> ok");
   }
 
+
   // Initialise WiFi
   this->displayController.displayVFDText("INITIALISING 03");
   this->displayController.scrollOledText("Init WiFi");
