@@ -139,8 +139,8 @@ uint64_t CctalkLinkController::ccRequest(
     ESP_LOGE(TAG, "executeOnReturn: callbackFunction was null");
   }
 
-  ESP_LOGD(TAG, "Sending request %s",
-           ccHeaderGetDisplayableName(command).c_str());
+  ESP_LOGD(TAG, "Sending request %s to device %d",
+           ccHeaderGetDisplayableName(command).c_str(), devAddress);
 
   this->currentDeviceAddress = devAddress;
   ESP_LOGD(TAG, "this->currentDeviceAddress = %d, deviceAddress = %d",

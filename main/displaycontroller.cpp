@@ -260,15 +260,38 @@ uint8_t DisplayController::getButtonStatus() {
   // ESP_LOGD(TAG, "Exiting getButtonStatus() with value %u",
   // this->buttonStatus);
 
+  esp_err_t err = buttonIO.readGPIOA(this->buttonStatus);
+
+  if (err == ESP_OK) {
+
+    if ((this->buttonStatus & (1 << BTN_DOOR)) == 0) {
+      if (!this->doorOpen) {
+        ESP_LOGI(TAG, "Door open!");
+      }
+      this->doorOpen = true;
+    } else {
+      if (this->doorOpen) {
+        ESP_LOGI(TAG, "Door closed!");
+      }
+      this->doorOpen = false;
+    }
+
+  } else {
+    this->buttonStatus = 0;
+    ESP_LOGE(TAG, "An error occurred getting button status");
+    // esp_backtrace_print
+  }
+
   return this->buttonStatus;
 }
 
 uint8_t DisplayController::waitForButton(uint8_t mask) {
 
+  getButtonStatus();
   // loop waiting for button press.
   while ((this->buttonStatus & mask) == 0) {
-
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    getButtonStatus();
   }
 
   return this->buttonStatus;
@@ -591,27 +614,6 @@ void DisplayController::updateLampsTask() {
 
   for (;;) {
     ESP_LOGD(TAG, "update lamp loop");
-    err = buttonIO.readGPIOA(this->buttonStatus);
-
-    if (err == ESP_OK) {
-
-      if ((this->buttonStatus & (1 << BTN_DOOR)) == 0) {
-        if (!this->doorOpen) {
-          ESP_LOGI(TAG, "Door open!");
-        }
-        this->doorOpen = true;
-      } else {
-        if (this->doorOpen) {
-          ESP_LOGI(TAG, "Door closed!");
-        }
-        this->doorOpen = false;
-      }
-
-    } else {
-      this->buttonStatus = 0;
-      ESP_LOGE(TAG, "An error occurred getting button status");
-      // esp_backtrace_print
-    }
 
     // set leds
     lampVal = 0;
