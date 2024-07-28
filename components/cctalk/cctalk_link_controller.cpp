@@ -125,6 +125,7 @@ uint64_t CctalkLinkController::ccRequest(
     std::function<void(const std::string &error_msg,
                        const std::vector<uint8_t> &command_data)> const
         &callbackFunction) {
+
   _mutex.lock();
 
   ESP_LOGD(TAG, "Checking no existing request in process");
@@ -169,9 +170,10 @@ uint64_t CctalkLinkController::ccRequest(
 
   if (this->showCctalkRequest) {
     std::string formatted_data;
-    for (uint8_t tmpData : data) {
+    for (unsigned char tmpData : data) {
       std::stringstream stream;
-      stream << "0x" << std::hex << tmpData;
+      stream << "0x" << std::hex << std::setw(2) << std::setfill('0') << tmpData
+             << ' ';
       formatted_data.append(stream.str());
     }
     ESP_LOGD(TAG, "> ccTalk request: %s, address: %d, data: %s",
@@ -205,9 +207,11 @@ uint64_t CctalkLinkController::ccRequest(
   this->serialWorker.sendRequest(requestId, requestData, writeTimeoutMsec,
                                  responseTimeoutMsec);
 
+  ESP_LOGD(TAG, "Returning from send request. Releasing mutex");
+  _mutex.unlock();
+
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-  _mutex.unlock();
   return requestId;
 }
 
@@ -223,7 +227,7 @@ void CctalkLinkController::onResponseReceive(
   ESP_LOGD(TAG, "Entering onResponseReceive");
 
   if (responseData.size() < 5) {
-    ESP_LOGE(TAG, "ccTalk response size too small (%d bytes).",
+    ESP_LOGW(TAG, "ccTalk response size too small (%d bytes).",
              responseData.size());
     this->requestInProgress = false;
     return;
@@ -243,12 +247,14 @@ void CctalkLinkController::onResponseReceive(
     if (responseDataNoLocalEcho.size() == 0) {
       formatted_data = "(empty)";
     } else {
-      for (uint8_t data : responseDataNoLocalEcho) {
-        std::stringstream stream;
-        stream << data;
+      std::stringstream stream;
+      for (unsigned char tmpData : responseDataNoLocalEcho) {
+        stream << "0x" << std::hex << std::setw(2) << std::setfill('0')
+               << tmpData << ' ';
         formatted_data.append(stream.str());
       }
     }
+
     // Don't print response_id, it interferes with identical message hiding.
     ESP_LOGD(TAG, "ccTalk response from address %d, data: %s",
              int(sourceAddress), formatted_data.c_str());
