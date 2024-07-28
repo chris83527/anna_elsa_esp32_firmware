@@ -280,7 +280,7 @@ public:
   // continue normally.
   void requestBufferedCreditEvents(
       std::function<void(const std::string &error_msg, uint8_t event_counter,
-                         const std::vector<CcEventData> &event_data)> const
+                         const std::vector<CcEventData> event_data)> const
           &finish_callback);
 
   /**
@@ -296,17 +296,17 @@ public:
    */
   void requestHopperStatus(
       std::function<void(const std::string &error_msg, uint8_t event_counter,
-                         const std::vector<CcEventData> &event_data)> const
+                         const std::vector<CcEventData> event_data)> const
           &finish_callback);
 
   /// Process the credit/event log. This is used by timerIteration().
   void processCreditEventLog(bool accepting,
                              const std::string &event_log_cmd_error_msg,
                              uint8_t event_counter,
-                             const std::vector<CcEventData> &event_data,
+                             const std::vector<CcEventData> event_data,
                              std::function<void()> const &finish_callback);
   void processHopperStatus(const std::string &error_msg, uint8_t event_counter,
-                           const std::vector<CcEventData> &hopperStatusData,
+                           const std::vector<CcEventData> hopperStatusData,
                            std::function<void()> const &finish_callback);
 
   /// Route a bill that is held in escrow.

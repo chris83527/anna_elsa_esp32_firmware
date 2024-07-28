@@ -980,7 +980,7 @@ void CctalkDevice::requestIdentifiers(
     this->linkController.ccRequest(
         CcHeader::RequestVariableSet, this->deviceAddress, data, 200,
         [&](const std::string &error_msg,
-            const std::vector<uint8_t> &responseData) {
+            const std::vector<uint8_t> responseData) {
           if (error_msg.size() != 0) {
             // Do not set global error, this is a local error of an optional
             // command. *shared_error = error_msg;
@@ -1024,7 +1024,7 @@ void CctalkDevice::requestIdentifiers(
     this->linkController.ccRequest(
         get_command, this->deviceAddress, data, 200,
         [&](const std::string &error_msg,
-            const std::vector<uint8_t> &responseData) {
+            const std::vector<uint8_t> responseData) {
           if (error_msg.size() != 0) {
             ESP_LOGE(
                 TAG,
@@ -1088,7 +1088,7 @@ void CctalkDevice::requestIdentifiers(
           CcHeader::RequestCountryScalingFactor, this->deviceAddress,
           countryVector, 200,
           [&](const std::string &error_msg,
-              const std::vector<uint8_t> &responseData) {
+              const std::vector<uint8_t> responseData) {
             if (error_msg.size() != 0) {
               error = error_msg;
 
@@ -1145,13 +1145,13 @@ void CctalkDevice::requestIdentifiers(
 
 void CctalkDevice::requestHopperStatus(
     std::function<void(const std::string &error_msg, uint8_t eventCounter,
-                       const std::vector<CcEventData> &event_data)> const
+                       const std::vector<CcEventData> event_data)> const
         &finish_callback) {
   std::vector<uint8_t> data;
   this->linkController.ccRequest(
       CcHeader::RequestHopperStatus, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
-          const std::vector<uint8_t> &responseData) {
+          const std::vector<uint8_t> responseData) {
         // TODO Handle command timeout
         std::vector<CcEventData> event_data;
 
@@ -1177,7 +1177,7 @@ void CctalkDevice::requestHopperStatus(
 
 void CctalkDevice::requestBufferedCreditEvents(
     std::function<void(const std::string &error_msg, uint8_t event_counter,
-                       const std::vector<CcEventData> &event_data)> const
+                       const std::vector<CcEventData> event_data)> const
         &finish_callback) {
   // Coin acceptors use ReadBufferedCredit command.
   // Bill validators use ReadBufferedBillEvents command.
@@ -1204,7 +1204,7 @@ void CctalkDevice::requestBufferedCreditEvents(
   this->linkController.ccRequest(
       command, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
-          const std::vector<uint8_t> &responseData) {
+          const std::vector<uint8_t> responseData) {
         // TODO Handle command timeout
 
         std::vector<CcEventData> event_data;
@@ -1270,7 +1270,7 @@ void CctalkDevice::requestBufferedCreditEvents(
  */
 void CctalkDevice::processHopperStatus(
     const std::string &error_msg, uint8_t eventCounter,
-    const std::vector<CcEventData> &hopperStatusData,
+    const std::vector<CcEventData> hopperStatusData,
     std::function<void()> const &finish_callback) {
   // Per specification, a command timeout should be ignored.
   if (error_msg.size() == 0 && eventCounter == 0 &&
@@ -1325,7 +1325,7 @@ void CctalkDevice::processHopperStatus(
  */
 void CctalkDevice::processCreditEventLog(
     bool accepting, const std::string &event_log_cmd_error_msg,
-    uint8_t eventCounter, const std::vector<CcEventData> &event_data,
+    uint8_t eventCounter, const std::vector<CcEventData> event_data,
     std::function<void()> const &finish_callback) {
 
   // Per specification, a command timeout should be ignored.
