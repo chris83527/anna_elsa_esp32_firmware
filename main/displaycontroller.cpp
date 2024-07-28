@@ -87,6 +87,9 @@ DisplayController::DisplayController(MoneyController &moneyController,
 
   ESP_LOGD(TAG, "Entering constructor");
 
+  // Perform this here so we have debug output
+  oledController.initialise();
+
   ESP_LOGD(TAG, "Leaving constructor");
 }
 
@@ -95,8 +98,6 @@ DisplayController::~DisplayController() {}
 esp_err_t DisplayController::initialise() {
 
   ESP_LOGI(TAG, "Entering DisplayController::initialise()");
-
-  oledController.initialise();
 
   this->buttonStatus = 0;
 

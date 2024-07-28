@@ -57,11 +57,6 @@ bool CctalkDevice::initialise(
 
   this->lastEventNumber = 0;
 
-  // Added because credit buffer stays if power isn't reset
-  requestResetDevice([&]([[maybe_unused]] const std::string &local_error_msg) {
-    // Nothing special - maybe check local_error_msg
-  });
-
   if (getDeviceState() != CcDeviceState::ShutDown) {
     ESP_LOGE(TAG, "Cannot initialise device that is in %s state.",
              ccDeviceStateGetDisplayableName(getDeviceState()).c_str());
@@ -484,10 +479,6 @@ bool CctalkDevice::switchStateInitialized(
 
 bool CctalkDevice::switchStateNormalAccepting(
     std::function<void(const std::string &error_msg)> const &finish_callback) {
-  // assert((this->deviceState == CcDeviceState::Initialized
-  //         || this->deviceState == CcDeviceState::NormalRejecting ||
-  //         this->deviceState == CcDeviceState::DiagnosticsPolling) !=
-  //         false);
 
   // Disable master inhibit.
   modifyMasterInhibitStatus(false, [&](const std::string &error_msg) {
@@ -507,10 +498,6 @@ bool CctalkDevice::switchStateNormalAccepting(
 
 bool CctalkDevice::switchStateNormalRejecting(
     std::function<void(const std::string &error_msg)> const &finish_callback) {
-  // assert((this->deviceState == CcDeviceState::Initialized
-  //         || this->deviceState == CcDeviceState::NormalAccepting ||
-  //         this->deviceState == CcDeviceState::DiagnosticsPolling) ==
-  //         false);
 
   // Enable master inhibit.
   modifyMasterInhibitStatus(true, [&](const std::string &error_msg) {
@@ -1596,7 +1583,7 @@ void CctalkDevice::processCreditEventLog(
                     "NormalRejecting state; internal error.");
 
     } else {
-      //      DBG_ASSERT(bill_validator_func_);
+
       if (this->billValidatorFunction) {
         accept = this->billValidatorFunction(routing_req_event.bill_id, id);
       }
@@ -1619,8 +1606,6 @@ void CctalkDevice::processCreditEventLog(
           ESP_LOGD(TAG, "Bill (position %d, ID %s) routing status: %s.",
                    int(routing_req_event.bill_id), id.id_string.c_str(),
                    ccBillRouteStatusGetDisplayableName(status).c_str());
-
-          //        aser->continueSequence(true);
         });
   }
 
@@ -1694,24 +1679,22 @@ void CctalkDevice::requestSelfCheck(
         }
         if (responseData.size() != 1) {
           std::string error = "Invalid data received for PerformSelfCheck.";
-          // ccResponseDataDecodeError(request_id, error); // auto-logged
           finish_callback(error, CcFaultCode::CustomCommandError);
 
           return;
         }
-        //            if (responseData.size() > 0) {
-        //                // Decode the data
-        //                auto fault_code = static_cast<CcFaultCode>
-        //                (responseData.at(0)); ESP_LOGD(TAG, "Self-check
-        //                fault code: %s",
-        //                ccFaultCodeGetDisplayableName(fault_code).c_str());
-        //                finish_callback(ccFaultCodeGetDisplayableName(fault_code),
-        //                fault_code);
-        //            } else {
+        if (responseData.size() > 0) {
+          //                // Decode the data
+          auto fault_code = static_cast<CcFaultCode>(responseData.at(0));
+          ESP_LOGD(TAG, "Self-check fault code: %s ",
+                   ccFaultCodeGetDisplayableName(fault_code).c_str());
+          finish_callback(ccFaultCodeGetDisplayableName(fault_code),
+                          fault_code);
+        } else {
 
-        finish_callback(ccFaultCodeGetDisplayableName(CcFaultCode::Ok),
-                        CcFaultCode::Ok);
-        //            }
+          finish_callback(ccFaultCodeGetDisplayableName(CcFaultCode::Ok),
+                          CcFaultCode::Ok);
+        }
       });
 }
 
@@ -1731,7 +1714,7 @@ void CctalkDevice::requestResetDevice(
         }
         if (responseData.size() != 0) {
           std::string error = "Non-empty data received while waiting for ACK.";
-          // ccResponseDataDecodeError(request_id, error); // auto-logged
+
           finish_callback(error);
 
           return;
