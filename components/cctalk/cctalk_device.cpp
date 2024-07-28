@@ -48,7 +48,7 @@ CctalkDevice::CctalkDevice(CctalkLinkController &controller,
 
 CctalkDevice::~CctalkDevice() {}
 
-CctalkLinkController CctalkDevice::getLinkController() {
+CctalkLinkController &CctalkDevice::getLinkController() {
   return this->linkController;
 }
 
@@ -339,7 +339,7 @@ bool CctalkDevice::switchStateInitialized(
   ESP_LOGD(TAG, "Requesting checkAlive");
   std::function<void(const std::string, bool alive)> const &callback =
       [&](const std::string &error_msg, bool alive) {
-        //ESP_LOGD(TAG, "requestCheckAlive callback called");
+        // ESP_LOGD(TAG, "requestCheckAlive callback called");
         if (error_msg.size() != 0) {
           error = error_msg;
           doContinue = false;

@@ -96,14 +96,17 @@ public:
 protected:
 private:
   std::function<void(const uint64_t requestId,
-                     const std::vector<uint8_t> &responseData)>
+                     const std::vector<uint8_t> responseData)>
       onResponseReceiveCallback;
 
+private:
   uint64_t requestId;
   int responseTimeoutMsec;
 
   // A queue to handle UART event.
   QueueHandle_t cctalkUartQueueHandle;
+
+  std::mutex _mutex;
 
   uart_port_t m_uartNumber;
   int m_txPin;

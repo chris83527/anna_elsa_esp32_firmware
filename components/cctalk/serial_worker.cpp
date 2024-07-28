@@ -117,6 +117,7 @@ void SerialWorker::sendRequest(const uint64_t requestId,
                                const int writeTimeoutMsec,
                                const int responseTimeoutMsec) {
 
+  _mutex.lock();
   // ESP_LOGD(TAG, "sendRequest called. Request id %d size (start): %d",
   // int(requestId), requestData.size());
   this->requestInProgress = true;
@@ -180,6 +181,8 @@ void SerialWorker::sendRequest(const uint64_t requestId,
     std::this_thread::sleep_for(std::chrono::milliseconds(60));
   }
 
+  _mutex.unlock();
+
   if (receiveComplete) {
 
     uart_flush(this->getUartNumber());
@@ -219,7 +222,7 @@ void SerialWorker::sendRequest(const uint64_t requestId,
   } else {
     uart_flush(this->getUartNumber());
   }
-    std::this_thread::sleep_for(std::chrono::milliseconds(60));
+  std::this_thread::sleep_for(std::chrono::milliseconds(60));
 }
 
 void SerialWorker::setOnResponseReceiveCallback(

@@ -334,41 +334,35 @@ void DisplayController::attractModeTask() {
     if (this->isAttractMode()) {
 
       if (this->isAttractMode())
-        this->displayVFDText("       FROZEN       ");
-      if (this->isAttractMode())
-        this->resetLampData();
+        this->displayVFDText("  WOODS AMUSEMENTS  ");
+
+      std::this_thread::sleep_for(std::chrono::seconds(1));
 
       if (this->isAttractMode())
-        this->rainbowEffect();
+        this->displayVFDText("      PRESENTS      ");
 
-      if (this->isAttractMode())
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+      std::this_thread::sleep_for(std::chrono::seconds(1));
 
-      if (this->isAttractMode())
+      if (this->isAttractMode()) {
         resetLampData();
-
-      if (this->isAttractMode())
-        this->displayVFDText("      PLAY ME       ");
-      if (this->isAttractMode())
+        this->displayVFDText("       FROZEN       ");
         this->chaseEffect();
+      }
 
-      if (this->isAttractMode())
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+      std::this_thread::sleep_for(std::chrono::seconds(1));
 
-      if (this->isAttractMode())
+      if (this->isAttractMode()) {
         this->displayVFDText("     20CT GAME      ");
-      if (this->isAttractMode())
         this->fadeInOutEffect();
+      }
 
-      if (this->isAttractMode())
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+      std::this_thread::sleep_for(std::chrono::seconds(5));
 
       if (this->isAttractMode())
         this->displayVFDText("    INSERT COINS    ");
 
       if (this->isAttractMode())
         std::this_thread::sleep_for(std::chrono::seconds(5));
-
     } else {
 
       std::this_thread::sleep_for(std::chrono::seconds(1));

@@ -334,7 +334,7 @@ public:
   void setDeviceState(CcDeviceState state);
 
   /// Get link controller
-  CctalkLinkController getLinkController();
+  CctalkLinkController &getLinkController();
 
   /// This function is called in NormalAccepting state when a bill is inserted
   /// and should be checked for validity by us. If the function returns true,
