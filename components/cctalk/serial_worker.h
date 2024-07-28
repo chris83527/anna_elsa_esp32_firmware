@@ -32,6 +32,8 @@
 #ifndef SERIAL_WORKER_H
 #define SERIAL_WORKER_H
 
+#include <functional>
+
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"

@@ -209,6 +209,7 @@ uint64_t CctalkLinkController::ccRequest(
 
   ESP_LOGD(TAG, "Returning from send request. Releasing mutex");
   _mutex.unlock();
+  this->requestInProgress = false;
 
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
@@ -222,7 +223,7 @@ uint64_t CctalkLinkController::ccRequest(
  * @param response_data
  */
 void CctalkLinkController::onResponseReceive(
-    const uint64_t request_id, const std::vector<uint8_t> &responseData) {
+    const uint64_t request_id, const std::vector<uint8_t> responseData) {
 
   ESP_LOGD(TAG, "Entering onResponseReceive");
 
@@ -264,7 +265,7 @@ void CctalkLinkController::onResponseReceive(
   if (responseData.size() != 5 + dataSize) {
     ESP_LOGE(TAG, "Invalid ccTalk response: size (%d bytes).",
              responseData.size());
-    this->requestInProgress = false;
+
     return;
   }
 
@@ -278,7 +279,7 @@ void CctalkLinkController::onResponseReceive(
   if (checksum != 0) {
     ESP_LOGE(TAG, "Invalid ccTalk response checksum.");
     // TODO The command should be retried.
-    this->requestInProgress = false;
+
     return;
   }
 
@@ -287,7 +288,7 @@ void CctalkLinkController::onResponseReceive(
   if (destinationAddress != this->controllerAddress) {
     ESP_LOGE(TAG, "Invalid ccTalk response. Destination address %d.",
              int(destinationAddress));
-    this->requestInProgress = false;
+
     return;
   }
 
@@ -296,7 +297,7 @@ void CctalkLinkController::onResponseReceive(
   if (int(sourceAddress) != int(this->currentDeviceAddress)) {
     ESP_LOGE(TAG, "Invalid ccTalk response. Source address %d, expected %d.",
              int(sourceAddress), int(this->currentDeviceAddress));
-    this->requestInProgress = false;
+
     return;
   }
 
@@ -306,7 +307,7 @@ void CctalkLinkController::onResponseReceive(
              "Invalid ccTalk response %lld from address %d: Command is %d, "
              "expected 0.",
              request_id, int(sourceAddress), int(command));
-    this->requestInProgress = false;
+
     return;
   }
 
@@ -316,8 +317,6 @@ void CctalkLinkController::onResponseReceive(
   } else {
     ESP_LOGE(TAG, "Callback pointer was nullptr");
   }
-
-  this->requestInProgress = false;
 
   ESP_LOGD(TAG, "Returning from onResponseReceive");
 }

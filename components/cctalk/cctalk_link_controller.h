@@ -32,13 +32,13 @@
 #ifndef CCTALK_LINK_CONTROLLER_H
 #define CCTALK_LINK_CONTROLLER_H
 
-#include "driver/gpio.h"
 #include <functional>
 #include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
 
+#include "driver/gpio.h"
 #include "esp_log.h"
 
 #include "serial_worker.h"
@@ -52,11 +52,11 @@ public:
 
   /// void callback(const std::vector<uint8_t>& command_data)
   using ResponseGenericReplyFunc =
-      std::function<void(const std::vector<uint8_t> &command_data)>;
+      std::function<void(const std::vector<uint8_t> command_data)>;
 
   /// void callback(uint8_t command, const std::vector<uint8_t>& command_data)
   using ResponseWithCommandFunc = std::function<void(
-      uint8_t command, const std::vector<uint8_t> &command_data)>;
+      uint8_t command, const std::vector<uint8_t> command_data)>;
 
   CctalkLinkController(const uart_port_t uartNumber, const gpio_num_t txPin,
                        const gpio_num_t rxPin, bool isChecksum16bit,
@@ -81,7 +81,7 @@ public:
 
   /// Handle generic serial response and emit ccResponse
   void onResponseReceive(const uint64_t request_id,
-                         const std::vector<uint8_t> &response_data);
+                         const std::vector<uint8_t> response_data);
 
 private:
   void openPort(const uart_port_t uartNumber, const int txPin, const int rxPin);
@@ -122,8 +122,8 @@ private:
 
   bool requestInProgress = false;
 
-  std::function<void(const std::string &error_msg,
-                     std::vector<uint8_t> &command_data)>
+  std::function<void(const std::string error_msg,
+                     std::vector<uint8_t> command_data)>
       executeOnReturnCallback;
 };
 } // namespace esp32cc

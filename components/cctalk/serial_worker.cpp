@@ -182,11 +182,11 @@ void SerialWorker::sendRequest(const uint64_t requestId,
 
     uart_flush(this->getUartNumber());
 
-    if (receivedData.size() <= requestData.size()) {
+    if (receivedData.size() < requestData.size()) {
       // this shouldn't be possible as we have local echo
       ESP_LOGE(TAG,
-               "Received data bytes (%d) was less than or equal to request "
-               "data bytes (%d). Is device connected?",
+               "Received data bytes (%d) was less than request data bytes "
+               "(%d). Is device connected?",
                receivedData.size(), requestData.size());
       uart_flush(this->getUartNumber());
     } else {
