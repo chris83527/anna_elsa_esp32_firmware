@@ -1428,7 +1428,7 @@ struct CcIdentifier {
   /// 10^divisor to get a value in country currency (e.g. USD). For coin
   /// acceptors the divisor is always 1.
 
-  uint64_t getValue(const uint64_t divisor) const {
+  uint64_t getValue(uint64_t &divisor) const {
     divisor = country_scaling_data.decimal_places + coin_decimals;
     return value_code * country_scaling_data.scaling_factor;
   }
