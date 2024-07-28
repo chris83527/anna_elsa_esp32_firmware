@@ -91,7 +91,6 @@ public:
   uart_port_t getUartNumber();
   uint64_t getRequestId();
   int getResponseTimeoutMsec();
-  bool isRequestInProgress();
 
 protected:
 private:
@@ -106,8 +105,6 @@ private:
   // A queue to handle UART event.
   QueueHandle_t cctalkUartQueueHandle;
 
-  std::mutex _mutex;
-
   uart_port_t m_uartNumber;
   int m_txPin;
   int m_rxPin;
@@ -115,8 +112,6 @@ private:
   Timer timer;
 
   bool portOpen = false;
-
-  bool requestInProgress = false;
 };
 } // namespace esp32cc
 

@@ -125,11 +125,14 @@ uint64_t CctalkLinkController::ccRequest(
     std::function<void(const std::string &error_msg,
                        const std::vector<uint8_t> &command_data)> const
         &callbackFunction) {
+  _mutex.lock();
 
   ESP_LOGD(TAG, "Checking no existing request in process");
-  while (this->serialWorker.isRequestInProgress()) {
+  while (this->requestInProgress) {
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
+
+  this->requestInProgress = true;
 
   if (callbackFunction != nullptr) {
     ESP_LOGD(TAG, "Setting callback function for %s",
@@ -204,6 +207,7 @@ uint64_t CctalkLinkController::ccRequest(
 
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
+  _mutex.unlock();
   return requestId;
 }
 
@@ -300,6 +304,8 @@ void CctalkLinkController::onResponseReceive(
   } else {
     ESP_LOGE(TAG, "Callback pointer was nullptr");
   }
+
+  this->requestInProgress = false;
 
   ESP_LOGD(TAG, "Returning from onResponseReceive");
 }

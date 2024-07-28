@@ -34,6 +34,7 @@
 
 #include "driver/gpio.h"
 #include <functional>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
@@ -116,6 +117,10 @@ private:
   SerialWorker serialWorker;
 
   bool isPortOpen = false;
+
+  std::mutex _mutex;
+
+  bool requestInProgress = false;
 
   std::function<void(const std::string &error_msg,
                      std::vector<uint8_t> &command_data)>

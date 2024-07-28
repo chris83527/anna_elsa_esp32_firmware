@@ -110,17 +110,14 @@ bool SerialWorker::closePort() {
   return xErr != ESP_OK;
 }
 
-bool SerialWorker::isRequestInProgress() { return this->requestInProgress; }
-
 void SerialWorker::sendRequest(const uint64_t requestId,
                                const std::vector<uint8_t> &requestData,
                                const int writeTimeoutMsec,
                                const int responseTimeoutMsec) {
 
-  _mutex.lock();
   // ESP_LOGD(TAG, "sendRequest called. Request id %d size (start): %d",
   // int(requestId), requestData.size());
-  this->requestInProgress = true;
+
   this->requestId = requestId;
   this->responseTimeoutMsec = responseTimeoutMsec;
 
@@ -181,13 +178,9 @@ void SerialWorker::sendRequest(const uint64_t requestId,
     std::this_thread::sleep_for(std::chrono::milliseconds(60));
   }
 
-  _mutex.unlock();
-
   if (receiveComplete) {
 
     uart_flush(this->getUartNumber());
-
-    this->requestInProgress = false;
 
     if (receivedData.size() <= requestData.size()) {
       // this shouldn't be possible as we have local echo
