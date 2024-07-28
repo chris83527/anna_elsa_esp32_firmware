@@ -153,24 +153,27 @@ void CctalkDevice::devicePollTask() {
         // The device has been initialized, resume normal rejecting or
         // diagnostics polling. Default to bill / coin rejection. Perform a
         // self-check and see if everything's ok.
-        requestSelfCheck([&]([[maybe_unused]] const std::string &error_msg,
-                             CcFaultCode fault_code) {
-          if (fault_code == CcFaultCode::Ok) {
-            // The device is OK, resume normal rejecting mode.
-            requestSwitchDeviceState(
-                CcDeviceState::NormalRejecting,
-                [&]([[maybe_unused]] const std::string &local_error_msg) {
-                  this->isTimerIterationTaskRunning = false;
-                });
-          } else {
-            // The device is not ok, resume diagnostics polling mode.
-            requestSwitchDeviceState(
-                CcDeviceState::DiagnosticsPolling,
-                [&]([[maybe_unused]] const std::string &local_error_msg) {
-                  this->isTimerIterationTaskRunning = false;
-                });
-          }
-        });
+        CcFaultCode faultCode;
+        requestSelfCheck(
+            [&]([[maybe_unused]] const std::string &error_msg,
+                CcFaultCode fault_code) { faultCode = fault_code; });
+
+        if (faultCode == CcFaultCode::Ok) {
+          // The device is OK, resume normal rejecting mode.
+          requestSwitchDeviceState(
+              CcDeviceState::NormalRejecting,
+              [&]([[maybe_unused]] const std::string &local_error_msg) {
+                this->isTimerIterationTaskRunning = false;
+              });
+        } else {
+          // The device is not ok, resume diagnostics polling mode.
+          requestSwitchDeviceState(
+              CcDeviceState::DiagnosticsPolling,
+              [&]([[maybe_unused]] const std::string &local_error_msg) {
+                this->isTimerIterationTaskRunning = false;
+              });
+        }
+
         break;
       default:
         break;
@@ -1067,6 +1070,8 @@ void CctalkDevice::requestIdentifiers(
       // Do nothing
     }
 
+    ESP_LOGD(TAG, "Country code: %s", country.c_str());
+
     // Predefined rules for Georgia. TODO Make this configurable and / or
     // remove it from here.
     if (this->deviceCategory == CcCategory::CoinAcceptor && country == "GE") {
@@ -1081,6 +1086,7 @@ void CctalkDevice::requestIdentifiers(
                country.c_str(), data.scaling_factor, int(data.decimal_places));
     }
 
+    // For coin validator
     if (this->deviceCategory != CcCategory::BillValidator) {
       std::vector<uint8_t> countryVector =
           std::vector<uint8_t>(country.begin(), country.end());
