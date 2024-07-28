@@ -131,7 +131,9 @@ esp_err_t CCTalkController::initialise() {
             ESP_LOGE(TAG, "An error occurred switching to accept state: %s",
                      error_msg.c_str());
           } else {
-            ESP_LOGI(TAG, "Requested switch to NormalAccepting state");
+            ESP_LOGI(
+                TAG,
+                "Requested switch to NormalAccepting state for coin validator");
           }
         });
   }
