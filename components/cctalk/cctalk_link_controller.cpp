@@ -225,6 +225,7 @@ void CctalkLinkController::onResponseReceive(
   if (responseData.size() < 5) {
     ESP_LOGE(TAG, "ccTalk response size too small (%d bytes).",
              responseData.size());
+    this->requestInProgress = false;
     return;
   }
 
@@ -257,6 +258,7 @@ void CctalkLinkController::onResponseReceive(
   if (responseData.size() != 5 + dataSize) {
     ESP_LOGE(TAG, "Invalid ccTalk response: size (%d bytes).",
              responseData.size());
+    this->requestInProgress = false;
     return;
   }
 
@@ -270,6 +272,7 @@ void CctalkLinkController::onResponseReceive(
   if (checksum != 0) {
     ESP_LOGE(TAG, "Invalid ccTalk response checksum.");
     // TODO The command should be retried.
+    this->requestInProgress = false;
     return;
   }
 
@@ -278,6 +281,7 @@ void CctalkLinkController::onResponseReceive(
   if (destinationAddress != this->controllerAddress) {
     ESP_LOGE(TAG, "Invalid ccTalk response. Destination address %d.",
              int(destinationAddress));
+    this->requestInProgress = false;
     return;
   }
 
@@ -286,6 +290,7 @@ void CctalkLinkController::onResponseReceive(
   if (int(sourceAddress) != int(this->currentDeviceAddress)) {
     ESP_LOGE(TAG, "Invalid ccTalk response. Source address %d, expected %d.",
              int(sourceAddress), int(this->currentDeviceAddress));
+    this->requestInProgress = false;
     return;
   }
 
@@ -295,6 +300,7 @@ void CctalkLinkController::onResponseReceive(
              "Invalid ccTalk response %lld from address %d: Command is %d, "
              "expected 0.",
              request_id, int(sourceAddress), int(command));
+    this->requestInProgress = false;
     return;
   }
 

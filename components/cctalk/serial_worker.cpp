@@ -196,19 +196,19 @@ void SerialWorker::sendRequest(const uint64_t requestId,
                bytesRead, receivedData.size());
       ESP_LOGD(TAG, "Response size: %d",
                (receivedData.size() - requestData.size()));
+    }
 
-      if (this->onResponseReceiveCallback == nullptr) {
-        ESP_LOGE(TAG, "this->onResponseReceiveCallback is invalid");
+    if (this->onResponseReceiveCallback == nullptr) {
+      ESP_LOGE(TAG, "this->onResponseReceiveCallback is invalid");
+    } else {
+      if (receivedData.size() > 5) {
+        this->onResponseReceiveCallback(
+            this->getRequestId(),
+            std::vector<uint8_t>(receivedData.begin() + requestData.size(),
+                                 receivedData.end()));
       } else {
-        if (receivedData.size() > 5) {
-          this->onResponseReceiveCallback(
-              this->getRequestId(),
-              std::vector<uint8_t>(receivedData.begin() + requestData.size(),
-                                   receivedData.end()));
-        } else {
-          this->onResponseReceiveCallback(this->getRequestId(),
-                                          std::vector<uint8_t>());
-        }
+        this->onResponseReceiveCallback(this->getRequestId(),
+                                        std::vector<uint8_t>());
       }
     }
 
