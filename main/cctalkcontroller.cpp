@@ -156,7 +156,6 @@ esp_err_t CCTalkController::initialise() {
                  error_msg.c_str());
       }
     });
-
     this->hopper.requestSwitchDeviceState(
         esp32cc::CcDeviceState::NormalAccepting,
         [&]([[maybe_unused]] const std::string &error_msg) {
