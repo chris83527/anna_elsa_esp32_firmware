@@ -170,16 +170,16 @@ uint64_t CctalkLinkController::ccRequest(
 
   if (this->showCctalkRequest) {
     std::string formatted_data;
+    std::stringstream stream;
     for (uint8_t tmpData : additionalRequestData) {
-      std::stringstream stream;
-      stream << "0x" << std::hex << std::setw(2) << std::setfill('0') << tmpData
-             << ' ';
-      formatted_data.append(stream.str());
+      stream << "0x" << std::hex << std::setw(2) << std::setfill('0')
+             << static_cast<unsigned int>(tmpData) << ' ';
     }
-    ESP_LOGD(TAG, "> ccTalk request: %s, address: %d, data: %s",
-             ccHeaderGetDisplayableName(command).c_str(), (int(devAddress)),
-             (additionalRequestData.size() == 0 ? "(empty)"
-                                                : formatted_data.c_str()));
+
+    ESP_LOGD(
+        TAG, "> ccTalk request: %s, address: %d, data: %s",
+        ccHeaderGetDisplayableName(command).c_str(), (int(devAddress)),
+        (additionalRequestData.size() == 0 ? "(empty)" : stream.str().c_str()));
   }
 
   // Build the data structure
@@ -229,6 +229,12 @@ void CctalkLinkController::onResponseReceive(
 
   ESP_LOGD(TAG, "Entering onResponseReceive");
 
+  if (responseData.empty()) {
+    ESP_LOGW(TAG,
+             "No response data was received. No further processing possible.");
+    return;
+  }
+
   if (responseData.size() < 5) {
     ESP_LOGW(TAG, "ccTalk response size too small (%d bytes).",
              responseData.size());
@@ -240,9 +246,11 @@ void CctalkLinkController::onResponseReceive(
   uint8_t sourceAddress = responseData.at(2);
   uint8_t command = responseData.at(3);
 
-  std::vector<uint8_t> responseDataNoLocalEcho = {responseData.begin() + 4,
-                                                  responseData.end() - 1};
-  // uint8_t received_checksum = responseData.at(responseData.end() - 1);
+  std::vector<uint8_t> responseDataNoLocalEcho = {
+      responseData.begin() + 4,
+      responseData.end() - 1}; // subtract 1 because our last value is the
+                               // checksum and not part of the response
+  uint8_t receivedChecksum = responseData.back();
 
   if (this->showCctalkResponse) {
     std::string formatted_data;
@@ -252,9 +260,9 @@ void CctalkLinkController::onResponseReceive(
       std::stringstream stream;
       for (uint8_t tmpData : responseDataNoLocalEcho) {
         stream << "0x" << std::hex << std::setw(2) << std::setfill('0')
-               << tmpData << ' ';
-        formatted_data.append(stream.str());
+               << static_cast<unsigned int>(tmpData) << ' ';
       }
+      formatted_data.append(stream.str());
     }
 
     // Don't print response_id, it interferes with identical message hiding.
