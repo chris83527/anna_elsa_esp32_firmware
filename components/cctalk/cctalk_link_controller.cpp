@@ -120,10 +120,10 @@ void CctalkLinkController::setLoggingOptions(bool showFullResponse,
  * @return The requestId corresponding to this request or -1 if error
  */
 uint64_t CctalkLinkController::ccRequest(
-    CcHeader command, uint8_t devAddress, const std::vector<uint8_t> &data,
-    int responseTimeoutMsec,
+    CcHeader command, uint8_t devAddress,
+    const std::vector<uint8_t> additionalRequestData, int responseTimeoutMsec,
     std::function<void(const std::string &error_msg,
-                       const std::vector<uint8_t> &command_data)> const
+                       const std::vector<uint8_t> responseData)> const
         &callbackFunction) {
 
   _mutex.lock();
@@ -150,7 +150,7 @@ uint64_t CctalkLinkController::ccRequest(
   ESP_LOGD(TAG, "this->currentDeviceAddress = %d, deviceAddress = %d",
            this->currentDeviceAddress, devAddress);
 
-  if (data.size() > 255) {
+  if (additionalRequestData.size() > 255) {
     ESP_LOGE(TAG, "Size of additional data too large! Aborting request.");
     return 0;
   }
@@ -170,7 +170,7 @@ uint64_t CctalkLinkController::ccRequest(
 
   if (this->showCctalkRequest) {
     std::string formatted_data;
-    for (unsigned char tmpData : data) {
+    for (uint8_t tmpData : additionalRequestData) {
       std::stringstream stream;
       stream << "0x" << std::hex << std::setw(2) << std::setfill('0') << tmpData
              << ' ';
@@ -178,17 +178,19 @@ uint64_t CctalkLinkController::ccRequest(
     }
     ESP_LOGD(TAG, "> ccTalk request: %s, address: %d, data: %s",
              ccHeaderGetDisplayableName(command).c_str(), (int(devAddress)),
-             (data.size() == 0 ? "(empty)" : formatted_data.c_str()));
+             (additionalRequestData.size() == 0 ? "(empty)"
+                                                : formatted_data.c_str()));
   }
 
   // Build the data structure
   std::vector<uint8_t> requestData;
   requestData.clear();
   requestData.push_back(uint8_t(devAddress));
-  requestData.push_back(uint8_t(data.size()));
+  requestData.push_back(uint8_t(additionalRequestData.size()));
   requestData.push_back(uint8_t(this->controllerAddress));
   requestData.push_back(uint8_t(command));
-  requestData.insert(requestData.end(), data.begin(), data.end());
+  requestData.insert(requestData.end(), additionalRequestData.begin(),
+                     additionalRequestData.end());
 
   uint8_t checksum = 0;
   for (uint8_t dataByte : requestData) {
@@ -230,7 +232,6 @@ void CctalkLinkController::onResponseReceive(
   if (responseData.size() < 5) {
     ESP_LOGW(TAG, "ccTalk response size too small (%d bytes).",
              responseData.size());
-    this->requestInProgress = false;
     return;
   }
 
@@ -249,7 +250,7 @@ void CctalkLinkController::onResponseReceive(
       formatted_data = "(empty)";
     } else {
       std::stringstream stream;
-      for (unsigned char tmpData : responseDataNoLocalEcho) {
+      for (uint8_t tmpData : responseDataNoLocalEcho) {
         stream << "0x" << std::hex << std::setw(2) << std::setfill('0')
                << tmpData << ' ';
         formatted_data.append(stream.str());

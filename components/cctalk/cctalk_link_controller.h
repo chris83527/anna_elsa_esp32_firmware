@@ -74,9 +74,10 @@ public:
   /// response comes from which request.
   uint64_t
   ccRequest(CcHeader command, const uint8_t deviceAddress,
-            const std::vector<uint8_t> &additionalData, int responseTimeoutMsec,
+            const std::vector<uint8_t> additionalRequestData,
+            int responseTimeoutMsec,
             std::function<void(const std::string &error_msg,
-                               const std::vector<uint8_t> &command_data)> const
+                               const std::vector<uint8_t> responseData)> const
                 &callbackFunction);
 
   /// Handle generic serial response and emit ccResponse

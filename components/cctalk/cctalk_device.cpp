@@ -57,6 +57,11 @@ bool CctalkDevice::initialise(
 
   this->lastEventNumber = 0;
 
+  // Added because credit buffer stays if power isn't reset
+  requestResetDevice([&]([[maybe_unused]] const std::string &local_error_msg) {
+    // Nothing special - maybe check local_error_msg
+  });
+
   if (getDeviceState() != CcDeviceState::ShutDown) {
     ESP_LOGE(TAG, "Cannot initialise device that is in %s state.",
              ccDeviceStateGetDisplayableName(getDeviceState()).c_str());
@@ -971,6 +976,7 @@ void CctalkDevice::requestIdentifiers(
   if (this->deviceCategory == CcCategory::BillValidator) {
     // Get variable set
     std::vector<uint8_t> data;
+
     this->linkController.ccRequest(
         CcHeader::RequestVariableSet, this->deviceAddress, data, 200,
         [&](const std::string &error_msg,
