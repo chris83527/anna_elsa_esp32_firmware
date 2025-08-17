@@ -38,7 +38,6 @@
 #ifndef __MONEYCONTROLLER_H__
 #define __MONEYCONTROLLER_H__
 
-#include <cstdint>
 #include <string>
 
 #include "NvsController.h"
@@ -46,26 +45,26 @@
 
 class Payment {
 public:
-  void addTenCent(void);
-  void addTwentyCent(void);
-  void addFiftyCent(void);
-  void addOneEuro(void);
-  void addTwoEuro(void);
+  void addTenCent();
+  void addTwentyCent();
+  void addFiftyCent();
+  void addOneEuro();
+  void addTwoEuro();
 
-  uint16_t getTenCent(void);
-  uint16_t getTwentyCent(void);
-  uint16_t getFiftyCent(void);
-  uint16_t getOneEuro(void);
-  uint16_t getTwoEuro(void);
-  void clear(void);
-  void payoutBank(void);
+  uint16_t getTenCent();
+  uint16_t getTwentyCent();
+  uint16_t getFiftyCent();
+  uint16_t getOneEuro();
+  uint16_t getTwoEuro();
+  void clear();
+  void payoutBank();
 
 private:
-  uint16_t tenCentIn;
-  uint16_t twentyCentIn;
-  uint16_t fiftyCentIn;
-  uint16_t oneEuroIn;
-  uint16_t twoEuroIn;
+  uint16_t tenCentIn = 0;
+  uint16_t twentyCentIn = 0;
+  uint16_t fiftyCentIn = 0;
+  uint16_t oneEuroIn = 0;
+  uint16_t twoEuroIn = 0;
 };
 
 class MoneyController {
@@ -74,33 +73,33 @@ public:
                   CCTalkController &cctalkController);
   ~MoneyController();
 
-  void initialise(void);
+  void initialise();
 
   void addToCredit(Payment &payment);
   void addToCredit(uint16_t value);
-  void addToBank(const uint16_t value);
-  void setTransfer(const uint16_t value);
-  void incrementGameCount(void);
-  void removeFromCredit(const uint16_t value);
-  void removeFromBank(const uint16_t value);
-  void moveBankToCredit(void);
-  void moveTransferToBank(void);
+  void addToBank(uint16_t value);
+  void setTransfer(uint16_t value);
+  void incrementGameCount();
+  void removeFromCredit(uint16_t value);
+  void removeFromBank(uint16_t value);
+  void moveBankToCredit();
+  void moveTransferToBank();
   void payoutBank();
   // void removeFromTransfer(const int value);
-  uint16_t getCredit(void);
-  uint16_t getBank(void);
-  uint16_t getTransfer(void);
-  uint16_t getGameCount(void);
+  uint16_t getCredit();
+  [[nodiscard]] uint16_t getBank() const;
+  uint16_t getTransfer();
+  [[nodiscard]] uint16_t getGameCount() const;
 
-  uint16_t getPayoutTotal(void);
-  uint16_t getIncomeTotal(void);
+  uint16_t getPayoutTotal();
+  [[nodiscard]] uint16_t getIncomeTotal() const;
 
   void setPayoutInProgress(bool inProgress);
-  bool isPayoutInProgress(void);
-  void resetCounters(void);
+  bool isPayoutInProgress();
+  void resetCounters();
 
 private:
-  void loadValuesFromStorage(void);
+  void loadValuesFromStorage();
 
   uint16_t credit;
   uint16_t bank;

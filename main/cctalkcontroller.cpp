@@ -149,6 +149,10 @@ esp_err_t CCTalkController::initialise() {
         }
       });
 
+
+return ESP_OK; // Debug
+
+
   if (hopperInitialised) {
     this->hopper.requestResetDevice([&](const std::string &error_msg) {
       if (error_msg.size() > 0) {

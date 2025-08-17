@@ -31,284 +31,308 @@
 #include "esp_log.h"
 #include "pca9629a.h"
 
-static const char *TAG = "pca9629a";
+static const char* TAG = "pca9629a";
 
-const char *reg_name[] = {
-    "MODE",        "WDTOI",      "WDTCNTL",     "IO_CFG",      "INTMODE",
-    "MSK",         "INTSTAT",    "IP",          "INT_MTR_ACT", "EXTRASTEPS0",
-    "EXTRASTEPS1", "OP_CFG_PHS", "OP_STAT_TO",  "RUCNTL",      "RDCTNL",
-    "PMA",         "LOOPDLY_CW", "LOOPDLY_CCW", "CWSCOUNTL",   "CWSCOUNTH",
-    "CCWSCOUNTL",  "CCWSCOUNTH", "CWPWL",       "CWPWH",       "CCWPWL",
-    "CCWPWH",      "MCNTL",      "SUBADR1",     "SUBADR2",     "SUBADR3",
-    "ALLCALLADR",  "STEPCOUNT0", "STEPCOUNT1",  "STEPCOUNT2",  "STEPCOUNT3",
+const char* reg_name[] = {
+    "MODE", "WDTOI", "WDTCNTL", "IO_CFG", "INTMODE",
+    "MSK", "INTSTAT", "IP", "INT_MTR_ACT", "EXTRASTEPS0",
+    "EXTRASTEPS1", "OP_CFG_PHS", "OP_STAT_TO", "RUCNTL", "RDCTNL",
+    "PMA", "LOOPDLY_CW", "LOOPDLY_CCW", "CWSCOUNTL", "CWSCOUNTH",
+    "CCWSCOUNTL", "CCWSCOUNTH", "CWPWL", "CWPWH", "CCWPWL",
+    "CCWPWH", "MCNTL", "SUBADR1", "SUBADR2", "SUBADR3",
+    "ALLCALLADR", "STEPCOUNT0", "STEPCOUNT1", "STEPCOUNT2", "STEPCOUNT3",
 };
 
-PCA9629A::PCA9629A(I2CManager &i2cmgr, const uint8_t i2c_address)
-    : i2c_manager{i2cmgr} {
+PCA9629A::PCA9629A(I2CManager& i2cmgr, const uint8_t i2c_address)
+    : performingAction(false), i2c_manager{i2cmgr}
+{
+    ESP_LOGD(TAG, "i2c_address: %d", i2c_address);
 
-  ESP_LOGD(TAG, "i2c_address: %d", i2c_address);
+    this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+    this->deviceConfig.device_address = i2c_address;
+    this->deviceConfig.scl_speed_hz = 100000;
 
-  this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
-  this->deviceConfig.device_address = i2c_address;
-  this->deviceConfig.scl_speed_hz = 100000;
-
-  i2c_manager.addDevice(this->deviceConfig, this->deviceHandle);
+    i2c_manager.addDevice(this->deviceConfig, this->deviceHandle);
 }
 
-PCA9629A::~PCA9629A() {}
+PCA9629A::~PCA9629A() = default;
 
-void PCA9629A::initialise() {
-  software_reset();
-  init_registers();
+void PCA9629A::initialise()
+{
+    software_reset();
+    init_registers();
 }
 
-esp_err_t PCA9629A::software_reset(void) {
-  ESP_LOGI(TAG, "pca9629a software_reset");
+esp_err_t PCA9629A::software_reset()
+{
+    ESP_LOGI(TAG, "pca9629a software_reset");
 
-  std::vector<uint8_t> data;
-  data.push_back(0x06);
+    std::vector<uint8_t> data;
+    data.push_back(0x06);
 
-  esp_err_t ret = i2c_manager.writeRegister(
-      this->deviceHandle, static_cast<uint8_t>(REG_MODE), data);
+    esp_err_t ret = i2c_manager.writeRegister(
+        this->deviceHandle, static_cast<uint8_t>(REG_MODE), data);
 
-  if (ret != ESP_OK) {
-    ESP_LOGE(TAG,
-             "An error occurred in PCA9629A::software_reset writing i2c data");
-  }
+    if (ret != ESP_OK)
+    {
+        ESP_LOGE(TAG,
+                 "An error occurred in PCA9629A::software_reset writing i2c data");
+    }
 
-  return ret;
+    return ret;
 }
 
-void PCA9629A::init_registers(void) {
-  ESP_LOGI(TAG, "pca9629a init_registers");
-  std::vector<uint8_t> data = {
-      0x80, //  register access start address (0x00) with incremental access
-            //  flag (MSB)
-      0x21, // MODE
-      0x0A, // WDTOI (10 second timeout)
-      0x00, // WDCNTL
-      0x01, // IO_CFG (P0 configured as input)
-      0x21, // INTMODE (interrupt on falling edge for P0, 1ms noise suppression)
-      0x1E, // MSK (Enable interrupt for I/O P0)
-      0x00, // INTSTAT (Clears interrupt status register)
-      0x00, // IP (read only register, writes to this register have no effect)
-      0x01, // INT_MTR_ACT (stop motor on interrupt caused by P0)
-      0x00, 0x00, // EXTRASTEPS0, EXTRASTEPS1
-      //        0x50, // OP_CFG_PHS (two-phase drive outputs, OUT[3:0]
-      //        configured as motor drive outputs)
-      0xD0, // OP_CFG_PHS (half-step drive outputs, OUT[3:0] configured as motor
-            // drive outputs)
-      0x05, // OP_STAT_TO (output pins = HOLD)
-      0x00, // RUCNTL (default values)
-      0x00, // RDCNTL (default values)
-      0x01, // PMA (perform specified motor action once)
-      0x00, // LOOPDLY_CW (default value)
-      0x00, // LOOPDLY_CCW (default value)
-      0x00, 0x00, // CCWSCOUNTL, CCWSCOUNTH
-      0x00, 0x00, // CCWSCOUNTL, CCWSCOUNTH
-      // 0x05, 0x1F, // CWPWL, CWPWH
-      // 0x05, 0x1F, // CCWPWL, CCWPWH
-      0x88, 0x10, 0x88, 0x10,
-      0x20,             // MCNTL
-      0xE2, 0xE4, 0xE6, // SUBADR1 - SUBADR3
-      0xE0,             // ALLCALLADR
-  };
+void PCA9629A::init_registers()
+{
+    ESP_LOGI(TAG, "pca9629a init_registers");
+    std::vector<uint8_t> data = {
+        0x80, //  register access start address (0x00) with incremental access
+        //  flag (MSB)
+        0x21, // MODE
+        0x0A, // WDTOI (10 second timeout)
+        0x00, // WDCNTL
+        0x01, // IO_CFG (P0 configured as input)
+        0x21, // INTMODE (interrupt on falling edge for P0, 1ms noise suppression)
+        0x1E, // MSK (Enable interrupt for I/O P0)
+        0x00, // INTSTAT (Clears interrupt status register)
+        0x00, // IP (read only register, writes to this register have no effect)
+        0x01, // INT_MTR_ACT (stop motor on interrupt caused by P0)
+        0x00, 0x00, // EXTRASTEPS0, EXTRASTEPS1
+        //        0x50, // OP_CFG_PHS (two-phase drive outputs, OUT[3:0]
+        //        configured as motor drive outputs)
+        0xD0, // OP_CFG_PHS (half-step drive outputs, OUT[3:0] configured as motor
+        // drive outputs)
+        0x05, // OP_STAT_TO (output pins = HOLD)
+        0x00, // RUCNTL (default values)
+        0x00, // RDCNTL (default values)
+        0x01, // PMA (perform specified motor action once)
+        0x00, // LOOPDLY_CW (default value)
+        0x00, // LOOPDLY_CCW (default value)
+        0x00, 0x00, // CCWSCOUNTL, CCWSCOUNTH
+        0x00, 0x00, // CCWSCOUNTL, CCWSCOUNTH
+        // 0x05, 0x1F, // CWPWL, CWPWH
+        // 0x05, 0x1F, // CCWPWL, CCWPWH
+        0x88, 0x10, 0x88, 0x10,
+        0x20, // MCNTL
+        0xE2, 0xE4, 0xE6, // SUBADR1 - SUBADR3
+        0xE0, // ALLCALLADR
+    };
 
-  set_all_registers(data);
+    set_all_registers(data);
 }
 
-esp_err_t PCA9629A::set_all_registers(std::vector<uint8_t> &data) {
+esp_err_t PCA9629A::set_all_registers(std::vector<uint8_t>& data)
+{
+    esp_err_t ret = i2c_manager.write(this->deviceHandle, data);
 
-  esp_err_t ret = i2c_manager.write(this->deviceHandle, data);
+    if (ret != ESP_OK)
+    {
+        ESP_LOGE(
+            TAG,
+            "An error occurred in PCA9629A::set_all_registers writing i2c data");
+    }
 
-  if (ret != ESP_OK) {
-    ESP_LOGE(
-        TAG,
-        "An error occurred in PCA9629A::set_all_registers writing i2c data");
-  }
-
-  return ret;
+    return ret;
 }
 
-esp_err_t PCA9629A::write(RegisterName register_name, const uint8_t value) {
+esp_err_t PCA9629A::write(RegisterName register_name, const uint8_t value)
+{
+    std::vector<uint8_t> data;
+    data.push_back(value);
 
-  std::vector<uint8_t> data;
-  data.push_back(value);
+    esp_err_t ret = i2c_manager.writeRegister(
+        this->deviceHandle, static_cast<uint8_t>(register_name), data);
 
-  esp_err_t ret = i2c_manager.writeRegister(
-      this->deviceHandle, static_cast<uint8_t>(register_name), data);
+    if (ret != ESP_OK)
+    {
+        ESP_LOGE(TAG, "An error occurred in PCA9629A::write writing i2c data");
+    }
 
-  if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "An error occurred in PCA9629A::write writing i2c data");
-  }
-
-  return ret;
+    return ret;
 }
 
-esp_err_t PCA9629A::write16(RegisterName register_name, const uint16_t value) {
+esp_err_t PCA9629A::write16(RegisterName register_name, const uint16_t value)
+{
+    std::vector<uint8_t> data;
 
-  std::vector<uint8_t> data;
+    data.push_back(value & 0xFF);
+    data.push_back(value >> 8);
 
-  data.push_back(value & 0xFF);
-  data.push_back(value >> 8);
+    // TODO:
+    esp_err_t ret = i2c_manager.writeRegister(
+        this->deviceHandle, static_cast<uint8_t>(register_name) + 0x80,
+        data); // + 0x80 for autoincrement
 
-  // TODO:
-  esp_err_t ret = i2c_manager.writeRegister(
-      this->deviceHandle, static_cast<uint8_t>(register_name) + 0x80,
-      data); // + 0x80 for autoincrement
+    if (ret != ESP_OK)
+    {
+        ESP_LOGE(TAG, "An error occurred in PCA9629A::write16 writing i2c data");
+    }
 
-  if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "An error occurred in PCA9629A::write16 writing i2c data");
-  }
-
-  return ret;
+    return ret;
 }
 
-esp_err_t PCA9629A::read(RegisterName register_name, uint8_t &result) {
-  std::vector<uint8_t> data;
+esp_err_t PCA9629A::read(RegisterName register_name, uint8_t& result)
+{
+    std::vector<uint8_t> data;
 
-  esp_err_t ret = i2c_manager.readRegister(
-      this->deviceHandle, static_cast<uint8_t>(register_name), data, 1);
+    esp_err_t ret = i2c_manager.readRegister(
+        this->deviceHandle, static_cast<uint8_t>(register_name), data, 1);
 
-  if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "An error occurred in PCA9629A::read reading i2c data");
-    result = -1;
-  } else {
-    result = data.at(0);
-  }
+    if (ret != ESP_OK)
+    {
+        ESP_LOGE(TAG, "An error occurred in PCA9629A::read reading i2c data");
+        result = -1;
+    }
+    else
+    {
+        result = data.at(0);
+    }
 
-  return ret;
+    return ret;
 }
 
-esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t &result) {
+esp_err_t PCA9629A::read16(RegisterName register_name, uint16_t& result)
+{
+    std::vector<uint8_t> data;
 
-  std::vector<uint8_t> data;
+    esp_err_t ret = i2c_manager.readRegister(
+        this->deviceHandle, static_cast<uint8_t>(register_name), data, 2);
 
-  esp_err_t ret = i2c_manager.readRegister(
-      this->deviceHandle, static_cast<uint8_t>(register_name), data, 2);
+    if (ret != ESP_OK)
+    {
+        ESP_LOGE(TAG, "An error occurred in PCA9629A::read16 reading i2c data");
+        result = -1; // return as error
+    }
+    else
+    {
+        result = (data[1] << 8 | data[0]);
+    }
 
-  if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "An error occurred in PCA9629A::read16 reading i2c data");
-    result = -1; // return as error
-  } else {
-    result = (data[1] << 8 | data[0]);
-  }
-
-  return ret;
+    return ret;
 }
 
 void PCA9629A::start(Direction direction, uint16_t step_count,
-                     uint8_t repeats) {
-  _mutex.lock();
-  performingAction = true;
-  write(REG_MSK, 0x1F); // Disable all interrupts
-  write(REG_INT_MTR_ACT, 0x00);
-  write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
-  write(REG_PMA, repeats);
-  write(REG_INTSTAT, 0x00); // reset interrupt status register
-  write(REG_MCNTL, 0x80 | static_cast<uint8_t>(direction));
-  performingAction = false;
-  _mutex.unlock();
+                     uint8_t repeats)
+{
+    _mutex.lock();
+    performingAction = true;
+    write(REG_MSK, 0x1F); // Disable all interrupts
+    write(REG_INT_MTR_ACT, 0x00);
+    write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
+    write(REG_PMA, repeats);
+    write(REG_INTSTAT, 0x00); // reset interrupt status register
+    write(REG_MCNTL, 0x80 | static_cast<uint8_t>(direction));
+    performingAction = false;
+    _mutex.unlock();
 }
 
 void PCA9629A::startAfterHome(Direction direction, uint16_t step_count,
-                              uint8_t repeats) {
-  _mutex.lock();
-  performingAction = true;
-
-  write(REG_MSK, 0x1E); // Enable interrupt on P0
-  write(REG_PMA, 1);
-  write(REG_INT_MTR_ACT,
-        0x01); // Set enable interrupt based control of motor and stop motor on
-               // interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register
-  write(REG_INTSTAT, 0x00); // reset interrupt status register
-  write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 255);
-  write(REG_MCNTL, 0x90 | static_cast<uint8_t>(direction));
-
-  uint8_t data;
-  read(REG_MCNTL, data);
-  while ((data & 0x80) != 0) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    read(REG_MCNTL, data);
-  }
-
-  write(REG_MSK, 0x1F); // Disable all interrupts
-  write(REG_INT_MTR_ACT, 0x00);
-  write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
-  write(REG_PMA, repeats);
-  write(REG_INTSTAT, 0x00); // reset interrupt status register
-  write(REG_MCNTL, 0x80 | static_cast<uint8_t>(direction));
-
-  performingAction = false;
-
-  _mutex.unlock();
-}
-
-void PCA9629A::home(Direction dir) {
-  _mutex.lock();
-  performingAction = true;
-
-  write(REG_MSK, 0x1E); // Enable interrupt on P0
-  write(REG_PMA, 1);
-  write(REG_INT_MTR_ACT,
-        0x01); // Set enable interrupt based control of motor and stop motor on
-               // interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register
-  write(REG_INTSTAT, 0x00); // reset interrupt status register
-  write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 255);
-  write(REG_MCNTL, 0x90 | static_cast<uint8_t>(dir));
-  performingAction = false;
-  _mutex.unlock();
-}
-
-bool PCA9629A::isStopped() {
-  if (!performingAction) {
+                              uint8_t repeats)
+{
     _mutex.lock();
+    performingAction = true;
+
+    write(REG_MSK, 0x1E); // Enable interrupt on P0
+    write(REG_PMA, 1);
+    write(REG_INT_MTR_ACT,
+          0x01); // Set enable interrupt based control of motor and stop motor on
+    // interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register
+    write(REG_INTSTAT, 0x00); // reset interrupt status register
+    write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 255);
+    write(REG_MCNTL, 0x90 | static_cast<uint8_t>(direction));
+
     uint8_t data;
     read(REG_MCNTL, data);
+    while ((data & 0x80) != 0)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        read(REG_MCNTL, data);
+    }
 
-    // ESP_LOGD(TAG, "MCNTL register: %d", data);
+    write(REG_MSK, 0x1F); // Disable all interrupts
+    write(REG_INT_MTR_ACT, 0x00);
+    write16((direction == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
+    write(REG_PMA, repeats);
+    write(REG_INTSTAT, 0x00); // reset interrupt status register
+    write(REG_MCNTL, 0x80 | static_cast<uint8_t>(direction));
+
+    performingAction = false;
+
     _mutex.unlock();
-    return ((data & 0x80) == 0);
-  }
-  return (false); // we are still performing the action, so pretend we are not
-                  // stopped
 }
 
-void PCA9629A::stop(void) {
-  _mutex.lock();
-  write(REG_MCNTL, 0x00);
-  _mutex.unlock();
+void PCA9629A::home(Direction dir)
+{
+    _mutex.lock();
+    performingAction = true;
+
+    write(REG_MSK, 0x1E); // Enable interrupt on P0
+    write(REG_PMA, 1);
+    write(REG_INT_MTR_ACT,
+          0x01); // Set enable interrupt based control of motor and stop motor on
+    // interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register
+    write(REG_INTSTAT, 0x00); // reset interrupt status register
+    write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 255);
+    write(REG_MCNTL, 0x90 | static_cast<uint8_t>(dir));
+    performingAction = false;
+    _mutex.unlock();
 }
 
-// esp_err_t PCA9629A::register_dump(void) {
-//     uint8_t data[ 34 ]; // number of registers
-//     uint8_t cmd = 0x80;
-//
-//     esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address,
-//     I2C_NO_REG, &cmd, 1);
-//
-//     if (ret != ESP_OK) {
-//         ESP_LOGE(TAG, "An error occurred in PCA9629A::register_dump writing
-//         i2c data");
-//     }
-//
-//     ret |= i2c_manager_read(this->i2c_port, this->i2c_address, I2C_NO_REG,
-//     data, sizeof (data));
-//
-//     if (ret != ESP_OK) {
-//         ESP_LOGE(TAG, "An error occurred in PCA9629A::register_dump reading
-//         i2c data");
-//     }
-//
-//     ESP_LOGI(TAG, "PCA9629 register dump");
-//     //
-//     //    for (int i = 0, int j = 0x14; i <= 0x12; i++, j++) {
-//     //        ESP_LOGI(TAG, "  %-13s (0x%02X): 0x%02X    %-13s (0x%02X):
-//     0x%02X", reg_name[ i ], i, data[ i ], reg_name[ j ], j, data[ j ]);
-//     //    }
-//     //
-//     //    ESP_LOGI(TAG, "  %-13s (0x%02X): 0x%02X", reg_name[ 0x13 ], 0x13,
-//     data[ 0x13 ]);
-//
-//     return ret;
-// }
+bool PCA9629A::isStopped()
+{
+    if (!performingAction)
+    {
+        _mutex.lock();
+        uint8_t data;
+        read(REG_MCNTL, data);
+
+        // ESP_LOGD(TAG, "MCNTL register: %d", data);
+        _mutex.unlock();
+        return ((data & 0x80) == 0);
+    }
+    return (false); // we are still performing the action, so pretend we are not
+    // stopped
+}
+
+esp_err_t PCA9629A::registerDump()
+{
+    //     uint8_t data[ 34 ]; // number of registers
+    //     uint8_t cmd = 0x80;
+    //
+    //     esp_err_t ret = i2c_manager_write(this->i2c_port, this->i2c_address,
+    //     I2C_NO_REG, &cmd, 1);
+    //
+    //     if (ret != ESP_OK) {
+    //         ESP_LOGE(TAG, "An error occurred in PCA9629A::register_dump writing
+    //         i2c data");
+    //     }
+    //
+    //     ret |= i2c_manager_read(this->i2c_port, this->i2c_address, I2C_NO_REG,
+    //     data, sizeof (data));
+    //
+    //     if (ret != ESP_OK) {
+    //         ESP_LOGE(TAG, "An error occurred in PCA9629A::register_dump reading
+    //         i2c data");
+    //     }
+    //
+    //     ESP_LOGI(TAG, "PCA9629 register dump");
+    //     //
+    //     //    for (int i = 0, int j = 0x14; i <= 0x12; i++, j++) {
+    //     //        ESP_LOGI(TAG, "  %-13s (0x%02X): 0x%02X    %-13s (0x%02X):
+    //     0x%02X", reg_name[ i ], i, data[ i ], reg_name[ j ], j, data[ j ]);
+    //     //    }
+    //     //
+    //     //    ESP_LOGI(TAG, "  %-13s (0x%02X): 0x%02X", reg_name[ 0x13 ], 0x13,
+    //     data[ 0x13 ]);
+    //
+    //     return ret;
+
+    return ESP_OK;
+}
+
+void PCA9629A::stop()
+{
+    _mutex.lock();
+    write(REG_MCNTL, 0x00);
+    _mutex.unlock();
+}

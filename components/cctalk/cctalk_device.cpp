@@ -27,11 +27,13 @@
 #include <utility>
 
 #include "freertos/FreeRTOS.h"
-#include "freertos/projdefs.h"
-#include "freertos/task.h"
 
 #include "cctalk_device.h"
+
+#include <sstream>
+
 #include "cctalk_enums.h"
+#include "esp_pthread.h"
 
 static const char *TAG = "cctalkDevice";
 
@@ -46,9 +48,10 @@ CctalkDevice::CctalkDevice(CctalkLinkController &controller,
   ESP_LOGD(TAG, "Leaving constructor");
 }
 
-CctalkDevice::~CctalkDevice() {}
+CctalkDevice::~CctalkDevice() = default;
 
-CctalkLinkController &CctalkDevice::getLinkController() {
+CctalkLinkController &CctalkDevice::getLinkController() const
+{
   return this->linkController;
 }
 
@@ -137,7 +140,7 @@ void CctalkDevice::devicePollTask() {
         // Enable hopper
         ESP_LOGD(TAG, "Enabling hopper");
         enableHopper([&](const std::string &error_msg) {
-          if (error_msg.size() > 0) {
+          if (!error_msg.empty()) {
             ESP_LOGE(TAG, "Enable hopper command failed: %s",
                      error_msg.c_str());
           }
@@ -343,7 +346,7 @@ bool CctalkDevice::switchStateInitialized(
   std::function<void(const std::string, bool alive)> const &callback =
       [&](const std::string &error_msg, bool alive) {
         // ESP_LOGD(TAG, "requestCheckAlive callback called");
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           error = error_msg;
           doContinue = false;
         }
@@ -361,7 +364,7 @@ bool CctalkDevice::switchStateInitialized(
   // Get device manufacturing info
   requestManufacturingInfo([&](const std::string &error_msg,
                                CcCategory category, const std::string &info) {
-    if (error_msg.size() != 0) {
+    if (!error_msg.empty()) {
       error = error_msg;
     } else {
       this->deviceCategory = category;
@@ -369,7 +372,7 @@ bool CctalkDevice::switchStateInitialized(
       ESP_LOGI(TAG, "Manufacturing info: \n%s", manufacturingInfo.c_str());
     }
 
-    if (error_msg.size() > 0 || (category != CcCategory::BillValidator &&
+    if (!error_msg.empty() || (category != CcCategory::BillValidator &&
                                  category != CcCategory::CoinAcceptor &&
                                  category != CcCategory::Payout)) {
       doContinue = false;
@@ -385,12 +388,12 @@ bool CctalkDevice::switchStateInitialized(
 
     // Get recommended polling frequency
     requestPollingInterval([&](const std::string &error_msg, uint64_t msec) {
-      if (error_msg.size() != 0) {
+      if (!error_msg.empty()) {
         error = error_msg;
       } else {
         // For very large values and unsupported values pick reasonable
         // defaults.
-        const uint64_t max_interval_msec = 1000;
+        constexpr uint64_t max_interval_msec = 1000;
         if (msec == 0 ||
             msec > max_interval_msec) { // usually means "see device docs".
           ESP_LOGD(TAG,
@@ -401,11 +404,11 @@ bool CctalkDevice::switchStateInitialized(
               this->defaultNormalPollingIntervalMsec;
         } else {
           ESP_LOGD(TAG, "Device-recommended polling frequency: %d", int(msec));
-          this->normalPollingIntervalMsec = int(msec);
+          this->normalPollingIntervalMsec = static_cast<int>(msec);
         }
       }
 
-      if (error_msg.size() > 0) {
+      if (!error_msg.empty()) {
         doContinue = false;
       }
     });
@@ -421,13 +424,13 @@ bool CctalkDevice::switchStateInitialized(
       ESP_LOGD(TAG, "Requesting identifiers");
       requestIdentifiers(
           [&](const std::string &error_msg,
-              const std::map<uint8_t, CcIdentifier> &identifiers) {
-            if (error_msg.size() != 0) {
+              const std::map<uint8_t, CcIdentifier> &tmpIdentifiers) {
+            if (!error_msg.empty()) {
               error = error_msg;
             } else {
-              this->identifiers = identifiers;
+              this->identifiers = tmpIdentifiers;
             }
-            if (error_msg.size() > 0) {
+            if (!error_msg.empty()) {
               doContinue = false;
             }
           });
@@ -440,10 +443,8 @@ bool CctalkDevice::switchStateInitialized(
     // Modify bill validator operating mode - enable escrow and stacker
     if (this->deviceCategory == CcCategory::BillValidator) {
       modifyBillOperatingMode(true, true, [&](const std::string &error_msg) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           error = error_msg;
-        }
-        if (error_msg.size() > 0) {
           doContinue = false;
         }
       });
@@ -457,22 +458,19 @@ bool CctalkDevice::switchStateInitialized(
     // says that this is not needed for coin acceptors, but the practice shows
     // it is.
     modifyInhibitStatus(0xff, 0xff, [&](const std::string &error_msg) {
-      if (error_msg.size() != 0) {
+      if (!error_msg.empty()) {
         error = error_msg;
-      }
-
-      if (error_msg.size() > 0) {
         doContinue = false;
       }
     });
   }
 
-  if (error.size() == 0 && isAlive) {
+  if (error.empty() && isAlive) {
     setDeviceState(CcDeviceState::Initialized);
     finish_callback(error);
     return true;
-  } else {
   }
+
   requestSwitchDeviceState(CcDeviceState::UninitializedDown, finish_callback);
   return false;
 }
@@ -482,7 +480,7 @@ bool CctalkDevice::switchStateNormalAccepting(
 
   // Disable master inhibit.
   modifyMasterInhibitStatus(false, [&](const std::string &error_msg) {
-    if (error_msg.size() == 0) {
+    if (error_msg.empty()) {
       setDeviceState(CcDeviceState::NormalAccepting);
       ESP_LOGD(TAG, "Device switched to NormalAccepting state");
       finish_callback(error_msg);
@@ -501,7 +499,7 @@ bool CctalkDevice::switchStateNormalRejecting(
 
   // Enable master inhibit.
   modifyMasterInhibitStatus(true, [&](const std::string &error_msg) {
-    if (error_msg.size() == 0) {
+    if (error_msg.empty()) {
       setDeviceState(CcDeviceState::NormalRejecting);
       finish_callback(error_msg);
     } else {
@@ -519,7 +517,7 @@ bool CctalkDevice::switchStateDiagnosticsPolling(
   // In theory, this is redundant since the device itself will enable it if a
   // fault is detected, but just in case of a software logic error...
   modifyMasterInhibitStatus(true, [&](const std::string &error_msg) {
-    if (error_msg.size() == 0) {
+    if (error_msg.empty()) {
       setDeviceState(CcDeviceState::DiagnosticsPolling);
       finish_callback(error_msg);
     } else {
@@ -552,16 +550,17 @@ bool CctalkDevice::switchStateShutDown(
 
 void CctalkDevice::requestCheckAlive(
     std::function<void(const std::string &errorMsg, bool alive)> const
-        &finish_callback) {
+        &finish_callback) const
+{
 
   ESP_LOGD(TAG, "Sending request for SimplePoll to device address %d",
            this->deviceAddress);
   std::vector<uint8_t> data;
   this->linkController.ccRequest(
       CcHeader::SimplePoll, this->deviceAddress, data, 200,
-      [&](const std::string error_msg,
+      [&](const std::string& error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG,
                    "Error checking for device alive status (simple poll): %s",
                    error_msg.c_str());
@@ -569,7 +568,7 @@ void CctalkDevice::requestCheckAlive(
           return;
         }
 
-        if (responseData.size() != 0) {
+        if (!responseData.empty()) {
           std::string error = "Non-empty data received while waiting for ACK.";
           // //ccResponseDataDecodeError(request_id, error); // auto-logged
           finish_callback(error, false);
@@ -584,7 +583,8 @@ void CctalkDevice::requestCheckAlive(
 
 void CctalkDevice::requestManufacturingInfo(
     std::function<void(const std::string &error_msg, CcCategory &category,
-                       const std::string &info)> const &finish_callback) {
+                       const std::string &info)> const &finish_callback) const
+{
   std::string error;
   CcCategory category;
   std::string info;
@@ -598,17 +598,17 @@ void CctalkDevice::requestManufacturingInfo(
       CcHeader::RequestEquipmentCategoryId, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           error = error_msg;
         } else {
           // Decode the data
-          std::string decoded = decodeResponseToString(responseData);
+          const std::string decoded = decodeResponseToString(responseData);
           info.append("*** Equipment category: " + decoded + "\n");
           category = ccCategoryFromReportedName(decoded);
         }
       });
 
-  if (error.size() != 0) {
+  if (!error.empty()) {
     return;
   }
 
@@ -617,7 +617,7 @@ void CctalkDevice::requestManufacturingInfo(
       CcHeader::RequestProductCode, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           error = error_msg;
         } else {
           // Decode the data
@@ -631,7 +631,7 @@ void CctalkDevice::requestManufacturingInfo(
       CcHeader::RequestBuildCode, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           error = error_msg;
         } else {
           // Decode the data
@@ -645,7 +645,7 @@ void CctalkDevice::requestManufacturingInfo(
       CcHeader::RequestManufacturerId, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           error = error_msg;
         } else {
           // Decode the data
@@ -660,7 +660,7 @@ void CctalkDevice::requestManufacturingInfo(
       CcHeader::RequestSerialNumber, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           error = error_msg;
         } else {
           // Decode the data
@@ -674,7 +674,7 @@ void CctalkDevice::requestManufacturingInfo(
       CcHeader::RequestSoftwareRevision, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           error = error_msg;
         } else {
           // Decode the data
@@ -688,7 +688,7 @@ void CctalkDevice::requestManufacturingInfo(
       CcHeader::RequestCommsRevision, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           error = error_msg;
         } else {
           if (responseData.size() == 3) {
@@ -709,8 +709,9 @@ void CctalkDevice::requestManufacturingInfo(
 
 void CctalkDevice::requestPollingInterval(
     std::function<void(const std::string &error_msg, uint64_t msec)> const
-        &finish_callback) {
-  std::vector<uint8_t> data;
+        &finish_callback) const
+{
+  constexpr std::vector<uint8_t> data;
 
   ESP_LOGD(TAG, "Requesting polling interval");
 
@@ -718,7 +719,7 @@ void CctalkDevice::requestPollingInterval(
       CcHeader::RequestPollingPriority, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, " Error getting polling interval: %s",
                    error_msg.c_str());
           finish_callback(error_msg, 0);
@@ -775,15 +776,16 @@ void CctalkDevice::requestPollingInterval(
 
         // 0,0 means "see the device docs".
         // 0,255 means "use hw device poll line".
-        uint64_t interval_ms = ms_multiplier * uint64_t(value);
+        uint64_t interval_ms = ms_multiplier * static_cast<uint64_t>(value);
 
         finish_callback(std::string(), interval_ms);
       });
 }
 
 void CctalkDevice::modifyInhibitStatus(
-    uint8_t accept_mask1, uint8_t accept_mask2,
-    std::function<void(const std::string &error_msg)> const &finish_callback) {
+    const uint8_t accept_mask1, const uint8_t accept_mask2,
+    std::function<void(const std::string &error_msg)> const &finish_callback) const
+{
   std::vector<uint8_t> command_arg;
   // lower 8 and higher 8, 16 coins/bills total.
   command_arg.push_back(accept_mask1);
@@ -793,12 +795,12 @@ void CctalkDevice::modifyInhibitStatus(
       CcHeader::ModifyInhibitStatus, this->deviceAddress, command_arg, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error setting inhibit status: %s", error_msg.c_str());
           finish_callback(error_msg);
           return;
         }
-        if (responseData.size() > 0) {
+        if (!responseData.empty()) {
           std::string error = "Non-empty data received while waiting for ACK.";
           // ccResponseDataDecodeError(request_id, error); // auto-logged
           finish_callback(error);
@@ -813,23 +815,24 @@ void CctalkDevice::modifyInhibitStatus(
 }
 
 void CctalkDevice::modifyMasterInhibitStatus(
-    bool inhibit,
-    std::function<void(const std::string &error_msg)> const &finish_callback) {
+    const bool inhibit,
+    std::function<void(const std::string &error_msg)> const &finish_callback) const
+{
   std::vector<uint8_t> command_arg;
   command_arg.push_back(
-      char(inhibit ? 0x0 : 0x1)); // 0 means master inhibit active.
+      static_cast<char>(inhibit ? 0x0 : 0x1)); // 0 means master inhibit active.
   this->linkController.ccRequest(
       CcHeader::ModifyMasterInhibitStatus, this->deviceAddress, command_arg,
       200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() > 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error setting master inhibit status: %s",
                    error_msg.c_str());
           finish_callback(error_msg);
           return;
         }
-        if (responseData.size() > 0) {
+        if (!responseData.empty()) {
           std::string error = "Non-empty data received while waiting for ACK.";
           finish_callback(error);
 
@@ -865,13 +868,14 @@ void CctalkDevice::modifyMasterInhibitStatus(
 
 void CctalkDevice::requestMasterInhibitStatus(
     std::function<void(const std::string &error_msg, bool inhibit)> const
-        &finish_callback) {
-  std::vector<uint8_t> data;
+        &finish_callback) const
+{
+  constexpr std::vector<uint8_t> data;
   this->linkController.ccRequest(
       CcHeader::RequestMasterInhibitStatus, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error getting master inhibit status: %s",
                    error_msg.c_str());
           finish_callback(error_msg, false);
@@ -887,7 +891,7 @@ void CctalkDevice::requestMasterInhibitStatus(
         }
         // Decode the data
 
-        bool inhibit = !bool(responseData.at(0)); // 0 means inhibit
+        bool inhibit = !static_cast<bool>(responseData.at(0)); // 0 means inhibit
         ESP_LOGD(TAG, "Master inhibit status: %s",
                  !inhibit ? "accept" : "reject");
         finish_callback(std::string(), inhibit);
@@ -896,7 +900,8 @@ void CctalkDevice::requestMasterInhibitStatus(
 
 void CctalkDevice::modifyBillOperatingMode(
     bool use_stacker, bool use_escrow,
-    std::function<void(const std::string &error_msg)> const &finish_callback) {
+    std::function<void(const std::string &error_msg)> const &finish_callback) const
+{
   std::vector<uint8_t> command_arg;
   unsigned int mask = 0;
   if (use_stacker) {
@@ -905,19 +910,19 @@ void CctalkDevice::modifyBillOperatingMode(
   if (use_escrow) {
     mask += 2;
   }
-  command_arg.push_back(char(mask));
+  command_arg.push_back(static_cast<char>(mask));
 
   this->linkController.ccRequest(
       CcHeader::ModifyBillOperatingMode, this->deviceAddress, command_arg, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error setting bill validator operating mode: %s",
                    error_msg.c_str());
           finish_callback(error_msg);
           return;
         }
-        if (responseData.size() != 0) {
+        if (!responseData.empty()) {
           std::string error = "Non-empty data received while waiting for ACK.";
           // ccResponseDataDecodeError(request_id, error); // auto-logged
           finish_callback(error);
@@ -970,8 +975,8 @@ void CctalkDevice::requestIdentifiers(
     this->linkController.ccRequest(
         CcHeader::RequestVariableSet, this->deviceAddress, data, 200,
         [&](const std::string &error_msg,
-            const std::vector<uint8_t> responseData) {
-          if (error_msg.size() != 0) {
+            const std::vector<uint8_t>& responseData) {
+          if (!error_msg.empty()) {
             // Do not set global error, this is a local error of an optional
             // command. *shared_error = error_msg;
           } else {
@@ -1000,7 +1005,7 @@ void CctalkDevice::requestIdentifiers(
 
   std::vector<uint8_t> data;
   /// Get coin / bill IDs (and possibly country scaling data)
-  for (uint8_t pos = 1; pos <= maxPositions; ++pos) {
+  for (int pos = 1; pos <= maxPositions; ++pos) {
     ESP_LOGD(TAG, "requestIdentifiers for %s: position %d of maxPositions: %d",
              this->deviceCategory == CcCategory::CoinAcceptor ? "CoinAcceptor"
                                                               : "BillValidator",
@@ -1014,8 +1019,8 @@ void CctalkDevice::requestIdentifiers(
     this->linkController.ccRequest(
         get_command, this->deviceAddress, data, 200,
         [&](const std::string &error_msg,
-            const std::vector<uint8_t> responseData) {
-          if (error_msg.size() != 0) {
+            const std::vector<uint8_t>& responseData) {
+          if (!error_msg.empty()) {
             ESP_LOGE(
                 TAG,
                 "An error occurred calling requestCoinId/requestBillID: %s",
@@ -1026,10 +1031,10 @@ void CctalkDevice::requestIdentifiers(
             // Decode the data.
             // 6 dots mean empty by convention, but we've seen all-null too.
             std::string decodedData = decodeResponseToString(responseData);
-            if (decodedData.size() != 0 && decodedData != "......" &&
+            if (!decodedData.empty() && decodedData != "......" &&
                 decodedData.at(0) != 0) {
               CcIdentifier identifier(decodedData);
-              if (countryScalingData.count(identifier.country) > 0) {
+              if (countryScalingData.contains(identifier.country)) {
                 identifier.setCountryScalingData(
                     this->countryScalingData.at(identifier.country));
               }
@@ -1048,12 +1053,12 @@ void CctalkDevice::requestIdentifiers(
 
     // If this is a Bill Validator, get country scaling data.
     // For coin acceptors, use a fixed, predefined country scaling data.
-    if (this->identifiers.count(pos) == 0) { // empty position
+    if (!this->identifiers.contains(pos)) { // empty position
       ESP_LOGD(TAG, "Empty position: %d", pos);
     }
 
     std::string country = this->identifiers.at(pos).country;
-    if (country.size() == 0 || this->countryScalingData.count(country) > 0) {
+    if (country.empty() || this->countryScalingData.contains(country)) {
       // Do nothing
     }
 
@@ -1062,15 +1067,15 @@ void CctalkDevice::requestIdentifiers(
     // Predefined rules for Georgia. TODO Make this configurable and / or
     // remove it from here.
     if (this->deviceCategory == CcCategory::CoinAcceptor && country == "GE") {
-      CcCountryScalingData data;
-      data.scaling_factor = 1;
-      data.decimal_places = 2;
-      this->countryScalingData.insert(std::make_pair(country, data));
-      this->identifiers.at(pos).country_scaling_data = data;
+      CcCountryScalingData scalingData;
+      scalingData.scaling_factor = 1;
+      scalingData.decimal_places = 2;
+      this->countryScalingData.insert(std::make_pair(country, scalingData));
+      this->identifiers.at(pos).country_scaling_data = scalingData;
       ESP_LOGD(TAG,
                "Using predefined country scaling data for %s: scaling factor: "
                "%d, decimal places: %d.",
-               country.c_str(), data.scaling_factor, int(data.decimal_places));
+               country.c_str(), scalingData.scaling_factor, int(scalingData.decimal_places));
     }
 
     // For coin validator
@@ -1081,8 +1086,8 @@ void CctalkDevice::requestIdentifiers(
           CcHeader::RequestCountryScalingFactor, this->deviceAddress,
           countryVector, 200,
           [&](const std::string &error_msg,
-              const std::vector<uint8_t> responseData) {
-            if (error_msg.size() != 0) {
+              const std::vector<uint8_t>& responseData) {
+            if (!error_msg.empty()) {
               error = error_msg;
 
             } else {
@@ -1091,22 +1096,22 @@ void CctalkDevice::requestIdentifiers(
                 ESP_LOGE(TAG, "Invalid scaling data for country %s.",
                          country.c_str());
               } else {
-                CcCountryScalingData data;
+                CcCountryScalingData scalingData;
                 auto lsb =
-                    uint16_t(static_cast<unsigned char>(responseData.at(0)));
+                    static_cast<uint16_t>(static_cast<unsigned char>(responseData.at(0)));
                 auto msb =
-                    uint16_t(static_cast<unsigned char>(responseData.at(1)));
-                data.scaling_factor = uint16_t(lsb + msb * 256);
-                data.decimal_places = responseData.at(2);
-                if (data.isValid()) {
+                    static_cast<uint16_t>(static_cast<unsigned char>(responseData.at(1)));
+                scalingData.scaling_factor = static_cast<uint16_t>(lsb + msb * 256);
+                scalingData.decimal_places = responseData.at(2);
+                if (scalingData.isValid()) {
                   this->countryScalingData.insert(
-                      std::make_pair(country, data));
-                  this->identifiers.at(pos).country_scaling_data = data;
+                      std::make_pair(country, scalingData));
+                  this->identifiers.at(pos).country_scaling_data = scalingData;
                   ESP_LOGD(TAG,
                            "Country scaling data for %s: scaling factor: %d, "
                            "decimal places: %d.",
-                           country.c_str(), data.scaling_factor,
-                           int(data.decimal_places));
+                           country.c_str(), scalingData.scaling_factor,
+                           int(scalingData.decimal_places));
                 } else {
                   ESP_LOGD(TAG, "Country scaling data for %s: empty!",
                            country.c_str());
@@ -1117,11 +1122,11 @@ void CctalkDevice::requestIdentifiers(
     }
   }
 
-  if (error.size() != 0) {
+  if (!error.empty()) {
     ESP_LOGE(TAG, "Error getting %s identifiers: %s", coin_bill.c_str(),
              error.c_str());
   } else {
-    if (this->identifiers.size() != 0) {
+    if (!this->identifiers.empty()) {
       for (auto iter = this->identifiers.cbegin();
            iter != this->identifiers.cend(); ++iter) {
         ESP_LOGD(TAG, "*** %s position %d: %s", coin_bill.c_str(),
@@ -1139,32 +1144,33 @@ void CctalkDevice::requestIdentifiers(
 void CctalkDevice::requestHopperStatus(
     std::function<void(const std::string &error_msg, uint8_t eventCounter,
                        const std::vector<CcEventData> event_data)> const
-        &finish_callback) {
+        &finish_callback) const
+{
   std::vector<uint8_t> data;
   this->linkController.ccRequest(
       CcHeader::RequestHopperStatus, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
-          const std::vector<uint8_t> responseData) {
+          const std::vector<uint8_t>& responseData) {
         // TODO Handle command timeout
-        std::vector<CcEventData> event_data;
+        std::vector<CcEventData> eventData;
 
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error getting hopper status: %s", error_msg.c_str());
-          finish_callback(error_msg, 0, event_data);
+          finish_callback(error_msg, 0, eventData);
           return;
         }
 
-        if (responseData.size() == 0) {
+        if (responseData.empty()) {
           std::string error =
               std::string("Invalid (empty) hopper status data received.");
-          finish_callback(error, 0, event_data);
+          finish_callback(error, 0, eventData);
 
           return;
         }
 
         uint8_t eventCounter = 0; // TODO change this
 
-        finish_callback(std::string(), eventCounter, event_data);
+        finish_callback(std::string(), eventCounter, eventData);
       });
 }
 
@@ -1197,19 +1203,19 @@ void CctalkDevice::requestBufferedCreditEvents(
   this->linkController.ccRequest(
       command, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
-          const std::vector<uint8_t> responseData) {
+          const std::vector<uint8_t>& responseData) {
         // TODO Handle command timeout
 
         std::vector<CcEventData> event_data;
 
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error getting %s buffered credit / events: %s",
                    coin_bill.c_str(), error_msg.c_str());
           finish_callback(error_msg, 0, event_data);
           return;
         }
 
-        if (responseData.size() == 0) {
+        if (responseData.empty()) {
           std::string error =
               std::string("Invalid (empty) " + coin_bill +
                           " buffered credit / event data received.");
@@ -1227,7 +1233,7 @@ void CctalkDevice::requestBufferedCreditEvents(
           return;
         }
 
-        auto eventCounter = uint8_t(responseData[0]);
+        auto eventCounter = static_cast<uint8_t>(responseData[0]);
 
         // Log the table, but only if changed.
         if (!this->isEventLogRead || this->lastEventNumber != eventCounter) {
@@ -1259,21 +1265,23 @@ void CctalkDevice::requestBufferedCreditEvents(
  * Check to see if the hopper has any payout errors (e.g. stuck coin)
  *
  * @param error_msg An error messaged returned by the cctalk command
- * @param hopperStatus 2 data bytes containing error codes from the hopper.
+ * @param eventCounter
+ * @param hopperStatusData 2 data bytes containing error codes from the hopper.
+ * @param finish_callback The callback that should process the data
  */
 void CctalkDevice::processHopperStatus(
-    const std::string &error_msg, uint8_t eventCounter,
-    const std::vector<CcEventData> hopperStatusData,
-    std::function<void()> const &finish_callback) {
+    const std::string &error_msg, const uint8_t eventCounter,
+    const std::vector<CcEventData>& hopperStatusData,
+    std::function<void()> const &finish_callback) const {
   // Per specification, a command timeout should be ignored.
-  if (error_msg.size() == 0 && eventCounter == 0 &&
-      hopperStatusData.size() == 0) {
+  if (error_msg.empty() && eventCounter == 0 &&
+      hopperStatusData.empty()) {
     finish_callback();
     return; // nothing
   }
 
   // If an error occurred during polling, do nothing (?)
-  if (error_msg.size() != 0) {
+  if (!error_msg.empty()) {
     finish_callback();
     return;
   }
@@ -1318,18 +1326,18 @@ void CctalkDevice::processHopperStatus(
  */
 void CctalkDevice::processCreditEventLog(
     bool accepting, const std::string &event_log_cmd_error_msg,
-    uint8_t eventCounter, const std::vector<CcEventData> event_data,
+    uint8_t eventCounter, const std::vector<CcEventData>& event_data,
     std::function<void()> const &finish_callback) {
 
   // Per specification, a command timeout should be ignored.
-  if (event_log_cmd_error_msg.size() == 0 && eventCounter == 0 &&
-      event_data.size() == 0) {
+  if (event_log_cmd_error_msg.empty() && eventCounter == 0 &&
+      event_data.empty()) {
     finish_callback();
     return; // nothing
   }
 
   // If an error occurred during polling, do nothing (?)
-  if (event_log_cmd_error_msg.size() != 0) {
+  if (!event_log_cmd_error_msg.empty()) {
     finish_callback();
     return;
   }
@@ -1373,7 +1381,7 @@ void CctalkDevice::processCreditEventLog(
   //            startup; ignoring \"credit accepted\" events.");
   //        }
 
-  int newEventCount = int(eventCounter) - int(this->lastEventNumber);
+  int newEventCount = static_cast<int>(eventCounter) - static_cast<int>(this->lastEventNumber);
   if (newEventCount < 0) {
     newEventCount += 255;
   }
@@ -1446,7 +1454,7 @@ void CctalkDevice::processCreditEventLog(
       if (getStoredDeviceCategory() == CcCategory::CoinAcceptor) {
         ESP_LOGD(TAG, "Processing coin");
         // Coin accepted, credit the user.
-        if (this->identifiers.find(ev.coin_id) != this->identifiers.cend()) {
+        if (this->identifiers.contains(ev.coin_id)) {
           CcIdentifier id = this->identifiers.at(ev.coin_id);
           //                        if (processing_app_startup_events) {
           //                            ESP_LOGD(TAG, "The following is a
@@ -1627,14 +1635,15 @@ void CctalkDevice::processCreditEventLog(
 void CctalkDevice::requestRouteBill(
     CcBillRouteCommandType route,
     std::function<void(const std::string &error_msg,
-                       CcBillRouteStatus status)> const &finish_callback) {
+                       CcBillRouteStatus status)> const &finish_callback) const
+{
   std::vector<uint8_t> command_arg;
-  command_arg.push_back(char(route));
+  command_arg.push_back(static_cast<char>(route));
   this->linkController.ccRequest(
       CcHeader::RouteBill, this->deviceAddress, command_arg, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error sending RouteBill command: %s",
                    error_msg.c_str());
           finish_callback(error_msg, CcBillRouteStatus::FailedToRoute);
@@ -1665,13 +1674,14 @@ void CctalkDevice::requestRouteBill(
 
 void CctalkDevice::requestSelfCheck(
     std::function<void(const std::string &error_msg,
-                       CcFaultCode fault_code)> const &finish_callback) {
+                       CcFaultCode fault_code)> const &finish_callback) const
+{
   std::vector<uint8_t> data;
   this->linkController.ccRequest(
       CcHeader::PerformSelfCheck, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error getting self-check status: %s",
                    error_msg.c_str());
           finish_callback(error_msg, CcFaultCode::CustomCommandError);
@@ -1683,7 +1693,7 @@ void CctalkDevice::requestSelfCheck(
 
           return;
         }
-        if (responseData.size() > 0) {
+        if (!responseData.empty()) {
           //                // Decode the data
           auto fault_code = static_cast<CcFaultCode>(responseData.at(0));
           ESP_LOGD(TAG, "Self-check fault code: %s ",
@@ -1699,20 +1709,21 @@ void CctalkDevice::requestSelfCheck(
 }
 
 void CctalkDevice::requestResetDevice(
-    std::function<void(const std::string &error_msg)> const &finish_callback) {
+    std::function<void(const std::string &error_msg)> const &finish_callback) const
+{
   // Send the request
   std::vector<uint8_t> data;
   this->linkController.ccRequest(
       CcHeader::ResetDevice, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error sending soft reset request: %s",
                    error_msg.c_str());
           finish_callback(error_msg);
           return;
         }
-        if (responseData.size() != 0) {
+        if (!responseData.empty()) {
           std::string error = "Non-empty data received while waiting for ACK.";
 
           finish_callback(error);
@@ -1728,7 +1739,7 @@ void CctalkDevice::requestResetDevice(
 void CctalkDevice::requestResetDeviceWithState(
     std::function<void(const std::string &error_msg)> const &finish_callback) {
   requestResetDevice([&](const std::string &error_msg) {
-    if (error_msg.size() == 0) {
+    if (error_msg.empty()) {
       requestSwitchDeviceState(CcDeviceState::UninitializedDown,
                                finish_callback);
     } else {
@@ -1740,7 +1751,8 @@ void CctalkDevice::requestResetDeviceWithState(
 
 void CctalkDevice::modifySorterPath(
     const uint8_t coin_id, const uint8_t path,
-    std::function<void(const std::string &error_msg)> const &finish_callback) {
+    std::function<void(const std::string &error_msg)> const &finish_callback) const
+{
   std::vector<uint8_t> data;
   data.push_back(coin_id);
   data.push_back(path);
@@ -1748,13 +1760,13 @@ void CctalkDevice::modifySorterPath(
       CcHeader::ModifySorterPaths, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error modifying sorter path %d: %s", int(path),
                    error_msg.c_str());
           finish_callback(error_msg);
           return;
         }
-        if (responseData.size() != 0) {
+        if (!responseData.empty()) {
           std::string error = "Non-empty data received while waiting for ACK.";
           finish_callback(error);
 
@@ -1768,20 +1780,21 @@ void CctalkDevice::modifySorterPath(
 
 void CctalkDevice::modifyDefaultSorterPath(
     const uint8_t path,
-    std::function<void(const std::string &error_msg)> const &finish_callback) {
+    std::function<void(const std::string &error_msg)> const &finish_callback) const
+{
   std::vector<uint8_t> data;
   data.push_back(path);
   this->linkController.ccRequest(
       CcHeader::ModifyDefaultSorterPath, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error modifying sorter path %d: %s", int(path),
                    error_msg.c_str());
           finish_callback(error_msg);
           return;
         }
-        if (responseData.size() != 0) {
+        if (!responseData.empty()) {
           std::string error = "Non-empty data received while waiting for ACK.";
           finish_callback(error);
 
@@ -1794,20 +1807,21 @@ void CctalkDevice::modifyDefaultSorterPath(
 
 void CctalkDevice::modifySorterOverrideStatus(
     const uint8_t overrideStatus,
-    std::function<void(const std::string &error_msg)> const &finish_callback) {
+    std::function<void(const std::string &error_msg)> const &finish_callback) const
+{
   std::vector<uint8_t> data;
   data.push_back(overrideStatus);
   this->linkController.ccRequest(
       CcHeader::ModifySorterOverrideStatus, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error modifying sorter override status %d: %s",
                    int(overrideStatus), error_msg.c_str());
           finish_callback(error_msg);
           return;
         }
-        if (responseData.size() != 0) {
+        if (!responseData.empty()) {
           std::string error = "Non-empty data received while waiting for ACK.";
           finish_callback(error);
 
@@ -1819,23 +1833,22 @@ void CctalkDevice::modifySorterOverrideStatus(
 }
 
 void CctalkDevice::enableHopper(
-    std::function<void(const std::string &error_msg)> finish_callback) {
+    const std::function<void(const std::string &error_msg)>& finish_callback) const
+{
   std::vector<uint8_t> data;
   data.push_back(165); // always send this byte
   this->linkController.ccRequest(
       CcHeader::EnableHopper, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error enabling hopper: %s", error_msg.c_str());
           finish_callback(error_msg);
           return;
         }
-        if (responseData.size() != 0) {
-          std::string error = "Non-empty data received while waiting for ACK.";
+        if (!responseData.empty()) {
+          const std::string error = "Non-empty data received while waiting for ACK.";
           finish_callback(error);
-
-          return;
         }
       });
 }
@@ -1843,13 +1856,14 @@ void CctalkDevice::enableHopper(
 void CctalkDevice::requestCipherKey(
     std::function<void(const std::string &error_msg,
                        const std::vector<uint8_t> &cipherKey)> const
-        &finish_callback) {
+        &finish_callback) const
+{
   std::vector<uint8_t> data;
   this->linkController.ccRequest(
       CcHeader::RequestCipherKey, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error requesting cipher key: %s", error_msg.c_str());
           finish_callback(error_msg, responseData);
           return;
@@ -1869,13 +1883,14 @@ void CctalkDevice::requestCipherKey(
 void CctalkDevice::requestPayoutHighLowStatus(
     std::function<void(const std::string &error_msg,
                        const std::vector<uint8_t> &highLowStatus)> const
-        &finish_callback) {
+        &finish_callback) const
+{
   std::vector<uint8_t> data;
   this->linkController.ccRequest(
       CcHeader::RequestPayoutHighLowStatus, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error requesting payout high/low status: %s",
                    error_msg.c_str());
           finish_callback(error_msg, responseData);
@@ -1888,15 +1903,16 @@ void CctalkDevice::requestPayoutHighLowStatus(
 }
 
 void CctalkDevice::testHopper(
-    std::function<void(const std::string &error_msg,
+    const std::function<void(const std::string &error_msg,
                        const std::vector<uint8_t> &hopperStatus)>
-        finish_callback) {
+        & finish_callback) const
+{
   std::vector<uint8_t> data;
   this->linkController.ccRequest(
       CcHeader::TestHopper, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
           const std::vector<uint8_t> &responseData) {
-        if (error_msg.size() != 0) {
+        if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error testing hopper: %s", error_msg.c_str());
           finish_callback(error_msg, responseData);
           return;
@@ -1913,7 +1929,8 @@ void CctalkDevice::testHopper(
 
 void CctalkDevice::dispenseCoins(
     const int numberOfCoins,
-    std::function<void(const std::string &error_msg)> const &finish_callback) {
+    std::function<void(const std::string &error_msg)> const &finish_callback) const
+{
 
   ESP_LOGD(TAG, "Dispense coins called: Dispensing %d coins: ", numberOfCoins);
 
@@ -1931,7 +1948,7 @@ void CctalkDevice::dispenseCoins(
   ESP_LOGD(TAG, "Requesting cipher key");
   requestCipherKey([&](const std::string &error_msg,
                        const std::vector<uint8_t> &cipherKey) {
-    if (error_msg.size() > 0) {
+    if (!error_msg.empty()) {
       ESP_LOGE(TAG, "Request cipher key command failed: %s", error_msg.c_str());
       doContinue = false;
       finish_callback("Request cipher key command failed.");
@@ -1975,6 +1992,11 @@ void CctalkDevice::dispenseCoins(
                                  });
 }
 
+void CctalkDevice::purgeHopper(
+  std::function<void(const std::string& error_msg, const std::vector<uint8_t>& hopperStatus)> const& finish_callback)
+{
+}
+
 CcDeviceState CctalkDevice::getDeviceState() const { return this->deviceState; }
 
 void CctalkDevice::setDeviceState(CcDeviceState state) {
@@ -2009,7 +2031,7 @@ std::map<uint8_t, CcIdentifier> CctalkDevice::getStoredIndentifiers() const {
 std::string
 CctalkDevice::decodeResponseToString(const std::vector<uint8_t> &responseData) {
   std::string responseString;
-  for (uint8_t byte : responseData) {
+  for (const char byte : responseData) {
 
     responseString.push_back(byte);
   }
@@ -2030,9 +2052,8 @@ CctalkDevice::decodeResponseToHex(const std::vector<uint8_t> &responseData) {
 
 std::string
 CctalkDevice::decodeSerialNumber(const std::vector<uint8_t> &responseData) {
-
-  uint32_t serialNumber = 0;
   if (responseData.size() == 3) {
+    uint32_t serialNumber = 0;
     serialNumber = (responseData.at(0) << 16) | (responseData.at(1) << 8) |
                    (responseData.at(2) & 0xff);
 

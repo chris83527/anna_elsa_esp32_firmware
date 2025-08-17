@@ -24,7 +24,7 @@
  */
 
 /**
- * @file ds3231.c
+ * @file ds3231.cpp
  *
  * ESP-IDF driver for DS337 RTC and DS3231 high precision RTC module
  *
@@ -37,7 +37,7 @@
  * MIT Licensed as described in the file LICENSE
  */
 #include <esp_err.h>
-#include <stdio.h>
+#include <cstdio>
 
 #include "ds3231.h"
 #include "hal/i2c_types.h"
@@ -87,8 +87,8 @@ static const char *TAG = "ds3231";
 /** Create a DS3231 instance connected to specified I2C pins with specified
  * address
  *
- * @param i2c_port The I2C port to use (default: 0)
- * @param i2c_address I2C-bus address (default: 0x20)
+ * @param i2cmgr The I2C manager
+ * @param address I2C-bus address (default: 0x20)
  */
 DS3231::DS3231(I2CManager &i2cmgr, const uint8_t address)
     : i2c_manager{i2cmgr} {
@@ -100,7 +100,7 @@ DS3231::DS3231(I2CManager &i2cmgr, const uint8_t address)
   i2c_manager.addDevice(this->deviceConfig, this->deviceHandle);
 }
 
-DS3231::~DS3231() {}
+DS3231::~DS3231() = default;
 
 esp_err_t DS3231::set_time(const struct tm *time) {
   CHECK_ARG(time);
@@ -121,8 +121,8 @@ esp_err_t DS3231::set_time(const struct tm *time) {
   return i2c_manager.writeRegister(this->deviceHandle, DS3231_ADDR_TIME, data);
 }
 
-esp_err_t DS3231::set_alarm(const alarm_t alarms, struct tm *time1,
-                            const alarm1_rate_t option1, struct tm *time2,
+esp_err_t DS3231::set_alarm(const alarm_t alarms, const struct tm *time1,
+                            const alarm1_rate_t option1, const struct tm *time2,
                             const alarm2_rate_t option2) {
 
   int i = 0;
@@ -232,7 +232,7 @@ esp_err_t DS3231::clear_oscillator_stop_flag() {
 esp_err_t DS3231::get_alarm_flags(alarm_t &alarms) {
   CHECK_ARG(alarms);
 
-  return get_flag(DS3231_ADDR_STATUS, DS3231_ALARM_BOTH, (uint8_t &)alarms);
+  return get_flag(DS3231_ADDR_STATUS, DS3231_ALARM_BOTH, reinterpret_cast<uint8_t&>(alarms));
 }
 
 esp_err_t DS3231::clear_alarm_flags(const alarm_t alarms) {
@@ -287,7 +287,7 @@ esp_err_t DS3231::get_squarewave_freq(sqwave_freq_t &freq) {
   get_flag(DS3231_ADDR_CONTROL, 0xff, flag);
 
   flag &= DS3231_SQWAVE_8192HZ;
-  freq = (sqwave_freq_t)flag;
+  freq = static_cast<sqwave_freq_t>(flag);
 
   return ESP_OK;
 }
@@ -299,7 +299,7 @@ esp_err_t DS3231::get_raw_temp(int16_t &temp) {
 
   i2c_manager.readRegister(this->deviceHandle, DS3231_ADDR_TEMP, data, 2);
 
-  temp = (int16_t)(int8_t)data[0] << 2 | data[1] >> 6;
+  temp = static_cast<int16_t>(static_cast<int8_t>(data[0])) << 2 | data[1] >> 6;
 
   return ESP_OK;
 }
@@ -324,7 +324,7 @@ esp_err_t DS3231::get_temp_float(float &temp) {
 
   esp_err_t res = get_raw_temp(t_int);
   if (res == ESP_OK) {
-    temp = t_int * 0.25;
+    temp = 0.25 * t_int;
   }
 
   return res;
@@ -385,7 +385,7 @@ esp_err_t DS3231::get_aging_offset(int8_t &age) {
 
   i2c_manager.readRegister(this->deviceHandle, DS3231_ADDR_AGING, data, 1);
 
-  age = (int8_t)data.at(0);
+  age = static_cast<int8_t>(data.at(0));
 
   return ESP_OK;
 }

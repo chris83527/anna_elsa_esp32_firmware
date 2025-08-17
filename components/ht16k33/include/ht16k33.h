@@ -40,31 +40,28 @@
 
 #include "I2CManager.h"
 #include "esp_err.h"
-#include "esp_log.h"
-#include <cstdbool>
-#include <cstddef>
-#include <vector>
 
 #define HT16K33_ADDR_BASE 0x70
 
-class HT16K33 {
+class HT16K33
+{
 public:
-  HT16K33(I2CManager &i2cmanager, const uint8_t address);
-  ~HT16K33();
+    HT16K33(I2CManager& i2cmanager, const uint8_t address);
+    ~HT16K33();
 
-  esp_err_t set_digits(uint8_t val);
-  esp_err_t display_on();
-  esp_err_t display(uint8_t *arr, const uint8_t dp);
-  esp_err_t write_digit(const uint8_t pos, const uint8_t val, const uint8_t dp);
-  esp_err_t write_value(const char *fmt, const int value);
+    esp_err_t set_digits(uint8_t val);
+    esp_err_t display_on();
+    esp_err_t display(const uint8_t* arr, const uint8_t dp);
+    esp_err_t write_digit(const uint8_t pos, const uint8_t val, const uint8_t dp);
+    esp_err_t write_value(const char* fmt, const int value);
 
 private:
-  esp_err_t write_cmd(const uint8_t cmd);
-  esp_err_t write_pos(const uint8_t pos, const uint8_t mask, const bool dp);
+    esp_err_t write_cmd(const uint8_t cmd);
+    esp_err_t write_pos(const uint8_t pos, const uint8_t mask, const bool dp);
 
-  i2c_device_config_t deviceConfig;
-  i2c_master_dev_handle_t deviceHandle;
+    i2c_device_config_t deviceConfig{};
+    i2c_master_dev_handle_t deviceHandle{};
 
-  I2CManager i2c_manager;
+    I2CManager i2c_manager;
 };
 #endif

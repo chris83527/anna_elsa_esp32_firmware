@@ -46,41 +46,49 @@
 
 #include <cstring>
 
-static const char *TAG = "OledController";
+static const char* TAG = "OledController";
 
-OledController::OledController(I2CManager &i2cmgr, const int address)
-    : ssd1306(SSD1306(i2cmgr, address, 128, 64)) {}
+OledController::OledController(I2CManager& i2cmgr, const int address)
+    : ssd1306(SSD1306(i2cmgr, address, 128, 64))
+{
+}
 
-OledController::~OledController() {}
+OledController::~OledController()
+{
+}
 
-void OledController::initialise() {
-  ssd1306.init();
+void OledController::initialise()
+{
+    ssd1306.init();
 
 #if CONFIG_FLIP
-  ssd1306->_flip = true;
-  ESP_LOGW(TAG, "Flip upside down");
+    ssd1306->_flip = true;
+    ESP_LOGW(TAG, "Flip upside down");
 #endif
 
-  ssd1306.clear_screen(false);
-  ssd1306.contrast(0xff);
+    ssd1306.clear_screen(false);
+    ssd1306.contrast(0xff);
 }
 
 void OledController::clearDisplay() { ssd1306.clear_screen(false); }
 
-void OledController::scrollText(std::string textToDisplay) {
-  ssd1306.software_scroll((ssd1306.get_pages() - 1), 1);
-  ssd1306.scroll_text(textToDisplay.append(20 - textToDisplay.size(), ' '),
-                      false);
+void OledController::scrollText(std::string textToDisplay)
+{
+    ssd1306.software_scroll((ssd1306.get_pages() - 1), 1);
+    ssd1306.scroll_text(textToDisplay.append(20 - textToDisplay.size(), ' '),
+                        false);
 }
 
 void OledController::displayText(std::string textToDisplay, int lineNumber,
-                                 bool invert) {
-  // ESP_LOGI(TAG, "Displaying text %s", textToDisplay.c_str());
-  if (textToDisplay.size() > 20) {
-    textToDisplay = textToDisplay.substr(0, 20);
-  }
-  ssd1306.display_text(
-      lineNumber, textToDisplay.append(20 - textToDisplay.size(), ' '), invert);
+                                 bool invert)
+{
+    // ESP_LOGI(TAG, "Displaying text %s", textToDisplay.c_str());
+    if (textToDisplay.size() > 20)
+    {
+        textToDisplay = textToDisplay.substr(0, 20);
+    }
+    ssd1306.display_text(
+        lineNumber, textToDisplay.append(20 - textToDisplay.size(), ' '), invert);
 }
 
 // void OledController::testDisplay() {

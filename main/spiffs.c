@@ -40,14 +40,13 @@
 #include <sys/stat.h>
 
 #include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_err.h"
 #include "esp_spiffs.h"
 
 #include "spiffs.h"
 
-static const char *TAG = "spiffs";
+static const char* TAG = "spiffs";
 
 esp_vfs_spiffs_conf_t spiffs_conf = {
     .base_path = "/spiffs",
@@ -56,19 +55,26 @@ esp_vfs_spiffs_conf_t spiffs_conf = {
     .format_if_mount_failed = false
 };
 
-esp_err_t init_spiffs() {
+esp_err_t init_spiffs()
+{
     ESP_LOGI(TAG, "Initializing SPIFFS");
 
     // Use settings defined above to initialize and mount SPIFFS filesystem.
     // Note: esp_vfs_spiffs_register is an all-in-one convenience function.
     esp_err_t ret = esp_vfs_spiffs_register(&spiffs_conf);
 
-    if (ret != ESP_OK) {
-        if (ret == ESP_FAIL) {
+    if (ret != ESP_OK)
+    {
+        if (ret == ESP_FAIL)
+        {
             ESP_LOGE(TAG, "Failed to mount or format filesystem");
-        } else if (ret == ESP_ERR_NOT_FOUND) {
+        }
+        else if (ret == ESP_ERR_NOT_FOUND)
+        {
             ESP_LOGE(TAG, "Failed to find SPIFFS partition");
-        } else {
+        }
+        else
+        {
             ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
         }
         return ret;
@@ -76,10 +82,13 @@ esp_err_t init_spiffs() {
 
     size_t total = 0, used = 0;
     ret = esp_spiffs_info(spiffs_conf.partition_label, &total, &used);
-    if (ret != ESP_OK) {
+    if (ret != ESP_OK)
+    {
         ESP_LOGE(TAG, "Failed to get SPIFFS partition information (%s)", esp_err_to_name(ret));
         return ret;
-    } else {
+    }
+    else
+    {
         ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
     }
 

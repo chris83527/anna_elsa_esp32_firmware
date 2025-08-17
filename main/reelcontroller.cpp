@@ -75,19 +75,21 @@ bool reelRightInitOk;
 ReelController::ReelController(AudioController &audioController,
                                DisplayController &displayController,
                                I2CManager &i2cmgr)
-    : audioController(audioController), displayController(displayController),
-      leftReel(PCA9629A(i2cmgr, REEL_LEFT_I2C_ADDRESS)),
-      centreReel(PCA9629A(i2cmgr, REEL_CENTRE_I2C_ADDRESS)),
-      rightReel(PCA9629A(i2cmgr, REEL_RIGHT_I2C_ADDRESS)) {
-
+  : reelLeftInitOk(false), reelCentreInitOk(false), reelRightInitOk(false), status(0), commandInProgress(false),
+    audioController(audioController),
+    displayController(displayController),
+    leftReel(PCA9629A(i2cmgr, REEL_LEFT_I2C_ADDRESS)),
+    centreReel(PCA9629A(i2cmgr, REEL_CENTRE_I2C_ADDRESS)),
+    rightReel(PCA9629A(i2cmgr, REEL_RIGHT_I2C_ADDRESS)), ledc_timer(), ledc_channel()
+{
   ESP_LOGD(TAG, "Entering constructor");
 
   ESP_LOGD(TAG, "Leaving constructor");
 }
 
-ReelController::~ReelController() {}
+ReelController::~ReelController() = default;
 
-bool ReelController::isCommandInProgress() { return commandInProgress; }
+bool ReelController::isCommandInProgress() const { return commandInProgress; }
 
 ReelController::reel_stop_info_t ReelController::getReelStopInfo() {
   return reelStopInfo;
@@ -127,6 +129,7 @@ bool ReelController::initialise() {
       .timer_sel = LEDC_TIMER,
       .duty = 0,
       .hpoint = 0,
+      .sleep_mode = 0,
       .flags = {},
   };
 
@@ -556,18 +559,18 @@ void ReelController::calibrate() {
   ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
   ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-  this->displayController.displayVFDText("LEFT CW: 00");
+  DisplayController::displayVFDText("LEFT CW: 00");
   this->leftReel.home(PCA9629A::Direction::CW);
   std::bitset<8> btnStatus = 0;
   while (!btnStatus.test(BTN_START)) {
     if (btnStatus.test(BTN_HOLD_HI)) {
       leftCwCorrection--;
-      this->displayController.displayVFDText(
+      DisplayController::displayVFDText(
           std::string("LEFT CW: ").append(std::to_string(leftCwCorrection)));
       leftReel.start(PCA9629A::Direction::CCW, 1, 1);
     } else if (btnStatus.test(BTN_HOLD_LO)) {
       leftCwCorrection++;
-      this->displayController.displayVFDText(
+      DisplayController::displayVFDText(
           std::string("LEFT CW: ").append(std::to_string(leftCwCorrection)));
       leftReel.start(PCA9629A::Direction::CW, 1, 1);
     }
@@ -575,18 +578,18 @@ void ReelController::calibrate() {
     btnStatus = this->displayController.getButtonStatus();
   }
 
-  this->displayController.displayVFDText("LEFT CCW: 00");
+  DisplayController::displayVFDText("LEFT CCW: 00");
   this->leftReel.home(PCA9629A::Direction::CCW);
   btnStatus = 0;
   while (!btnStatus.test(BTN_START)) {
     if (btnStatus.test(BTN_HOLD_HI)) {
       leftCcwCorrection--;
-      this->displayController.displayVFDText(
+      DisplayController::displayVFDText(
           std::string("LEFT CCW: ").append(std::to_string(leftCcwCorrection)));
       leftReel.start(PCA9629A::Direction::CW, 1, 1);
     } else if (btnStatus.test(BTN_HOLD_LO)) {
       leftCcwCorrection++;
-      this->displayController.displayVFDText(
+      DisplayController::displayVFDText(
           std::string("LEFT CCW: ").append(std::to_string(leftCcwCorrection)));
       leftReel.start(PCA9629A::Direction::CCW, 1, 1);
     }
@@ -594,19 +597,19 @@ void ReelController::calibrate() {
     btnStatus = this->displayController.getButtonStatus();
   }
 
-  this->displayController.displayVFDText("CENTRE CW: 00");
+  DisplayController::displayVFDText("CENTRE CW: 00");
   this->rightReel.home(PCA9629A::Direction::CW);
   btnStatus = 0;
   while (!btnStatus.test(BTN_START)) {
     if (btnStatus.test(BTN_HOLD_HI)) {
       centreCwCorrection--;
-      this->displayController.displayVFDText(
+      DisplayController::displayVFDText(
           std::string("CENTRE CW: ")
               .append(std::to_string(centreCwCorrection)));
       centreReel.start(PCA9629A::Direction::CCW, 1, 1);
     } else if (btnStatus.test(BTN_HOLD_LO)) {
       centreCwCorrection++;
-      this->displayController.displayVFDText(
+      DisplayController::displayVFDText(
           std::string("CENTRE CW: ")
               .append(std::to_string(centreCwCorrection)));
       centreReel.start(PCA9629A::Direction::CW, 1, 1);
@@ -615,19 +618,19 @@ void ReelController::calibrate() {
     btnStatus = this->displayController.getButtonStatus();
   }
 
-  this->displayController.displayVFDText("CENTRE CCW: 00");
+  DisplayController::displayVFDText("CENTRE CCW: 00");
   this->rightReel.home(PCA9629A::Direction::CCW);
   btnStatus = 0;
   while (!btnStatus.test(BTN_START)) {
     if (btnStatus.test(BTN_HOLD_HI)) {
       centreCcwCorrection--;
-      this->displayController.displayVFDText(
+      DisplayController::displayVFDText(
           std::string("CENTRE CCW: ")
               .append(std::to_string(rightCcwCorrection)));
       centreReel.start(PCA9629A::Direction::CW, 1, 1);
     } else if (btnStatus.test(BTN_HOLD_LO)) {
       centreCcwCorrection++;
-      this->displayController.displayVFDText(
+      DisplayController::displayVFDText(
           std::string("CENTRE CCW: ")
               .append(std::to_string(rightCcwCorrection)));
       centreReel.start(PCA9629A::Direction::CCW, 1, 1);
@@ -636,18 +639,18 @@ void ReelController::calibrate() {
     btnStatus = this->displayController.getButtonStatus();
   }
 
-  this->displayController.displayVFDText("RIGHT CW: 00");
+  DisplayController::displayVFDText("RIGHT CW: 00");
   this->rightReel.home(PCA9629A::Direction::CW);
   btnStatus = 0;
   while (!btnStatus.test(BTN_START)) {
     if (btnStatus.test(BTN_HOLD_HI)) {
       rightCwCorrection--;
-      this->displayController.displayVFDText(
+      DisplayController::displayVFDText(
           std::string("RIGHT CW: ").append(std::to_string(rightCwCorrection)));
       rightReel.start(PCA9629A::Direction::CCW, 1, 1);
     } else if (btnStatus.test(BTN_HOLD_LO)) {
       rightCwCorrection++;
-      this->displayController.displayVFDText(
+      DisplayController::displayVFDText(
           std::string("RIGHT CW: ").append(std::to_string(rightCwCorrection)));
       rightReel.start(PCA9629A::Direction::CW, 1, 1);
     }
@@ -655,19 +658,19 @@ void ReelController::calibrate() {
     btnStatus = this->displayController.getButtonStatus();
   }
 
-  this->displayController.displayVFDText("RIGHTCCW: 00");
+  DisplayController::displayVFDText("RIGHTCCW: 00");
   this->rightReel.home(PCA9629A::Direction::CCW);
   btnStatus = 0;
   while (!btnStatus.test(BTN_START)) {
     if (btnStatus.test(BTN_HOLD_HI)) {
       rightCcwCorrection--;
-      this->displayController.displayVFDText(
+      DisplayController::displayVFDText(
           std::string("RIGHT CCW: ")
               .append(std::to_string(rightCcwCorrection)));
       rightReel.start(PCA9629A::Direction::CW, 1, 1);
     } else if (btnStatus.test(BTN_HOLD_LO)) {
       rightCcwCorrection++;
-      this->displayController.displayVFDText(
+      DisplayController::displayVFDText(
           std::string("RIGHT CCW: ")
               .append(std::to_string(rightCcwCorrection)));
       rightReel.start(PCA9629A::Direction::CCW, 1, 1);

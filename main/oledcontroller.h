@@ -34,16 +34,14 @@
 
 #include "ssd1306.h"
 
-#include <cstring>
-
 class OledController {
 public:
-  OledController(I2CManager &i2cmgr, const int address);
+  OledController(I2CManager &i2cmgr, int address);
   virtual ~OledController();
-  void initialise(void);
+  void initialise();
   void displayText(std::string textToDisplay, int lineNumber, bool invert);
   void scrollText(std::string textToDisplay);
-  void clearDisplay(void);
+  void clearDisplay();
   void testDisplay();
 
 private:

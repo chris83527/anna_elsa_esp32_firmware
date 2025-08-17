@@ -33,17 +33,10 @@
 #define CCTALK_DEVICE_H
 
 #include <functional>
-#include <list>
 #include <map>
-#include <memory>
-#include <sstream>
 #include <string>
 #include <thread>
 #include <vector>
-
-#include "esp_pthread.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 
 #include "cctalk_enums.h"
 #include "cctalk_link_controller.h"
@@ -132,7 +125,7 @@ inline std::string ccDeviceStateGetDisplayableName(CcDeviceState status) {
   try {
     return name_map.at(status);
   } catch (const std::exception &e) {
-    return "";
+    return e.what();
   }
 }
 
@@ -150,7 +143,7 @@ public:
 
   /// Constructor
   CctalkDevice(CctalkLinkController &linkController,
-               const uint8_t deviceAddress);
+               uint8_t deviceAddress);
   ~CctalkDevice();
 
   /// Start event-handling timer
@@ -191,73 +184,73 @@ public:
   /// Send SimplePoll and return for ACK.
   void requestCheckAlive(
       std::function<void(const std::string &error_msg, bool alive)> const
-          &finish_callback);
+          &finish_callback) const;
 
   /// Request manufacturing information info from the device.
   /// This includes category, serial number, manufacturer, ...
   void requestManufacturingInfo(
       std::function<void(const std::string &error_msg, CcCategory &category,
-                         const std::string &info)> const &finish_callback);
+                         const std::string &info)> const &finish_callback) const;
 
   /// Get device-recommended polling interval in ms.
   void requestPollingInterval(
       std::function<void(const std::string &error_msg, uint64_t msec)> const
-          &finish_callback);
+          &finish_callback) const;
 
   /// Request inhibit status modification. This is needed to enable coin/bill
   /// acceptance.
   void modifyInhibitStatus(
       uint8_t accept_mask1, uint8_t accept_mask2,
-      std::function<void(const std::string &error_msg)> const &finish_callback);
+      std::function<void(const std::string &error_msg)> const &finish_callback) const;
 
   /// Request master inhibit status modification. This is needed to enable
   /// coin/bill acceptance.
   void modifyMasterInhibitStatus(
       bool inhibit,
-      std::function<void(const std::string &error_msg)> const &finish_callback);
+      std::function<void(const std::string &error_msg)> const &finish_callback) const;
 
   /// Request master inhibit status retrieval,
   void requestMasterInhibitStatus(
       std::function<void(const std::string &error_msg, bool inhibit)> const
-          &finish_callback);
+          &finish_callback) const;
 
   /// Request bill validator operating mode modification.
   void modifyBillOperatingMode(
       bool use_stacker, bool use_escrow,
-      std::function<void(const std::string &error_msg)> const &finish_callback);
+      std::function<void(const std::string &error_msg)> const &finish_callback) const;
 
   void modifySorterPath(
-      const uint8_t coin_id, const uint8_t path,
-      std::function<void(const std::string &error_msg)> const &finish_callback);
+      uint8_t coin_id, uint8_t path,
+      std::function<void(const std::string &error_msg)> const &finish_callback) const;
 
   void modifyDefaultSorterPath(
-      const uint8_t path,
-      std::function<void(const std::string &error_msg)> const &finish_callback);
+      uint8_t path,
+      std::function<void(const std::string &error_msg)> const &finish_callback) const;
 
   void modifySorterOverrideStatus(
-      const uint8_t overrideStatus,
-      std::function<void(const std::string &error_msg)> const &finish_callback);
+      uint8_t overrideStatus,
+      std::function<void(const std::string &error_msg)> const &finish_callback) const;
 
   void enableHopper(
-      std::function<void(const std::string &error_msg)> finish_callback);
+      const std::function<void(const std::string &error_msg)>& finish_callback) const;
 
   void requestCipherKey(
       std::function<void(const std::string &error_msg,
                          const std::vector<uint8_t> &cipherKey)> const
-          &finish_callback);
+          &finish_callback) const;
 
   void requestPayoutHighLowStatus(
       std::function<void(const std::string &error_msg,
                          const std::vector<uint8_t> &highLowStatus)> const
-          &finish_callback);
+          &finish_callback) const;
 
-  void testHopper(std::function<void(const std::string &error_msg,
+  void testHopper(const std::function<void(const std::string &error_msg,
                                      const std::vector<uint8_t> &hopperStatus)>
-                      finish_callback);
+                      & finish_callback) const;
 
   void dispenseCoins(
-      const int numberOfCoins,
-      std::function<void(const std::string &error_msg)> const &finish_callback);
+      int numberOfCoins,
+      std::function<void(const std::string &error_msg)> const &finish_callback) const;
 
   void purgeHopper(
       std::function<void(const std::string &error_msg,
@@ -282,6 +275,9 @@ public:
       std::function<void(const std::string &error_msg, uint8_t event_counter,
                          const std::vector<CcEventData> event_data)> const
           &finish_callback);
+  void processHopperStatus(const std::string& error_msg, uint8_t eventCounter,
+                           const std::vector<CcEventData>& hopperStatusData,
+                           std::function<void()> const& finish_callback) const;
 
   /**
    * The data field consist in four bytes , an event counter similar to the
@@ -297,34 +293,34 @@ public:
   void requestHopperStatus(
       std::function<void(const std::string &error_msg, uint8_t event_counter,
                          const std::vector<CcEventData> event_data)> const
-          &finish_callback);
+          &finish_callback) const;
 
   /// Process the credit/event log. This is used by timerIteration().
   void processCreditEventLog(bool accepting,
                              const std::string &event_log_cmd_error_msg,
                              uint8_t event_counter,
-                             const std::vector<CcEventData> event_data,
+                             const std::vector<CcEventData>& event_data,
                              std::function<void()> const &finish_callback);
   void processHopperStatus(const std::string &error_msg, uint8_t event_counter,
-                           const std::vector<CcEventData> hopperStatusData,
+                           const std::vector<CcEventData>& hopperStatusData,
                            std::function<void()> const &finish_callback);
 
   /// Route a bill that is held in escrow.
   void requestRouteBill(
       CcBillRouteCommandType route,
       std::function<void(const std::string &error_msg,
-                         CcBillRouteStatus status)> const &finish_callback);
+                         CcBillRouteStatus status)> const &finish_callback) const;
 
   /// Request self-check (diagnostics mode). This function should be executed
   /// repeatedly when polling in diagnostics mode.
   void requestSelfCheck(
       std::function<void(const std::string &error_msg,
-                         CcFaultCode fault_code)> const &finish_callback);
+                         CcFaultCode fault_code)> const &finish_callback) const;
 
   /// Request soft reset. Finish callback is called when the device accepts the
   /// reset command.
   void requestResetDevice(
-      std::function<void(const std::string &error_msg)> const &finish_callback);
+      std::function<void(const std::string &error_msg)> const &finish_callback) const;
 
   /// Call requestResetDevice() and set the state to UninitializedDown.
   void requestResetDeviceWithState(
@@ -334,7 +330,7 @@ public:
   void setDeviceState(CcDeviceState state);
 
   /// Get link controller
-  CctalkLinkController &getLinkController();
+  CctalkLinkController &getLinkController() const;
 
   /// This function is called in NormalAccepting state when a bill is inserted
   /// and should be checked for validity by us. If the function returns true,
@@ -362,13 +358,13 @@ public:
   CcCategory getStoredDeviceCategory() const;
 
   /// Get requestManufacturingInfo() free-form string result.
-  std::string getStoredManufacturingInfo() const;
+  [[nodiscard]] std::string getStoredManufacturingInfo() const;
 
   /// Get detectPollingInterval() result
-  int getStoredPollingInterval() const;
+  [[nodiscard]] int getStoredPollingInterval() const;
 
   /// Get requestIdentifiers() result
-  std::map<uint8_t, CcIdentifier> getStoredIndentifiers() const;
+  [[nodiscard]] std::map<uint8_t, CcIdentifier> getStoredIndentifiers() const;
 
 private:
   /// Emitted whenever a credit is accepted.
@@ -378,9 +374,9 @@ private:
   ResponseErrorFunc ccResponseDataDecodeError;
 
   /// Poll task
-  std::string decodeResponseToString(const std::vector<uint8_t> &responseData);
-  std::string decodeResponseToHex(const std::vector<uint8_t> &responseData);
-  std::string decodeSerialNumber(const std::vector<uint8_t> &responseData);
+  static std::string decodeResponseToString(const std::vector<uint8_t> &responseData);
+  static static std::string decodeResponseToHex(const std::vector<uint8_t> &responseData);
+  static std::string decodeSerialNumber(const std::vector<uint8_t> &responseData);
 
   void devicePollTask();
 

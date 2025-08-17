@@ -1,10 +1,7 @@
 #ifndef MAIN_SSD1306_H_
 #define MAIN_SSD1306_H_
 
-#include <cstdint>
-#include <cstring>
 #include <string>
-#include <vector>
 
 #include "esp_log.h"
 
@@ -118,54 +115,56 @@ public:
   /** Create a PCA9629 instance connected to specified I2C pins with specified
    * address
    *
-   * @param i2c_port The I2C port to use (default: 0)
+   * @param i2cmgr The I2C port to use (default: 0)
    * @param i2c_address I2C-bus address (default: 0x20)
+   * @param width The width of the display in pixels
+   * @param height The height of the display in pixels
    */
-  SSD1306(I2CManager &i2cmgr, const uint8_t i2c_address, const int width,
-          const int height);
+  SSD1306(I2CManager &i2cmgr, uint8_t i2c_address, int width,
+          int height);
   ~SSD1306();
 
-  void init(void);
+  void init();
 
-  int get_width(void);
-  int get_height(void);
-  int get_pages(void);
-  void show_buffer(void);
-  void set_buffer(uint8_t *buffer);
-  void get_buffer(uint8_t *buffer);
+  [[nodiscard]] int get_width() const;
+  [[nodiscard]] int get_height() const;
+  [[nodiscard]] int get_pages() const;
+  void show_buffer();
+  void set_buffer(const uint8_t *buffer);
+  void get_buffer(uint8_t *buffer) const;
   void display_image(int page, int seg, uint8_t *images, int width);
-  void display_text(int page, const std::string text, bool invert);
-  void display_text_x3(int page, const std::string text, bool invert);
+  void display_text(int page, const std::string& text, bool invert);
+  void display_text_x3(int page, const std::string& text, bool invert);
   void clear_screen(bool invert);
   void clear_line(int page, bool invert);
   void contrast(int contrast);
   void software_scroll(int start, int end);
-  void scroll_text(const std::string text, bool invert);
+  void scroll_text(const std::string& text, bool invert);
   void scroll_clear();
   void hardware_scroll(scroll_type_t scroll);
   void wrap_arround(scroll_type_t scroll, int start, int end, int8_t delay);
-  void bitmaps(int xpos, int ypos, uint8_t *bitmap, int width, int height,
+  void bitmaps(int xpos, int ypos, const uint8_t* bitmap, int width, int height,
                bool invert);
-  void invert(uint8_t *buf, size_t blen);
-  void flip(uint8_t *buf, size_t blen);
+  static void invert(uint8_t *buf, size_t blen);
+  static void flip(uint8_t *buf, size_t blen);
 
   void fadeout();
-  void dump();
-  void dump_page(int page, int seg);
+  void dump() const;
+  void dump_page(int page, int seg) const;
 
 private:
   void pixel(int xpos, int ypos, bool invert);
   void line(int x1, int y1, int x2, int y2, bool invert);
-  uint8_t copy_bit(uint8_t src, int srcBits, uint8_t dst, int dstBits);
-  uint8_t rotate_byte(uint8_t ch1);
+  static uint8_t copy_bit(uint8_t src, int srcBits, uint8_t dst, int dstBits);
+  static uint8_t rotate_byte(uint8_t ch1);
 
-  void i2c_init(void);
+  void i2c_init();
   void i2c_display_image(int page, int seg, uint8_t *images, int width);
   void i2c_contrast(int contrast);
   void i2c_hardware_scroll(scroll_type_t scroll);
 
-  i2c_device_config_t deviceConfig;
-  i2c_master_dev_handle_t deviceHandle;
+  i2c_device_config_t deviceConfig{};
+  i2c_master_dev_handle_t deviceHandle{};
 
   int _width;
   int _height;

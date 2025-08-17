@@ -8,14 +8,11 @@
 #ifndef MAIN_NVSCONTROLLER_H_
 #define MAIN_NVSCONTROLLER_H_
 
-#include <cstdlib>
 #include <memory>
-#include <utility>
 
 #include "esp_err.h"
 #include "esp_log.h"
-#include "nvs.h"
-#include "nvs_flash.h"
+
 #include "nvs_handle.hpp"
 
 class NvsController {

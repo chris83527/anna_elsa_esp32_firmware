@@ -41,7 +41,6 @@
 #define __MCP23008_H__
 
 #include "I2CManager.h"
-#include <cstdbool>
 #include <driver/gpio.h>
 #include <esp_err.h>
 #include <vector>

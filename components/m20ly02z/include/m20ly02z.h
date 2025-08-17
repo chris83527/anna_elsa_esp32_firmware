@@ -81,8 +81,8 @@ esp_err_t m20ly02z_init(gpio_num_t latchPin, gpio_num_t oePin, gpio_num_t clockP
 #endif
 
 void m20ly02z_clear(void);
-void m20ly02z_send_command(const uint8_t command);
-void m20ly02z_send_byte(const uint8_t data);
+void m20ly02z_send_command(uint8_t command);
+void m20ly02z_send_byte(uint8_t data);
 
 
 #ifdef __cplusplus

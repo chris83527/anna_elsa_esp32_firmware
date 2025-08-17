@@ -63,13 +63,12 @@ CctalkLinkController::CctalkLinkController(const uart_port_t uartNumber,
   // std::placeholders::_1, std::placeholders::_2);
 
   serialWorker.setOnResponseReceiveCallback(
-      std::bind(&CctalkLinkController::onResponseReceive, this,
-                std::placeholders::_1, std::placeholders::_2));
+      [this]<typename T0, typename T1>(T0 && PH1, T1 && PH2) { onResponseReceive(std::forward<T0>(PH1), std::forward<T1>(PH2)); });
 
   ESP_LOGD(TAG, "Leaving CctalkLinkController constructor");
 }
 
-CctalkLinkController::~CctalkLinkController() {}
+CctalkLinkController::~CctalkLinkController() = default;
 
 /**
  * Open the serial port
@@ -96,32 +95,33 @@ void CctalkLinkController::closePort() {
  * @param showFullResponse
  * @param showSerialRequest
  * @param showSerialResponse
- * @param showCctalkRequest
- * @param showCctalkResponse
+ * @param tmpShowCctalkRequest
+ * @param tmpShowCctalkResponse
  */
 void CctalkLinkController::setLoggingOptions(bool showFullResponse,
                                              bool showSerialRequest,
                                              bool showSerialResponse,
-                                             bool showCctalkRequest,
-                                             bool showCctalkResponse) {
+                                             bool tmpShowCctalkRequest,
+                                             bool tmpShowCctalkResponse) {
   // serial_worker_->setLoggingOptions(show_full_response, show_serial_request,
   // show_serial_response);
-  this->showCctalkRequest = showCctalkRequest;
-  this->showCctalkResponse = showCctalkResponse;
+  this->showCctalkRequest = tmpShowCctalkRequest;
+  this->showCctalkResponse = tmpShowCctalkResponse;
 }
 
 /**
  * Send a ccTalk command to a device on the bus
  *
  * @param command The ccTalk command to send to the device
- * @param
- * @param data Additional data to be sent if the command requires it
+ * @param devAddress The address of the device to send the request
+ * @param additionalRequestData Additional data to be sent if the command requires it
  * @param responseTimeoutMsec The number of milliseconds to wait
+ * @param callbackFunction
  * @return The requestId corresponding to this request or -1 if error
  */
 uint64_t CctalkLinkController::ccRequest(
     CcHeader command, uint8_t devAddress,
-    const std::vector<uint8_t> additionalRequestData, int responseTimeoutMsec,
+    const std::vector<uint8_t>& additionalRequestData, int responseTimeoutMsec,
     std::function<void(const std::string &error_msg,
                        const std::vector<uint8_t> responseData)> const
         &callbackFunction) {
@@ -179,16 +179,16 @@ uint64_t CctalkLinkController::ccRequest(
     ESP_LOGD(
         TAG, "> ccTalk request: %s, address: %d, data: %s",
         ccHeaderGetDisplayableName(command).c_str(), (int(devAddress)),
-        (additionalRequestData.size() == 0 ? "(empty)" : stream.str().c_str()));
+        (additionalRequestData.empty() ? "(empty)" : stream.str().c_str()));
   }
 
   // Build the data structure
   std::vector<uint8_t> requestData;
   requestData.clear();
-  requestData.push_back(uint8_t(devAddress));
-  requestData.push_back(uint8_t(additionalRequestData.size()));
-  requestData.push_back(uint8_t(this->controllerAddress));
-  requestData.push_back(uint8_t(command));
+  requestData.push_back(static_cast<uint8_t>(devAddress));
+  requestData.push_back(static_cast<uint8_t>(additionalRequestData.size()));
+  requestData.push_back(static_cast<uint8_t>(this->controllerAddress));
+  requestData.push_back(static_cast<uint8_t>(command));
   requestData.insert(requestData.end(), additionalRequestData.begin(),
                      additionalRequestData.end());
 
@@ -197,12 +197,12 @@ uint64_t CctalkLinkController::ccRequest(
     checksum = static_cast<uint8_t>(checksum + dataByte);
   }
   checksum = static_cast<uint8_t>(256 - checksum);
-  requestData.push_back(uint8_t(checksum));
+  requestData.push_back(static_cast<uint8_t>(checksum));
 
   uint64_t requestId = ++this->requestNumber;
 
   const int writeTimeoutMsec =
-      500 + requestData.size() * 2; // should be more than enough at 9600bps.
+    requestData.size() * 2 + 500; // should be more than enough at 9600bps.
 
   ESP_LOGD(TAG, "Sending request");
 
@@ -221,11 +221,12 @@ uint64_t CctalkLinkController::ccRequest(
 /**
  * Called when a response is received on the UART
  *
- * @param request_id
- * @param response_data
+ * @param requestId
+ * @param responseData
  */
 void CctalkLinkController::onResponseReceive(
-    const uint64_t request_id, const std::vector<uint8_t> responseData) {
+    const uint64_t requestId, const std::vector<uint8_t>& responseData) const
+{
 
   ESP_LOGD(TAG, "Entering onResponseReceive");
 
@@ -254,7 +255,7 @@ void CctalkLinkController::onResponseReceive(
 
   if (this->showCctalkResponse) {
     std::string formatted_data;
-    if (responseDataNoLocalEcho.size() == 0) {
+    if (responseDataNoLocalEcho.empty()) {
       formatted_data = "(empty)";
     } else {
       std::stringstream stream;
@@ -280,7 +281,7 @@ void CctalkLinkController::onResponseReceive(
 
   // Checksum error
   uint8_t checksum = 0;
-  for (char c : responseData) {
+  for (uint8_t c : responseData) {
     checksum = static_cast<uint8_t>(checksum + c);
   }
 
@@ -303,7 +304,7 @@ void CctalkLinkController::onResponseReceive(
 
   // We should be the only destination. In multi-host networks this should be
   // ignored, but not here.
-  if (int(sourceAddress) != int(this->currentDeviceAddress)) {
+  if (static_cast<int>(sourceAddress) != static_cast<int>(this->currentDeviceAddress)) {
     ESP_LOGE(TAG, "Invalid ccTalk response. Source address %d, expected %d.",
              int(sourceAddress), int(this->currentDeviceAddress));
 
@@ -315,7 +316,7 @@ void CctalkLinkController::onResponseReceive(
     ESP_LOGE(TAG,
              "Invalid ccTalk response %lld from address %d: Command is %d, "
              "expected 0.",
-             request_id, int(sourceAddress), int(command));
+             requestId, int(sourceAddress), int(command));
 
     return;
   }

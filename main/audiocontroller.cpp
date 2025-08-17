@@ -27,7 +27,7 @@
  */
 
 /**
- * @file audiocontroller.c
+ * @file audiocontroller.cpp
  *
  * Definitions for playing audio files
  *
@@ -39,15 +39,10 @@
 #include <fstream>
 #include <ios>
 #include <iostream>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
 #include <streambuf>
-#include <string.h>
+#include <string>
 #include <sys/stat.h>
-#include <sys/unistd.h>
 #include <thread>
-#include <unistd.h>
 #include <vector>
 
 #include "driver/i2s_common.h"
@@ -63,9 +58,14 @@
 
 static const char *TAG = "AudioController";
 
-AudioController::AudioController(I2CManager &i2cmgr) : i2cManager{i2cmgr} {}
+AudioController::AudioController(I2CManager &i2cmgr) : channelHandle(nullptr), channelConfig(), i2sConfig(),
+                                                       i2cManager{i2cmgr}, deviceConfig(),
+                                                       deviceHandle(nullptr),
+                                                       playing(false), vol(0)
+{
+}
 
-AudioController::~AudioController() {}
+AudioController::~AudioController() = default;
 
 void AudioController::initialise() {
 
@@ -201,7 +201,7 @@ esp_err_t AudioController::i2cInit() {
 
 esp_err_t AudioController::i2sInit() {
   this->channelConfig = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_0, I2S_ROLE_MASTER);
-  i2s_new_channel(&channelConfig, &channelHandle, NULL);
+  i2s_new_channel(&channelConfig, &channelHandle, nullptr);
 
   this->i2sConfig = {
       .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(44100),
@@ -254,7 +254,7 @@ void AudioController::playAudioFile(const char *filepath) {
 
   this->playing = true;
 
-  while (file.good() && this->playing) {
+  while (file.good()) {
     file.read(audiodatafer, AUDIO_BUFFER);
     std::streamsize bytesRead = file.gcount();
     i2s_channel_write(this->channelHandle, audiodatafer,
@@ -296,6 +296,16 @@ void AudioController::setVolume(int volume) {
                      // the register address at index 0
 }
 
+bool AudioController::isMute()
+{
+  return false;
+}
+
+void AudioController::setMute()
+{
+  // do something here
+}
+
 void AudioController::getVolume(int &volume) {
 
   /// FIXME: Got the digit volume is not right.
@@ -315,7 +325,7 @@ void AudioController::getVolume(int &volume) {
 
 void AudioController::stopPlaying() { this->playing = false; }
 
-bool AudioController::isPlaying() { return this->playing; }
+bool AudioController::isPlaying() const { return this->playing; }
 
 uint8_t AudioController::getErrors() {
 

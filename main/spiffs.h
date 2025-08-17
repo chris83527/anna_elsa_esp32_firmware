@@ -37,8 +37,6 @@
 #ifndef __SPIFFS_H__
 #define __SPIFFS_H__
 
-#include "esp_spiffs.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

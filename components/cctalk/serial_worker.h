@@ -37,7 +37,6 @@
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
-#include "freertos/task.h"
 
 #include "driver/uart.h"
 
@@ -64,11 +63,11 @@ class Timer {
 public:
   void
   startTimer(int tdelay); // start the countdown with tdelay in milliseconds
-  bool isReady(void);     // return true if timer expired
-  unsigned long millis();
+  bool isReady() const;     // return true if timer expired
+  static unsigned long millis();
 
 private:
-  unsigned long target;
+  unsigned long target = 0;
 };
 
 class SerialWorker {
@@ -84,13 +83,13 @@ public:
                          bool showSerialResponse);
   bool openPort();
   bool closePort();
-  void sendRequest(const uint64_t requestId,
+  void sendRequest(uint64_t requestId,
                    const std::vector<uint8_t> &requestData,
-                   const int writeTimeoutMsec, const int responseTimeoutMsec);
+                   int writeTimeoutMsec, int responseTimeoutMsec);
 
-  uart_port_t getUartNumber();
-  uint64_t getRequestId();
-  int getResponseTimeoutMsec();
+  [[nodiscard]] uart_port_t getUartNumber() const;
+  [[nodiscard]] uint64_t getRequestId() const;
+  [[nodiscard]] int getResponseTimeoutMsec() const;
 
 protected:
 private:
@@ -99,17 +98,17 @@ private:
       onResponseReceiveCallback;
 
 private:
-  uint64_t requestId;
-  int responseTimeoutMsec;
+  uint64_t requestId{};
+  int responseTimeoutMsec{};
 
   // A queue to handle UART event.
-  QueueHandle_t cctalkUartQueueHandle;
+  QueueHandle_t cctalkUartQueueHandle{};
 
   uart_port_t m_uartNumber;
   int m_txPin;
   int m_rxPin;
 
-  Timer timer;
+  Timer timer{};
 
   bool portOpen = false;
 };

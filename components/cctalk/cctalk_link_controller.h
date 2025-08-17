@@ -74,15 +74,15 @@ public:
   /// response comes from which request.
   uint64_t
   ccRequest(CcHeader command, const uint8_t deviceAddress,
-            const std::vector<uint8_t> additionalRequestData,
+            const std::vector<uint8_t>& additionalRequestData,
             int responseTimeoutMsec,
             std::function<void(const std::string &error_msg,
                                const std::vector<uint8_t> responseData)> const
                 &callbackFunction);
 
   /// Handle generic serial response and emit ccResponse
-  void onResponseReceive(const uint64_t request_id,
-                         const std::vector<uint8_t> response_data);
+  void onResponseReceive(const uint64_t requestId,
+                         const std::vector<uint8_t>& response_data) const;
 
 private:
   void openPort(const uart_port_t uartNumber, const int txPin, const int rxPin);

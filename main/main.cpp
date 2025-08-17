@@ -27,7 +27,7 @@
  */
 
 /**
- * @file main.c
+ * @file main.cpp
  *
  * ESP-IDF driver for Holtek HT16K33 I2C LED Matrix driver chip
  *
@@ -39,7 +39,6 @@
 #include "esp_log.h"
 #include "esp_pthread.h"
 
-#include "m20ly02z.h"
 #include "maincontroller.h"
 
 #include "config.h"
@@ -75,13 +74,13 @@ extern "C" void app_main() {
   esp_log_level_set("i2cmanager", ESP_LOG_WARN);
   esp_log_level_set("i2c.master", ESP_LOG_WARN);
   esp_log_level_set("ssd1306", ESP_LOG_INFO);
-  esp_log_level_set("cctalkDevice", ESP_LOG_DEBUG);
-  esp_log_level_set("cctalk_link_controller", ESP_LOG_DEBUG);
-  esp_log_level_set("serial_worker", ESP_LOG_DEBUG);
+  esp_log_level_set("cctalkDevice", ESP_LOG_INFO);
+  esp_log_level_set("cctalk_link_controller", ESP_LOG_INFO);
+  esp_log_level_set("serial_worker", ESP_LOG_INFO);
   esp_log_level_set("AudioController", ESP_LOG_INFO);
   esp_log_level_set("DisplayController", ESP_LOG_INFO);
   esp_log_level_set("MainController", ESP_LOG_INFO);
-  esp_log_level_set("CCTALK_CONTROLLER", ESP_LOG_DEBUG);
+  esp_log_level_set("CCTALK_CONTROLLER", ESP_LOG_INFO);
 
   MainController mainController;
   mainController.start();

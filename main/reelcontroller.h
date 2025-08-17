@@ -41,9 +41,6 @@
 #include <chrono>
 #include <thread>
 
-#include "esp_pthread.h"
-
-#include "driver/gpio.h"
 #include "driver/ledc.h"
 #include "pca9629a.h"
 
@@ -78,33 +75,33 @@ public:
     uint8_t rightStop = 0;
   };
 
-  bool reelLeftInitOk;
-  bool reelCentreInitOk;
-  bool reelRightInitOk;
+  bool reelLeftInitOk{};
+  bool reelCentreInitOk{};
+  bool reelRightInitOk{};
 
-  bool initialise(void);
+  bool initialise();
 
-  void spin(const uint8_t leftStop, const uint8_t midStop,
-            const uint8_t rightStop);
-  void nudge(const uint8_t leftStop, const uint8_t midStop,
-             const uint8_t rightStop);
-  void shuffle(const uint8_t leftStop, const uint8_t midStop,
-               const uint8_t rightStop);
+  void spin(uint8_t leftStop, uint8_t midStop,
+            uint8_t rightStop);
+  void nudge(uint8_t leftStop, uint8_t midStop,
+             uint8_t rightStop);
+  void shuffle(uint8_t leftStop, uint8_t midStop,
+               uint8_t rightStop);
 
-  reel_stop_info_t getReelStopInfo(void);
+  reel_stop_info_t getReelStopInfo();
 
-  bool isCommandInProgress(void);
+  [[nodiscard]] bool isCommandInProgress() const;
 
-  void calibrate(void);
-  void test(void);
+  void calibrate();
+  void test();
 
 private:
   const int MAX_STOPS = 25; // total number of stops (i.e. symbols)
 
   reel_stop_info_t reelStopInfo;
 
-  uint8_t status;
-  bool commandInProgress;
+  uint8_t status{};
+  bool commandInProgress{};
 
   AudioController &audioController;
   DisplayController &displayController;
@@ -114,12 +111,12 @@ private:
   PCA9629A rightReel;
 
   // Prepare and then apply the LEDC PWM timer configuration
-  ledc_timer_config_t ledc_timer;
-  ledc_channel_config_t ledc_channel;
+  ledc_timer_config_t ledc_timer{};
+  ledc_channel_config_t ledc_channel{};
 
   std::thread leftReelThread;
   std::thread centreReelThread;
   std::thread rightReelThread;
 };
 
-#endif /* __WAVE_H__ */
+#endif /* __REELS_H__ */

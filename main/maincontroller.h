@@ -15,18 +15,10 @@
 #define MAINCONTROLLER_H
 
 #include <chrono>
-#include <cstdlib>
-#include <memory>
 #include <thread>
-#include <utility>
-
-#include "driver/gpio.h"
-#include "driver/i2c_types.h"
-#include "esp_pthread.h"
 
 #include "NvsController.h"
 #include "audiocontroller.h"
-#include "cctalk_enums.h"
 #include "cctalkcontroller.h"
 #include "displaycontroller.h"
 #include "ds3231.h"
@@ -37,13 +29,13 @@
 class MainController {
 public:
   MainController();
-  MainController(const MainController &orig);
+  //MainController(const MainController &orig);
 
   void start();
 
-  void print_binary(uint8_t value);
+  //void print_binary(uint8_t value);
   void setDateTime();
-  time_t getDateTime();
+  //time_t getDateTime();
 
   void error(int errorCode);
 
@@ -59,8 +51,8 @@ public:
 
 private:
   // EEProm_Data eeprom_data;
-  void blinkCPUStatusLEDTask(void);
-  void updateStatisticsDisplayTask(void);
+  static void blinkCPUStatusLEDTask();
+  void updateStatisticsDisplayTask();
 
 private:
   int reels = 0;
