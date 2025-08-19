@@ -13,3 +13,4 @@
 *.elf
 *.map
 /managed_components/
+/cmake-build-debug/
