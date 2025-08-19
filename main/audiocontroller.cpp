@@ -55,6 +55,9 @@
 
 #include "audiocontroller.h"
 #include "config.h"
+#include "esp_pthread.h"
+#include "spiffs.h"
+#include "soc/io_mux_reg.h"
 
 static const char *TAG = "AudioController";
 
