@@ -72,10 +72,10 @@ public:
   Game(DisplayController &displayController, AudioController &audioController,
        MoneyController &moneyController, ReelController &reelController);
   ~Game();
-  void start(void);
+  void start();
   bool isGameInProgress();
   void playNudges(int nudges);
-  void initialise(void);
+  void initialise();
 
 public:
   // 0 = Hans
@@ -116,8 +116,8 @@ private:
   void playShuffle();
   void playFreeSpin();
   bool isWinningLine();
-  void spinReels(bool holdLeft, bool holdCentre, bool holdRight);
-  void shuffleReels();
+  void spinReels(bool holdLeft, bool holdCentre, bool holdRight) const;
+  void shuffleReels() const;
 
   MainController *mainController;
 

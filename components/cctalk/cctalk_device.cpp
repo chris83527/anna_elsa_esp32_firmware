@@ -1936,7 +1936,7 @@ void CctalkDevice::dispenseCoins(
   ESP_LOGD(TAG, "Dispense coins called: Dispensing %d coins: ", numberOfCoins);
 
   std::vector<uint8_t> data;
-  bool doContinue = false;
+  bool doContinue = true;
 
   if (this->deviceCategory != CcCategory::Payout) {
     ESP_LOGE(TAG, "Incorrect device category for dispenseCoins command: %s",
@@ -1957,6 +1957,7 @@ void CctalkDevice::dispenseCoins(
     }
 
     if (cipherKey.size() == 8) {
+      ESP_LOGD(TAG, "Got 8 bytes: %s, %s, %s, %s, %s, %s, %s, %s", cipherKey.at(0), cipherKey.at(1), cipherKey.at(2), cipherKey.at(3), cipherKey.at(4), cipherKey.at(5), cipherKey.at(6), cipherKey.at(7));
       data.push_back(cipherKey.at(0));
       data.push_back(cipherKey.at(1));
       data.push_back(cipherKey.at(2));
@@ -1966,6 +1967,7 @@ void CctalkDevice::dispenseCoins(
       data.push_back(cipherKey.at(6));
       data.push_back(cipherKey.at(7));
       doContinue = true;
+      ESP_LOGD(TAG, "Continuing");
     } else {
       ESP_LOGE(TAG, "Expecting 8 cipher bytes, received %d", cipherKey.size());
       doContinue = false;

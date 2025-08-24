@@ -74,7 +74,7 @@ extern "C" void app_main() {
   esp_log_level_set("i2cmanager", ESP_LOG_WARN);
   esp_log_level_set("i2c.master", ESP_LOG_WARN);
   esp_log_level_set("ssd1306", ESP_LOG_INFO);
-  esp_log_level_set("cctalkDevice", ESP_LOG_INFO);
+  esp_log_level_set("cctalkDevice", ESP_LOG_DEBUG);
   esp_log_level_set("cctalk_link_controller", ESP_LOG_INFO);
   esp_log_level_set("serial_worker", ESP_LOG_INFO);
   esp_log_level_set("AudioController", ESP_LOG_INFO);

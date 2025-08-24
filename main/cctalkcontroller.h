@@ -29,13 +29,13 @@ public:
   virtual ~CCTalkController();
 
   void setCreditAcceptedCallback(
-      esp32cc::CoinAcceptorDevice::CreditAcceptedFunc creditAcceptedCallback);
+      const esp32cc::CoinAcceptorDevice::CreditAcceptedFunc& creditAcceptedCallback);
 
   esp_err_t initialise();
 
   void dispenseCoins(
       int numberOfCoins,
-      std::function<void(const std::string &error_msg)> finish_callback);
+      const std::function<void(const std::string &error_msg)>& finish_callback) const;
 
 public:
   static constexpr uint8_t COIN_VALUES[] = {0, 5, 10, 20, 50, 100, 200};

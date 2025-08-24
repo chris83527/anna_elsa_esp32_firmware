@@ -184,12 +184,13 @@ return ESP_OK; // Debug
  * @param creditAcceptedCallback
  */
 void CCTalkController::setCreditAcceptedCallback(
-    esp32cc::CoinAcceptorDevice::CreditAcceptedFunc creditAcceptedCallback) {
+    const esp32cc::CoinAcceptorDevice::CreditAcceptedFunc& creditAcceptedCallback) {
   this->coinAcceptor.setCreditAcceptedCallback(creditAcceptedCallback);
 }
 
 void CCTalkController::dispenseCoins(
     const int numberOfCoins,
-    const std::function<void(const std::string &error_msg)> finish_callback) {
+    const std::function<void(const std::string &error_msg)>& finish_callback) const
+{
   this->hopper.dispenseCoins(numberOfCoins, finish_callback);
 }

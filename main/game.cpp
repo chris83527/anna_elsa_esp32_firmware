@@ -43,14 +43,16 @@ static const char *TAG = "Game";
 Game::Game(DisplayController &displayController,
            AudioController &audioController, MoneyController &moneyController,
            ReelController &reelController)
-    : displayController(displayController), audioController(audioController),
-      moneyController(moneyController), reelController(reelController) {
+    : mainController(nullptr), holdLeft(false), holdCentre(false), holdRight(false), holdEnabled(false),
+      displayController(displayController),
+      audioController(audioController),
+      moneyController(moneyController), reelController(reelController), moves(0)
+{
+    ESP_LOGI(TAG, "Entering constructor");
 
-  ESP_LOGI(TAG, "Entering constructor");
+    this->isInProgress = false;
 
-  this->isInProgress = false;
-
-  ESP_LOGI(TAG, "Leaving constructor");
+    ESP_LOGI(TAG, "Leaving constructor");
 }
 
 Game::~Game() {}
@@ -98,7 +100,7 @@ void Game::start() {
   this->displayController.getLampData()
       .at(DisplayController::LMP_START)
       .lampState = LampState::blinkslow;
-  this->displayController.displayVFDText("PRESS START TO BEGIN");
+  DisplayController::displayVFDText("PRESS START TO BEGIN");
 
   // loop waiting for button press.
   holdLeft = false;
@@ -227,7 +229,8 @@ void Game::start() {
   ESP_LOGI(TAG, "Exiting game");
 }
 
-void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
+void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) const
+{
 
   ESP_LOGI(TAG, "Entering spinReels()");
 
@@ -239,14 +242,15 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) {
       .at(DisplayController::LMP_START)
       .lampState = LampState::off;
 
-  this->displayController.displayVFDText("    LET IT GO!!     ");
+  DisplayController::displayVFDText("    LET IT GO!!     ");
 
   this->reelController.spin(reelStopLeft, reelStopCentre, reelStopRight);
 
   ESP_LOGI(TAG, "Exiting spinReels()");
 }
 
-void Game::shuffleReels() {
+void Game::shuffleReels() const
+{
   ESP_LOGI(TAG, "Entering shuffleReels()");
 
   uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
@@ -257,7 +261,7 @@ void Game::shuffleReels() {
       .at(DisplayController::LMP_START)
       .lampState = LampState::off;
 
-  this->displayController.displayVFDText("    LET IT GO!!     ");
+  DisplayController::displayVFDText("    LET IT GO!!     ");
 
   this->reelController.shuffle(reelStopLeft, reelStopCentre, reelStopRight);
 
@@ -269,7 +273,7 @@ void Game::playNudges(int nudges) {
 
   std::string nudgeText = "        NUDGE        ";
 
-  this->displayController.displayVFDText(nudgeText);
+  DisplayController::displayVFDText(nudgeText);
 
   while (nudges > 0) {
 

@@ -112,7 +112,7 @@ void AudioController::initialise() {
 
 esp_err_t AudioController::i2cInit() {
   this->deviceConfig.device_address = TAS5731M_I2C_ADDRESS;
-  this->deviceConfig.scl_speed_hz = 100000;
+  this->deviceConfig.scl_speed_hz = 400000;
   this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
 
   i2cManager.addDevice(deviceConfig, deviceHandle);
