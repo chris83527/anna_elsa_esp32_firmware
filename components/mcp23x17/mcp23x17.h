@@ -41,12 +41,8 @@
 #define __MCP23X17_H__
 
 #include "I2CManager.h"
-#include "driver/gpio.h"
 #include "esp_err.h"
-#include <cstdbool>
-#include <cstdint>
 #include <mutex>
-#include <vector>
 
 #define MCP23X17_ADDR_BASE 0x20
 

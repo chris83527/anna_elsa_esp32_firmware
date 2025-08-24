@@ -21,8 +21,8 @@ public:
   virtual ~NvsController();
 
   esp_err_t initialise();
-  void writeValueToNVS(const char *key, uint16_t value);
-  uint16_t readValueFromNVS(const char *key);
+  void writeValueToNVS(const char *key, uint16_t value) const;
+  uint16_t readValueFromNVS(const char *key) const;
 
 public:
 private:

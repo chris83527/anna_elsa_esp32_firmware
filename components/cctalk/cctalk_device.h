@@ -301,9 +301,6 @@ public:
                              uint8_t event_counter,
                              const std::vector<CcEventData>& event_data,
                              std::function<void()> const &finish_callback);
-  void processHopperStatus(const std::string &error_msg, uint8_t event_counter,
-                           const std::vector<CcEventData>& hopperStatusData,
-                           std::function<void()> const &finish_callback);
 
   /// Route a bill that is held in escrow.
   void requestRouteBill(
@@ -375,7 +372,7 @@ private:
 
   /// Poll task
   static std::string decodeResponseToString(const std::vector<uint8_t> &responseData);
-  static static std::string decodeResponseToHex(const std::vector<uint8_t> &responseData);
+  static std::string decodeResponseToHex(const std::vector<uint8_t> &responseData);
   static std::string decodeSerialNumber(const std::vector<uint8_t> &responseData);
 
   void devicePollTask();

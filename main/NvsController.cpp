@@ -7,15 +7,15 @@
 
 #include "NvsController.h"
 
+#include "nvs_flash.h"
+
 static const char* TAG = "NvsController";
 
 NvsController::NvsController()
-{
-}
+= default;
 
 NvsController::~NvsController()
-{
-}
+= default;
 
 esp_err_t NvsController::initialise()
 {
@@ -53,7 +53,7 @@ esp_err_t NvsController::initialise()
     return err;
 }
 
-void NvsController::writeValueToNVS(const char* key, uint16_t value)
+void NvsController::writeValueToNVS(const char* key, uint16_t value) const
 {
     esp_err_t err;
 
@@ -61,12 +61,10 @@ void NvsController::writeValueToNVS(const char* key, uint16_t value)
     ESP_LOGD(TAG, "Updating %s in NVS ... ", key);
 
     err = nvsHandle->set_item<uint16_t>(key, value);
-    switch (err)
+    if (err == ESP_OK)
     {
-    case ESP_OK:
         ESP_LOGD(TAG, "Done");
-        break;
-    default:
+    } else {
         ESP_LOGE(TAG, "Failed!");
     }
 
@@ -77,18 +75,15 @@ void NvsController::writeValueToNVS(const char* key, uint16_t value)
     ESP_LOGD(TAG, "Committing updates in NVS ... ");
     err = nvsHandle->commit();
 
-    switch (err)
+    if (err == ESP_OK)
     {
-    case ESP_OK:
         ESP_LOGD(TAG, "Commit Done");
-
-        break;
-    default:
+    } else {
         ESP_LOGE(TAG, "Commit Failed!");
     }
 }
 
-uint16_t NvsController::readValueFromNVS(const char* key)
+uint16_t NvsController::readValueFromNVS(const char* key) const
 {
     esp_err_t err;
 

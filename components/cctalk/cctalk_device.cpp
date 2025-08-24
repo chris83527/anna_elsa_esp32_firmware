@@ -1273,6 +1273,7 @@ void CctalkDevice::processHopperStatus(
     const std::string &error_msg, const uint8_t eventCounter,
     const std::vector<CcEventData>& hopperStatusData,
     std::function<void()> const &finish_callback) const {
+
   // Per specification, a command timeout should be ignored.
   if (error_msg.empty() && eventCounter == 0 &&
       hopperStatusData.empty()) {
@@ -2028,8 +2029,7 @@ std::map<uint8_t, CcIdentifier> CctalkDevice::getStoredIndentifiers() const {
   return this->identifiers;
 }
 
-std::string
-CctalkDevice::decodeResponseToString(const std::vector<uint8_t> &responseData) {
+std::string CctalkDevice::decodeResponseToString(const std::vector<uint8_t> &responseData) {
   std::string responseString;
   for (const char byte : responseData) {
 
@@ -2038,8 +2038,7 @@ CctalkDevice::decodeResponseToString(const std::vector<uint8_t> &responseData) {
   return responseString;
 }
 
-std::string
-CctalkDevice::decodeResponseToHex(const std::vector<uint8_t> &responseData) {
+std::string CctalkDevice::decodeResponseToHex(const std::vector<uint8_t> &responseData) {
   std::string formatted_data;
   for (uint8_t tmpData : responseData) {
 
@@ -2050,8 +2049,7 @@ CctalkDevice::decodeResponseToHex(const std::vector<uint8_t> &responseData) {
   return formatted_data;
 }
 
-std::string
-CctalkDevice::decodeSerialNumber(const std::vector<uint8_t> &responseData) {
+std::string CctalkDevice::decodeSerialNumber(const std::vector<uint8_t> &responseData) {
   if (responseData.size() == 3) {
     uint32_t serialNumber = 0;
     serialNumber = (responseData.at(0) << 16) | (responseData.at(1) << 8) |

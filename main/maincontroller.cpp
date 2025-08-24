@@ -32,6 +32,7 @@
 #include "reelcontroller.h"
 
 #include "esp_littlefs.h"
+#include "esp_pthread.h"
 #include "m20ly02z.h"
 
 // #include "errors.h"

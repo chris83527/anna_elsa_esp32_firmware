@@ -129,8 +129,8 @@ bool ReelController::initialise() {
       .timer_sel = LEDC_TIMER,
       .duty = 0,
       .hpoint = 0,
-      .sleep_mode = 0,
-      .flags = {},
+      .sleep_mode = LEDC_SLEEP_MODE_KEEP_ALIVE,
+      .flags = 0,
   };
 
   if (ledc_channel_config(&ledc_channel) != ESP_OK) {

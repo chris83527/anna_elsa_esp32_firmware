@@ -549,7 +549,6 @@ void SSD1306::bitmaps(int xpos, int ypos, const uint8_t* bitmap, int tmpWidth,
 }
 
 // Set pixel to internal buffer. Not show it.
-
 void SSD1306::pixel(int xpos, int ypos, bool invert)
 {
     uint8_t page = (ypos / 8);
@@ -557,7 +556,7 @@ void SSD1306::pixel(int xpos, int ypos, bool invert)
     uint8_t _seg = xpos;
     uint8_t wk0 = this->_page[page]._segs[_seg];
     uint8_t wk1 = 1 << _bits;
-    ESP_LOGD(TAG, "ypos=%d _page=%d _bits=%d wk0=0x%02x wk1=0x%02x", ypos, _page,
+    ESP_LOGD(TAG, "ypos=%d _page=%d _bits=%d wk0=0x%02x wk1=0x%02x", ypos, page,
              _bits, wk0, wk1);
     if (invert)
     {
@@ -570,7 +569,7 @@ void SSD1306::pixel(int xpos, int ypos, bool invert)
     if (this->_flip)
         wk0 = SSD1306::rotate_byte(wk0);
     ESP_LOGD(TAG, "wk0=0x%02x wk1=0x%02x", wk0, wk1);
-    this->_page[_page]._segs[_seg] = wk0;
+    this->_page[page]._segs[_seg] = wk0;
 }
 
 // Set line to internal buffer. Not show it.
