@@ -35,11 +35,9 @@
 #include <functional>
 #include <mutex>
 #include <string>
-#include <thread>
 #include <vector>
 
 #include "driver/gpio.h"
-#include "esp_log.h"
 
 #include "serial_worker.h"
 
@@ -73,16 +71,16 @@ public:
   /// The returned value is request ID which can be used to identify which
   /// response comes from which request.
   uint64_t
-  ccRequest(CcHeader command, const uint8_t deviceAddress,
+  ccRequest(CcHeader command, uint8_t deviceAddress,
             const std::vector<uint8_t>& additionalRequestData,
             int responseTimeoutMsec,
             std::function<void(const std::string &error_msg,
-                               const std::vector<uint8_t> responseData)> const
+                               std::vector<uint8_t> responseData)> const
                 &callbackFunction);
 
   /// Handle generic serial response and emit ccResponse
-  void onResponseReceive(const uint64_t requestId,
-                         const std::vector<uint8_t>& response_data) const;
+  void onResponseReceive(uint64_t requestId,
+                         const std::vector<uint8_t>& response_data);
 
 private:
   void openPort(const uart_port_t uartNumber, const int txPin, const int rxPin);
@@ -123,7 +121,7 @@ private:
 
   bool requestInProgress = false;
 
-  std::function<void(const std::string error_msg,
+  std::function<void(std::string error_msg,
                      std::vector<uint8_t> command_data)>
       executeOnReturnCallback;
 };

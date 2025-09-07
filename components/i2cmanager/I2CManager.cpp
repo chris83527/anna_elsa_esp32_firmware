@@ -41,7 +41,7 @@
 
 static const char *TAG = "i2cmanager";
 
-std::mutex _mutex;
+std::mutex mutex;
 
 I2CManager::I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin,
                        gpio_num_t sdaPin) {
@@ -68,10 +68,11 @@ I2CManager::I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin,
   ESP_LOGD(TAG, "Leaving constructor");
 }
 
-I2CManager::~I2CManager() {}
+I2CManager::~I2CManager() = default;
 
 esp_err_t I2CManager::addDevice(const i2c_device_config_t &deviceConfig,
-                                i2c_master_dev_handle_t &deviceHandle) {
+                                i2c_master_dev_handle_t &deviceHandle) const
+{
 
   return i2c_master_bus_add_device(this->_bus_handle, &deviceConfig,
                                    &deviceHandle);
@@ -79,7 +80,8 @@ esp_err_t I2CManager::addDevice(const i2c_device_config_t &deviceConfig,
 
 esp_err_t I2CManager::writeRegister(const i2c_master_dev_handle_t &deviceHandle,
                                     const uint8_t reg,
-                                    std::vector<uint8_t> &data, int size) {
+                                    std::vector<uint8_t> &data, int size) const
+{
 
   // 0 is the default value if no parameter set, in this case we presume we can
   // get the size from the vector
@@ -87,12 +89,11 @@ esp_err_t I2CManager::writeRegister(const i2c_master_dev_handle_t &deviceHandle,
     size = data.size();
   }
 
-  esp_err_t ret;
-  _mutex.lock();
+  std::unique_lock lock = std::unique_lock(mutex);
 
   data.insert(data.begin(), reg);
 
-  ret = i2c_master_transmit(deviceHandle, data.data(), size + 1, 5000);
+  esp_err_t ret = i2c_master_transmit(deviceHandle, data.data(), size + 1, 5000);
 
   ret |= i2c_master_bus_wait_all_done(_bus_handle, 5000);
 
@@ -100,13 +101,14 @@ esp_err_t I2CManager::writeRegister(const i2c_master_dev_handle_t &deviceHandle,
     i2c_master_bus_reset(_bus_handle);
   }
 
-  _mutex.unlock();
+  lock.unlock();
 
   return ret;
 }
 
 esp_err_t I2CManager::write(const i2c_master_dev_handle_t &deviceHandle,
-                            std::vector<uint8_t> &data, int size) {
+                            std::vector<uint8_t> &data, int size) const
+{
 
   // 0 is the default value if no parameter set, in this case we presume we can
   // get the size from the vector
@@ -114,7 +116,8 @@ esp_err_t I2CManager::write(const i2c_master_dev_handle_t &deviceHandle,
     size = data.size();
   }
 
-  _mutex.lock();
+  std::unique_lock lock = std::unique_lock(mutex);
+
   esp_err_t ret = i2c_master_transmit(deviceHandle, data.data(), size, 5000);
 
   i2c_master_bus_wait_all_done(_bus_handle, 5000);
@@ -123,7 +126,7 @@ esp_err_t I2CManager::write(const i2c_master_dev_handle_t &deviceHandle,
     i2c_master_bus_reset(_bus_handle);
   }
 
-  _mutex.unlock();
+  lock.unlock();
 
   return ret;
 }
@@ -131,7 +134,9 @@ esp_err_t I2CManager::write(const i2c_master_dev_handle_t &deviceHandle,
 esp_err_t I2CManager::readRegister(const i2c_master_dev_handle_t &deviceHandle,
                                    const uint8_t reg,
                                    std::vector<uint8_t> &data, int size) {
-  _mutex.lock();
+
+  std::unique_lock lock = std::unique_lock(mutex);
+
 
   uint8_t readBuffer[1024] = {0};
 
@@ -147,13 +152,14 @@ esp_err_t I2CManager::readRegister(const i2c_master_dev_handle_t &deviceHandle,
     i2c_master_bus_reset(_bus_handle);
   }
 
-  _mutex.unlock();
+  lock.unlock();
   return ret;
 }
 
 esp_err_t I2CManager::read(const i2c_master_dev_handle_t &deviceHandle,
-                           std::vector<uint8_t> &data, int size) {
-  _mutex.lock();
+                           std::vector<uint8_t> &data, int size) const
+{
+  std::unique_lock lock = std::unique_lock(mutex);
 
   uint8_t readBuffer[1024] = {0};
 
@@ -168,12 +174,13 @@ esp_err_t I2CManager::read(const i2c_master_dev_handle_t &deviceHandle,
     i2c_master_bus_reset(_bus_handle);
   }
 
-  _mutex.unlock();
+  lock.unlock();
   return ret;
 }
 
-bool I2CManager::probe(int address) {
-  _mutex.lock();
+bool I2CManager::probe(int address) const
+{
+  std::unique_lock lock = std::unique_lock(mutex);
   esp_err_t ret = i2c_master_probe(_bus_handle, address, 5000);
 
   i2c_master_bus_wait_all_done(_bus_handle, 5000);
@@ -183,11 +190,12 @@ bool I2CManager::probe(int address) {
   }
 
   bool result = (ret == ESP_OK);
-  _mutex.unlock();
+  lock.unlock();
   return result;
 }
 
-void I2CManager::scan() {
+void I2CManager::scan() const
+{
   bool res;
   printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n");
   printf("00:         ");

@@ -307,7 +307,7 @@ uint8_t DisplayController::waitForButton(uint8_t mask)
 {
     getButtonStatus();
     // loop waiting for button press.
-    while ((this->buttonStatus & mask) == 0)
+    while ((mask & this->buttonStatus) == 0)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
         getButtonStatus();

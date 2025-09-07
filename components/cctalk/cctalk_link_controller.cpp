@@ -113,20 +113,20 @@ void CctalkLinkController::setLoggingOptions(bool showFullResponse,
  * Send a ccTalk command to a device on the bus
  *
  * @param command The ccTalk command to send to the device
- * @param devAddress The address of the device to send the request
+ * @param deviceAddress The address of the device to send the request
  * @param additionalRequestData Additional data to be sent if the command requires it
  * @param responseTimeoutMsec The number of milliseconds to wait
  * @param callbackFunction
  * @return The requestId corresponding to this request or -1 if error
  */
 uint64_t CctalkLinkController::ccRequest(
-    CcHeader command, uint8_t devAddress,
+    CcHeader command, uint8_t deviceAddress,
     const std::vector<uint8_t>& additionalRequestData, int responseTimeoutMsec,
     std::function<void(const std::string &error_msg,
                        const std::vector<uint8_t> responseData)> const
         &callbackFunction) {
 
-  _mutex.lock();
+
 
   ESP_LOGD(TAG, "Checking no existing request in process");
   while (this->requestInProgress) {
@@ -141,23 +141,27 @@ uint64_t CctalkLinkController::ccRequest(
     executeOnReturnCallback = callbackFunction;
   } else {
     ESP_LOGE(TAG, "executeOnReturn: callbackFunction was null");
+    this->requestInProgress = false;
+    return 0;
   }
 
   ESP_LOGD(TAG, "Sending request %s to device %d",
-           ccHeaderGetDisplayableName(command).c_str(), devAddress);
+           ccHeaderGetDisplayableName(command).c_str(), deviceAddress);
 
-  this->currentDeviceAddress = devAddress;
+  this->currentDeviceAddress = deviceAddress;
   ESP_LOGD(TAG, "this->currentDeviceAddress = %d, deviceAddress = %d",
-           this->currentDeviceAddress, devAddress);
+           this->currentDeviceAddress, deviceAddress);
 
   if (additionalRequestData.size() > 255) {
     ESP_LOGE(TAG, "Size of additional data too large! Aborting request.");
+    this->requestInProgress = false;
     return 0;
   }
 
   if (this->m_isDesEncrypted) {
     ESP_LOGE(TAG,
              "ccTalk encryption requested, unsupported! Aborting request.");
+    this->requestInProgress = false;
     return 0;
   }
 
@@ -165,6 +169,7 @@ uint64_t CctalkLinkController::ccRequest(
     // TODO support this
     ESP_LOGE(TAG, "ccTalk 16-bit CRC checksums requested, unsupported! "
                   "Aborting request.");
+    this->requestInProgress = false;
     return 0;
   }
 
@@ -178,14 +183,14 @@ uint64_t CctalkLinkController::ccRequest(
 
     ESP_LOGD(
         TAG, "> ccTalk request: %s, address: %d, data: %s",
-        ccHeaderGetDisplayableName(command).c_str(), (int(devAddress)),
+        ccHeaderGetDisplayableName(command).c_str(), (int(deviceAddress)),
         (additionalRequestData.empty() ? "(empty)" : stream.str().c_str()));
   }
 
   // Build the data structure
   std::vector<uint8_t> requestData;
   requestData.clear();
-  requestData.push_back(static_cast<uint8_t>(devAddress));
+  requestData.push_back(static_cast<uint8_t>(deviceAddress));
   requestData.push_back(static_cast<uint8_t>(additionalRequestData.size()));
   requestData.push_back(static_cast<uint8_t>(this->controllerAddress));
   requestData.push_back(static_cast<uint8_t>(command));
@@ -210,8 +215,9 @@ uint64_t CctalkLinkController::ccRequest(
                                  responseTimeoutMsec);
 
   ESP_LOGD(TAG, "Returning from send request. Releasing mutex");
-  _mutex.unlock();
-  this->requestInProgress = false;
+
+
+  //this->requestInProgress = false;
 
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
@@ -225,7 +231,7 @@ uint64_t CctalkLinkController::ccRequest(
  * @param responseData
  */
 void CctalkLinkController::onResponseReceive(
-    const uint64_t requestId, const std::vector<uint8_t>& responseData) const
+    const uint64_t requestId, const std::vector<uint8_t>& responseData)
 {
 
   ESP_LOGD(TAG, "Entering onResponseReceive");
@@ -233,12 +239,14 @@ void CctalkLinkController::onResponseReceive(
   if (responseData.empty()) {
     ESP_LOGW(TAG,
              "No response data was received. No further processing possible.");
+    this->requestInProgress = false;
     return;
   }
 
   if (responseData.size() < 5) {
     ESP_LOGW(TAG, "ccTalk response size too small (%d bytes).",
              responseData.size());
+    this->requestInProgress = false;
     return;
   }
 
@@ -275,7 +283,7 @@ void CctalkLinkController::onResponseReceive(
   if (responseData.size() != 5 + dataSize) {
     ESP_LOGE(TAG, "Invalid ccTalk response: size (%d bytes).",
              responseData.size());
-
+    this->requestInProgress = false;
     return;
   }
 
@@ -289,7 +297,7 @@ void CctalkLinkController::onResponseReceive(
   if (checksum != 0) {
     ESP_LOGE(TAG, "Invalid ccTalk response checksum.");
     // TODO The command should be retried.
-
+    this->requestInProgress = false;
     return;
   }
 
@@ -298,7 +306,7 @@ void CctalkLinkController::onResponseReceive(
   if (destinationAddress != this->controllerAddress) {
     ESP_LOGE(TAG, "Invalid ccTalk response. Destination address %d.",
              int(destinationAddress));
-
+    this->requestInProgress = false;
     return;
   }
 
@@ -307,7 +315,7 @@ void CctalkLinkController::onResponseReceive(
   if (static_cast<int>(sourceAddress) != static_cast<int>(this->currentDeviceAddress)) {
     ESP_LOGE(TAG, "Invalid ccTalk response. Source address %d, expected %d.",
              int(sourceAddress), int(this->currentDeviceAddress));
-
+    this->requestInProgress = false;
     return;
   }
 
@@ -317,7 +325,7 @@ void CctalkLinkController::onResponseReceive(
              "Invalid ccTalk response %lld from address %d: Command is %d, "
              "expected 0.",
              requestId, int(sourceAddress), int(command));
-
+    this->requestInProgress = false;
     return;
   }
 
@@ -327,6 +335,8 @@ void CctalkLinkController::onResponseReceive(
   } else {
     ESP_LOGE(TAG, "Callback pointer was nullptr");
   }
+
+  this->requestInProgress = false;
 
   ESP_LOGD(TAG, "Returning from onResponseReceive");
 }

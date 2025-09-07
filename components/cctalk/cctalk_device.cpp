@@ -33,6 +33,7 @@
 #include <sstream>
 
 #include "cctalk_enums.h"
+#include "esp_log.h"
 #include "esp_pthread.h"
 
 static const char *TAG = "cctalkDevice";
@@ -1859,16 +1860,19 @@ void CctalkDevice::requestCipherKey(
                        const std::vector<uint8_t> &cipherKey)> const
         &finish_callback) const
 {
-  std::vector<uint8_t> data;
+  constexpr std::vector<uint8_t> data;
   this->linkController.ccRequest(
       CcHeader::RequestCipherKey, this->deviceAddress, data, 200,
       [&](const std::string &error_msg,
-          const std::vector<uint8_t> &responseData) {
+          const std::vector<uint8_t> &responseData)
+      {
         if (!error_msg.empty()) {
           ESP_LOGE(TAG, "Error requesting cipher key: %s", error_msg.c_str());
           finish_callback(error_msg, responseData);
           return;
         }
+
+        ESP_LOGD(TAG, "Checking response for validity...");
 
         if (responseData.size() != 8) {
           std::string errormsg =
@@ -1876,6 +1880,7 @@ void CctalkDevice::requestCipherKey(
           ESP_LOGE(TAG, "%s", errormsg.c_str());
           finish_callback(errormsg, responseData);
         } else {
+          ESP_LOGE(TAG, "Correct cipher byte count: %d", responseData.size());
           finish_callback(std::string(), responseData);
         }
       });
@@ -1957,7 +1962,7 @@ void CctalkDevice::dispenseCoins(
     }
 
     if (cipherKey.size() == 8) {
-      ESP_LOGD(TAG, "Got 8 bytes: %s, %s, %s, %s, %s, %s, %s, %s", cipherKey.at(0), cipherKey.at(1), cipherKey.at(2), cipherKey.at(3), cipherKey.at(4), cipherKey.at(5), cipherKey.at(6), cipherKey.at(7));
+//      ESP_LOGD(TAG, "Got 8 bytes: %s, %s, %s, %s, %s, %s, %s, %s", cipherKey.at(0), cipherKey.at(1), cipherKey.at(2), cipherKey.at(3), cipherKey.at(4), cipherKey.at(5), cipherKey.at(6), cipherKey.at(7));
       data.push_back(cipherKey.at(0));
       data.push_back(cipherKey.at(1));
       data.push_back(cipherKey.at(2));

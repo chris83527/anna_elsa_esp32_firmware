@@ -55,7 +55,7 @@ public:
    * @return A handle to the device
    */
   esp_err_t addDevice(const i2c_device_config_t &deviceConfig,
-                      i2c_master_dev_handle_t &deviceHandle);
+                      i2c_master_dev_handle_t &deviceHandle) const;
 
   /**
    *
@@ -67,7 +67,7 @@ public:
    */
   esp_err_t writeRegister(const i2c_master_dev_handle_t &deviceHandle,
                           const uint8_t reg, std::vector<uint8_t> &data,
-                          int size = 0);
+                          int size = 0) const;
 
   /**
    * Write data to an I2C device without specifying the register
@@ -78,7 +78,7 @@ public:
    * @return
    */
   esp_err_t write(const i2c_master_dev_handle_t &deviceHandle,
-                  std::vector<uint8_t> &data, int size = 0);
+                  std::vector<uint8_t> &data, int size = 0) const;
 
   /**
    * Read data from an I2C device from a specific register
@@ -101,7 +101,7 @@ public:
    * @return
    */
   esp_err_t read(const i2c_master_dev_handle_t &deviceHandle,
-                 std::vector<uint8_t> &data, int size);
+                 std::vector<uint8_t> &data, int size) const;
 
   /**
    * Probe an i2c device to see if it is found at the given address
@@ -109,9 +109,9 @@ public:
    * @param address
    * @return true if an i2c device was found at the given address
    */
-  bool probe(int address);
+  bool probe(int address) const;
 
-  void scan();
+  void scan() const;
 
 private:
   i2c_master_bus_config_t _i2c_mst_config;
