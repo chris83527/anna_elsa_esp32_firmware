@@ -88,7 +88,7 @@ public:
   void shuffle(uint8_t leftStop, uint8_t midStop,
                uint8_t rightStop);
 
-  reel_stop_info_t getReelStopInfo();
+  reel_stop_info_t getReelStopInfo() const;
 
   [[nodiscard]] bool isCommandInProgress() const;
 
@@ -114,9 +114,9 @@ private:
   ledc_timer_config_t ledc_timer{};
   ledc_channel_config_t ledc_channel{};
 
-  std::thread leftReelThread;
-  std::thread centreReelThread;
-  std::thread rightReelThread;
+//  std::thread leftReelThread;
+//  std::thread centreReelThread;
+//  std::thread rightReelThread;
 };
 
 #endif /* __REELS_H__ */

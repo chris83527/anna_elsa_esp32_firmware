@@ -32,21 +32,13 @@
  *
  * Created on January 14, 2018, 3:02 PM
  */
+#pragma once
 
 #ifndef GAME_H
 #define GAME_H
 
-#include <array>
 #include <bitset>
-#include <cstddef>
-#include <cstring>
 #include <string>
-
-#include "color.h"
-#include "esp_log.h"
-#include "esp_random.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 
 #include "audiocontroller.h"
 #include "displaycontroller.h"
@@ -55,7 +47,7 @@
 
 #include "config.h"
 
-#include "lib8tion/random8.h"
+
 
 #define HANS 0
 #define OLAF 1
@@ -109,7 +101,7 @@ public:
 private:
   void collectOrContinue();
   void transferOrGamble();
-  bool offerHold();
+  bool offerHold() const;
   void playFeatureMatrix();
   void playTrail();
   void playHiLo();

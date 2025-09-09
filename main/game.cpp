@@ -33,6 +33,14 @@
  * Created on January 14, 2018, 3:02 PM
  * Updated for ESP-IDF October 1st, 2021, 11:26 AM
  */
+#include <array>
+#include <bitset>
+
+#include <string>
+#include "esp_random.h"
+#include "freertos/FreeRTOS.h"
+
+#include "lib8tion/random8.h"
 
 #include "game.h"
 
@@ -282,7 +290,7 @@ void Game::playNudges(int nudges) {
     // have to take off 1, because array is zero-indexed
     this->displayController.getLampData()
         .at(DisplayController::NUDGE_LAMPS.at(nudges - 1))
-        .rgb = rgb_from_values(255, 255, 255);
+        .rgb = DisplayController::rgbFromValues(255, 255, 255);
     this->displayController.getLampData()
         .at(DisplayController::NUDGE_LAMPS.at(nudges - 1))
         .lampState = LampState::blinkfast;
@@ -294,7 +302,7 @@ void Game::playNudges(int nudges) {
             .lampState = LampState::on;
         this->displayController.getLampData()
             .at(DisplayController::NUDGE_LAMPS.at(nudges - 1))
-            .rgb = rgb_from_values(0, 0, 255);
+            .rgb = DisplayController::rgbFromValues(0, 0, 255);
       }
     }
 
@@ -345,7 +353,8 @@ void Game::playNudges(int nudges) {
   ESP_LOGD(TAG, "Exiting nudges()");
 }
 
-bool Game::offerHold() {
+bool Game::offerHold() const
+{
   ESP_LOGD(TAG, "Entering offerHold()");
 
   uint8_t leftPos;

@@ -10,7 +10,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holder nor the names of itscontributors
+ * 3. Neither the name of the copyright holder nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  * without specific prior written permission.
  *
@@ -48,6 +48,7 @@
 #include "esp_log.h"
 #include "hal/ledc_types.h"
 #include "pca9629a.h"
+#include "lib8tion.h"
 
 #include "audiocontroller.h"
 #include "config.h"
@@ -75,8 +76,7 @@ bool reelRightInitOk;
 ReelController::ReelController(AudioController &audioController,
                                DisplayController &displayController,
                                I2CManager &i2cmgr)
-  : reelLeftInitOk(false), reelCentreInitOk(false), reelRightInitOk(false), status(0), commandInProgress(false),
-    audioController(audioController),
+  : audioController(audioController),
     displayController(displayController),
     leftReel(PCA9629A(i2cmgr, REEL_LEFT_I2C_ADDRESS)),
     centreReel(PCA9629A(i2cmgr, REEL_CENTRE_I2C_ADDRESS)),
@@ -91,7 +91,8 @@ ReelController::~ReelController() = default;
 
 bool ReelController::isCommandInProgress() const { return commandInProgress; }
 
-ReelController::reel_stop_info_t ReelController::getReelStopInfo() {
+ReelController::reel_stop_info_t ReelController::getReelStopInfo() const
+{
   return reelStopInfo;
 }
 
@@ -224,48 +225,17 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop,
   ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
   ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-  // auto cfg = esp_pthread_get_default_config();
-
   if (leftStop > 0) { // Check if reel is held
-                      //  cfg.thread_name = "LeftReelThread";
-                      //  cfg.prio = 1;
-                      //  cfg.stack_size = 3000;
-                      //  esp_pthread_set_cfg(&cfg);
-    //  this->leftReelThread = std::thread([this, &leftSteps]() {
     leftReel.startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
-    // });
   }
 
   if (centreStop > 0) { // Check if reel is held
-                        // cfg.thread_name = "CentreReelThread";
-                        // cfg.prio = 1;
-                        // cfg.stack_size = 3000;
-                        // esp_pthread_set_cfg(&cfg);
-    // this->centreReelThread = std::thread([this, &centreSteps]() {
     centreReel.startAfterHome(PCA9629A::Direction::CW, centreSteps, 1);
-    // });
   }
 
   if (rightStop > 0) {
-    // auto cfg = esp_pthread_get_default_config();
-    // cfg.thread_name = "RightReelThread";
-    // cfg.prio = 1;
-    // cfg.stack_size = 3000;
-    // esp_pthread_set_cfg(&cfg);
-    // this->rightReelThread = std::thread([this, &rightSteps]() {
     rightReel.startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
-    //});
   }
-
-  //  if (leftStop > 0) {
-  //    this->leftReelThread.join();
-  //  }
-  //  if (centreStop > 0) {
-  //    this->centreReelThread.join();
-  //  }
-  //  if (rightStop > 0) {
-  //    this->rightReelThread.join();
-  //  }
 
   bool leftPlayAudio = true;
   bool centrePlayAudio = true;
@@ -333,21 +303,26 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
                              const uint8_t rightStop) {
   this->commandInProgress = true;
 
-  ESP_LOGI(TAG, "shuffle() called: leftStop: %d, centreStop: %d, rightStop: %d",
+  ESP_LOGI(TAG, "spin called: left stop: %d, centre stop: %d, right stop: %d",
            leftStop, centreStop, rightStop);
 
-  uint8_t leftSymbolId = Game::symbolsLeftReel[leftStop - 1];
-  uint8_t centreSymbolId = Game::symbolsCentreReel[centreStop - 1];
-  uint8_t rightSymbolId = Game::symbolsRightReel[rightStop - 1];
+  if (leftStop > 0)
+    this->reelStopInfo.leftStop = leftStop;
+  if (centreStop > 0)
+    this->reelStopInfo.centreStop = centreStop;
+  if (rightStop > 0)
+    this->reelStopInfo.rightStop = rightStop;
+
+  uint8_t leftSymbolId = Game::symbolsLeftReel[this->reelStopInfo.leftStop - 1];
+  uint8_t centreSymbolId =
+      Game::symbolsCentreReel[this->reelStopInfo.centreStop - 1];
+  uint8_t rightSymbolId =
+      Game::symbolsRightReel[this->reelStopInfo.rightStop - 1];
 
   printf("Calculated reel positions: %s - %s - %s",
          Game::symbolMap[leftSymbolId].c_str(),
          Game::symbolMap[centreSymbolId].c_str(),
          Game::symbolMap[rightSymbolId].c_str());
-
-  this->reelStopInfo.leftStop = leftStop;
-  this->reelStopInfo.centreStop = centreStop;
-  this->reelStopInfo.rightStop = rightStop;
 
   int leftSteps = (((this->reelStopInfo.leftStop - 1) + 75) * STEPS_PER_STOP);
   int centreSteps =
@@ -358,21 +333,17 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
   ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
   ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-  gpio_set_level(GPIO_MOTOR_EN, 1);
-  std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-  this->leftReelThread = std::thread([this, &leftSteps]() {
+  if (leftStop > 0) { // Check if reel is held
     leftReel.startAfterHome(PCA9629A::Direction::CW, leftSteps, 1);
-  });
-  this->centreReelThread = std::thread([this, &centreSteps]() {
+  }
+
+  if (centreStop > 0) { // Check if reel is held
     centreReel.startAfterHome(PCA9629A::Direction::CCW, centreSteps, 1);
-  });
-  this->rightReelThread = std::thread([this, &rightSteps]() {
+  }
+
+  if (rightStop > 0) {
     rightReel.startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
-  });
-  this->leftReelThread.join();
-  this->centreReelThread.join();
-  this->rightReelThread.join();
+  }
 
   bool leftPlayAudio = true;
   bool centrePlayAudio = true;
@@ -383,7 +354,9 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
   bool centreFinished = centreReel.isStopped();
   bool rightFinished = rightReel.isStopped();
 
-  while (!leftFinished || !centreFinished || !rightFinished) {
+  int count = 0;
+
+  for (;;) {
 
     if (leftFinished && leftPlayAudio) {
       this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
@@ -400,14 +373,29 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
       rightPlayAudio = false;
     }
 
-    uint8_t moves = random8_to(13);
-    this->displayController.setMoves(moves);
+    if (leftFinished && centreFinished && rightFinished) {
+      break;
+    }
+
+    // Update the moves value - just a bit of decoration here really
+    if (count == 0) {
+      this->displayController.setMoves(random8_to(13));
+    } else if (count == 10) {
+      count = 0;
+    }
+    count++;
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    leftFinished = leftReel.isStopped();
-    centreFinished = centreReel.isStopped();
-    rightFinished = rightReel.isStopped();
+    if (!leftFinished) {
+      leftFinished = leftReel.isStopped();
+    }
+    if (!centreFinished) {
+      centreFinished = centreReel.isStopped();
+    }
+    if (!rightFinished) {
+      rightFinished = rightReel.isStopped();
+    }
   }
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -444,32 +432,23 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
          Game::symbolMap[rightSymbolId].c_str());
 
   int leftSteps = leftStops * STEPS_PER_STOP;
-  int centreSteps = centreStops * STEPS_PER_STOP;
+  int centreSteps = centreStops *  STEPS_PER_STOP;
   int rightSteps = rightStops * STEPS_PER_STOP;
-
-  // ESP_LOGD(TAG, "nudge: leftSteps: %d, centreSteps: %d, rightSteps: %d",
-  // leftSteps, centreSteps, rightSteps);
 
   // Switch on
   ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
   ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-  if (leftSteps > 0) {
-    this->leftReelThread = std::thread([this, &leftSteps]() {
-      leftReel.start(PCA9629A::Direction::CW, leftSteps, 1);
-    });
+  if (leftStops > 0) { // Check if reel is held
+    leftReel.start(PCA9629A::Direction::CW, leftSteps, 1);
   }
 
-  if (centreSteps > 0) {
-    this->centreReelThread = std::thread([this, &centreSteps]() {
-      centreReel.start(PCA9629A::Direction::CW, centreSteps, 1);
-    });
+  if (centreStops > 0) { // Check if reel is held
+    centreReel.start(PCA9629A::Direction::CW, centreSteps, 1);
   }
 
-  if (rightSteps > 0) {
-    this->rightReelThread = std::thread([this, &rightSteps]() {
-      rightReel.start(PCA9629A::Direction::CW, rightSteps, 1);
-    });
+  if (rightStops > 0) {
+    rightReel.start(PCA9629A::Direction::CW, rightSteps, 1);
   }
 
   bool leftPlayAudio = true;
@@ -477,35 +456,13 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
   bool rightPlayAudio = true;
 
   // Loop waiting for reels to stop
-  bool leftFinished;
-  bool centreFinished;
-  bool rightFinished;
+  bool leftFinished = leftReel.isStopped();
+  bool centreFinished = centreReel.isStopped();
+  bool rightFinished = rightReel.isStopped();
 
-  if (leftSteps > 0) {
-    this->leftReelThread.join();
-    leftFinished = leftReel.isStopped();
-  } else {
-    leftPlayAudio = false;
-    leftFinished = true;
-  }
+  int count = 0;
 
-  if (centreSteps > 0) {
-    this->centreReelThread.join();
-    centreFinished = centreReel.isStopped();
-  } else {
-    centrePlayAudio = false;
-    centreFinished = true;
-  }
-
-  if (rightSteps > 0) {
-    this->rightReelThread.join();
-    rightFinished = rightReel.isStopped();
-  } else {
-    rightPlayAudio = false;
-    rightFinished = true;
-  }
-
-  while (!leftFinished || !centreFinished || !rightFinished) {
+  for (;;) {
 
     if (leftFinished && leftPlayAudio) {
       this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
@@ -522,17 +479,27 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
       rightPlayAudio = false;
     }
 
-    uint8_t moves = random8_to(12);
-    this->displayController.setMoves(moves);
+    if (leftFinished && centreFinished && rightFinished) {
+      break;
+    }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    if (leftSteps > 0) {
+    // Update the moves value - just a bit of decoration here really
+    if (count == 0) {
+      this->displayController.setMoves(random8_to(13));
+    } else if (count == 10) {
+      count = 0;
+    }
+    count++;
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    if (!leftFinished) {
       leftFinished = leftReel.isStopped();
     }
-    if (centreSteps > 0) {
+    if (!centreFinished) {
       centreFinished = centreReel.isStopped();
     }
-    if (rightSteps > 0) {
+    if (!rightFinished) {
       rightFinished = rightReel.isStopped();
     }
   }

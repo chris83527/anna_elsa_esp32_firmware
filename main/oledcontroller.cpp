@@ -29,22 +29,11 @@
  * Created on January 11, 2023, 9:53 PM
  */
 
-#include "esp_log.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "sdkconfig.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "ssd1306.h"
-
 #include "config.h"
-#include "sdkconfig.h"
-
 #include "oledcontroller.h"
-
-#include <cstring>
 
 static const char* TAG = "OledController";
 
@@ -63,9 +52,9 @@ void OledController::initialise()
 
 #if CONFIG_FLIP
     ssd1306->_flip = true;
-    ESP_LOGW(TAG, "Flip upside down");
+    ESP_LOGW(TAG, "SSD1306: Flipped orientation");
 #endif
-
+    ESP_LOGW(TAG, "SSD1306: Normal orientation");
     ssd1306.clear_screen(false);
     ssd1306.contrast(0xff);
 }

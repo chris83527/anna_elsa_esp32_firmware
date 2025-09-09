@@ -6,9 +6,14 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <sourceRoots>
-      <file path="$PROJECT_DIR$/components" />
       <file path="$PROJECT_DIR$/main" />
     </sourceRoots>
+    <libraryRoots>
+      <file path="$PROJECT_DIR$/components" />
+      <file path="$USER_HOME$/esp/esp-idf" />
+      <file path="$USER_HOME$/esp/esp-idf-lib/components/esp_idf_lib_helpers" />
+      <file path="$USER_HOME$/esp/esp-idf-lib/components/lib8tion" />
+    </libraryRoots>
   </component>
   <component name="WestSettings">{}</component>
 </project>

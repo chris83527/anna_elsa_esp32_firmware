@@ -9,15 +9,14 @@ set(EXTRA_COMPONENT_DIRS
 "components/mcp23x17" 
 "components/mcp23008" 
 "components/ds3231" 
-"components/led_strip" 
-"components/esp32-wifi-manager" 
 "components/esp_littlefs"
+"components/esp_ws28xx"
 "/home/chris/esp/esp-idf/components/esp_hw_support"
 "/home/chris/esp/esp-idf/components/nvs_flash"
 "/home/chris/esp/esp-idf/components/esp_common"
 "/home/chris/esp/esp-idf/components/spiffs"
-"/home/chris/esp/esp-idf-lib/components/color" 
-"/home/chris/esp/esp-idf-lib/components/lib8tion" 
+"/home/chris/esp/esp-idf-lib/components/color"
+"/home/chris/esp/esp-idf-lib/components/lib8tion"
 "/home/chris/esp/esp-idf-lib/components/esp_idf_lib_helpers"
 )
 

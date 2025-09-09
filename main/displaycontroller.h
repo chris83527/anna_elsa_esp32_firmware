@@ -35,22 +35,23 @@
  *
  * BSD Licensed as described in the file LICENSE
  */
-#ifndef __DISPLAYCONTROLLER_H__
-#define __DISPLAYCONTROLLER_H__
+#pragma once
+
+#ifndef DISPLAY_CONTROLLER_H
+#define DISPLAY_CONTROLLER_H
 
 #include <array>
 #include <string>
 #include <thread>
 
-#include "color.h"
 #include "config.h"
 #include "ht16k33.h"
-#include "led_strip.h"
+//#include "led_strip.h"
+#include "esp_ws28xx.h"
 #include "mcp23x17.h"
 #include "moneycontroller.h"
 #include "oledcontroller.h"
 
-#define RMT_TX_CHANNEL RMT_CHANNEL_0
 #define CHASE_SPEED_MS (100)
 
 enum class LampState { off, blinkslow, blinkfast, on };
@@ -63,8 +64,8 @@ public:
 
     struct lamp_data_t
     {
-        rgb_t rgb = rgb_from_values(255, 255, 255);
-        rgb_t activeRgb = rgb_from_values(255, 255, 255);
+        CRGB rgb = rgbFromValues(255, 255, 255);
+        CRGB activeRgb = rgbFromValues(255, 255, 255);
         LampState lampState = LampState::off;
     };
 
@@ -76,6 +77,11 @@ public:
 
     std::array<lamp_data_t, LED_COUNT + 6>& getLampData();
 
+    static CRGB rgbFromValues(uint8_t red, uint8_t green, uint8_t blue);
+    static void hsvToRgb(uint8_t hue, uint8_t saturation, uint8_t value, CRGB& rgb);
+    static void hsvToRgbRainbow(uint8_t hue, uint8_t saturation, uint8_t value, CRGB& rgb);
+
+
     static void clearText();
     static void displayVFDText(const std::string& text);
     void scrollOledText(const std::string& text);
@@ -86,9 +92,6 @@ public:
     uint8_t getButtonStatus();
     uint8_t waitForButton(uint8_t mask);
 
-    static void ledStripHsv2rgb(uint8_t h, uint8_t s, uint8_t v, uint8_t* r, uint8_t* g,
-                                uint8_t* b);
-
     void beginAttractMode();
     void stopAttractMode();
 
@@ -96,7 +99,7 @@ public:
     HT16K33& getCreditDisplay();
     HT16K33& getMovesDisplay();
 
-    led_strip_handle_t& getLedStripHandle();
+    //led_strip_handle_t& getLedStripHandle();
     MCP23x17& getButtonIO();
 
 public:
@@ -242,27 +245,29 @@ public:
 
 protected:
 private:
-    void attractModeTask();
-    void updateSevenSegDisplaysTask();
-    void updateLampsTask();
-    void blinkLampsTask();
+    [[noreturn]] void attractModeTask();
+    [[noreturn]] void updateSevenSegDisplaysTask();
+    [[noreturn]] void updateLampsTask();
+    [[noreturn]] void blinkLampsTask();
 
     void rainbowEffect();
     void chaseEffect();
     void fadeInOutEffect();
 
 private:
-    static constexpr int LED_STRIP_RMT_RES_HZ = (10 * 1000 * 1000);
+    //static constexpr int LED_STRIP_RMT_RES_HZ = (10 * 1000 * 1000);
 
-    led_strip_handle_t ledStripHandle{};
-    led_strip_config_t ledStripConfig{};
-    led_strip_rmt_config_t rmtConfig{};
+    //led_strip_handle_t ledStripHandle{};
+    //led_strip_config_t ledStripConfig{};
+    //led_strip_rmt_config_t rmtConfig{};
 
     HT16K33 movesDisplay;
     HT16K33 creditDisplay;
     HT16K33 bankDisplay;
 
     MCP23x17 buttonIO;
+
+    CRGB* ws2812_buffer;
 
     MoneyController& moneyController;
     OledController oledController;
@@ -298,4 +303,4 @@ private:
     I2CManager& i2cManager;
 };
 
-#endif // __DISPLAYCONTROLLER_H__
+#endif
