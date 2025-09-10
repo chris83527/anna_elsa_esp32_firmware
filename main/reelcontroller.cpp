@@ -237,9 +237,10 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop,
     rightReel.startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
   }
 
-  bool leftPlayAudio = true;
-  bool centrePlayAudio = true;
-  bool rightPlayAudio = true;
+  // if reel is held (i.e. stop number is 0) then don't play the reel stop sound for that reel
+  bool leftPlayAudio = leftStop > 0;
+  bool centrePlayAudio = centreStop > 0;
+  bool rightPlayAudio = rightStop > 0;
 
   // Loop waiting for reels to stop
   bool leftFinished = leftReel.isStopped();
@@ -345,9 +346,9 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
     rightReel.startAfterHome(PCA9629A::Direction::CW, rightSteps, 1);
   }
 
-  bool leftPlayAudio = true;
-  bool centrePlayAudio = true;
-  bool rightPlayAudio = true;
+  bool leftPlayAudio = leftStop > 0;
+  bool centrePlayAudio = centreStop > 0;
+  bool rightPlayAudio = rightStop > 0;
 
   // Loop waiting for reels to stop
   bool leftFinished = leftReel.isStopped();
@@ -451,9 +452,10 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
     rightReel.start(PCA9629A::Direction::CW, rightSteps, 1);
   }
 
-  bool leftPlayAudio = true;
-  bool centrePlayAudio = true;
-  bool rightPlayAudio = true;
+  bool leftPlayAudio = leftStops > 0;
+  bool centrePlayAudio = centreStops > 0;
+  bool rightPlayAudio = rightStops > 0;
+
 
   // Loop waiting for reels to stop
   bool leftFinished = leftReel.isStopped();

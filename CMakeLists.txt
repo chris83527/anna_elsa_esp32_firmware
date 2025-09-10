@@ -15,7 +15,6 @@ set(EXTRA_COMPONENT_DIRS
 "/home/chris/esp/esp-idf/components/nvs_flash"
 "/home/chris/esp/esp-idf/components/esp_common"
 "/home/chris/esp/esp-idf/components/spiffs"
-"/home/chris/esp/esp-idf-lib/components/color"
 "/home/chris/esp/esp-idf-lib/components/lib8tion"
 "/home/chris/esp/esp-idf-lib/components/esp_idf_lib_helpers"
 )

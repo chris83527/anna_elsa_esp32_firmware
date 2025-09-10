@@ -229,7 +229,7 @@ void PCA9629A::start(Direction direction, uint16_t step_count,
 void PCA9629A::startAfterHome(Direction direction, uint16_t step_count,
                               uint8_t repeats)
 {
-    _mutex.lock();
+    //_mutex.lock();
     performingAction = true;
 
     write(REG_MSK, 0x1E); // Enable interrupt on P0
@@ -258,12 +258,12 @@ void PCA9629A::startAfterHome(Direction direction, uint16_t step_count,
 
     performingAction = false;
 
-    _mutex.unlock();
+    //_mutex.unlock();
 }
 
 void PCA9629A::home(Direction dir)
 {
-    _mutex.lock();
+    //_mutex.lock();
     performingAction = true;
 
     write(REG_MSK, 0x1E); // Enable interrupt on P0
@@ -275,19 +275,19 @@ void PCA9629A::home(Direction dir)
     write16((dir == CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 255);
     write(REG_MCNTL, 0x90 | static_cast<uint8_t>(dir));
     performingAction = false;
-    _mutex.unlock();
+    //_mutex.unlock();
 }
 
 bool PCA9629A::isStopped()
 {
     if (!performingAction)
     {
-        _mutex.lock();
+      //  _mutex.lock();
         uint8_t data;
         read(REG_MCNTL, data);
 
         // ESP_LOGD(TAG, "MCNTL register: %d", data);
-        _mutex.unlock();
+      //  _mutex.unlock();
         return ((data & 0x80) == 0);
     }
     return (false); // we are still performing the action, so pretend we are not
