@@ -1,4 +1,4 @@
-/build/
+build
 /lib/
 /spiffs_image/
 /partition_table/
