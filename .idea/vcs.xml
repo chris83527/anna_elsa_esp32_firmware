@@ -2,7 +2,6 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
-<<<<<<< Updated upstream
     <mapping directory="$PROJECT_DIR$/components/esp_littlefs" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/components/esp_littlefs/src/littlefs" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/components/esp_ws28xx" vcs="Git" />
@@ -33,8 +32,5 @@
     <mapping directory="$USER_HOME$/esp/esp-idf/components/protobuf-c/protobuf-c" vcs="Git" />
     <mapping directory="$USER_HOME$/esp/esp-idf/components/spiffs/spiffs" vcs="Git" />
     <mapping directory="$USER_HOME$/esp/esp-idf/components/unity/unity" vcs="Git" />
-=======
-    <mapping directory="$PROJECT_DIR$/components/esp_ws28xx" vcs="Git" />
->>>>>>> Stashed changes
   </component>
 </project>

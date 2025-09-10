@@ -35,6 +35,8 @@
  *
  * BSD Licensed as described in the file LICENSE
  */
+#pragma once
+
 #ifndef __REELS_H__
 #define __REELS_H__
 
@@ -63,60 +65,90 @@
 
 #define STEPS_PER_STOP 8 // half-step drive)
 
-class ReelController {
+#define LEDC_TIMER LEDC_TIMER_0
+#define LEDC_MODE LEDC_HIGH_SPEED_MODE
+#define LEDC_CHANNEL LEDC_CHANNEL_0
+#define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 10 bits
+#define LEDC_DUTY_QUARTER (3276)        // Set duty to 40% (2**13) * 12,5%
+// Don't set this to 100%, otherwise cctalk fails (presumably something gets
+// blocked somewhere)
+#define LEDC_DUTY_FULL (6554) // Set duty to 80%. (2 ** 13) * 80%  = 6554
+#define LEDC_FREQUENCY (40)   // Frequency in Hertz. Set frequency to 40Hz
+
+class ReelController
+{
 public:
-  ReelController(AudioController &audioController,
-                 DisplayController &displayController, I2CManager &i2cmgr);
-  ~ReelController();
+    ReelController(AudioController& audioController,
+                   DisplayController& displayController, I2CManager& i2cmgr);
+    ~ReelController();
 
-  struct reel_stop_info_t {
-    uint8_t leftStop = 0;
-    uint8_t centreStop = 0;
-    uint8_t rightStop = 0;
-  };
+    struct reel_stop_info_t
+    {
+        uint8_t leftStop = 0;
+        uint8_t centreStop = 0;
+        uint8_t rightStop = 0;
+    };
 
-  bool reelLeftInitOk{};
-  bool reelCentreInitOk{};
-  bool reelRightInitOk{};
+    bool reelLeftInitOk{};
+    bool reelCentreInitOk{};
+    bool reelRightInitOk{};
 
-  bool initialise();
+    bool initialise();
 
-  void spin(uint8_t leftStop, uint8_t midStop,
-            uint8_t rightStop);
-  void nudge(uint8_t leftStop, uint8_t midStop,
-             uint8_t rightStop);
-  void shuffle(uint8_t leftStop, uint8_t midStop,
+    void spin(uint8_t leftStop, uint8_t midStop,
+              uint8_t rightStop);
+    void nudge(uint8_t leftStop, uint8_t midStop,
                uint8_t rightStop);
+    void shuffle(uint8_t leftStop, uint8_t midStop,
+                 uint8_t rightStop);
 
-  reel_stop_info_t getReelStopInfo() const;
+    reel_stop_info_t getReelStopInfo() const;
 
-  [[nodiscard]] bool isCommandInProgress() const;
+    [[nodiscard]] bool isCommandInProgress() const;
 
-  void calibrate();
-  void test();
+    void calibrate();
+    void test();
 
 private:
-  const int MAX_STOPS = 25; // total number of stops (i.e. symbols)
+    const int MAX_STOPS = 25; // total number of stops (i.e. symbols)
 
-  reel_stop_info_t reelStopInfo;
+    reel_stop_info_t reelStopInfo;
 
-  uint8_t status{};
-  bool commandInProgress{};
+    uint8_t status{};
+    bool commandInProgress{};
 
-  AudioController &audioController;
-  DisplayController &displayController;
+    AudioController& audioController;
+    DisplayController& displayController;
 
-  PCA9629A leftReel;
-  PCA9629A centreReel;
-  PCA9629A rightReel;
+    PCA9629A leftReel;
+    PCA9629A centreReel;
+    PCA9629A rightReel;
 
-  // Prepare and then apply the LEDC PWM timer configuration
-  ledc_timer_config_t ledc_timer{};
-  ledc_channel_config_t ledc_channel{};
+    // Prepare and then apply the LEDC PWM timer configuration
+    ledc_timer_config_t ledc_timer = {
+        .speed_mode = LEDC_HIGH_SPEED_MODE,
+        .duty_resolution = LEDC_DUTY_RES,
+        .timer_num = LEDC_TIMER,
+        .freq_hz = LEDC_FREQUENCY, // Set output frequency at 100Hz
+        .clk_cfg = LEDC_AUTO_CLK,
+        .deconfigure = false,
+    };
 
-//  std::thread leftReelThread;
-//  std::thread centreReelThread;
-//  std::thread rightReelThread;
+    ledc_channel_config_t ledc_channel = {
+        .gpio_num = GPIO_MOTOR_EN,
+        .speed_mode = LEDC_HIGH_SPEED_MODE,
+        .channel = LEDC_CHANNEL,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = LEDC_TIMER,
+        .duty = 0,
+        .hpoint = 0,
+        .sleep_mode = LEDC_SLEEP_MODE_KEEP_ALIVE,
+        .flags = {},
+    };
+
+    //  std::thread leftReelThread;
+    //  std::thread centreReelThread;
+    //  std::thread rightReelThread;
 };
 
 #endif /* __REELS_H__ */

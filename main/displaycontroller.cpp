@@ -310,12 +310,12 @@ uint8_t DisplayController::getButtonStatus()
 
 uint8_t DisplayController::waitForButton(uint8_t mask)
 {
-    getButtonStatus();
+    //getButtonStatus();
     // loop waiting for button press.
     while ((mask & this->buttonStatus) == 0)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        getButtonStatus();
+        //getButtonStatus();
     }
 
     return this->buttonStatus;
@@ -430,7 +430,7 @@ void DisplayController::fadeInOutEffect()
     }
 
     // Trail lamps fade out
-    for (int i = MAX_BRIGHTNESS; i > 0 ; i -= 2)
+    for (int i = MAX_BRIGHTNESS; i > 0; i -= 2)
     {
         for (int j : TRAIL_LAMPS)
         {
@@ -729,10 +729,8 @@ void DisplayController::updateLampsTask()
         }
 
         ws28xx_update();
-        if (lampVal > 0)
-        {
-            buttonIO.writeGPIOB(lampVal);
-        }
+        buttonIO.writeGPIOB(lampVal);
+        getButtonStatus();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }

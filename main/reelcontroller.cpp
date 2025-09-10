@@ -63,16 +63,6 @@ bool reelLeftInitOk;
 bool reelCentreInitOk;
 bool reelRightInitOk;
 
-#define LEDC_TIMER LEDC_TIMER_0
-#define LEDC_MODE LEDC_HIGH_SPEED_MODE
-#define LEDC_CHANNEL LEDC_CHANNEL_0
-#define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 10 bits
-#define LEDC_DUTY_QUARTER (3276)        // Set duty to 40% (2**13) * 12,5%
-// Don't set this to 100%, otherwise cctalk fails (presumably something gets
-// blocked somewhere)
-#define LEDC_DUTY_FULL (6554) // Set duty to 80%. (2 ** 13) * 80%  = 6554
-#define LEDC_FREQUENCY (40)   // Frequency in Hertz. Set frequency to 40Hz
-
 ReelController::ReelController(AudioController &audioController,
                                DisplayController &displayController,
                                I2CManager &i2cmgr)
@@ -106,15 +96,6 @@ bool ReelController::initialise() {
   gpio_set_direction(GPIO_MOTOR_EN, GPIO_MODE_OUTPUT);
 
   // Prepare and then apply the LEDC PWM timer configuration
-  ledc_timer = {
-      .speed_mode = LEDC_HIGH_SPEED_MODE,
-      .duty_resolution = LEDC_DUTY_RES,
-      .timer_num = LEDC_TIMER,
-      .freq_hz = LEDC_FREQUENCY, // Set output frequency at 100Hz
-      .clk_cfg = LEDC_AUTO_CLK,
-      .deconfigure = false,
-  };
-
   if (ledc_timer_config(&ledc_timer) != ESP_OK) {
     ESP_LOGE(TAG, "An error occurred initialising PWM subsystem for reels "
                   "(timer config)");
@@ -122,19 +103,7 @@ bool ReelController::initialise() {
   }
 
   // Prepare and then apply the LEDC PWM channel configuration
-  ledc_channel = {
-      .gpio_num = GPIO_MOTOR_EN,
-      .speed_mode = LEDC_HIGH_SPEED_MODE,
-      .channel = LEDC_CHANNEL,
-      .intr_type = LEDC_INTR_DISABLE,
-      .timer_sel = LEDC_TIMER,
-      .duty = 0,
-      .hpoint = 0,
-      .sleep_mode = LEDC_SLEEP_MODE_KEEP_ALIVE,
-      .flags = 0,
-  };
-
-  if (ledc_channel_config(&ledc_channel) != ESP_OK) {
+    if (ledc_channel_config(&ledc_channel) != ESP_OK) {
     ESP_LOGE(TAG, "An error occurred initialising PWM subsystem for reels "
                   "(channel config)");
     return false;
