@@ -95,26 +95,36 @@ esp_err_t DisplayController::initialise()
 
     this->buttonStatus = 0;
 
-/*
-    this->ledStripConfig = {
-        .strip_gpio_num = LED_GPIO,
-        .max_leds = LED_COUNT,
-        .led_pixel_format = LED_PIXEL_FORMAT_GRB,
-        .led_model = LED_MODEL_WS2812,
-        .flags = {},
-    };
+    /*
+        this->ledStripConfig = {
+            .strip_gpio_num = LED_GPIO,
+            .max_leds = LED_COUNT,
+            .led_pixel_format = LED_PIXEL_FORMAT_GRB,
+            .led_model = LED_MODEL_WS2812,
+            .flags = {},
+        };
 
-    this->ledStripConfig.flags.invert_out = false;
+        this->ledStripConfig.flags.invert_out = false;
 
-    this->rmtConfig = {
-        .clk_src = RMT_CLK_SRC_DEFAULT,
-        .resolution_hz = LED_STRIP_RMT_RES_HZ,
-        .mem_block_symbols = {},
-        .flags = {},
-    };
+        this->rmtConfig = {
+            .clk_src = RMT_CLK_SRC_DEFAULT,
+            .resolution_hz = LED_STRIP_RMT_RES_HZ,
+            .mem_block_symbols = {},
+            .flags = {},
+        };
 
-    if (led_strip_new_rmt_device(&this->ledStripConfig, &this->rmtConfig,
-                                 &this->ledStripHandle) != ESP_OK)
+        if (led_strip_new_rmt_device(&this->ledStripConfig, &this->rmtConfig,
+                                     &this->ledStripHandle) != ESP_OK)
+        {
+            ESP_LOGE(TAG, "WS2812 driver installation failed!");
+        }
+        else
+        {
+            ESP_LOGD(TAG, "WS2812 driver installation succeeded");
+        }
+    */
+
+    if (ws28xx_init(LED_GPIO, WS2812B, LED_COUNT, &ws2812_buffer) != ESP_OK)
     {
         ESP_LOGE(TAG, "WS2812 driver installation failed!");
     }
@@ -122,13 +132,6 @@ esp_err_t DisplayController::initialise()
     {
         ESP_LOGD(TAG, "WS2812 driver installation succeeded");
     }
-*/
-
-    if (ws28xx_init(LED_GPIO, WS2812B, LED_COUNT, &ws2812_buffer) != ESP_OK) {
-        ESP_LOGE(TAG, "WS2812 driver installation failed!");
-} else {
-    ESP_LOGD(TAG, "WS2812 driver installation succeeded");
-}
 
     creditDisplay.display_on();
     creditDisplay.write_value("%05d", 88888);
@@ -397,45 +400,45 @@ void DisplayController::fadeInOutEffect()
     resetLampData();
 
     // Trail lamps fade in
-    for (int i = 0 ; i < MAX_BRIGHTNESS; i += 2)
+    for (int i = 0; i < MAX_BRIGHTNESS; i += 2)
     {
         for (int j : TRAIL_LAMPS)
         {
-            if (!this->attractMode)
+            if (!isAttractMode())
             {
                 return;
             }
-            lampData[j].rgb = rgbFromValues(i,i,i);
+            lampData[j].rgb = rgbFromValues(i, i, i);
             lampData[j].lampState = LampState::on;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
 
     // Nudge lamps fade in
-    for (int i = 0 ; i < MAX_BRIGHTNESS; i += 2)
+    for (int i = 0; i < MAX_BRIGHTNESS; i += 2)
     {
         for (int j : NUDGE_LAMPS)
         {
-            if (!this->attractMode)
+            if (!isAttractMode())
             {
                 return;
             }
-            lampData[j].rgb = rgbFromValues(i,i,i);
+            lampData[j].rgb = rgbFromValues(i, i, i);
             lampData[j].lampState = LampState::on;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
 
     // Trail lamps fade out
-    for (int i = MAX_BRIGHTNESS; i < MAX_BRIGHTNESS; i-=2)
+    for (int i = MAX_BRIGHTNESS; i > 0 ; i -= 2)
     {
         for (int j : TRAIL_LAMPS)
         {
-            if (!this->attractMode)
+            if (!isAttractMode())
             {
                 return;
             }
-            lampData[j].rgb = rgbFromValues(i,i,i);
+            lampData[j].rgb = rgbFromValues(i, i, i);
             lampData[j].lampState = LampState::on;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -446,41 +449,41 @@ void DisplayController::fadeInOutEffect()
     {
         for (int j : FEATURE_LAMPS)
         {
-            if (!this->attractMode)
+            if (!isAttractMode())
             {
                 return;
             }
-            lampData[j].rgb = rgbFromValues(i,i,i);
+            lampData[j].rgb = rgbFromValues(i, i, i);
             lampData[j].lampState = LampState::on;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
 
     // Nudge lamps fade out
-    for (int i = MAX_BRIGHTNESS; i < 0; i-=2)
+    for (int i = MAX_BRIGHTNESS; i > 0; i -= 2)
     {
         for (int j : NUDGE_LAMPS)
         {
-            if (!this->attractMode)
+            if (!isAttractMode())
             {
                 return;
             }
-            lampData[j].rgb = rgbFromValues(i,i,i);
+            lampData[j].rgb = rgbFromValues(i, i, i);
             lampData[j].lampState = LampState::on;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
 
     // Feature lamps fade out
-    for (int i = MAX_BRIGHTNESS; i < 0; i-=2)
+    for (int i = MAX_BRIGHTNESS; i > 0; i -= 2)
     {
         for (int j : FEATURE_LAMPS)
         {
-            if (!this->attractMode)
+            if (!isAttractMode())
             {
                 return;
             }
-            lampData[j].rgb = rgbFromValues(i,i,i);
+            lampData[j].rgb = rgbFromValues(i, i, i);
             lampData[j].lampState = (LampState::on);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -726,7 +729,10 @@ void DisplayController::updateLampsTask()
         }
 
         ws28xx_update();
-        buttonIO.writeGPIOB(lampVal);
+        if (lampVal > 0)
+        {
+            buttonIO.writeGPIOB(lampVal);
+        }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
@@ -774,7 +780,7 @@ void DisplayController::updateSevenSegDisplaysTask()
  *
  */
 void DisplayController::hsvToRgb(uint8_t h, uint8_t s, uint8_t v,
-                                        CRGB& rgb)
+                                 CRGB& rgb)
 {
     h %= 360; // h -> [0,360]
     uint8_t rgb_max = v * 2.55f;
@@ -823,14 +829,14 @@ void DisplayController::hsvToRgb(uint8_t h, uint8_t s, uint8_t v,
 
 CRGB DisplayController::rgbFromValues(uint8_t red, uint8_t green, uint8_t blue)
 {
-CRGB result;
-result.red = red;
-result.green = green;
-result.blue = blue;
-return result;
+    CRGB result;
+    result.red = red;
+    result.green = green;
+    result.blue = blue;
+    return result;
 }
 
 void DisplayController::hsvToRgbRainbow(uint8_t h, uint8_t s, uint8_t v,
-                                        CRGB& rgb) {
-
+                                        CRGB& rgb)
+{
 }
