@@ -456,7 +456,6 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
   bool centrePlayAudio = centreStops > 0;
   bool rightPlayAudio = rightStops > 0;
 
-
   // Loop waiting for reels to stop
   bool leftFinished = leftReel.isStopped();
   bool centreFinished = centreReel.isStopped();
