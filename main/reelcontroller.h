@@ -68,13 +68,13 @@
 #define LEDC_MODE LEDC_HIGH_SPEED_MODE
 #define LEDC_CHANNEL LEDC_CHANNEL_0
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
-#define LEDC_DUTY_QUARTER (3276)        // Set duty to 40% (2**13) * 12,5%
+#define LEDC_DUTY_QUARTER (3275)        // Set duty to 40% (2**13) * 12,5%
 // Don't set this to 100%, otherwise cctalk fails (presumably something gets
 // blocked somewhere)
 //#define LEDC_DUTY_FULL (6554) // Set duty to 80%. (2 ** 13) * 80%  = 6554
 #define LEDC_DUTY_FULL (8191) // 100%
 
-#define LEDC_FREQUENCY (40000)   // Frequency in Hertz. Set frequency to 40Hz
+#define LEDC_FREQUENCY (40)   // Frequency in Hertz. Set frequency to 40Hz
 
 class ReelController
 {
@@ -139,6 +139,7 @@ private:
         .gpio_num = GPIO_MOTOR_EN,
         .speed_mode = LEDC_HIGH_SPEED_MODE,
         .channel = LEDC_CHANNEL,
+	.intr_type = {},
         .timer_sel = LEDC_TIMER,
         .duty = 0,
         .hpoint = 0,
@@ -146,9 +147,6 @@ private:
         .flags = {},
     };
 
-    //  std::thread leftReelThread;
-    //  std::thread centreReelThread;
-    //  std::thread rightReelThread;
 };
 
 #endif /* __REELS_H__ */

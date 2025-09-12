@@ -775,7 +775,7 @@ void SSD1306::i2c_init()
     data.push_back(OLED_CMD_DISPLAY_ON);
 
     // initialise display
-    //i2c_manager.write(this->deviceHandle, data);
+    i2c_manager.write(this->deviceHandle, data);
 }
 
 void SSD1306::i2c_display_image(int page, int seg, uint8_t* images, int width)
