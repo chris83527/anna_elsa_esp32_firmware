@@ -42,7 +42,7 @@
 #include "driver/gpio.h"
 #include "driver/uart.h"
 
-static constexpr int I2C_FREQ_HZ = 400000;
+static constexpr int I2C_FREQ_HZ = 100000;
 
 // Running LED
 static constexpr gpio_num_t CPU_LED_GPIO = GPIO_NUM_19;

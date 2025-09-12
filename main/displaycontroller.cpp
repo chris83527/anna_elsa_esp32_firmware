@@ -95,35 +95,6 @@ esp_err_t DisplayController::initialise()
 
     this->buttonStatus = 0;
 
-    /*
-        this->ledStripConfig = {
-            .strip_gpio_num = LED_GPIO,
-            .max_leds = LED_COUNT,
-            .led_pixel_format = LED_PIXEL_FORMAT_GRB,
-            .led_model = LED_MODEL_WS2812,
-            .flags = {},
-        };
-
-        this->ledStripConfig.flags.invert_out = false;
-
-        this->rmtConfig = {
-            .clk_src = RMT_CLK_SRC_DEFAULT,
-            .resolution_hz = LED_STRIP_RMT_RES_HZ,
-            .mem_block_symbols = {},
-            .flags = {},
-        };
-
-        if (led_strip_new_rmt_device(&this->ledStripConfig, &this->rmtConfig,
-                                     &this->ledStripHandle) != ESP_OK)
-        {
-            ESP_LOGE(TAG, "WS2812 driver installation failed!");
-        }
-        else
-        {
-            ESP_LOGD(TAG, "WS2812 driver installation succeeded");
-        }
-    */
-
     if (ws28xx_init(LED_GPIO, WS2812B, LED_COUNT, &ws2812_buffer) != ESP_OK)
     {
         ESP_LOGE(TAG, "WS2812 driver installation failed!");
@@ -274,9 +245,6 @@ DisplayController::getLampData()
 
 uint8_t DisplayController::getButtonStatus()
 {
-    // ESP_LOGD(TAG, "Exiting getButtonStatus() with value %u",
-    // this->buttonStatus);
-
     esp_err_t err = buttonIO.readGPIOA(this->buttonStatus);
 
     if (err == ESP_OK)
@@ -310,12 +278,10 @@ uint8_t DisplayController::getButtonStatus()
 
 uint8_t DisplayController::waitForButton(uint8_t mask)
 {
-    //getButtonStatus();
     // loop waiting for button press.
     while ((mask & this->buttonStatus) == 0)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        //getButtonStatus();
     }
 
     return this->buttonStatus;
@@ -500,7 +466,7 @@ void DisplayController::chaseEffect()
         // Trail
         for (int i : TRAIL_LAMPS)
         {
-            if (!this->attractMode)
+            if (this->attractMode != true)
             {
                 return;
             }
@@ -512,7 +478,7 @@ void DisplayController::chaseEffect()
 
         for (int i : TRAIL_LAMPS)
         {
-            if (!this->attractMode)
+            if (this->attractMode != true)
             {
                 return;
             }
@@ -524,7 +490,6 @@ void DisplayController::chaseEffect()
 
 void DisplayController::rainbowEffect()
 {
-    uint8_t hue, sat, val;
     uint8_t start_rgb = 0;
 
     // Rainbow effect (10 repeats)
@@ -540,9 +505,9 @@ void DisplayController::rainbowEffect()
                 }
 
                 // Build RGB values
-                hue = j * 360 / LED_COUNT + start_rgb;
-                sat = 255;
-                val = 255;
+                uint8_t hue = j * 360 / LED_COUNT + start_rgb;
+                uint8_t sat = 255;
+                uint8_t val = 255;
 
                 // Write RGB values to strip driver
                 CRGB rgbData = {};

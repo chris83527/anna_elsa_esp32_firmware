@@ -83,6 +83,79 @@ void Game::start()
     this->displayController.stopAttractMode();
     this->audioController.stopPlaying();
 
+    playNormalSpin();
+
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_COLLECT)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_HOLD_HI)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_HOLD)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_HOLD_LO)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_TRANSFER)
+        .lampState = LampState::off;
+
+    // payout
+    if ((this->moneyController.getBank() > 0) &&
+        (this->moneyController.getCredit() < 20))
+    {
+        collectOrContinue();
+    }
+
+    Game::isInProgress = false;
+
+    ESP_LOGI(TAG, "Exiting game");
+}
+
+void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) const
+{
+    ESP_LOGI(TAG, "Entering spinReels()");
+
+    uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
+    uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 25);
+    uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 25);
+
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::off;
+
+    DisplayController::displayVFDText("    LET IT GO!!     ");
+
+    this->reelController.spin(reelStopLeft, reelStopCentre, reelStopRight);
+
+    ESP_LOGI(TAG, "Exiting spinReels()");
+}
+
+void Game::shuffleReels(bool holdLeft, bool holdCentre, bool holdRight) const
+{
+    ESP_LOGI(TAG, "Entering shuffleReels()");
+
+    uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
+    uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 25);
+    uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 25);
+
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::off;
+
+    DisplayController::displayVFDText("    LET IT GO!!     ");
+
+    this->reelController.shuffle(reelStopLeft, reelStopCentre, reelStopRight);
+
+    ESP_LOGI(TAG, "Exiting shuffleReels()");
+}
+
+void Game::playNormalSpin()
+{
     uint8_t nudges = random8_to(5); // 0 - 5
     bool hold = offerHold();
 
@@ -223,74 +296,6 @@ void Game::start()
         this->audioController.playAudioFileAsync(
             Sounds::SND_WONT_GET_AWAY_WITH_THIS);
     }
-
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_START)
-        .lampState = LampState::off;
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_COLLECT)
-        .lampState = LampState::off;
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_HOLD_HI)
-        .lampState = LampState::off;
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_HOLD)
-        .lampState = LampState::off;
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_HOLD_LO)
-        .lampState = LampState::off;
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_TRANSFER)
-        .lampState = LampState::off;
-
-    // payout
-    if ((this->moneyController.getBank() > 0) &&
-        (this->moneyController.getCredit() < 20))
-    {
-        collectOrContinue();
-    }
-
-    Game::isInProgress = false;
-
-    ESP_LOGI(TAG, "Exiting game");
-}
-
-void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) const
-{
-    ESP_LOGI(TAG, "Entering spinReels()");
-
-    uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
-    uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 25);
-    uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 25);
-
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_START)
-        .lampState = LampState::off;
-
-    DisplayController::displayVFDText("    LET IT GO!!     ");
-
-    this->reelController.spin(reelStopLeft, reelStopCentre, reelStopRight);
-
-    ESP_LOGI(TAG, "Exiting spinReels()");
-}
-
-void Game::shuffleReels(bool holdLeft, bool holdCentre, bool holdRight) const
-{
-    ESP_LOGI(TAG, "Entering shuffleReels()");
-
-    uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
-    uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 25);
-    uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 25);
-
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_START)
-        .lampState = LampState::off;
-
-    DisplayController::displayVFDText("    LET IT GO!!     ");
-
-    this->reelController.shuffle(reelStopLeft, reelStopCentre, reelStopRight);
-
-    ESP_LOGI(TAG, "Exiting shuffleReels()");
 }
 
 void Game::playNudges(int nudges)

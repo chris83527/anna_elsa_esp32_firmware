@@ -801,13 +801,13 @@ void SSD1306::i2c_display_image(int page, int seg, uint8_t* images, int width)
     data.push_back((0x10 + columHigh));
     data.push_back((0xB0 | _page));
 
-//    i2c_manager.write(this->deviceHandle, data);
+    i2c_manager.write(this->deviceHandle, data);
 
     std::vector<uint8_t> imagedata;
     imagedata.push_back(OLED_CONTROL_BYTE_DATA_STREAM);
     imagedata.insert(imagedata.end(), &images[0], &images[width]);
 
-//    i2c_manager.write(this->deviceHandle, imagedata, width + 1);
+    i2c_manager.write(this->deviceHandle, imagedata, width + 1);
 }
 
 void SSD1306::i2c_contrast(int contrast)

@@ -55,102 +55,109 @@
 
 class MainController; // forward declaration
 
-class Game {
+class Game
+{
 public:
-  Game(DisplayController &displayController, AudioController &audioController,
-       MoneyController &moneyController, ReelController &reelController);
-  ~Game();
-  void start();
-  bool isGameInProgress() const;
-  void playNudges(int nudges);
-  static void initialise();
+    Game(DisplayController& displayController, AudioController& audioController,
+         MoneyController& moneyController, ReelController& reelController);
+    ~Game();
+    void start();
+    [[nodiscard]] bool isGameInProgress() const;
+    void playNudges(int nudges);
+    static void initialise();
 
 public:
-  // 0 = Hans
-  // 1 = Olaf
-  // 2 = Sven
-  // 3 = Anna
-  // 4 = Kristof
-  // 5 = Elsa
-  // 6 = Palace
-  // Map symbol IDs to symbol names (for debugging only)
-  static constexpr std::string symbolMap[7] = {
-      "Hans", "Olaf", "Sven", "Anna", "Kristof", "Elsa", "Palace"};
-  static constexpr std::string featureMap[12] = {
-      "Free Spin", "Double Money", "Shuffle",   "Lose",  "Palace",    "Palace",
-      "Shuffle",   "Lose",         "Free Spin", "Hi/Lo", "Free Spin", "Palace"};
+    // 0 = Hans
+    // 1 = Olaf
+    // 2 = Sven
+    // 3 = Anna
+    // 4 = Kristof
+    // 5 = Elsa
+    // 6 = Palace
+    // Map symbol IDs to symbol names (for debugging only)
+    static constexpr std::string symbolMap[7] = {
+        "Hans", "Olaf", "Sven", "Anna", "Kristof", "Elsa", "Palace"
+    };
+    static constexpr std::string featureMap[12] = {
+        "Free Spin", "Double Money", "Shuffle", "Lose", "Palace", "Palace",
+        "Shuffle", "Lose", "Free Spin", "Hi/Lo", "Free Spin", "Palace"
+    };
 
-  // Map symbols to physical stops on reels (25 stops on a reel)
-  static constexpr uint8_t symbolsLeftReel[25] = {
-      HANS, OLAF, HANS,    HANS,    ANNA,   SVEN,    KRISTOF, HANS, OLAF,
-      OLAF, SVEN, KRISTOF, ELSA,    SVEN,   KRISTOF, SVEN,    OLAF, KRISTOF,
-      ELSA, OLAF, ANNA,    KRISTOF, PALACE, SVEN,    OLAF};
-  static constexpr uint8_t symbolsCentreReel[25] = {
-      SVEN, HANS, OLAF,    ELSA,   HANS, SVEN,    HANS,    KRISTOF, OLAF,
-      ELSA, SVEN, KRISTOF, OLAF,   SVEN, KRISTOF, KRISTOF, OLAF,    SVEN,
-      ELSA, SVEN, KRISTOF, PALACE, OLAF, ANNA,    HANS};
-  static constexpr uint8_t symbolsRightReel[25] = {
-      KRISTOF, KRISTOF, OLAF, OLAF, SVEN, HANS,    HANS,    OLAF,   SVEN,
-      KRISTOF, PALACE,  OLAF, ELSA, HANS, SVEN,    KRISTOF, PALACE, OLAF,
-      SVEN,    HANS,    ANNA, SVEN, ELSA, KRISTOF, OLAF};
+    // Map symbols to physical stops on reels (25 stops on a reel)
+    static constexpr uint8_t symbolsLeftReel[25] = {
+        HANS, OLAF, HANS, HANS, ANNA, SVEN, KRISTOF, HANS, OLAF,
+        OLAF, SVEN, KRISTOF, ELSA, SVEN, KRISTOF, SVEN, OLAF, KRISTOF,
+        ELSA, OLAF, ANNA, KRISTOF, PALACE, SVEN, OLAF
+    };
+    static constexpr uint8_t symbolsCentreReel[25] = {
+        SVEN, HANS, OLAF, ELSA, HANS, SVEN, HANS, KRISTOF, OLAF,
+        ELSA, SVEN, KRISTOF, OLAF, SVEN, KRISTOF, KRISTOF, OLAF, SVEN,
+        ELSA, SVEN, KRISTOF, PALACE, OLAF, ANNA, HANS
+    };
+    static constexpr uint8_t symbolsRightReel[25] = {
+        KRISTOF, KRISTOF, OLAF, OLAF, SVEN, HANS, HANS, OLAF, SVEN,
+        KRISTOF, PALACE, OLAF, ELSA, HANS, SVEN, KRISTOF, PALACE, OLAF,
+        SVEN, HANS, ANNA, SVEN, ELSA, KRISTOF, OLAF
+    };
 
 private:
-  void collectOrContinue() const;
-  void transferOrGamble();
-  bool offerHold() const;
-  void playFeatureMatrix();
-  void playTrail();
-  void playHiLo();
-  void playShuffle();
-  void playFreeSpin();
-  bool isWinningLine() const;
-  void spinReels(bool holdLeft, bool holdCentre, bool holdRight) const;
-  void shuffleReels(bool holdLeft, bool holdCentre, bool holdRight) const;
+    void collectOrContinue() const;
+    void transferOrGamble();
+    [[nodiscard]] bool offerHold() const;
+    void playFeatureMatrix();
+    void playTrail();
+    void playHiLo();
+    void playShuffle();
+    void playFreeSpin();
+    void playNormalSpin();
+    [[nodiscard]] bool isWinningLine() const;
+    void spinReels(bool holdLeft, bool holdCentre, bool holdRight) const;
+    void shuffleReels(bool holdLeft, bool holdCentre, bool holdRight) const;
 
-  MainController *mainController;
+    MainController* mainController;
 
 private:
-  bool isInProgress = false;
+    bool isInProgress = false;
 
-  //bool holdLeft;
-  //bool holdCentre;
-  //bool holdRight;
-  //bool holdEnabled;
+    DisplayController& displayController;
+    AudioController& audioController;
+    MoneyController& moneyController;
+    ReelController& reelController;
 
-  DisplayController &displayController;
-  AudioController &audioController;
-  MoneyController &moneyController;
-  ReelController &reelController;
+    struct PositionValueMapping
+    {
+        uint8_t valueLeft;
+        uint8_t valueCentre;
+        uint8_t valueRight;
+    };
 
-  struct PositionValueMapping {
-    uint8_t valueLeft;
-    uint8_t valueCentre;
-    uint8_t valueRight;
-  };
+    struct WinningLine
+    {
+        uint8_t leftSymbolId;
+        uint8_t centreSymbolId;
+        uint8_t rightSymbolId;
+        int amount;
+        bool extendedGame;
+        bool freeSpin;
+    };
 
-  struct WinningLine {
-    uint8_t leftSymbolId;
-    uint8_t centreSymbolId;
-    uint8_t rightSymbolId;
-    int amount;
-    bool extendedGame;
-    bool freeSpin;
-  };
+    static constexpr WinningLine winningCombinations[8] = {
+        {0, 0, 0, 20, false, false}, {1, 1, 1, 80, true, false},
+        {1, 1, 255, 40, false, false}, // Olaf, Olaf, Any
+        {2, 2, 2, 120, true, false}, {3, 3, 3, 300, false, false},
+        {4, 4, 4, 160, false, true}, {5, 5, 5, 200, true, false},
+        {6, 6, 6, 400, true, false}
+    };
 
-  static constexpr WinningLine winningCombinations[8] = {
-      {0, 0, 0, 20, false, false},   {1, 1, 1, 80, true, false},
-      {1, 1, 255, 40, false, false}, // Olaf, Olaf, Any
-      {2, 2, 2, 120, true, false},   {3, 3, 3, 300, false, false},
-      {4, 4, 4, 160, false, true},   {5, 5, 5, 200, true, false},
-      {6, 6, 6, 400, true, false}};
+    static constexpr uint16_t PRIZE_TRAIL_PRIZES[17]{
+        20, 40, 60, 80, 100, 120,
+        140, 160, 180, 200, 240, 280,
+        340, 380, 420, 460, 500
+    };
+    static constexpr uint8_t PRIZE_TRAIL_PRIZES_LENGTH =
+        sizeof(PRIZE_TRAIL_PRIZES) / 16;
 
-  static constexpr uint16_t PRIZE_TRAIL_PRIZES[17]{20,  40,  60,  80,  100, 120,
-                                                   140, 160, 180, 200, 240, 280,
-                                                   340, 380, 420, 460, 500};
-  static constexpr uint8_t PRIZE_TRAIL_PRIZES_LENGTH =
-      sizeof(PRIZE_TRAIL_PRIZES) / 16;
-
-  uint8_t moves;
+    uint8_t moves;
 };
 
 #endif /* GAME_H */
