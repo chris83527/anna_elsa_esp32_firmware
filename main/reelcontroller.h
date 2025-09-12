@@ -62,7 +62,7 @@
 #define STATUS_ERR_REEL_OPTIC 1
 #define STATUS_INITIAL 255
 
-#define STEPS_PER_STOP 8 // half-step drive)
+#define STEPS_PER_STOP 8 // half-step drive
 
 #define LEDC_TIMER LEDC_TIMER_0
 #define LEDC_MODE LEDC_HIGH_SPEED_MODE
@@ -103,7 +103,7 @@ public:
     void shuffle(uint8_t leftStop, uint8_t midStop,
                  uint8_t rightStop);
 
-    reel_stop_info_t getReelStopInfo() const;
+    [[nodiscard]] reel_stop_info_t getReelStopInfo() const;
 
     [[nodiscard]] bool isCommandInProgress() const;
 
@@ -139,7 +139,6 @@ private:
         .gpio_num = GPIO_MOTOR_EN,
         .speed_mode = LEDC_HIGH_SPEED_MODE,
         .channel = LEDC_CHANNEL,
-        .intr_type = LEDC_INTR_DISABLE,
         .timer_sel = LEDC_TIMER,
         .duty = 0,
         .hpoint = 0,
