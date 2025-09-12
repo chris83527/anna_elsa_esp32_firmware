@@ -37,17 +37,13 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <bitset>
+
 #include <string>
 
 #include "audiocontroller.h"
 #include "displaycontroller.h"
 #include "moneycontroller.h"
 #include "reelcontroller.h"
-
-#include "config.h"
-
-
 
 #define HANS 0
 #define OLAF 1
@@ -65,9 +61,9 @@ public:
        MoneyController &moneyController, ReelController &reelController);
   ~Game();
   void start();
-  bool isGameInProgress();
+  bool isGameInProgress() const;
   void playNudges(int nudges);
-  void initialise();
+  static void initialise();
 
 public:
   // 0 = Hans
@@ -99,7 +95,7 @@ public:
       SVEN,    HANS,    ANNA, SVEN, ELSA, KRISTOF, OLAF};
 
 private:
-  void collectOrContinue();
+  void collectOrContinue() const;
   void transferOrGamble();
   bool offerHold() const;
   void playFeatureMatrix();
@@ -107,19 +103,19 @@ private:
   void playHiLo();
   void playShuffle();
   void playFreeSpin();
-  bool isWinningLine();
+  bool isWinningLine() const;
   void spinReels(bool holdLeft, bool holdCentre, bool holdRight) const;
-  void shuffleReels() const;
+  void shuffleReels(bool holdLeft, bool holdCentre, bool holdRight) const;
 
   MainController *mainController;
 
 private:
   bool isInProgress = false;
 
-  bool holdLeft;
-  bool holdCentre;
-  bool holdRight;
-  bool holdEnabled;
+  //bool holdLeft;
+  //bool holdCentre;
+  //bool holdRight;
+  //bool holdEnabled;
 
   DisplayController &displayController;
   AudioController &audioController;

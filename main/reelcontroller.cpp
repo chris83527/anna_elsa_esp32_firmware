@@ -39,6 +39,7 @@
 #include <chrono>
 #include <cstdio>
 #include <cstring>
+#include <bitset>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"

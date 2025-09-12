@@ -46,12 +46,12 @@
 
 using namespace std;
 
-static const char *TAG = "Game";
+static const char* TAG = "Game";
 
-Game::Game(DisplayController &displayController,
-           AudioController &audioController, MoneyController &moneyController,
-           ReelController &reelController)
-    : mainController(nullptr), holdLeft(false), holdCentre(false), holdRight(false), holdEnabled(false),
+Game::Game(DisplayController& displayController,
+           AudioController& audioController, MoneyController& moneyController,
+           ReelController& reelController)
+    : mainController(nullptr),
       displayController(displayController),
       audioController(audioController),
       moneyController(moneyController), reelController(reelController), moves(0)
@@ -63,95 +63,41 @@ Game::Game(DisplayController &displayController,
     ESP_LOGI(TAG, "Leaving constructor");
 }
 
-Game::~Game() {}
+Game::~Game()
+= default;
 
-void Game::initialise() {}
+void Game::initialise()
+{
+}
 
-void Game::start() {
+void Game::start()
+{
+    ESP_LOGI(TAG, "Beginning game");
 
-  ESP_LOGI(TAG, "Beginning game");
+    this->isInProgress = true;
 
-  this->isInProgress = true;
+    random16_add_entropy(esp_random() >> 16);
+    random16_add_entropy(esp_random() >> 16);
 
-  random16_add_entropy(esp_random() >> 16);
-  random16_add_entropy(esp_random() >> 16);
+    this->displayController.resetLampData();
+    this->displayController.stopAttractMode();
+    this->audioController.stopPlaying();
 
-  this->displayController.resetLampData();
-  this->displayController.stopAttractMode();
-  this->audioController.stopPlaying();
+    uint8_t nudges = random8_to(5); // 0 - 5
+    bool hold = offerHold();
 
-  uint8_t nudges = random8_to(5); // 0 - 5
-  bool hold = offerHold();
-
-  this->displayController.getLampData()
-      .at(DisplayController::REEL_LAMP_L2)
-      .lampState = LampState::on;
-  this->displayController.getLampData()
-      .at(DisplayController::REEL_LAMP_C2)
-      .lampState = LampState::on;
-  this->displayController.getLampData()
-      .at(DisplayController::REEL_LAMP_R2)
-      .lampState = LampState::on;
-
-  if (hold) {
     this->displayController.getLampData()
-        .at(DisplayController::LMP_HOLD_LO)
-        .lampState = LampState::blinkslow;
+        .at(DisplayController::REEL_LAMP_L2)
+        .lampState = LampState::on;
     this->displayController.getLampData()
-        .at(DisplayController::LMP_HOLD)
-        .lampState = LampState::blinkslow;
+        .at(DisplayController::REEL_LAMP_C2)
+        .lampState = LampState::on;
     this->displayController.getLampData()
-        .at(DisplayController::LMP_HOLD_HI)
-        .lampState = LampState::blinkslow;
-  }
+        .at(DisplayController::REEL_LAMP_R2)
+        .lampState = LampState::on;
 
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_START)
-      .lampState = LampState::blinkslow;
-  DisplayController::displayVFDText("PRESS START TO BEGIN");
-
-  // loop waiting for button press.
-  holdLeft = false;
-  holdCentre = false;
-  holdRight = false;
-
-  std::bitset<8> btnStatus = this->displayController.getButtonStatus();
-  while (!btnStatus.test(BTN_START)) {
-
-    if (hold) {
-      if (btnStatus.test(BTN_HOLD)) {
-        holdCentre = true;
-        this->displayController.getLampData()
-            .at(DisplayController::LMP_HOLD)
-            .lampState = LampState::on;
-        this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
-        this->displayController.getLampData()
-            .at(DisplayController::LMP_COLLECT)
-            .lampState = LampState::blinkslow;
-      } else if (btnStatus.test(BTN_HOLD_HI)) {
-        holdLeft = true;
-        this->displayController.getLampData()
-            .at(DisplayController::LMP_HOLD_HI)
-            .lampState = LampState::on;
-        this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
-        this->displayController.getLampData()
-            .at(DisplayController::LMP_COLLECT)
-            .lampState = LampState::blinkslow;
-      } else if (btnStatus.test(BTN_HOLD_LO)) {
-        holdRight = true;
-        this->displayController.getLampData()
-            .at(DisplayController::LMP_HOLD_LO)
-            .lampState = LampState::on;
-        this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
-        this->displayController.getLampData()
-            .at(DisplayController::LMP_COLLECT)
-            .lampState = LampState::blinkslow;
-      }
-
-      if (btnStatus.test(BTN_COLLECT)) { // Cancel
-        this->displayController.getLampData()
-            .at(DisplayController::LMP_COLLECT)
-            .lampState = LampState::off;
+    if (hold)
+    {
         this->displayController.getLampData()
             .at(DisplayController::LMP_HOLD_LO)
             .lampState = LampState::blinkslow;
@@ -161,499 +107,680 @@ void Game::start() {
         this->displayController.getLampData()
             .at(DisplayController::LMP_HOLD_HI)
             .lampState = LampState::blinkslow;
-        holdLeft = false;
-        holdCentre = false;
-        holdRight = false;
-      }
     }
 
-    btnStatus = this->displayController.getButtonStatus();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  }
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::blinkslow;
+    DisplayController::displayVFDText("PRESS START TO BEGIN");
 
-  // Switch off hold lights for reels that are not held
-  if (!holdLeft)
+    // loop waiting for button press.
+    bool holdLeft = false;
+    bool holdCentre = false;
+    bool holdRight = false;
+
+    std::bitset<8> btnStatus = this->displayController.getButtonStatus();
+    while (!btnStatus.test(BTN_START))
+    {
+        if (hold)
+        {
+            if (btnStatus.test(BTN_HOLD))
+            {
+                holdCentre = true;
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_HOLD)
+                    .lampState = LampState::on;
+                this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_COLLECT)
+                    .lampState = LampState::blinkslow;
+            }
+            else if (btnStatus.test(BTN_HOLD_HI))
+            {
+                holdLeft = true;
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_HOLD_HI)
+                    .lampState = LampState::on;
+                this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_COLLECT)
+                    .lampState = LampState::blinkslow;
+            }
+            else if (btnStatus.test(BTN_HOLD_LO))
+            {
+                holdRight = true;
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_HOLD_LO)
+                    .lampState = LampState::on;
+                this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_COLLECT)
+                    .lampState = LampState::blinkslow;
+            }
+
+            if (btnStatus.test(BTN_COLLECT))
+            {
+                // Cancel
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_COLLECT)
+                    .lampState = LampState::off;
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_HOLD_LO)
+                    .lampState = LampState::blinkslow;
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_HOLD)
+                    .lampState = LampState::blinkslow;
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_HOLD_HI)
+                    .lampState = LampState::blinkslow;
+                holdLeft = false;
+                holdCentre = false;
+                holdRight = false;
+            }
+        }
+
+        btnStatus = this->displayController.getButtonStatus();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    // Switch off hold lights for reels that are not held
+    if (!holdLeft)
+        this->displayController.getLampData()
+            .at(DisplayController::LMP_HOLD_HI)
+            .lampState = LampState::off;
+    if (!holdCentre)
+        this->displayController.getLampData()
+            .at(DisplayController::LMP_HOLD)
+            .lampState = LampState::off;
+    if (!holdRight)
+        this->displayController.getLampData()
+            .at(DisplayController::LMP_HOLD_LO)
+            .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_COLLECT)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::off;
+
+    this->moneyController.incrementGameCount();
+    this->moneyController.removeFromCredit(20);
+    this->audioController.playAudioFile(Sounds::SND_NOW_THATS_ICE);
+
+    spinReels(holdLeft, holdCentre, holdRight);
+
+    if (isWinningLine())
+    {
+        transferOrGamble();
+    }
+    else if (nudges > 0)
+    {
+        playNudges(nudges);
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Returning from game to main loop");
+        this->audioController.playAudioFileAsync(
+            Sounds::SND_WONT_GET_AWAY_WITH_THIS);
+    }
+
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_COLLECT)
+        .lampState = LampState::off;
     this->displayController.getLampData()
         .at(DisplayController::LMP_HOLD_HI)
         .lampState = LampState::off;
-  if (!holdCentre)
     this->displayController.getLampData()
         .at(DisplayController::LMP_HOLD)
         .lampState = LampState::off;
-  if (!holdRight)
     this->displayController.getLampData()
         .at(DisplayController::LMP_HOLD_LO)
         .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_COLLECT)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_START)
-      .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_TRANSFER)
+        .lampState = LampState::off;
 
-  this->moneyController.incrementGameCount();
-  this->moneyController.removeFromCredit(20);
-  this->audioController.playAudioFile(Sounds::SND_NOW_THATS_ICE);
+    // payout
+    if ((this->moneyController.getBank() > 0) &&
+        (this->moneyController.getCredit() < 20))
+    {
+        collectOrContinue();
+    }
 
-  spinReels(holdLeft, holdCentre, holdRight);
+    Game::isInProgress = false;
 
-  if (isWinningLine()) {
-    transferOrGamble();
-  } else if (nudges > 0) {
-    playNudges(nudges);
-  } else {
-    ESP_LOGI(TAG, "Returning from game to main loop");
-    this->audioController.playAudioFileAsync(
-        Sounds::SND_WONT_GET_AWAY_WITH_THIS);
-  }
-
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_START)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_COLLECT)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_HOLD_HI)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_HOLD)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_HOLD_LO)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_TRANSFER)
-      .lampState = LampState::off;
-
-  // payout
-  if ((this->moneyController.getBank() > 0) &&
-      (this->moneyController.getCredit() < 20)) {
-    collectOrContinue();
-  }
-
-  Game::isInProgress = false;
-
-  ESP_LOGI(TAG, "Exiting game");
+    ESP_LOGI(TAG, "Exiting game");
 }
 
 void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) const
 {
+    ESP_LOGI(TAG, "Entering spinReels()");
 
-  ESP_LOGI(TAG, "Entering spinReels()");
+    uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
+    uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 25);
+    uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 25);
 
-  uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
-  uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 25);
-  uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 25);
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::off;
 
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_START)
-      .lampState = LampState::off;
+    DisplayController::displayVFDText("    LET IT GO!!     ");
 
-  DisplayController::displayVFDText("    LET IT GO!!     ");
+    this->reelController.spin(reelStopLeft, reelStopCentre, reelStopRight);
 
-  this->reelController.spin(reelStopLeft, reelStopCentre, reelStopRight);
-
-  ESP_LOGI(TAG, "Exiting spinReels()");
+    ESP_LOGI(TAG, "Exiting spinReels()");
 }
 
-void Game::shuffleReels() const
+void Game::shuffleReels(bool holdLeft, bool holdCentre, bool holdRight) const
 {
-  ESP_LOGI(TAG, "Entering shuffleReels()");
+    ESP_LOGI(TAG, "Entering shuffleReels()");
 
-  uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
-  uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 25);
-  uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 25);
+    uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
+    uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 25);
+    uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 25);
 
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_START)
-      .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::off;
 
-  DisplayController::displayVFDText("    LET IT GO!!     ");
+    DisplayController::displayVFDText("    LET IT GO!!     ");
 
-  this->reelController.shuffle(reelStopLeft, reelStopCentre, reelStopRight);
+    this->reelController.shuffle(reelStopLeft, reelStopCentre, reelStopRight);
 
-  ESP_LOGI(TAG, "Exiting shuffleReels()");
+    ESP_LOGI(TAG, "Exiting shuffleReels()");
 }
 
-void Game::playNudges(int nudges) {
-  ESP_LOGI(TAG, "Entering playNudges(%d)", nudges);
+void Game::playNudges(int nudges)
+{
+    ESP_LOGI(TAG, "Entering playNudges(%d)", nudges);
 
-  std::string nudgeText = "        NUDGE        ";
+    std::string nudgeText = "        NUDGE        ";
 
-  DisplayController::displayVFDText(nudgeText);
+    DisplayController::displayVFDText(nudgeText);
 
-  while (nudges > 0) {
+    while (nudges > 0)
+    {
+        this->displayController.resetLampData();
+
+        // have to take off 1, because array is zero-indexed
+        this->displayController.getLampData()
+            .at(DisplayController::NUDGE_LAMPS.at(nudges - 1))
+            .rgb = DisplayController::rgbFromValues(255, 255, 255);
+        this->displayController.getLampData()
+            .at(DisplayController::NUDGE_LAMPS.at(nudges - 1))
+            .lampState = LampState::blinkfast;
+
+        if (nudges > 1)
+        {
+            for (int i = 0; i < (nudges - 1); i++)
+            {
+                this->displayController.getLampData()
+                    .at(DisplayController::NUDGE_LAMPS.at(i))
+                    .lampState = LampState::on;
+                this->displayController.getLampData()
+                    .at(DisplayController::NUDGE_LAMPS.at(nudges - 1))
+                    .rgb = DisplayController::rgbFromValues(0, 0, 255);
+            }
+        }
+
+        this->displayController.getLampData()
+            .at(DisplayController::LMP_HOLD)
+            .lampState = LampState::blinkfast;
+        this->displayController.getLampData()
+            .at(DisplayController::LMP_HOLD_HI)
+            .lampState = LampState::blinkfast;
+        this->displayController.getLampData()
+            .at(DisplayController::LMP_HOLD_LO)
+            .lampState = LampState::blinkfast;
+
+        uint8_t btnStatus = this->displayController.waitForButton(
+            BTN_HOLD_LO_MASK_BIT | BTN_HOLD_MASK_BIT | BTN_HOLD_HI_MASK_BIT);
+
+        if ((btnStatus & BTN_HOLD_LO_MASK_BIT) == BTN_HOLD_LO_MASK_BIT)
+        {
+            this->reelController.nudge(0, 0, 1);
+        }
+        else if ((btnStatus & BTN_HOLD_MASK_BIT) == BTN_HOLD_MASK_BIT)
+        {
+            this->reelController.nudge(0, 1, 0);
+        }
+        else if ((btnStatus & BTN_HOLD_HI_MASK_BIT) == BTN_HOLD_HI_MASK_BIT)
+        {
+            this->reelController.nudge(1, 0, 0);
+        }
+
+        // wait for reel controller to finish command
+        while (this->reelController.isCommandInProgress())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        }
+
+        if (isWinningLine())
+        {
+            transferOrGamble();
+            return;
+        }
+        else
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        }
+
+        nudges--;
+    }
 
     this->displayController.resetLampData();
 
-    // have to take off 1, because array is zero-indexed
-    this->displayController.getLampData()
-        .at(DisplayController::NUDGE_LAMPS.at(nudges - 1))
-        .rgb = DisplayController::rgbFromValues(255, 255, 255);
-    this->displayController.getLampData()
-        .at(DisplayController::NUDGE_LAMPS.at(nudges - 1))
-        .lampState = LampState::blinkfast;
-
-    if (nudges > 1) {
-      for (int i = 0; i < (nudges - 1); i++) {
-        this->displayController.getLampData()
-            .at(DisplayController::NUDGE_LAMPS.at(i))
-            .lampState = LampState::on;
-        this->displayController.getLampData()
-            .at(DisplayController::NUDGE_LAMPS.at(nudges - 1))
-            .rgb = DisplayController::rgbFromValues(0, 0, 255);
-      }
+    if (isWinningLine())
+    {
+        transferOrGamble();
+    }
+    else
+    {
+        this->audioController.playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
     }
 
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_HOLD)
-        .lampState = LampState::blinkfast;
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_HOLD_HI)
-        .lampState = LampState::blinkfast;
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_HOLD_LO)
-        .lampState = LampState::blinkfast;
-
-    uint8_t btnStatus = this->displayController.waitForButton(
-        BTN_HOLD_LO_MASK_BIT | BTN_HOLD_MASK_BIT | BTN_HOLD_HI_MASK_BIT);
-
-    if ((btnStatus & BTN_HOLD_LO_MASK_BIT) == BTN_HOLD_LO_MASK_BIT) {
-      this->reelController.nudge(0, 0, 1);
-    } else if ((btnStatus & BTN_HOLD_MASK_BIT) == BTN_HOLD_MASK_BIT) {
-      this->reelController.nudge(0, 1, 0);
-    } else if ((btnStatus & BTN_HOLD_HI_MASK_BIT) == BTN_HOLD_HI_MASK_BIT) {
-      this->reelController.nudge(1, 0, 0);
-    }
-
-    // wait for reel controller to finish command
-    while (this->reelController.isCommandInProgress()) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(30));
-    }
-
-    if (isWinningLine()) {
-      transferOrGamble();
-      return;
-    } else {
-      std::this_thread::sleep_for(std::chrono::milliseconds(30));
-    }
-
-    nudges--;
-  }
-
-  this->displayController.resetLampData();
-
-  if (isWinningLine()) {
-    transferOrGamble();
-  } else {
-    this->audioController.playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
-  }
-
-  ESP_LOGD(TAG, "Exiting nudges()");
+    ESP_LOGD(TAG, "Exiting nudges()");
 }
 
 bool Game::offerHold() const
 {
-  ESP_LOGD(TAG, "Entering offerHold()");
+    ESP_LOGD(TAG, "Entering offerHold()");
 
-  uint8_t leftPos;
-  uint8_t centrePos;
-  uint8_t rightPos;
+    uint8_t leftPos;
+    uint8_t centrePos;
+    uint8_t rightPos;
 
-  uint8_t hold = (random8_to(10) == 1); // 1 in 10 chance
+    uint8_t hold = (random8_to(10) == 1); // 1 in 10 chance
 
-  leftPos = this->reelController.getReelStopInfo().leftStop;
-  centrePos = this->reelController.getReelStopInfo().centreStop;
-  rightPos = this->reelController.getReelStopInfo().rightStop;
+    leftPos = this->reelController.getReelStopInfo().leftStop;
+    centrePos = this->reelController.getReelStopInfo().centreStop;
+    rightPos = this->reelController.getReelStopInfo().rightStop;
 
-  uint8_t leftSymbolId = symbolsLeftReel[leftPos];
-  uint8_t centreSymbolId = symbolsCentreReel[centrePos];
-  uint8_t rightSymbolId = symbolsRightReel[rightPos];
+    uint8_t leftSymbolId = symbolsLeftReel[leftPos];
+    uint8_t centreSymbolId = symbolsCentreReel[centrePos];
+    uint8_t rightSymbolId = symbolsRightReel[rightPos];
 
-  bool result =
-      (((leftSymbolId == centreSymbolId) || (leftSymbolId == rightSymbolId) ||
-        (centreSymbolId == rightSymbolId)) &&
-       !(((leftSymbolId == centreSymbolId) && (leftSymbolId == rightSymbolId) &&
-          (centreSymbolId == rightSymbolId))) &&
-       hold > 0);
+    bool result =
+    (((leftSymbolId == centreSymbolId) || (leftSymbolId == rightSymbolId) ||
+            (centreSymbolId == rightSymbolId)) &&
+        !(((leftSymbolId == centreSymbolId) && (leftSymbolId == rightSymbolId) &&
+            (centreSymbolId == rightSymbolId))) &&
+        hold > 0);
 
-  ESP_LOGD(TAG, "Exiting offerHold(). Returning %s", result ? "true" : "false");
+    ESP_LOGD(TAG, "Exiting offerHold(). Returning %s", result ? "true" : "false");
 
-  return result;
+    return result;
 }
 
-void Game::transferOrGamble() {
-  ESP_LOGD(TAG, "Entering transferOrGamble()");
+void Game::transferOrGamble()
+{
+    ESP_LOGD(TAG, "Entering transferOrGamble()");
 
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_TRANSFER)
-      .lampState = LampState::blinkfast;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_START)
-      .lampState = LampState::blinkslow;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_TRANSFER)
+        .lampState = LampState::blinkfast;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::blinkslow;
 
-  std::bitset<8> btnStatus = this->displayController.getButtonStatus();
+    uint8_t btnStatus = displayController.waitForButton(BTN_TRANSFER | BTN_START);
 
-  // loop waiting for button press.
-  while (!btnStatus.test(BTN_TRANSFER) && !btnStatus.test(BTN_START)) {
-    btnStatus = this->displayController.getButtonStatus();
-    std::this_thread::sleep_for(std::chrono::milliseconds(75));
-  }
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_COLLECT)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_TRANSFER)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_HOLD_LO)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_HOLD)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_HOLD_HI)
+        .lampState = LampState::off;
 
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_START)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_COLLECT)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_TRANSFER)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_HOLD_LO)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_HOLD)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_HOLD_HI)
-      .lampState = LampState::off;
-
-  if (btnStatus.test(BTN_TRANSFER)) {
-    this->moneyController.moveTransferToBank();
-    this->audioController.playAudioFile(Sounds::SND_KERCHING);
-  } else if (btnStatus.test(BTN_START)) {
-    playFeatureMatrix();
-  }
-
-  ESP_LOGD(TAG, "Exiting transferOrGamble()");
-}
-
-void Game::collectOrContinue() {
-
-  ESP_LOGD(TAG, "Entering collectOrContinue()");
-
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_START)
-      .lampState = LampState::blinkfast;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_COLLECT)
-      .lampState = LampState::blinkslow;
-
-  std::bitset<8> btnStatus = this->displayController.getButtonStatus();
-
-  // loop waiting for button press.
-  while (!btnStatus.test(BTN_COLLECT) && !btnStatus.test(BTN_START)) {
-    btnStatus = this->displayController.getButtonStatus();
-    std::this_thread::sleep_for(std::chrono::milliseconds(75));
-  }
-
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_START)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_COLLECT)
-      .lampState = LampState::off;
-
-  if (btnStatus.test(BTN_COLLECT)) {
-    ESP_LOGI(TAG, "Calling payout...");
-
-    this->moneyController.payoutBank();
-  } else if (btnStatus.test(BTN_START)) {
-    this->moneyController.moveBankToCredit();
-  }
-
-  ESP_LOGD(TAG, "Exiting collectOrContinue()");
-}
-
-bool Game::isWinningLine() {
-  ESP_LOGI(TAG, "Entering isWinningLine()");
-
-  bool isWin = false;
-
-  uint8_t leftPos = this->reelController.getReelStopInfo().leftStop;
-  uint8_t centrePos = this->reelController.getReelStopInfo().centreStop;
-  uint8_t rightPos = this->reelController.getReelStopInfo().rightStop;
-
-  uint8_t leftSymbolId = symbolsLeftReel[leftPos - 1];
-  uint8_t centreSymbolId = symbolsCentreReel[centrePos - 1];
-  uint8_t rightSymbolId = symbolsRightReel[rightPos - 1];
-
-  //    ESP_LOGI(TAG, "Reel positions: %s - %s - %s",
-  //    this->symbolMap[leftSymbolId].c_str(),
-  //    this->symbolMap[centreSymbolId].c_str(),
-  //    this->symbolMap[rightSymbolId].c_str());
-
-  for (int i = 0; i < 7; i++) {
-
-    if (((leftSymbolId == winningCombinations[i].leftSymbolId) ||
-         (winningCombinations[i].leftSymbolId == 255)) &&
-        ((centreSymbolId == winningCombinations[i].centreSymbolId) ||
-         (winningCombinations[i].centreSymbolId == 255)) &&
-        ((rightSymbolId == winningCombinations[i].rightSymbolId) ||
-         (winningCombinations[i].rightSymbolId == 255))) {
-      this->moneyController.setTransfer(this->winningCombinations[i].amount);
-      isWin = true;
-      break;
+    if ((btnStatus & BTN_TRANSFER) == BTN_TRANSFER)
+    {
+        this->moneyController.moveTransferToBank();
+        this->audioController.playAudioFile(Sounds::SND_KERCHING);
     }
-  }
+    else if ((btnStatus & BTN_START) == BTN_START)
+    {
+        playFeatureMatrix();
+    }
 
-  ESP_LOGI(TAG, "Exiting isWinningLine()");
-  return isWin;
+    ESP_LOGD(TAG, "Exiting transferOrGamble()");
 }
 
-void Game::playFeatureMatrix() {
-  uint8_t featureIndex = 0;
-  this->audioController.playAudioFile(Sounds::SND_LET_IT_GO);
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_START)
-      .lampState = LampState::blinkslow;
+void Game::collectOrContinue() const
+{
+    ESP_LOGD(TAG, "Entering collectOrContinue()");
 
-  // loop waiting for button press.
-  std::bitset<8> btnStatus = this->displayController.getButtonStatus();
-  while (!btnStatus.test(BTN_START)) {
-    featureIndex = random8_between(0, 12); // number of features
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::blinkfast;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_COLLECT)
+        .lampState = LampState::blinkslow;
+
+    // loop waiting for button press.
+    uint8_t btnStatus = displayController.waitForButton(BTN_COLLECT | BTN_START);
+
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_COLLECT)
+        .lampState = LampState::off;
+
+    if ((btnStatus & BTN_COLLECT) == BTN_COLLECT)
+    {
+        ESP_LOGI(TAG, "Calling payout...");
+
+        this->moneyController.payoutBank();
+    }
+    else if ((btnStatus & BTN_START) == BTN_START)
+    {
+        this->moneyController.moveBankToCredit();
+    }
+
+    ESP_LOGD(TAG, "Exiting collectOrContinue()");
+}
+
+bool Game::isWinningLine() const
+{
+    ESP_LOGI(TAG, "Entering isWinningLine()");
+
+    bool isWin = false;
+
+    uint8_t leftPos = this->reelController.getReelStopInfo().leftStop;
+    uint8_t centrePos = this->reelController.getReelStopInfo().centreStop;
+    uint8_t rightPos = this->reelController.getReelStopInfo().rightStop;
+
+    uint8_t leftSymbolId = symbolsLeftReel[leftPos - 1];
+    uint8_t centreSymbolId = symbolsCentreReel[centrePos - 1];
+    uint8_t rightSymbolId = symbolsRightReel[rightPos - 1];
+
+    //    ESP_LOGI(TAG, "Reel positions: %s - %s - %s",
+    //    this->symbolMap[leftSymbolId].c_str(),
+    //    this->symbolMap[centreSymbolId].c_str(),
+    //    this->symbolMap[rightSymbolId].c_str());
+
+    for (int i = 0; i < 7; i++)
+    {
+        if (((leftSymbolId == winningCombinations[i].leftSymbolId) ||
+                (winningCombinations[i].leftSymbolId == 255)) &&
+            ((centreSymbolId == winningCombinations[i].centreSymbolId) ||
+                (winningCombinations[i].centreSymbolId == 255)) &&
+            ((rightSymbolId == winningCombinations[i].rightSymbolId) ||
+                (winningCombinations[i].rightSymbolId == 255)))
+        {
+            this->moneyController.setTransfer(winningCombinations[i].amount);
+            isWin = true;
+            break;
+        }
+    }
+
+    ESP_LOGI(TAG, "Exiting isWinningLine()");
+    return isWin;
+}
+
+void Game::playFeatureMatrix()
+{
+    uint8_t featureIndex = 0;
+    this->audioController.playAudioFile(Sounds::SND_LET_IT_GO);
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::blinkslow;
+
+    // loop waiting for button press.
+    std::bitset<8> btnStatus = this->displayController.getButtonStatus();
+    while (!btnStatus.test(BTN_START))
+    {
+        featureIndex = random8_between(0, 12); // number of features
+
+        this->displayController.getLampData()
+            .at(DisplayController::FEATURE_LAMPS.at(featureIndex))
+            .lampState = LampState::blinkfast;
+
+        btnStatus = this->displayController.getButtonStatus();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
 
     this->displayController.getLampData()
         .at(DisplayController::FEATURE_LAMPS.at(featureIndex))
-        .lampState = LampState::blinkfast;
+        .lampState = LampState::off;
 
-    btnStatus = this->displayController.getButtonStatus();
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-  }
-
-  this->displayController.getLampData()
-      .at(DisplayController::FEATURE_LAMPS.at(featureIndex))
-      .lampState = LampState::off;
-
-  // Feature has been chosen, let's continue...
-  switch (featureIndex) {
+    // Feature has been chosen, let's continue...
+    switch (featureIndex)
+    {
     // String featureMap[12] = {"Free Spin", "Double Money", "Shuffle",
     // "Lose", "Palace", "Palace", "Shuffle", "Lose", "Free Spin", "Hi/Lo",
     // "Free Spin", "Palace"};
-  case 0:
-  case 8:
-  case 10:
-    // Free Spin
-    playFreeSpin();
-    break;
-  case 1:
-    // Double Money
-    break;
-  case 2:
-  case 6:
-    // Shuffle
-    playShuffle();
-    break;
-  case 3:
-  case 7:
-    // Lose
-    break;
-  case 4:
-  case 5:
-  case 11:
-    // Palace
-    playTrail();
-    break;
-  case 9:
-    // Hi/Lo
-    playHiLo();
-    break;
-  }
+    case 0:
+    case 8:
+    case 10:
+        // Free Spin
+        playFreeSpin();
+        break;
+    case 1:
+        // Double Money
+        break;
+    case 2:
+    case 6:
+        // Shuffle
+        playShuffle();
+        break;
+    case 3:
+    case 7:
+        // Lose
+        break;
+    case 4:
+    case 5:
+    case 11:
+        // Palace
+        playTrail();
+        break;
+    case 9:
+        // Hi/Lo
+        playHiLo();
+        break;
+    default:
+        break;
+    }
 }
 
-void Game::playTrail() {
-  uint8_t index = 0;
-  while (PRIZE_TRAIL_PRIZES[index] < this->moneyController.getTransfer() &&
-         index < PRIZE_TRAIL_PRIZES_LENGTH) {
-    index++;
-  }
+void Game::playTrail()
+{
+    uint8_t index = 0;
+    while (PRIZE_TRAIL_PRIZES[index] < this->moneyController.getTransfer() &&
+        index < PRIZE_TRAIL_PRIZES_LENGTH)
+    {
+        index++;
+    }
 
-  // this->displayController.TRAIL_LAMPS[index],
-  // false);
+    // this->displayController.TRAIL_LAMPS[index],
+    // false);
 }
 
-void Game::playHiLo() {}
-
-void Game::playShuffle() {
-  std::bitset<8> btnStatus = this->displayController.getButtonStatus();
-
-  this->displayController.displayVFDText("      SHUFFLE!      ");
-
-  // loop waiting for button press.
-  while (!btnStatus.test(BTN_START)) {
-    btnStatus = this->displayController.getButtonStatus();
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-  }
-
-  this->audioController.playAudioFile(Sounds::SND_NOW_THATS_ICE);
-
-  shuffleReels();
-
-  if (isWinningLine()) {
-    transferOrGamble();
-  } else {
-    this->audioController.playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
-  }
-
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_START)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_COLLECT)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_HOLD_LO)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_HOLD)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_HOLD_HI)
-      .lampState = LampState::off;
+void Game::playHiLo()
+{
 }
 
-void Game::playFreeSpin() {
-  std::bitset<8> btnStatus = this->displayController.getButtonStatus();
+void Game::playShuffle()
+{
+    DisplayController::displayVFDText("      SHUFFLE!      ");
 
-  this->displayController.displayVFDText("     FREE SPIN!     ");
+    // loop waiting for button press.
+    bool holdLeft = false;
+    bool holdCentre = false;
+    bool holdRight = false;
 
-  // loop waiting for button press.
-  while (!btnStatus.test(BTN_START)) {
-    btnStatus = this->displayController.getButtonStatus();
-    std::this_thread::sleep_for(std::chrono::milliseconds(75));
-  }
+    bool hold = offerHold();
 
-  this->audioController.playAudioFile(Sounds::SND_NOW_THATS_ICE);
+    std::bitset<8> btnStatus = this->displayController.getButtonStatus();
+    while (!btnStatus.test(BTN_START))
+    {
+        if (hold)
+        {
+            if (btnStatus.test(BTN_HOLD))
+            {
+                holdCentre = true;
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_HOLD)
+                    .lampState = LampState::on;
+                this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_COLLECT)
+                    .lampState = LampState::blinkslow;
+            }
+            else if (btnStatus.test(BTN_HOLD_HI))
+            {
+                holdLeft = true;
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_HOLD_HI)
+                    .lampState = LampState::on;
+                this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_COLLECT)
+                    .lampState = LampState::blinkslow;
+            }
+            else if (btnStatus.test(BTN_HOLD_LO))
+            {
+                holdRight = true;
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_HOLD_LO)
+                    .lampState = LampState::on;
+                this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_COLLECT)
+                    .lampState = LampState::blinkslow;
+            }
 
-  spinReels(false, false, false); // no holds
+            if (btnStatus.test(BTN_COLLECT))
+            {
+                // Cancel
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_COLLECT)
+                    .lampState = LampState::off;
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_HOLD_LO)
+                    .lampState = LampState::blinkslow;
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_HOLD)
+                    .lampState = LampState::blinkslow;
+                this->displayController.getLampData()
+                    .at(DisplayController::LMP_HOLD_HI)
+                    .lampState = LampState::blinkslow;
+                holdLeft = false;
+                holdCentre = false;
+                holdRight = false;
+            }
+        }
 
-  if (isWinningLine()) {
-    transferOrGamble();
-  } else {
-    this->audioController.playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
-  }
+        btnStatus = this->displayController.getButtonStatus();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
 
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_START)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_COLLECT)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_TRANSFER)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_HOLD_LO)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_HOLD)
-      .lampState = LampState::off;
-  this->displayController.getLampData()
-      .at(DisplayController::LMP_HOLD_HI)
-      .lampState = LampState::off;
+    // Switch off hold lights for reels that are not held
+    if (!holdLeft)
+        this->displayController.getLampData()
+            .at(DisplayController::LMP_HOLD_HI)
+            .lampState = LampState::off;
+    if (!holdCentre)
+        this->displayController.getLampData()
+            .at(DisplayController::LMP_HOLD)
+            .lampState = LampState::off;
+    if (!holdRight)
+        this->displayController.getLampData()
+            .at(DisplayController::LMP_HOLD_LO)
+            .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_COLLECT)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::off;
+
+    this->moneyController.incrementGameCount();
+    this->moneyController.removeFromCredit(20);
+    this->audioController.playAudioFile(Sounds::SND_NOW_THATS_ICE);
+
+    shuffleReels(holdLeft, holdCentre, holdRight);
+
+    if (isWinningLine())
+    {
+        transferOrGamble();
+    }
+    else
+    {
+        this->audioController.playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
+    }
+
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_COLLECT)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_HOLD_LO)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_HOLD)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_HOLD_HI)
+        .lampState = LampState::off;
 }
 
-bool Game::isGameInProgress() { return this->isInProgress; }
+void Game::playFreeSpin()
+{
+    DisplayController::displayVFDText("     FREE SPIN!     ");
+
+    // loop waiting for button press.
+    displayController.waitForButton(BTN_START);
+
+    this->audioController.playAudioFile(Sounds::SND_NOW_THATS_ICE);
+
+    spinReels(false, false, false); // no holds
+
+    if (isWinningLine())
+    {
+        transferOrGamble();
+    }
+    else
+    {
+        this->audioController.playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
+    }
+
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_COLLECT)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_TRANSFER)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_HOLD_LO)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_HOLD)
+        .lampState = LampState::off;
+    this->displayController.getLampData()
+        .at(DisplayController::LMP_HOLD_HI)
+        .lampState = LampState::off;
+}
+
+bool Game::isGameInProgress() const { return this->isInProgress; }
