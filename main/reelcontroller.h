@@ -65,8 +65,8 @@
 #define STEPS_PER_STOP 8 // half-step drive
 
 #define LEDC_TIMER LEDC_TIMER_0
-#define LEDC_MODE LEDC_HIGH_SPEED_MODE
-#define LEDC_CHANNEL LEDC_CHANNEL_0
+#define LEDC_MODE LEDC_LOW_SPEED_MODE
+#define LEDC_CHANNEL LEDC_CHANNEL_1
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
 #define LEDC_DUTY_QUARTER (3275)        // Set duty to 40% (2**13) * 12,5%
 // Don't set this to 100%, otherwise cctalk fails (presumably something gets
@@ -74,7 +74,7 @@
 //#define LEDC_DUTY_FULL (6554) // Set duty to 80%. (2 ** 13) * 80%  = 6554
 #define LEDC_DUTY_FULL (8191) // 100%
 
-#define LEDC_FREQUENCY (40)   // Frequency in Hertz. Set frequency to 40Hz
+#define LEDC_FREQUENCY (5000)   // Frequency in Hertz. Set frequency to 40Hz
 
 class ReelController
 {
@@ -127,7 +127,7 @@ private:
 
     // Prepare and then apply the LEDC PWM timer configuration
     ledc_timer_config_t ledc_timer = {
-        .speed_mode = LEDC_HIGH_SPEED_MODE,
+        .speed_mode = LEDC_MODE,
         .duty_resolution = LEDC_DUTY_RES,
         .timer_num = LEDC_TIMER,
         .freq_hz = LEDC_FREQUENCY, // Set output frequency at 100Hz
@@ -137,9 +137,9 @@ private:
 
     ledc_channel_config_t ledc_channel = {
         .gpio_num = GPIO_MOTOR_EN,
-        .speed_mode = LEDC_HIGH_SPEED_MODE,
+        .speed_mode = LEDC_MODE,
         .channel = LEDC_CHANNEL,
-	.intr_type = {},
+        .intr_type = LEDC_INTR_DISABLE,
         .timer_sel = LEDC_TIMER,
         .duty = 0,
         .hpoint = 0,
