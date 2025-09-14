@@ -71,7 +71,7 @@ ReelController::ReelController(AudioController &audioController,
     displayController(displayController),
     leftReel(PCA9629A(i2cmgr, REEL_LEFT_I2C_ADDRESS)),
     centreReel(PCA9629A(i2cmgr, REEL_CENTRE_I2C_ADDRESS)),
-    rightReel(PCA9629A(i2cmgr, REEL_RIGHT_I2C_ADDRESS)), ledc_timer(), ledc_channel()
+    rightReel(PCA9629A(i2cmgr, REEL_RIGHT_I2C_ADDRESS))
 {
   ESP_LOGD(TAG, "Entering constructor");
 
@@ -92,11 +92,32 @@ bool ReelController::initialise() {
   ESP_LOGI(TAG, "ReelController::initialise() called");
 
   // MOTOR_EN is on a GPIO
-  esp_rom_gpio_pad_select_gpio(GPIO_MOTOR_EN);
+//	  esp_rom_gpio_pad_select_gpio(GPIO_MOTOR_EN);
   // Set the GPIO as a push/pull output
-  gpio_set_direction(GPIO_MOTOR_EN, GPIO_MODE_OUTPUT);
+//  gpio_set_direction(GPIO_MOTOR_EN, GPIO_MODE_OUTPUT);
 
-  // Prepare and then apply the LEDC PWM timer configuration
+// Prepare and then apply the LEDC PWM timer configuration
+    ledc_timer_config_t ledc_timer = {
+        .speed_mode = LEDC_MODE,
+        .duty_resolution = LEDC_DUTY_RES,
+        .timer_num = LEDC_TIMER,
+        .freq_hz = LEDC_FREQUENCY, // Set output frequency at 5000Hz
+        .clk_cfg = LEDC_AUTO_CLK,
+        .deconfigure = false,
+    };
+
+    ledc_channel_config_t ledc_channel = {
+        .gpio_num = GPIO_MOTOR_EN,
+        .speed_mode = LEDC_MODE,
+        .channel = LEDC_CHANNEL,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = LEDC_TIMER,
+        .duty = 0,
+        .hpoint = 0,
+        .sleep_mode = LEDC_SLEEP_MODE_KEEP_ALIVE,
+        .flags = {},
+    };
+     // Prepare and then apply the LEDC PWM timer configuration
   if (ledc_timer_config(&ledc_timer) != ESP_OK) {
     ESP_LOGE(TAG, "An error occurred initialising PWM subsystem for reels "
                   "(timer config)");
@@ -110,7 +131,7 @@ bool ReelController::initialise() {
     return false;
   }
 
-  ledc_bind_channel_timer(LEDC_MODE, LEDC_CHANNEL_0, LEDC_TIMER_0);
+  ledc_bind_channel_timer(LEDC_MODE, LEDC_CHANNEL, LEDC_TIMER);
 
   reelLeftInitOk = false;
   reelCentreInitOk = false;
@@ -264,8 +285,8 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop,
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Switch off
-  ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-  ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+  //ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+  //ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
   this->commandInProgress = false;
 }
