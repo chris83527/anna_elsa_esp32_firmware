@@ -358,7 +358,7 @@ void DisplayController::attractModeTask()
         }
         else
         {
-            std::this_thread::yield();
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
 }
