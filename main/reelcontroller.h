@@ -65,8 +65,8 @@
 #define STEPS_PER_STOP 8 // half-step drive
 
 #define LEDC_TIMER LEDC_TIMER_0
-#define LEDC_MODE LEDC_LOW_SPEED_MODE
-#define LEDC_CHANNEL LEDC_CHANNEL_1
+#define LEDC_MODE LEDC_HIGH_SPEED_MODE
+#define LEDC_CHANNEL LEDC_CHANNEL_0
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
 #define LEDC_DUTY_QUARTER (3275)        // Set duty to 40% (2**13) * 12,5%
 // Don't set this to 100%, otherwise cctalk fails (presumably something gets
