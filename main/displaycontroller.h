@@ -90,7 +90,7 @@ public:
     [[nodiscard]] bool isAttractMode() const;
 
     uint8_t getButtonStatus();
-    uint8_t waitForButton(uint8_t mask);
+    [[nodiscard]] uint8_t waitForButton(uint8_t mask) const;
 
     void beginAttractMode();
     void stopAttractMode();

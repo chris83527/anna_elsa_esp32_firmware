@@ -68,7 +68,7 @@
 #define LEDC_MODE LEDC_HIGH_SPEED_MODE
 #define LEDC_CHANNEL LEDC_CHANNEL_0
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
-#define LEDC_DUTY_QUARTER (3275)        // Set duty to 40% (2**13) * 12,5%
+#define LEDC_DUTY_QUARTER (3176)        // Set duty to 50% (2**13) * 50%
 // Don't set this to 100%, otherwise cctalk fails (presumably something gets
 // blocked somewhere)
 //#define LEDC_DUTY_FULL (6554) // Set duty to 80%. (2 ** 13) * 80%  = 6554
@@ -125,27 +125,7 @@ private:
     PCA9629A centreReel;
     PCA9629A rightReel;
 
-    // Prepare and then apply the LEDC PWM timer configuration
-    ledc_timer_config_t ledc_timer = {
-        .speed_mode = LEDC_MODE,
-        .duty_resolution = LEDC_DUTY_RES,
-        .timer_num = LEDC_TIMER,
-        .freq_hz = LEDC_FREQUENCY, // Set output frequency at 100Hz
-        .clk_cfg = LEDC_AUTO_CLK,
-        .deconfigure = false,
-    };
 
-    ledc_channel_config_t ledc_channel = {
-        .gpio_num = GPIO_MOTOR_EN,
-        .speed_mode = LEDC_MODE,
-        .channel = LEDC_CHANNEL,
-        .intr_type = LEDC_INTR_DISABLE,
-        .timer_sel = LEDC_TIMER,
-        .duty = 0,
-        .hpoint = 0,
-        .sleep_mode = LEDC_SLEEP_MODE_KEEP_ALIVE,
-        .flags = {},
-    };
 
 };
 

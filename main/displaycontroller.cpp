@@ -77,7 +77,7 @@ DisplayController::DisplayController(MoneyController& moneyController,
       bankDisplay(HT16K33(i2cmgr, BANK_DISPLAY_ADDRESS)),
       buttonIO(MCP23x17(i2cmgr, BUTTONS_I2C_ADDRESS)),
       moneyController(moneyController),
-      oledController(OledController(i2cmgr, 0x3c)), buttonStatus(0), doorOpen(false), keyStatus(0), i2cManager(i2cmgr)
+      oledController(OledController(i2cmgr, 0x3c)), i2cManager(i2cmgr)
 {
     ESP_LOGD(TAG, "Entering constructor");
 
@@ -276,7 +276,7 @@ uint8_t DisplayController::getButtonStatus()
     return this->buttonStatus;
 }
 
-uint8_t DisplayController::waitForButton(uint8_t mask)
+uint8_t DisplayController::waitForButton(uint8_t mask) const
 {
     // loop waiting for button press.
     while ((mask & this->buttonStatus) == 0)
@@ -322,14 +322,16 @@ void DisplayController::attractModeTask()
         if (this->isAttractMode())
         {
             if (this->isAttractMode())
+            {
                 displayVFDText("  WOODS AMUSEMENTS  ");
-
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            }
+            std::this_thread::sleep_for(std::chrono::seconds(5));
 
             if (this->isAttractMode())
+            {
                 displayVFDText("      PRESENTS      ");
-
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            }
+            std::this_thread::sleep_for(std::chrono::seconds(5));
 
             if (this->isAttractMode())
             {
@@ -338,7 +340,7 @@ void DisplayController::attractModeTask()
                 this->chaseEffect();
             }
 
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            std::this_thread::sleep_for(std::chrono::seconds(5));
 
             if (this->isAttractMode())
             {
