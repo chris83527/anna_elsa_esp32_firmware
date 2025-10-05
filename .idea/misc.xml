@@ -16,4 +16,7 @@
     </libraryRoots>
   </component>
   <component name="WestSettings">{}</component>
+  <component name="elmot.OpenOcdPlugin">
+    <option name="openOcdHome" value="$USER_HOME$/.espressif/tools/openocd-esp32/v0.12.0-esp32-20241016/openocd-esp32" />
+  </component>
 </project>
