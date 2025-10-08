@@ -92,7 +92,7 @@ MCP23008::~MCP23008() {}
 esp_err_t MCP23008::get_int_out_mode(int_out_mode_t &mode) {
   CHECK_ARG(mode);
 
-  uint8_t r;
+  uint8_t r = 0;
   CHECK(read_reg(REG_IOCON, r));
 
   if (r & BV(BIT_IOCON_ODR)) {

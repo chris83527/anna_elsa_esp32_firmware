@@ -414,10 +414,10 @@ typedef union {
     };
 } IEEE754binary32_t;
 
-#include "lib8tion/math8.h"
-#include "lib8tion/scale8.h"
-#include "lib8tion/random8.h"
-#include "lib8tion/trig8.h"
+#include "lib8tion_fl/math8.h"
+#include "lib8tion_fl/scale8.h"
+#include "lib8tion_fl/random8.h"
+#include "lib8tion_fl/trig8.h"
 
 ///////////////////////////////////////////////////////////////////////
 

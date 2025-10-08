@@ -307,7 +307,7 @@ esp_err_t DS3231::get_raw_temp(int16_t &temp) {
 esp_err_t DS3231::get_temp_integer(int8_t &temp) {
   CHECK_ARG(temp);
 
-  int16_t t_int;
+  int16_t t_int = 0;
 
   esp_err_t res = get_raw_temp(t_int);
   if (res == ESP_OK) {
@@ -320,7 +320,7 @@ esp_err_t DS3231::get_temp_integer(int8_t &temp) {
 esp_err_t DS3231::get_temp_float(float &temp) {
   CHECK_ARG(temp);
 
-  int16_t t_int;
+  int16_t t_int = 0;
 
   esp_err_t res = get_raw_temp(t_int);
   if (res == ESP_OK) {
