@@ -95,14 +95,10 @@ esp_err_t DisplayController::initialise()
 
     this->buttonStatus = 0;
 
-    if (ws28xx_init(LED_GPIO, WS2812B, LED_COUNT, &ws2812_buffer) != ESP_OK)
-    {
-        ESP_LOGE(TAG, "WS2812 driver installation failed!");
-    }
-    else
-    {
-        ESP_LOGD(TAG, "WS2812 driver installation succeeded");
-    }
+    FastLED.addLeds<WS2812B, LED_GPIO, GRB>(ws2812_buffer, LED_COUNT).setCorrection( TypicalLEDStrip );
+    FastLED.setBrightness(MAX_BRIGHTNESS);
+    currentPalette = RainbowColors_p;
+    currentBlending = LINEARBLEND;
 
     creditDisplay.display_on();
     creditDisplay.write_value("%05d", 88888);
@@ -321,39 +317,53 @@ void DisplayController::attractModeTask()
     {
         if (this->isAttractMode())
         {
+            ChangePalettePeriodically();
+
+            static uint8_t startIndex = 0;
+
+            startIndex++; /* motion speed */
+            FillLEDsFromPaletteColors( startIndex);
+
             if (this->isAttractMode())
             {
                 displayVFDText("  WOODS AMUSEMENTS  ");
             }
+            startIndex++; /* motion speed */
+            FillLEDsFromPaletteColors( startIndex);
             std::this_thread::sleep_for(std::chrono::seconds(5));
 
             if (this->isAttractMode())
             {
                 displayVFDText("      PRESENTS      ");
             }
+            startIndex++; /* motion speed */
+            FillLEDsFromPaletteColors( startIndex);
             std::this_thread::sleep_for(std::chrono::seconds(5));
 
             if (this->isAttractMode())
             {
                 resetLampData();
                 displayVFDText("       FROZEN       ");
-                this->chaseEffect();
             }
-
+            startIndex++; /* motion speed */
+            FillLEDsFromPaletteColors( startIndex);
             std::this_thread::sleep_for(std::chrono::seconds(5));
 
             if (this->isAttractMode())
             {
                 displayVFDText("     20CT GAME      ");
-                this->fadeInOutEffect();
             }
 
+            startIndex++; /* motion speed */
+            FillLEDsFromPaletteColors( startIndex);
             std::this_thread::sleep_for(std::chrono::seconds(5));
 
             if (this->isAttractMode())
                 displayVFDText("    INSERT COINS    ");
 
             if (this->isAttractMode())
+                startIndex++; /* motion speed */
+            FillLEDsFromPaletteColors( startIndex);
                 std::this_thread::sleep_for(std::chrono::seconds(5));
         }
         else
@@ -695,7 +705,7 @@ void DisplayController::updateLampsTask()
             }
         }
 
-        ws28xx_update();
+        FastLED.show();
         buttonIO.writeGPIOB(lampVal);
         getButtonStatus();
 
@@ -801,7 +811,98 @@ CRGB DisplayController::rgbFromValues(uint8_t red, uint8_t green, uint8_t blue)
     return result;
 }
 
-void DisplayController::hsvToRgbRainbow(uint8_t h, uint8_t s, uint8_t v,
-                                        CRGB& rgb)
+void DisplayController::FillLEDsFromPaletteColors( uint8_t colorIndex)
 {
+    uint8_t brightness = MAX_BRIGHTNESS;
+
+    for( int i = 0; i < LED_COUNT; ++i) {
+        lampData[i].activeRgb = ColorFromPalette( currentPalette, colorIndex, brightness, currentBlending);
+        colorIndex += 3;
+    }
 }
+
+void DisplayController::ChangePalettePeriodically()
+{
+    uint8_t secondHand = (millis() / 1000) % 60;
+    static uint8_t lastSecond = 99;
+
+    if( lastSecond != secondHand) {
+        lastSecond = secondHand;
+        if( secondHand ==  0)  { currentPalette = RainbowColors_p;         currentBlending = LINEARBLEND; }
+        if( secondHand == 10)  { currentPalette = RainbowStripeColors_p;   currentBlending = NOBLEND;  }
+        if( secondHand == 15)  { currentPalette = RainbowStripeColors_p;   currentBlending = LINEARBLEND; }
+        if( secondHand == 20)  { SetupPurpleAndGreenPalette();             currentBlending = LINEARBLEND; }
+        if( secondHand == 25)  { SetupTotallyRandomPalette();              currentBlending = LINEARBLEND; }
+        if( secondHand == 30)  { SetupBlackAndWhiteStripedPalette();       currentBlending = NOBLEND; }
+        if( secondHand == 35)  { SetupBlackAndWhiteStripedPalette();       currentBlending = LINEARBLEND; }
+        if( secondHand == 40)  { currentPalette = CloudColors_p;           currentBlending = LINEARBLEND; }
+        if( secondHand == 45)  { currentPalette = PartyColors_p;           currentBlending = LINEARBLEND; }
+        if( secondHand == 50)  { currentPalette = myRedWhiteBluePalette_p; currentBlending = NOBLEND;  }
+        if( secondHand == 55)  { currentPalette = myRedWhiteBluePalette_p; currentBlending = LINEARBLEND; }
+    }
+}
+
+// This function fills the palette with totally random colors.
+void DisplayController::SetupTotallyRandomPalette()
+{
+    for( int i = 0; i < 16; ++i) {
+        currentPalette[i] = CHSV( random8(), 255, random8());
+    }
+}
+
+// This function sets up a palette of black and white stripes,
+// using code.  Since the palette is effectively an array of
+// sixteen CRGB colors, the various fill_* functions can be used
+// to set them up.
+void DisplayController::SetupBlackAndWhiteStripedPalette()
+{
+    // 'black out' all 16 palette entries...
+    fill_solid( currentPalette, 16, CRGB::Black);
+    // and set every fourth one to white.
+    currentPalette[0] = CRGB::White;
+    currentPalette[4] = CRGB::White;
+    currentPalette[8] = CRGB::White;
+    currentPalette[12] = CRGB::White;
+
+}
+
+// This function sets up a palette of purple and green stripes.
+void DisplayController::SetupPurpleAndGreenPalette()
+{
+    CRGB purple = CHSV( HUE_PURPLE, 255, 255);
+    CRGB green  = CHSV( HUE_GREEN, 255, 255);
+    CRGB black  = CRGB::Black;
+
+    currentPalette = CRGBPalette16(
+                                   green,  green,  black,  black,
+                                   purple, purple, black,  black,
+                                   green,  green,  black,  black,
+                                   purple, purple, black,  black );
+}
+
+
+// This example shows how to set up a static color palette
+// which is stored in PROGMEM (flash), which is almost always more
+// plentiful than RAM.  A static PROGMEM palette like this
+// takes up 64 bytes of flash.
+const TProgmemPalette16 myRedWhiteBluePalette_p FL_PROGMEM =
+{
+    CRGB::Red,
+    CRGB::Gray, // 'white' is too bright compared to red and blue
+    CRGB::Blue,
+    CRGB::Black,
+
+    CRGB::Red,
+    CRGB::Gray,
+    CRGB::Blue,
+    CRGB::Black,
+
+    CRGB::Red,
+    CRGB::Red,
+    CRGB::Gray,
+    CRGB::Gray,
+    CRGB::Blue,
+    CRGB::Blue,
+    CRGB::Black,
+    CRGB::Black
+};

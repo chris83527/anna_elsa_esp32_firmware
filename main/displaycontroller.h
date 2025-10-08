@@ -47,7 +47,8 @@
 #include "config.h"
 #include "ht16k33.h"
 //#include "led_strip.h"
-#include "esp_ws28xx.h"
+#include "FastLED.h"
+#include "FX.h"
 #include "mcp23x17.h"
 #include "moneycontroller.h"
 #include "oledcontroller.h"
@@ -55,6 +56,9 @@
 #define CHASE_SPEED_MS (100)
 
 enum class LampState { off, blinkslow, blinkfast, on };
+
+extern CRGBPalette16 myRedWhiteBluePalette;
+extern const TProgmemPalette16 myRedWhiteBluePalette_p FL_PROGMEM;
 
 class DisplayController
 {
@@ -78,6 +82,11 @@ public:
     std::array<lamp_data_t, LED_COUNT + 6>& getLampData();
 
     static CRGB rgbFromValues(uint8_t red, uint8_t green, uint8_t blue);
+    void FillLEDsFromPaletteColors(uint8_t colorIndex);
+    void ChangePalettePeriodically();
+    void SetupTotallyRandomPalette();
+    void SetupBlackAndWhiteStripedPalette();
+    void SetupPurpleAndGreenPalette();
     static void hsvToRgb(uint8_t hue, uint8_t saturation, uint8_t value, CRGB& rgb);
     static void hsvToRgbRainbow(uint8_t hue, uint8_t saturation, uint8_t value, CRGB& rgb);
 
@@ -255,19 +264,18 @@ private:
     void fadeInOutEffect();
 
 private:
-    //static constexpr int LED_STRIP_RMT_RES_HZ = (10 * 1000 * 1000);
-
-    //led_strip_handle_t ledStripHandle{};
-    //led_strip_config_t ledStripConfig{};
-    //led_strip_rmt_config_t rmtConfig{};
-
     HT16K33 movesDisplay;
     HT16K33 creditDisplay;
     HT16K33 bankDisplay;
 
     MCP23x17 buttonIO;
 
-    CRGB* ws2812_buffer;
+    CRGB ws2812_buffer[LED_COUNT];
+    CRGBPalette16 currentPalette;
+    TBlendType    currentBlending;
+
+
+    WS2812FX ws2812fx;
 
     MoneyController& moneyController;
     OledController oledController;

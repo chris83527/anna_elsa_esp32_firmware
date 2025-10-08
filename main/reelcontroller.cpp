@@ -49,7 +49,7 @@
 #include "esp_log.h"
 #include "hal/ledc_types.h"
 #include "pca9629a.h"
-#include "lib8tion.h"
+#include "lib8tion_fl.h"
 
 #include "audiocontroller.h"
 #include "config.h"
@@ -263,7 +263,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop,
 
     // Update the moves value - just a bit of decoration here really
     if (count == 0) {
-      this->displayController.setMoves(random8_to(13));
+      this->displayController.setMoves(random8(13));
     } else if (count == 10) {
       count = 0;
     }
@@ -371,7 +371,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
 
     // Update the moves value - just a bit of decoration here really
     if (count == 0) {
-      this->displayController.setMoves(random8_to(13));
+      this->displayController.setMoves(random8(13));
     } else if (count == 10) {
       count = 0;
     }
@@ -477,7 +477,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
 
     // Update the moves value - just a bit of decoration here really
     if (count == 0) {
-      this->displayController.setMoves(random8_to(13));
+      this->displayController.setMoves(random8(13));
     } else if (count == 10) {
       count = 0;
     }

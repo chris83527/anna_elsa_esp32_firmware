@@ -120,9 +120,9 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) const
 {
     ESP_LOGI(TAG, "Entering spinReels()");
 
-    uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
-    uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 25);
-    uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 25);
+    uint8_t reelStopLeft = holdLeft ? 0 : random8(1, 25);
+    uint8_t reelStopCentre = holdCentre ? 0 : random8(1, 25);
+    uint8_t reelStopRight = holdRight ? 0 : random8(1, 25);
 
     this->displayController.getLampData()
         .at(DisplayController::LMP_START)
@@ -139,9 +139,9 @@ void Game::shuffleReels(bool holdLeft, bool holdCentre, bool holdRight) const
 {
     ESP_LOGI(TAG, "Entering shuffleReels()");
 
-    uint8_t reelStopLeft = holdLeft ? 0 : random8_between(1, 25);
-    uint8_t reelStopCentre = holdCentre ? 0 : random8_between(1, 25);
-    uint8_t reelStopRight = holdRight ? 0 : random8_between(1, 25);
+    uint8_t reelStopLeft = holdLeft ? 0 : random8(1, 25);
+    uint8_t reelStopCentre = holdCentre ? 0 : random8(1, 25);
+    uint8_t reelStopRight = holdRight ? 0 : random8(1, 25);
 
     this->displayController.getLampData()
         .at(DisplayController::LMP_START)
@@ -398,7 +398,7 @@ bool Game::offerHold() const
     uint8_t centrePos;
     uint8_t rightPos;
 
-    uint8_t hold = (random8_to(10) == 1); // 1 in 10 chance
+    uint8_t hold = (random8(10) == 1); // 1 in 10 chance
 
     leftPos = this->reelController.getReelStopInfo().leftStop;
     centrePos = this->reelController.getReelStopInfo().centreStop;
@@ -550,7 +550,7 @@ void Game::playFeatureMatrix()
     std::bitset<8> btnStatus = this->displayController.getButtonStatus();
     while (!btnStatus.test(BTN_START))
     {
-        featureIndex = random8_between(0, 12); // number of features
+        featureIndex = random8(12); // number of features
 
         this->displayController.getLampData()
             .at(DisplayController::FEATURE_LAMPS.at(featureIndex))
