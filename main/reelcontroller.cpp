@@ -49,7 +49,8 @@
 #include "esp_log.h"
 #include "hal/ledc_types.h"
 #include "pca9629a.h"
-#include "lib8tion_fl.h"
+#include "FastLED.h"
+#include "lib8tion.h"
 
 #include "audiocontroller.h"
 #include "config.h"

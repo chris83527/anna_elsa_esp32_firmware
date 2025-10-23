@@ -2,9 +2,10 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/components/FastLED" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/components/arduino-esp32" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/components/esp_littlefs" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/components/esp_littlefs/src/littlefs" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/components/esp_ws28xx" vcs="Git" />
     <mapping directory="$USER_HOME$/esp/esp-idf" vcs="Git" />
     <mapping directory="$USER_HOME$/esp/esp-idf-lib" vcs="Git" />
     <mapping directory="$USER_HOME$/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc" vcs="Git" />

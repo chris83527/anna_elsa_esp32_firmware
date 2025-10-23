@@ -47,18 +47,26 @@
 #include "config.h"
 #include "ht16k33.h"
 //#include "led_strip.h"
-#include "FastLED.h"
-#include "FX.h"
+
 #include "mcp23x17.h"
 #include "moneycontroller.h"
 #include "oledcontroller.h"
 
+#define FASTLED_ESP32_I2S
+#define FASTLED_ESP32_I2S_NUM_DMA_BUFFERS 4
+
+#include "FastLED.h"
+//#include "FX.h"
+
+
 #define CHASE_SPEED_MS (100)
+
+
 
 enum class LampState { off, blinkslow, blinkfast, on };
 
 extern CRGBPalette16 myRedWhiteBluePalette;
-extern const TProgmemPalette16 myRedWhiteBluePalette_p FL_PROGMEM;
+extern const TProgmemPalette16 myRedWhiteBluePalette_p;
 
 class DisplayController
 {
@@ -87,8 +95,8 @@ public:
     void SetupTotallyRandomPalette();
     void SetupBlackAndWhiteStripedPalette();
     void SetupPurpleAndGreenPalette();
-    static void hsvToRgb(uint8_t hue, uint8_t saturation, uint8_t value, CRGB& rgb);
-    static void hsvToRgbRainbow(uint8_t hue, uint8_t saturation, uint8_t value, CRGB& rgb);
+    //static void hsvToRgb(uint8_t hue, uint8_t saturation, uint8_t value, CRGB& rgb);
+    //static void hsvToRgbRainbow(uint8_t hue, uint8_t saturation, uint8_t value, CRGB& rgb);
 
 
     static void clearText();
@@ -99,7 +107,7 @@ public:
     [[nodiscard]] bool isAttractMode() const;
 
     uint8_t getButtonStatus();
-    [[nodiscard]] uint8_t waitForButton(uint8_t mask) const;
+    uint8_t waitForButton(uint8_t mask) const;
 
     void beginAttractMode();
     void stopAttractMode();
@@ -259,9 +267,9 @@ private:
     [[noreturn]] void updateLampsTask();
     [[noreturn]] void blinkLampsTask();
 
-    void rainbowEffect();
-    void chaseEffect();
-    void fadeInOutEffect();
+    //void rainbowEffect();
+    //void chaseEffect();
+    //void fadeInOutEffect();
 
 private:
     HT16K33 movesDisplay;
@@ -273,9 +281,6 @@ private:
     CRGB ws2812_buffer[LED_COUNT];
     CRGBPalette16 currentPalette;
     TBlendType    currentBlending;
-
-
-    WS2812FX ws2812fx;
 
     MoneyController& moneyController;
     OledController oledController;

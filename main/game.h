@@ -38,7 +38,7 @@
 #define GAME_H
 
 
-#include <string>
+#include <cstring>
 
 #include "audiocontroller.h"
 #include "displaycontroller.h"

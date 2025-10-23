@@ -64,11 +64,11 @@
 #include "game.h"
 #include "moneycontroller.h"
 
-
-using namespace std;
+#include "FastLED.h"
+#include "fl/fill.h"
 
 static const char* TAG = "DisplayController";
-static string vfdText;
+static std::string vfdText;
 
 DisplayController::DisplayController(MoneyController& moneyController,
                                      I2CManager& i2cmgr)
@@ -95,7 +95,7 @@ esp_err_t DisplayController::initialise()
 
     this->buttonStatus = 0;
 
-    FastLED.addLeds<WS2812B, LED_GPIO, GRB>(ws2812_buffer, LED_COUNT).setCorrection( TypicalLEDStrip );
+    FastLED.addLeds<WS2812, LED_GPIO, GRB>(ws2812_buffer, LED_COUNT).setCorrection( TypicalLEDStrip );
     FastLED.setBrightness(MAX_BRIGHTNESS);
     currentPalette = RainbowColors_p;
     currentBlending = LINEARBLEND;
@@ -283,7 +283,7 @@ uint8_t DisplayController::waitForButton(uint8_t mask) const
     return this->buttonStatus;
 }
 
-void DisplayController::displayVFDText(const string& text)
+void DisplayController::displayVFDText(const std::string& text)
 {
     // Only update if we need to
     if (vfdText != text)
@@ -373,168 +373,168 @@ void DisplayController::attractModeTask()
     }
 }
 
-void DisplayController::fadeInOutEffect()
-{
-    resetLampData();
+// void DisplayController::fadeInOutEffect()
+// {
+//     resetLampData();
+//
+//     // Trail lamps fade in
+//     for (int i = 0; i < MAX_BRIGHTNESS; i += 2)
+//     {
+//         for (int j : TRAIL_LAMPS)
+//         {
+//             if (!isAttractMode())
+//             {
+//                 return;
+//             }
+//             lampData[j].rgb = rgbFromValues(i, i, i);
+//             lampData[j].lampState = LampState::on;
+//         }
+//         std::this_thread::sleep_for(std::chrono::milliseconds(30));
+//     }
+//
+//     // Nudge lamps fade in
+//     for (int i = 0; i < MAX_BRIGHTNESS; i += 2)
+//     {
+//         for (int j : NUDGE_LAMPS)
+//         {
+//             if (!isAttractMode())
+//             {
+//                 return;
+//             }
+//             lampData[j].rgb = rgbFromValues(i, i, i);
+//             lampData[j].lampState = LampState::on;
+//         }
+//         std::this_thread::sleep_for(std::chrono::milliseconds(30));
+//     }
+//
+//     // Trail lamps fade out
+//     for (int i = MAX_BRIGHTNESS; i > 0; i -= 2)
+//     {
+//         for (int j : TRAIL_LAMPS)
+//         {
+//             if (!isAttractMode())
+//             {
+//                 return;
+//             }
+//             lampData[j].rgb = rgbFromValues(i, i, i);
+//             lampData[j].lampState = LampState::on;
+//         }
+//         std::this_thread::sleep_for(std::chrono::milliseconds(30));
+//     }
+//
+//     // Feature lamps fade in
+//     for (int i = 0; i < MAX_BRIGHTNESS; i += 2)
+//     {
+//         for (int j : FEATURE_LAMPS)
+//         {
+//             if (!isAttractMode())
+//             {
+//                 return;
+//             }
+//             lampData[j].rgb = rgbFromValues(i, i, i);
+//             lampData[j].lampState = LampState::on;
+//         }
+//         std::this_thread::sleep_for(std::chrono::milliseconds(30));
+//     }
+//
+//     // Nudge lamps fade out
+//     for (int i = MAX_BRIGHTNESS; i > 0; i -= 2)
+//     {
+//         for (int j : NUDGE_LAMPS)
+//         {
+//             if (!isAttractMode())
+//             {
+//                 return;
+//             }
+//             lampData[j].rgb = rgbFromValues(i, i, i);
+//             lampData[j].lampState = LampState::on;
+//         }
+//         std::this_thread::sleep_for(std::chrono::milliseconds(30));
+//     }
+//
+//     // Feature lamps fade out
+//     for (int i = MAX_BRIGHTNESS; i > 0; i -= 2)
+//     {
+//         for (int j : FEATURE_LAMPS)
+//         {
+//             if (!isAttractMode())
+//             {
+//                 return;
+//             }
+//             lampData[j].rgb = rgbFromValues(i, i, i);
+//             lampData[j].lampState = (LampState::on);
+//         }
+//         std::this_thread::sleep_for(std::chrono::milliseconds(30));
+//     }
+// }
+//
+// void DisplayController::chaseEffect()
+// {
+//     // Red trail effect
+//     resetLampData();
+//
+//     for (int j = 0; j < 5; j++)
+//     {
+//         // Trail
+//         for (int i : TRAIL_LAMPS)
+//         {
+//             if (this->attractMode != true)
+//             {
+//                 return;
+//             }
+//             lampData.at(i).rgb =
+//                 rgbFromValues(0, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+//             lampData.at(i).lampState = LampState::on;
+//             std::this_thread::sleep_for(std::chrono::milliseconds(25));
+//         }
+//
+//         for (int i : TRAIL_LAMPS)
+//         {
+//             if (this->attractMode != true)
+//             {
+//                 return;
+//             }
+//             lampData.at(i).lampState = (LampState::off);
+//             std::this_thread::sleep_for(std::chrono::milliseconds(25));
+//         }
+//     }
+// }
 
-    // Trail lamps fade in
-    for (int i = 0; i < MAX_BRIGHTNESS; i += 2)
-    {
-        for (int j : TRAIL_LAMPS)
-        {
-            if (!isAttractMode())
-            {
-                return;
-            }
-            lampData[j].rgb = rgbFromValues(i, i, i);
-            lampData[j].lampState = LampState::on;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
-    }
-
-    // Nudge lamps fade in
-    for (int i = 0; i < MAX_BRIGHTNESS; i += 2)
-    {
-        for (int j : NUDGE_LAMPS)
-        {
-            if (!isAttractMode())
-            {
-                return;
-            }
-            lampData[j].rgb = rgbFromValues(i, i, i);
-            lampData[j].lampState = LampState::on;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
-    }
-
-    // Trail lamps fade out
-    for (int i = MAX_BRIGHTNESS; i > 0; i -= 2)
-    {
-        for (int j : TRAIL_LAMPS)
-        {
-            if (!isAttractMode())
-            {
-                return;
-            }
-            lampData[j].rgb = rgbFromValues(i, i, i);
-            lampData[j].lampState = LampState::on;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
-    }
-
-    // Feature lamps fade in
-    for (int i = 0; i < MAX_BRIGHTNESS; i += 2)
-    {
-        for (int j : FEATURE_LAMPS)
-        {
-            if (!isAttractMode())
-            {
-                return;
-            }
-            lampData[j].rgb = rgbFromValues(i, i, i);
-            lampData[j].lampState = LampState::on;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
-    }
-
-    // Nudge lamps fade out
-    for (int i = MAX_BRIGHTNESS; i > 0; i -= 2)
-    {
-        for (int j : NUDGE_LAMPS)
-        {
-            if (!isAttractMode())
-            {
-                return;
-            }
-            lampData[j].rgb = rgbFromValues(i, i, i);
-            lampData[j].lampState = LampState::on;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
-    }
-
-    // Feature lamps fade out
-    for (int i = MAX_BRIGHTNESS; i > 0; i -= 2)
-    {
-        for (int j : FEATURE_LAMPS)
-        {
-            if (!isAttractMode())
-            {
-                return;
-            }
-            lampData[j].rgb = rgbFromValues(i, i, i);
-            lampData[j].lampState = (LampState::on);
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
-    }
-}
-
-void DisplayController::chaseEffect()
-{
-    // Red trail effect
-    resetLampData();
-
-    for (int j = 0; j < 5; j++)
-    {
-        // Trail
-        for (int i : TRAIL_LAMPS)
-        {
-            if (this->attractMode != true)
-            {
-                return;
-            }
-            lampData.at(i).rgb =
-                rgbFromValues(0, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
-            lampData.at(i).lampState = LampState::on;
-            std::this_thread::sleep_for(std::chrono::milliseconds(25));
-        }
-
-        for (int i : TRAIL_LAMPS)
-        {
-            if (this->attractMode != true)
-            {
-                return;
-            }
-            lampData.at(i).lampState = (LampState::off);
-            std::this_thread::sleep_for(std::chrono::milliseconds(25));
-        }
-    }
-}
-
-void DisplayController::rainbowEffect()
-{
-    uint8_t start_rgb = 0;
-
-    // Rainbow effect (10 repeats)
-    for (int k = 0; k < 10; k++)
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = i; j < LED_COUNT; j += 3)
-            {
-                if (!this->attractMode)
-                {
-                    return;
-                }
-
-                // Build RGB values
-                uint8_t hue = j * 360 / LED_COUNT + start_rgb;
-                uint8_t sat = 255;
-                uint8_t val = 255;
-
-                // Write RGB values to strip driver
-                CRGB rgbData = {};
-                hsvToRgbRainbow(hue, sat, val, rgbData);
-                lampData.at(j).rgb = rgbData;
-                lampData.at(j).lampState = LampState::on;
-            }
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
-        }
-        start_rgb += 60;
-    }
-
-    resetLampData();
-}
+// void DisplayController::rainbowEffect()
+// {
+//     uint8_t start_rgb = 0;
+//
+//     // Rainbow effect (10 repeats)
+//     for (int k = 0; k < 10; k++)
+//     {
+//         for (int i = 0; i < 3; i++)
+//         {
+//             for (int j = i; j < LED_COUNT; j += 3)
+//             {
+//                 if (!this->attractMode)
+//                 {
+//                     return;
+//                 }
+//
+//                 // Build RGB values
+//                 uint8_t hue = j * 360 / LED_COUNT + start_rgb;
+//                 uint8_t sat = 255;
+//                 uint8_t val = 255;
+//
+//                 // Write RGB values to strip driver
+//                 CRGB rgbData = {};
+//                 hsvToRgbRainbow(hue, sat, val, rgbData);
+//                 lampData.at(j).rgb = rgbData;
+//                 lampData.at(j).lampState = LampState::on;
+//             }
+//
+//             std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
+//         }
+//         start_rgb += 60;
+//     }
+//
+//     resetLampData();
+// }
 
 void DisplayController::blinkLampsTask()
 {
@@ -748,60 +748,6 @@ void DisplayController::updateSevenSegDisplaysTask()
     }
 }
 
-/**
- * @brief Simple helper function, converting HSV color space to RGB color space
- *
- * Wiki: https://en.wikipedia.org/wiki/HSL_and_HSV
- *
- */
-void DisplayController::hsvToRgb(uint8_t h, uint8_t s, uint8_t v,
-                                 CRGB& rgb)
-{
-    h %= 360; // h -> [0,360]
-    uint8_t rgb_max = v * 2.55f;
-    uint8_t rgb_min = rgb_max * (100 - s) / 100.0f;
-
-    uint8_t i = h / 60;
-    uint8_t diff = h % 60;
-
-    // RGB adjustment amount by hue
-    uint8_t rgb_adj = (rgb_max - rgb_min) * diff / 60;
-
-    switch (i)
-    {
-    case 0:
-        rgb.r = rgb_max;
-        rgb.g = rgb_min + rgb_adj;
-        rgb.b = rgb_min;
-        break;
-    case 1:
-        rgb.r = rgb_max - rgb_adj;
-        rgb.g = rgb_max;
-        rgb.b = rgb_min;
-        break;
-    case 2:
-        rgb.r = rgb_min;
-        rgb.g = rgb_max;
-        rgb.b = rgb_min + rgb_adj;
-        break;
-    case 3:
-        rgb.r = rgb_min;
-        rgb.g = rgb_max - rgb_adj;
-        rgb.b = rgb_max;
-        break;
-    case 4:
-        rgb.r = rgb_min + rgb_adj;
-        rgb.g = rgb_min;
-        rgb.b = rgb_max;
-        break;
-    default:
-        rgb.r = rgb_max;
-        rgb.g = rgb_min;
-        rgb.b = rgb_max - rgb_adj;
-        break;
-    }
-}
-
 CRGB DisplayController::rgbFromValues(uint8_t red, uint8_t green, uint8_t blue)
 {
     CRGB result;
@@ -885,7 +831,7 @@ void DisplayController::SetupPurpleAndGreenPalette()
 // which is stored in PROGMEM (flash), which is almost always more
 // plentiful than RAM.  A static PROGMEM palette like this
 // takes up 64 bytes of flash.
-const TProgmemPalette16 myRedWhiteBluePalette_p FL_PROGMEM =
+const TProgmemPalette16 myRedWhiteBluePalette_p =
 {
     CRGB::Red,
     CRGB::Gray, // 'white' is too bright compared to red and blue

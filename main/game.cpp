@@ -156,7 +156,7 @@ void Game::shuffleReels(bool holdLeft, bool holdCentre, bool holdRight) const
 
 void Game::playNormalSpin()
 {
-    uint8_t nudges = random8_to(5); // 0 - 5
+    uint8_t nudges = random8(5); // 0 - 5
     bool hold = offerHold();
 
     this->displayController.getLampData()
@@ -753,7 +753,7 @@ void Game::playFreeSpin()
     DisplayController::displayVFDText("     FREE SPIN!     ");
 
     // loop waiting for button press.
-    displayController.waitForButton(BTN_START);
+    uint8_t buttonVal = displayController.waitForButton(BTN_START);
 
     this->audioController.playAudioFile(Sounds::SND_NOW_THATS_ICE);
 

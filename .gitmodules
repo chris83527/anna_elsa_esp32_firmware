@@ -1,3 +1,7 @@
 [submodule "components/esp_littlefs"]
 	path = components/esp_littlefs
 	url = https://github.com/joltwallet/esp_littlefs.git
+
+[submodule "components/FastLED"]
+    path = "components/FastLED"
+    url = https://github.com/FastLED/FastLED.git
