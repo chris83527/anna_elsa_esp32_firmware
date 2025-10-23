@@ -5,3 +5,6 @@
 [submodule "components/FastLED"]
     path = "components/FastLED"
     url = https://github.com/FastLED/FastLED.git
+[submodule "components/arduino-esp32"]
+	path = components/arduino-esp32
+	url = https://github.com/espressif/arduino-esp32.git
