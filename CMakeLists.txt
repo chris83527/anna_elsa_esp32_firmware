@@ -10,7 +10,7 @@ set(EXTRA_COMPONENT_DIRS
 "components/mcp23008" 
 "components/ds3231" 
 "components/esp_littlefs"
-"components/FastLED/"
+"components/FastLED"
 "components/arduino-esp32"
 "/home/chris/esp/esp-idf/components/esp_hw_support"
 "/home/chris/esp/esp-idf/components/nvs_flash"

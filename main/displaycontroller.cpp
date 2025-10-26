@@ -64,6 +64,10 @@
 #include "game.h"
 #include "moneycontroller.h"
 
+
+#define FASTLED_ESP32_I2S
+#define FASTLED_ESP32_I2S_NUM_DMA_BUFFERS 4
+
 #include "FastLED.h"
 #include "fl/fill.h"
 
@@ -95,7 +99,7 @@ esp_err_t DisplayController::initialise()
 
     this->buttonStatus = 0;
 
-    FastLED.addLeds<WS2812, LED_GPIO, GRB>(ws2812_buffer, LED_COUNT).setCorrection( TypicalLEDStrip );
+    FastLED.addLeds<WS2812B, LED_GPIO, GRB>(ws2812_buffer, LED_COUNT).setCorrection( TypicalLEDStrip );
     FastLED.setBrightness(MAX_BRIGHTNESS);
     currentPalette = RainbowColors_p;
     currentBlending = LINEARBLEND;
@@ -217,7 +221,7 @@ void DisplayController::testLamps()
     // initialise lamps
     // switch all LEDs on;
     resetLampData();
-    for (int i = 0; i < (LED_COUNT + 6); i++)
+    for (int i = 0; i < (LED_COUNT); i++)
     {
         lampData.at(i).lampState = LampState::on;
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -762,7 +766,7 @@ void DisplayController::FillLEDsFromPaletteColors( uint8_t colorIndex)
     uint8_t brightness = MAX_BRIGHTNESS;
 
     for( int i = 0; i < LED_COUNT; ++i) {
-        lampData[i].activeRgb = ColorFromPalette( currentPalette, colorIndex, brightness, currentBlending);
+        lampData[i].rgb = ColorFromPalette( currentPalette, colorIndex, brightness, currentBlending);
         colorIndex += 3;
     }
 }
