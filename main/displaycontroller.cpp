@@ -187,9 +187,9 @@ void DisplayController::resetLampData()
     // initialise lamps
     for (int i = 0; i < (LED_COUNT + 6); i++)
     {
-        lampData.at(i).lampState = LampState::off;
+        lampData[i].lampState = LampState::off;
         // set lamp colour to white
-        lampData.at(i).rgb = rgbFromValues(
+        lampData[i].rgb = rgbFromValues(
             MAX_BRIGHTNESS, MAX_BRIGHTNESS,
             MAX_BRIGHTNESS); // changed from 255 to try and prevent voltage drop
         // browning out vfd display
@@ -224,8 +224,8 @@ void DisplayController::testLamps()
     resetLampData();
     for (int i = 0; i < (LED_COUNT); i++)
     {
-        lampData.at(i).lampState = LampState::on;
-		lampData[i].rgb = rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+        lampData[i].lampState = LampState::on;
+        lampData[i].rgb = rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     resetLampData();
@@ -318,7 +318,7 @@ HT16K33& DisplayController::getMovesDisplay() { return this->movesDisplay; }
 void DisplayController::attractModeTask()
 {
     ESP_LOGI(TAG, "Attract mode thread started");
-	static uint8_t startIndex = 0;
+    static uint8_t startIndex = 0;
     while (true)
     {
         if (this->isAttractMode())
@@ -331,7 +331,7 @@ void DisplayController::attractModeTask()
         }
         else
         {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            std::this_thread::yield();
         }
     }
 }
@@ -445,9 +445,9 @@ void DisplayController::chaseEffect()
             {
                 return;
             }
-            lampData.at(i).rgb =
+            lampData[i].rgb =
                 rgbFromValues(0, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
-            lampData.at(i).lampState = LampState::on;
+            lampData[i].lampState = LampState::on;
             std::this_thread::sleep_for(std::chrono::milliseconds(30));
         }
 
@@ -457,7 +457,7 @@ void DisplayController::chaseEffect()
             {
                 return;
             }
-            lampData.at(i).lampState = (LampState::off);
+            lampData[i].lampState = (LampState::off);
             std::this_thread::sleep_for(std::chrono::milliseconds(30));
         }
     }
@@ -507,25 +507,25 @@ void DisplayController::blinkLampsTask()
 
         for (int i = 0; i < (LED_COUNT + 6); i++)
         {
-            if (this->lampData.at(i).lampState == LampState::on ||
-                this->lampData.at(i).lampState == LampState::blinkfast ||
-                this->lampData.at(i).lampState == LampState::blinkslow)
+            if (this->lampData[i].lampState == LampState::on ||
+                this->lampData[i].lampState == LampState::blinkfast ||
+                this->lampData[i].lampState == LampState::blinkslow)
             {
                 if (i < LED_COUNT)
                 {
-                    this->lampData.at(i).activeRgb = this->lampData.at(i).rgb;
+                    this->lampData[i].activeRgb = this->lampData[i].rgb;
                 }
                 else
                 {
                     // non- RGB button lamps
-                    this->lampData.at(i).activeRgb =
+                    this->lampData[i].activeRgb =
                         rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
                 }
             }
             else
             {
                 // Set active rgb value to 0 (off or black)
-                this->lampData.at(i).activeRgb = rgbFromValues(0, 0, 0);
+                this->lampData[i].activeRgb = rgbFromValues(0, 0, 0);
             }
         }
 
@@ -533,24 +533,24 @@ void DisplayController::blinkLampsTask()
 
         for (int i = 0; i < (LED_COUNT + 6); i++)
         {
-            if (this->lampData.at(i).lampState == LampState::on ||
-                this->lampData.at(i).lampState == LampState::blinkslow)
+            if (this->lampData[i].lampState == LampState::on ||
+                this->lampData[i].lampState == LampState::blinkslow)
             {
                 if (i < LED_COUNT)
                 {
-                    this->lampData.at(i).activeRgb = this->lampData.at(i).rgb;
+                    this->lampData[i].activeRgb = this->lampData[i].rgb;
                 }
                 else
                 {
                     // non- RGB button lamps
-                    this->lampData.at(i).activeRgb =
+                    this->lampData[i].activeRgb =
                         rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
                 }
             }
             else
             {
                 // Set active rgb value to 0 (off or black)
-                this->lampData.at(i).activeRgb = rgbFromValues(0, 0, 0);
+                this->lampData[i].activeRgb = rgbFromValues(0, 0, 0);
             }
         }
 
@@ -558,23 +558,23 @@ void DisplayController::blinkLampsTask()
 
         for (int i = 0; i < (LED_COUNT + 6); i++)
         {
-            if (this->lampData.at(i).lampState == LampState::on)
+            if (this->lampData[i].lampState == LampState::on)
             {
                 if (i < LED_COUNT)
                 {
-                    this->lampData.at(i).activeRgb = this->lampData.at(i).rgb;
+                    this->lampData[i].activeRgb = this->lampData[i].rgb;
                 }
                 else
                 {
                     // non- RGB button lamps
-                    this->lampData.at(i).activeRgb =
+                    this->lampData[i].activeRgb =
                         rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
                 }
             }
             else
             {
                 // Set active rgb value to 0 (off or black)
-                this->lampData.at(i).activeRgb = rgbFromValues(0, 0, 0);
+                this->lampData[i].activeRgb = rgbFromValues(0, 0, 0);
             }
         }
 
@@ -582,24 +582,24 @@ void DisplayController::blinkLampsTask()
 
         for (int i = 0; i < (LED_COUNT + 6); i++)
         {
-            if (this->lampData.at(i).lampState == LampState::on ||
-                this->lampData.at(i).lampState == LampState::blinkfast)
+            if (this->lampData[i].lampState == LampState::on ||
+                this->lampData[i].lampState == LampState::blinkfast)
             {
                 if (i < LED_COUNT)
                 {
-                    this->lampData.at(i).activeRgb = this->lampData.at(i).rgb;
+                    this->lampData[i].activeRgb = this->lampData[i].rgb;
                 }
                 else
                 {
                     // non- RGB button lamps
-                    this->lampData.at(i).activeRgb =
+                    this->lampData[i].activeRgb =
                         rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
                 }
             }
             else
             {
                 // Set active rgb value to 0 (off or black)
-                this->lampData.at(i).activeRgb = rgbFromValues(0, 0, 0);
+                this->lampData[i].activeRgb = rgbFromValues(0, 0, 0);
             }
         }
 
@@ -621,12 +621,11 @@ void DisplayController::updateLampsTask()
 
         // set leds
         lampVal = 0;
-        for (int i = 0; i < (LED_COUNT + 6); i++)
+        for (int i = 0; i < LED_COUNT + 6; i++)
         {
             if (i < LED_COUNT)
             {
-                CRGB ledRGB = this->lampData[i].activeRgb;
-                ws2812_buffer[i] = ledRGB;
+                ws2812_buffer[i] = this->lampData[i].activeRgb;
             }
             else
             {
@@ -657,8 +656,6 @@ void DisplayController::updateLampsTask()
                     case LED_COUNT + 5:
                         lampVal |= (1 << 2); // GPB2
 
-                        break;
-                    default:
                         break;
                     }
                 }
@@ -708,9 +705,9 @@ void DisplayController::updateSevenSegDisplaysTask()
     }
 }
 
-CRGB DisplayController::rgbFromValues(uint8_t red, uint8_t green, uint8_t blue)
+fl::CRGB DisplayController::rgbFromValues(uint8_t red, uint8_t green, uint8_t blue)
 {
-    CRGB result;
+    fl::CRGB result;
     result.red = red;
     result.green = green;
     result.blue = blue;
@@ -725,7 +722,7 @@ void DisplayController::FillLEDsFromPaletteColors(uint8_t colorIndex)
     {
         lampData[i].lampState = LampState::on;
         lampData[i].rgb = ColorFromPalette(currentPalette, colorIndex, brightness, currentBlending);
-lampData[i].activeRgb = lampData[i].rgb;
+        lampData[i].activeRgb = lampData[i].rgb;
         colorIndex += 3;
     }
 }
@@ -818,20 +815,20 @@ void DisplayController::SetupTotallyRandomPalette()
 void DisplayController::SetupBlackAndWhiteStripedPalette()
 {
     // 'black out' all 16 palette entries...
-    fill_solid(currentPalette, 16, CRGB::Black);
+    fill_solid(currentPalette, 16, fl::CRGB::Black);
     // and set every fourth one to white.
-    currentPalette[0] = CRGB::White;
-    currentPalette[4] = CRGB::White;
-    currentPalette[8] = CRGB::White;
-    currentPalette[12] = CRGB::White;
+    currentPalette[0] = fl::CRGB::White;
+    currentPalette[4] = fl::CRGB::White;
+    currentPalette[8] = fl::CRGB::White;
+    currentPalette[12] = fl::CRGB::White;
 }
 
 // This function sets up a palette of purple and green stripes.
 void DisplayController::SetupPurpleAndGreenPalette()
 {
-    CRGB purple = CHSV(HUE_PURPLE, 255, 255);
-    CRGB green = CHSV(HUE_GREEN, 255, 255);
-    CRGB black = CRGB::Black;
+    fl::CRGB purple = CHSV(HUE_PURPLE, 255, 255);
+    fl::CRGB green = CHSV(HUE_GREEN, 255, 255);
+    fl::CRGB black = fl::CRGB::Black;
 
     currentPalette = CRGBPalette16(
         green, green, black, black,
@@ -847,22 +844,22 @@ void DisplayController::SetupPurpleAndGreenPalette()
 // takes up 64 bytes of flash.
 const TProgmemPalette16 myRedWhiteBluePalette_p =
 {
-    CRGB::Red,
-    CRGB::Gray, // 'white' is too bright compared to red and blue
-    CRGB::Blue,
-    CRGB::Black,
+    fl::CRGB::Red,
+    fl::CRGB::Gray, // 'white' is too bright compared to red and blue
+    fl::CRGB::Blue,
+    fl::CRGB::Black,
 
-    CRGB::Red,
-    CRGB::Gray,
-    CRGB::Blue,
-    CRGB::Black,
+    fl::CRGB::Red,
+    fl::CRGB::Gray,
+    fl::CRGB::Blue,
+    fl::CRGB::Black,
 
-    CRGB::Red,
-    CRGB::Red,
-    CRGB::Gray,
-    CRGB::Gray,
-    CRGB::Blue,
-    CRGB::Blue,
-    CRGB::Black,
-    CRGB::Black
+    fl::CRGB::Red,
+    fl::CRGB::Red,
+    fl::CRGB::Gray,
+    fl::CRGB::Gray,
+    fl::CRGB::Blue,
+    fl::CRGB::Blue,
+    fl::CRGB::Black,
+    fl::CRGB::Black
 };

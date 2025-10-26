@@ -76,8 +76,8 @@ public:
 
     struct lamp_data_t
     {
-        CRGB rgb = rgbFromValues(255, 255, 255);
-        CRGB activeRgb = rgbFromValues(255, 255, 255);
+        fl::CRGB rgb = rgbFromValues(255, 255, 255);
+        fl::CRGB activeRgb = rgbFromValues(255, 255, 255);
         LampState lampState = LampState::off;
     };
 
@@ -89,7 +89,7 @@ public:
 
     std::array<lamp_data_t, LED_COUNT + 6>& getLampData();
 
-    static CRGB rgbFromValues(uint8_t red, uint8_t green, uint8_t blue);
+    static fl::CRGB rgbFromValues(uint8_t red, uint8_t green, uint8_t blue);
     void FillLEDsFromPaletteColors(uint8_t colorIndex);
     void ChangePalettePeriodically();
     void SetupTotallyRandomPalette();
@@ -278,7 +278,7 @@ private:
 
     MCP23x17 buttonIO;
 
-    CRGB ws2812_buffer[LED_COUNT];
+    fl::CRGB ws2812_buffer[LED_COUNT];
     CRGBPalette16 currentPalette;
     TBlendType    currentBlending;
 
