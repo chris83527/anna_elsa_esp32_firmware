@@ -66,6 +66,7 @@
 
 
 #define FASTLED_ESP32_I2S
+#define I2S_DEVICE 1
 #define FASTLED_ESP32_I2S_NUM_DMA_BUFFERS 4
 
 #include "FastLED.h"
@@ -131,27 +132,27 @@ esp_err_t DisplayController::initialise()
 
     // Start a new thread to update the lamps
     auto cfg = esp_pthread_get_default_config();
-    cfg.thread_name = "BlinkLamps";
-    cfg.prio = 2;
+    //cfg.thread_name = "BlinkLamps";
+    //cfg.prio = 2;
     cfg.stack_size = 2048;
-    cfg.pin_to_core = 1;
+    //cfg.pin_to_core = 1;
     esp_pthread_set_cfg(&cfg);
     this->blinkLampsThread = std::thread([&]() { blinkLampsTask(); });
     this->blinkLampsThread.detach();
 
     cfg = esp_pthread_get_default_config();
     cfg.thread_name = "UpdateLamps";
-    cfg.prio = 2;
+    //cfg.prio = 2;
     cfg.stack_size = 4096;
-    cfg.pin_to_core = 1;
+    //cfg.pin_to_core = 1;
     esp_pthread_set_cfg(&cfg);
     this->updateLampsThread = std::thread([&]() { updateLampsTask(); });
     this->updateLampsThread.detach();
 
-    cfg = esp_pthread_get_default_config();
+    //cfg = esp_pthread_get_default_config();
     cfg.thread_name = "UpdateSevenSeg";
-    cfg.prio = 1;
-    cfg.pin_to_core = 1;
+    //cfg.prio = 1;
+    //cfg.pin_to_core = 1;
     cfg.stack_size = 4096;
     esp_pthread_set_cfg(&cfg);
     // Start a thread to update the 7-segment displays
@@ -162,12 +163,12 @@ esp_err_t DisplayController::initialise()
     this->testLamps();
 
     this->attractMode = false;
-    cfg = esp_pthread_get_default_config();
+    //cfg = esp_pthread_get_default_config();
     cfg.thread_name = "AttractMode";
-    cfg.prio = 1;
-    cfg.pin_to_core = 1;
-    cfg.stack_size = 4096;
-    esp_pthread_set_cfg(&cfg);
+    //cfg.prio = 1;
+    //cfg.pin_to_core = 1;
+    //cfg.stack_size = 4096;
+    //esp_pthread_set_cfg(&cfg);
     this->attractModeThread = std::thread([&]() { attractModeTask(); });
     this->attractModeThread.detach();
 
@@ -224,6 +225,7 @@ void DisplayController::testLamps()
     for (int i = 0; i < (LED_COUNT); i++)
     {
         lampData.at(i).lampState = LampState::on;
+		lampData[i].rgb = rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     resetLampData();
@@ -316,18 +318,16 @@ HT16K33& DisplayController::getMovesDisplay() { return this->movesDisplay; }
 void DisplayController::attractModeTask()
 {
     ESP_LOGI(TAG, "Attract mode thread started");
-
+	static uint8_t startIndex = 0;
     while (true)
     {
         if (this->isAttractMode())
         {
             ChangePalettePeriodically();
 
-            static uint8_t startIndex = 0;
-
             startIndex++; /* motion speed */
             FillLEDsFromPaletteColors(startIndex);
-            std::this_thread::sleep_for(std::chrono::seconds(20));
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
         }
         else
         {
@@ -625,7 +625,7 @@ void DisplayController::updateLampsTask()
         {
             if (i < LED_COUNT)
             {
-                CRGB ledRGB = this->lampData.at(i).activeRgb;
+                CRGB ledRGB = this->lampData[i].activeRgb;
                 ws2812_buffer[i] = ledRGB;
             }
             else
@@ -633,9 +633,9 @@ void DisplayController::updateLampsTask()
                 // GPB1 and GPB0 are unconnected
                 // activeRgb value must be have have at least one channel (r, g or b)
                 // with a positive value to light
-                if (this->lampData.at(i).activeRgb.r > 0 ||
-                    this->lampData.at(i).activeRgb.g > 0 ||
-                    this->lampData.at(i).activeRgb.b > 0)
+                if (this->lampData[i].activeRgb.r > 0 ||
+                    this->lampData[i].activeRgb.g > 0 ||
+                    this->lampData[i].activeRgb.b > 0)
                 {
                     switch (i)
                     {
@@ -725,6 +725,7 @@ void DisplayController::FillLEDsFromPaletteColors(uint8_t colorIndex)
     {
         lampData[i].lampState = LampState::on;
         lampData[i].rgb = ColorFromPalette(currentPalette, colorIndex, brightness, currentBlending);
+lampData[i].activeRgb = lampData[i].rgb;
         colorIndex += 3;
     }
 }
