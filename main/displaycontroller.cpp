@@ -99,7 +99,7 @@ esp_err_t DisplayController::initialise()
 
     this->buttonStatus = 0;
 
-    FastLED.addLeds<WS2812B, LED_GPIO, GRB>(ws2812_buffer, LED_COUNT).setCorrection( TypicalLEDStrip );
+    FastLED.addLeds<WS2812B, LED_GPIO, GRB>(ws2812_buffer, LED_COUNT).setCorrection(TypicalLEDStrip);
     FastLED.setBrightness(MAX_BRIGHTNESS);
     currentPalette = RainbowColors_p;
     currentBlending = LINEARBLEND;
@@ -326,49 +326,8 @@ void DisplayController::attractModeTask()
             static uint8_t startIndex = 0;
 
             startIndex++; /* motion speed */
-            FillLEDsFromPaletteColors( startIndex);
-
-            if (this->isAttractMode())
-            {
-                displayVFDText("  WOODS AMUSEMENTS  ");
-            }
-            startIndex++; /* motion speed */
-            FillLEDsFromPaletteColors( startIndex);
-            std::this_thread::sleep_for(std::chrono::seconds(5));
-
-            if (this->isAttractMode())
-            {
-                displayVFDText("      PRESENTS      ");
-            }
-            startIndex++; /* motion speed */
-            FillLEDsFromPaletteColors( startIndex);
-            std::this_thread::sleep_for(std::chrono::seconds(5));
-
-            if (this->isAttractMode())
-            {
-                resetLampData();
-                displayVFDText("       FROZEN       ");
-            }
-            startIndex++; /* motion speed */
-            FillLEDsFromPaletteColors( startIndex);
-            std::this_thread::sleep_for(std::chrono::seconds(5));
-
-            if (this->isAttractMode())
-            {
-                displayVFDText("     20CT GAME      ");
-            }
-
-            startIndex++; /* motion speed */
-            FillLEDsFromPaletteColors( startIndex);
-            std::this_thread::sleep_for(std::chrono::seconds(5));
-
-            if (this->isAttractMode())
-                displayVFDText("    INSERT COINS    ");
-
-            if (this->isAttractMode())
-                startIndex++; /* motion speed */
-            FillLEDsFromPaletteColors( startIndex);
-                std::this_thread::sleep_for(std::chrono::seconds(5));
+            FillLEDsFromPaletteColors(startIndex);
+            std::this_thread::sleep_for(std::chrono::seconds(20));
         }
         else
         {
@@ -377,132 +336,132 @@ void DisplayController::attractModeTask()
     }
 }
 
-// void DisplayController::fadeInOutEffect()
-// {
-//     resetLampData();
-//
-//     // Trail lamps fade in
-//     for (int i = 0; i < MAX_BRIGHTNESS; i += 2)
-//     {
-//         for (int j : TRAIL_LAMPS)
-//         {
-//             if (!isAttractMode())
-//             {
-//                 return;
-//             }
-//             lampData[j].rgb = rgbFromValues(i, i, i);
-//             lampData[j].lampState = LampState::on;
-//         }
-//         std::this_thread::sleep_for(std::chrono::milliseconds(30));
-//     }
-//
-//     // Nudge lamps fade in
-//     for (int i = 0; i < MAX_BRIGHTNESS; i += 2)
-//     {
-//         for (int j : NUDGE_LAMPS)
-//         {
-//             if (!isAttractMode())
-//             {
-//                 return;
-//             }
-//             lampData[j].rgb = rgbFromValues(i, i, i);
-//             lampData[j].lampState = LampState::on;
-//         }
-//         std::this_thread::sleep_for(std::chrono::milliseconds(30));
-//     }
-//
-//     // Trail lamps fade out
-//     for (int i = MAX_BRIGHTNESS; i > 0; i -= 2)
-//     {
-//         for (int j : TRAIL_LAMPS)
-//         {
-//             if (!isAttractMode())
-//             {
-//                 return;
-//             }
-//             lampData[j].rgb = rgbFromValues(i, i, i);
-//             lampData[j].lampState = LampState::on;
-//         }
-//         std::this_thread::sleep_for(std::chrono::milliseconds(30));
-//     }
-//
-//     // Feature lamps fade in
-//     for (int i = 0; i < MAX_BRIGHTNESS; i += 2)
-//     {
-//         for (int j : FEATURE_LAMPS)
-//         {
-//             if (!isAttractMode())
-//             {
-//                 return;
-//             }
-//             lampData[j].rgb = rgbFromValues(i, i, i);
-//             lampData[j].lampState = LampState::on;
-//         }
-//         std::this_thread::sleep_for(std::chrono::milliseconds(30));
-//     }
-//
-//     // Nudge lamps fade out
-//     for (int i = MAX_BRIGHTNESS; i > 0; i -= 2)
-//     {
-//         for (int j : NUDGE_LAMPS)
-//         {
-//             if (!isAttractMode())
-//             {
-//                 return;
-//             }
-//             lampData[j].rgb = rgbFromValues(i, i, i);
-//             lampData[j].lampState = LampState::on;
-//         }
-//         std::this_thread::sleep_for(std::chrono::milliseconds(30));
-//     }
-//
-//     // Feature lamps fade out
-//     for (int i = MAX_BRIGHTNESS; i > 0; i -= 2)
-//     {
-//         for (int j : FEATURE_LAMPS)
-//         {
-//             if (!isAttractMode())
-//             {
-//                 return;
-//             }
-//             lampData[j].rgb = rgbFromValues(i, i, i);
-//             lampData[j].lampState = (LampState::on);
-//         }
-//         std::this_thread::sleep_for(std::chrono::milliseconds(30));
-//     }
-// }
-//
-// void DisplayController::chaseEffect()
-// {
-//     // Red trail effect
-//     resetLampData();
-//
-//     for (int j = 0; j < 5; j++)
-//     {
-//         // Trail
-//         for (int i : TRAIL_LAMPS)
-//         {
-//             if (this->attractMode != true)
-//             {
-//                 return;
-//             }
-//             lampData.at(i).rgb =
-//                 rgbFromValues(0, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
-//             lampData.at(i).lampState = LampState::on;
-//             std::this_thread::sleep_for(std::chrono::milliseconds(25));
-//         }
-//
-//         for (int i : TRAIL_LAMPS)
-//         {
-//             if (this->attractMode != true)
-//             {
-//                 return;
-//             }
-//             lampData.at(i).lampState = (LampState::off);
-//             std::this_thread::sleep_for(std::chrono::milliseconds(25));
-//         }
-//     }
-// }
+void DisplayController::fadeInOutEffect()
+{
+    resetLampData();
+
+    // Trail lamps fade in
+    for (int i = 0; i < MAX_BRIGHTNESS; i += 2)
+    {
+        for (int j : TRAIL_LAMPS)
+        {
+            if (!isAttractMode())
+            {
+                return;
+            }
+            lampData[j].rgb = rgbFromValues(i, i, i);
+            lampData[j].lampState = LampState::on;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    }
+
+    // Nudge lamps fade in
+    for (int i = 0; i < MAX_BRIGHTNESS; i += 2)
+    {
+        for (int j : NUDGE_LAMPS)
+        {
+            if (!isAttractMode())
+            {
+                return;
+            }
+            lampData[j].rgb = rgbFromValues(i, i, i);
+            lampData[j].lampState = LampState::on;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    }
+
+    // Trail lamps fade out
+    for (int i = MAX_BRIGHTNESS; i > 0; i -= 2)
+    {
+        for (int j : TRAIL_LAMPS)
+        {
+            if (!isAttractMode())
+            {
+                return;
+            }
+            lampData[j].rgb = rgbFromValues(i, i, i);
+            lampData[j].lampState = LampState::on;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    }
+
+    // Feature lamps fade in
+    for (int i = 0; i < MAX_BRIGHTNESS; i += 2)
+    {
+        for (int j : FEATURE_LAMPS)
+        {
+            if (!isAttractMode())
+            {
+                return;
+            }
+            lampData[j].rgb = rgbFromValues(i, i, i);
+            lampData[j].lampState = LampState::on;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    }
+
+    // Nudge lamps fade out
+    for (int i = MAX_BRIGHTNESS; i > 0; i -= 2)
+    {
+        for (int j : NUDGE_LAMPS)
+        {
+            if (!isAttractMode())
+            {
+                return;
+            }
+            lampData[j].rgb = rgbFromValues(i, i, i);
+            lampData[j].lampState = LampState::on;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    }
+
+    // Feature lamps fade out
+    for (int i = MAX_BRIGHTNESS; i > 0; i -= 2)
+    {
+        for (int j : FEATURE_LAMPS)
+        {
+            if (!isAttractMode())
+            {
+                return;
+            }
+            lampData[j].rgb = rgbFromValues(i, i, i);
+            lampData[j].lampState = (LampState::on);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    }
+}
+
+void DisplayController::chaseEffect()
+{
+    // Red trail effect
+    resetLampData();
+
+    for (int j = 0; j < 5; j++)
+    {
+        // Trail
+        for (int i : TRAIL_LAMPS)
+        {
+            if (this->attractMode != true)
+            {
+                return;
+            }
+            lampData.at(i).rgb =
+                rgbFromValues(0, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+            lampData.at(i).lampState = LampState::on;
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        }
+
+        for (int i : TRAIL_LAMPS)
+        {
+            if (this->attractMode != true)
+            {
+                return;
+            }
+            lampData.at(i).lampState = (LampState::off);
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        }
+    }
+}
 
 // void DisplayController::rainbowEffect()
 // {
@@ -664,12 +623,9 @@ void DisplayController::updateLampsTask()
         lampVal = 0;
         for (int i = 0; i < (LED_COUNT + 6); i++)
         {
-            // ESP_LOGD(TAG, "Switching on pixel %d with r: %d, g: %d, b: %d", i,
-            // tmpLampData[i].rgb.r, tmpLampData[i].rgb.g, tmpLampData[i].rgb.b);
             if (i < LED_COUNT)
             {
                 CRGB ledRGB = this->lampData.at(i).activeRgb;
-                //led_strip_set_pixel(ledStripHandle, i, ledRGB.r, ledRGB.g, ledRGB.b);
                 ws2812_buffer[i] = ledRGB;
             }
             else
@@ -761,12 +717,14 @@ CRGB DisplayController::rgbFromValues(uint8_t red, uint8_t green, uint8_t blue)
     return result;
 }
 
-void DisplayController::FillLEDsFromPaletteColors( uint8_t colorIndex)
+void DisplayController::FillLEDsFromPaletteColors(uint8_t colorIndex)
 {
     uint8_t brightness = MAX_BRIGHTNESS;
 
-    for( int i = 0; i < LED_COUNT; ++i) {
-        lampData[i].rgb = ColorFromPalette( currentPalette, colorIndex, brightness, currentBlending);
+    for (int i = 0; i < LED_COUNT; ++i)
+    {
+        lampData[i].lampState = LampState::on;
+        lampData[i].rgb = ColorFromPalette(currentPalette, colorIndex, brightness, currentBlending);
         colorIndex += 3;
     }
 }
@@ -776,27 +734,79 @@ void DisplayController::ChangePalettePeriodically()
     uint8_t secondHand = (millis() / 1000) % 60;
     static uint8_t lastSecond = 99;
 
-    if( lastSecond != secondHand) {
+    if (lastSecond != secondHand)
+    {
         lastSecond = secondHand;
-        if( secondHand ==  0)  { currentPalette = RainbowColors_p;         currentBlending = LINEARBLEND; }
-        if( secondHand == 10)  { currentPalette = RainbowStripeColors_p;   currentBlending = NOBLEND;  }
-        if( secondHand == 15)  { currentPalette = RainbowStripeColors_p;   currentBlending = LINEARBLEND; }
-        if( secondHand == 20)  { SetupPurpleAndGreenPalette();             currentBlending = LINEARBLEND; }
-        if( secondHand == 25)  { SetupTotallyRandomPalette();              currentBlending = LINEARBLEND; }
-        if( secondHand == 30)  { SetupBlackAndWhiteStripedPalette();       currentBlending = NOBLEND; }
-        if( secondHand == 35)  { SetupBlackAndWhiteStripedPalette();       currentBlending = LINEARBLEND; }
-        if( secondHand == 40)  { currentPalette = CloudColors_p;           currentBlending = LINEARBLEND; }
-        if( secondHand == 45)  { currentPalette = PartyColors_p;           currentBlending = LINEARBLEND; }
-        if( secondHand == 50)  { currentPalette = myRedWhiteBluePalette_p; currentBlending = NOBLEND;  }
-        if( secondHand == 55)  { currentPalette = myRedWhiteBluePalette_p; currentBlending = LINEARBLEND; }
+        if (secondHand == 0)
+        {
+            displayVFDText("  WOODS AMUSEMENTS  ");
+            currentPalette = RainbowColors_p;
+            currentBlending = LINEARBLEND;
+        }
+        if (secondHand == 10)
+        {
+            displayVFDText("      PRESENTS      ");
+            currentPalette = RainbowStripeColors_p;
+            currentBlending = NOBLEND;
+        }
+        if (secondHand == 15)
+        {
+            displayVFDText("       FROZEN       ");
+            currentPalette = RainbowStripeColors_p;
+            currentBlending = LINEARBLEND;
+        }
+        if (secondHand == 20)
+        {
+            SetupPurpleAndGreenPalette();
+            currentBlending = LINEARBLEND;
+        }
+        if (secondHand == 25)
+        {
+            displayVFDText("     20CT GAME      ");
+
+            SetupTotallyRandomPalette();
+            currentBlending = LINEARBLEND;
+        }
+        if (secondHand == 30)
+        {
+            displayVFDText("    INSERT COINS    ");
+            SetupBlackAndWhiteStripedPalette();
+            currentBlending = NOBLEND;
+        }
+        if (secondHand == 35)
+        {
+            SetupBlackAndWhiteStripedPalette();
+            currentBlending = LINEARBLEND;
+        }
+        if (secondHand == 40)
+        {
+            currentPalette = CloudColors_p;
+            currentBlending = LINEARBLEND;
+        }
+        if (secondHand == 45)
+        {
+            currentPalette = PartyColors_p;
+            currentBlending = LINEARBLEND;
+        }
+        if (secondHand == 50)
+        {
+            currentPalette = myRedWhiteBluePalette_p;
+            currentBlending = NOBLEND;
+        }
+        if (secondHand == 55)
+        {
+            currentPalette = myRedWhiteBluePalette_p;
+            currentBlending = LINEARBLEND;
+        }
     }
 }
 
 // This function fills the palette with totally random colors.
 void DisplayController::SetupTotallyRandomPalette()
 {
-    for( int i = 0; i < 16; ++i) {
-        currentPalette[i] = CHSV( random8(), 255, random8());
+    for (int i = 0; i < 16; ++i)
+    {
+        currentPalette[i] = CHSV(random8(), 255, random8());
     }
 }
 
@@ -807,27 +817,26 @@ void DisplayController::SetupTotallyRandomPalette()
 void DisplayController::SetupBlackAndWhiteStripedPalette()
 {
     // 'black out' all 16 palette entries...
-    fill_solid( currentPalette, 16, CRGB::Black);
+    fill_solid(currentPalette, 16, CRGB::Black);
     // and set every fourth one to white.
     currentPalette[0] = CRGB::White;
     currentPalette[4] = CRGB::White;
     currentPalette[8] = CRGB::White;
     currentPalette[12] = CRGB::White;
-
 }
 
 // This function sets up a palette of purple and green stripes.
 void DisplayController::SetupPurpleAndGreenPalette()
 {
-    CRGB purple = CHSV( HUE_PURPLE, 255, 255);
-    CRGB green  = CHSV( HUE_GREEN, 255, 255);
-    CRGB black  = CRGB::Black;
+    CRGB purple = CHSV(HUE_PURPLE, 255, 255);
+    CRGB green = CHSV(HUE_GREEN, 255, 255);
+    CRGB black = CRGB::Black;
 
     currentPalette = CRGBPalette16(
-                                   green,  green,  black,  black,
-                                   purple, purple, black,  black,
-                                   green,  green,  black,  black,
-                                   purple, purple, black,  black );
+        green, green, black, black,
+        purple, purple, black, black,
+        green, green, black, black,
+        purple, purple, black, black);
 }
 
 

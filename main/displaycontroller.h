@@ -268,8 +268,8 @@ private:
     [[noreturn]] void blinkLampsTask();
 
     //void rainbowEffect();
-    //void chaseEffect();
-    //void fadeInOutEffect();
+    void chaseEffect();
+    void fadeInOutEffect();
 
 private:
     HT16K33 movesDisplay;
