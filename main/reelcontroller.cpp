@@ -48,6 +48,11 @@
 #include "esp_log.h"
 #include "hal/ledc_types.h"
 #include "pca9629a.h"
+
+#define FASTLED_ESP32_I2S
+#define I2S_DEVICE 1
+#define FASTLED_ESP32_I2S_NUM_DMA_BUFFERS 4
+
 #include "FastLED.h"
 #include "lib8tion.h"
 
