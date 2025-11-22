@@ -67,8 +67,7 @@ MCP23x17::MCP23x17(const I2CManager& i2cmgr, const uint8_t address)
     this->i2c_manager.addDevice(this->deviceConfig, this->deviceHandle);
 }
 
-MCP23x17::~MCP23x17()
-= default;
+MCP23x17::~MCP23x17() = default;
 
 esp_err_t MCP23x17::getGPIOExpanderConfiguration(uint8_t& config)
 {

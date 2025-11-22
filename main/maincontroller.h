@@ -26,67 +26,63 @@
 #include "moneycontroller.h"
 #include "reelcontroller.h"
 
-class MainController {
+class MainController
+{
 public:
-  MainController();
-  //MainController(const MainController &orig);
+    MainController();
+    //MainController(const MainController &orig);
+    ~MainController();
 
-  void start();
+    void start();
 
-  //void print_binary(uint8_t value);
-  void setDateTime();
-  //time_t getDateTime();
+    I2CManager i2c_manager = I2CManager(I2C_NUM_0, GPIO_NUM_22, GPIO_NUM_21);
+    NvsController nvsController;
+    CCTalkController cctalkController;
+    MoneyController moneyController = MoneyController(nvsController, cctalkController);
+    DisplayController displayController = DisplayController(moneyController, i2c_manager);
+    AudioController audioController = AudioController(i2c_manager);
+    ReelController reelController = ReelController(audioController, displayController, i2c_manager);
+    Game game = Game(displayController, audioController, moneyController, reelController);
+    DS3231 ds3231 = DS3231(i2c_manager, DS3231_ADDR);
 
-  void error(int errorCode);
 
-  AudioController &getAudioController();
-  ReelController &getReelController();
-  CCTalkController &getCCTalkController();
-  DisplayController &getDisplayController();
-  MoneyController &getMoneyController();
-  Game &getGame();
-  DS3231 &getDs3231();
+    //void print_binary(uint8_t value);
+    void setDateTime();
+    //time_t getDateTime();
 
-  // std::shared_ptr<WIFI::Wifi> getWifiController();
+    void error(int errorCode);
+
+    AudioController& getAudioController();
+    ReelController& getReelController();
+    CCTalkController& getCCTalkController();
+    DisplayController& getDisplayController();
+    MoneyController& getMoneyController();
+    Game& getGame();
+    DS3231& getDs3231();
+
+    // std::shared_ptr<WIFI::Wifi> getWifiController();
 
 private:
-  // EEProm_Data eeprom_data;
-  static void blinkCPUStatusLEDTask();
-  void updateStatisticsDisplayTask();
+    // EEProm_Data eeprom_data;
+    static void blinkCPUStatusLEDCallback(void* param);
+    static void updateStatisticsDisplayCallback(void* param);
 
-private:
-  int reels = 0;
+    uint8_t letitgoCountdown = 0;
 
-  unsigned int state = 0;
-  unsigned int animationStage = 0;
+    uint8_t oldReelStatus;
 
-  uint8_t letitgoCountdown = 0;
+    // HttpController httpController;
 
-  uint8_t oldReelStatus;
+    enum class MachineState : uint8_t
+    {
+        INITIALISING,
+        IDLE,
+        ATTRACT,
+        IN_GAME,
+        PAYING_OUT
+    };
 
-  I2CManager i2c_manager;
-  NvsController nvsController;
-  MoneyController moneyController;
-  DisplayController displayController;
-  AudioController audioController;
-  CCTalkController cctalkController;
-  ReelController reelController;
-  Game game;
-  DS3231 ds3231;
-
-  // HttpController httpController;
-
-  enum class MachineState : uint8_t {
-    INITIALISING,
-    IDLE,
-    ATTRACT,
-    IN_GAME,
-    PAYING_OUT
-  };
-
-  std::thread updateStatisticsThread;
-  std::thread blinkCPUStatusLEDThread;
-  std::thread gameThread;
+    static std::thread gameThread;
 };
 
 #endif /* MAINCONTROLLER_H */

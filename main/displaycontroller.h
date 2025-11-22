@@ -61,8 +61,6 @@
 
 #define CHASE_SPEED_MS (100)
 
-
-
 enum class LampState { off, blinkslow, blinkfast, on };
 
 extern CRGBPalette16 myRedWhiteBluePalette;
@@ -76,8 +74,8 @@ public:
 
     struct lamp_data_t
     {
-        fl::CRGB rgb = rgbFromValues(255, 255, 255);
-        fl::CRGB activeRgb = rgbFromValues(255, 255, 255);
+        fl::CRGB rgb = CRGB(255, 255, 255);
+        fl::CRGB activeRgb = CRGB(255, 255, 255);
         LampState lampState = LampState::off;
     };
 
@@ -89,25 +87,17 @@ public:
 
     std::array<lamp_data_t, LED_COUNT + 6>& getLampData();
 
-    static fl::CRGB rgbFromValues(uint8_t red, uint8_t green, uint8_t blue);
-    void FillLEDsFromPaletteColors(uint8_t colorIndex);
-    void ChangePalettePeriodically();
-    void SetupTotallyRandomPalette();
-    void SetupBlackAndWhiteStripedPalette();
-    void SetupPurpleAndGreenPalette();
-    //static void hsvToRgb(uint8_t hue, uint8_t saturation, uint8_t value, CRGB& rgb);
-    //static void hsvToRgbRainbow(uint8_t hue, uint8_t saturation, uint8_t value, CRGB& rgb);
-
-
-    static void clearText();
-    static void displayVFDText(const std::string& text);
+    void clearText();
+    void displayVFDText(const std::string& text);
     void scrollOledText(const std::string& text);
     void clearOledDisplay();
     void displayOledText(const std::string& text, int lineNumber, bool invert);
-    [[nodiscard]] bool isAttractMode() const;
+    bool isAttractMode();
+
+    fl::CRGB rgbFromValues(uint8_t red, uint8_t green, uint8_t blue);
 
     uint8_t getButtonStatus();
-    uint8_t waitForButton(uint8_t mask) const;
+    uint8_t waitForButton(uint8_t mask);
 
     void beginAttractMode();
     void stopAttractMode();
@@ -119,7 +109,6 @@ public:
     //led_strip_handle_t& getLedStripHandle();
     MCP23x17& getButtonIO();
 
-public:
     // WS2128B LEDs
     static constexpr int REEL_LAMP_L1 = 0;
     static constexpr int REEL_LAMP_L2 = 1;
@@ -200,8 +189,6 @@ public:
     static constexpr int TRAIL_LAMPS_LENGTH = 17;
     static constexpr int PRIZE_LADDER_LENGTH = 8;
 
-    // static constexpr std::array<int, 0> SEGMENTS;
-
     static constexpr std::array<int, NUDGE_LAMPS_LENGTH> NUDGE_LAMPS = {
         LAMP_NUDGE_1, LAMP_NUDGE_2, LAMP_NUDGE_3, LAMP_NUDGE_4, LAMP_NUDGE_5,
     };
@@ -260,41 +247,45 @@ public:
   -	-	-
      */
 
-protected:
+
 private:
     [[noreturn]] void attractModeTask();
-    [[noreturn]] void updateSevenSegDisplaysTask();
-    [[noreturn]] void updateLampsTask();
-    [[noreturn]] void blinkLampsTask();
+    static void updateLampsCallback(void *arg);
+    static void blinkLampsCallback(void *arg);
+
+    void FillLEDsFromPaletteColors(uint8_t colorIndex);
+    void ChangePalettePeriodically();
+    void SetupTotallyRandomPalette();
+    void SetupBlackAndWhiteStripedPalette();
+    void SetupPurpleAndGreenPalette();
 
     //void rainbowEffect();
     void chaseEffect();
     void fadeInOutEffect();
 
-private:
-    HT16K33 movesDisplay;
-    HT16K33 creditDisplay;
-    HT16K33 bankDisplay;
-
-    MCP23x17 buttonIO;
+    I2CManager& i2cManager;
+    HT16K33 movesDisplay = HT16K33(i2cManager, MOVES_DISPLAY_ADDRESS);
+    HT16K33 creditDisplay = HT16K33(i2cManager, CREDIT_DISPLAY_ADDRESS);
+    HT16K33 bankDisplay = HT16K33(i2cManager, BANK_DISPLAY_ADDRESS);
+    MCP23x17 buttonIO = MCP23x17(i2cManager, BUTTONS_I2C_ADDRESS);
+    OledController oledController = OledController(i2cManager, 0x3c);
 
     fl::CRGB ws2812_buffer[LED_COUNT];
     CRGBPalette16 currentPalette;
     TBlendType    currentBlending;
 
     MoneyController& moneyController;
-    OledController oledController;
 
-    uint8_t buttonStatus{};
-    bool doorOpen{};
+    uint8_t buttonStatus;
+    bool doorOpen;
 
     std::array<lamp_data_t, LED_COUNT + 6> lampData;
 
     void testLamps();
 
-    uint8_t keyStatus{};
+    //uint8_t keyStatus{};
 
-    bool attractMode = false;
+    bool attractMode;
 
     // Arrangement for display
     // )
@@ -309,11 +300,7 @@ private:
     //               d = A3
 
     std::thread attractModeThread;
-    std::thread updateSevenSegDisplaysThread;
-    std::thread updateLampsThread;
-    std::thread blinkLampsThread;
 
-    I2CManager& i2cManager;
 };
 
 #endif

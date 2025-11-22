@@ -43,92 +43,93 @@
 #include "NvsController.h"
 #include "cctalkcontroller.h"
 
-class Payment {
+class Payment
+{
 public:
-  void addTenCent();
-  void addTwentyCent();
-  void addFiftyCent();
-  void addOneEuro();
-  void addTwoEuro();
+    void addTenCent();
+    void addTwentyCent();
+    void addFiftyCent();
+    void addOneEuro();
+    void addTwoEuro();
 
-  uint16_t getTenCent();
-  uint16_t getTwentyCent();
-  uint16_t getFiftyCent();
-  uint16_t getOneEuro();
-  uint16_t getTwoEuro();
-  void clear();
-  void payoutBank();
+    uint16_t getTenCent();
+    uint16_t getTwentyCent();
+    uint16_t getFiftyCent();
+    uint16_t getOneEuro();
+    uint16_t getTwoEuro();
+    void clear();
+    void payoutBank();
 
 private:
-  uint16_t tenCentIn = 0;
-  uint16_t twentyCentIn = 0;
-  uint16_t fiftyCentIn = 0;
-  uint16_t oneEuroIn = 0;
-  uint16_t twoEuroIn = 0;
+    uint16_t tenCentIn = 0;
+    uint16_t twentyCentIn = 0;
+    uint16_t fiftyCentIn = 0;
+    uint16_t oneEuroIn = 0;
+    uint16_t twoEuroIn = 0;
 };
 
-class MoneyController {
+class MoneyController
+{
 public:
-  MoneyController(NvsController &nvsController,
-                  CCTalkController &cctalkController);
-  ~MoneyController();
+    MoneyController(NvsController& nvsController, CCTalkController& cctalkController);
+    ~MoneyController();
 
-  void initialise();
+    void initialise();
 
-  void addToCredit(Payment &payment);
-  void addToCredit(uint16_t value);
-  void addToBank(uint16_t value);
-  void setTransfer(uint16_t value);
-  void incrementGameCount();
-  void removeFromCredit(uint16_t value);
-  void removeFromBank(uint16_t value);
-  void moveBankToCredit();
-  void moveTransferToBank();
-  void payoutBank();
-  // void removeFromTransfer(const int value);
-  uint16_t getCredit();
-  [[nodiscard]] uint16_t getBank() const;
-  uint16_t getTransfer();
-  [[nodiscard]] uint16_t getGameCount() const;
+    void addToCredit(Payment& payment);
+    void addToCredit(uint16_t value);
+    void addToBank(uint16_t value);
+    void setTransfer(uint16_t value);
+    void incrementGameCount();
+    void removeFromCredit(uint16_t value);
+    void removeFromBank(uint16_t value);
+    void moveBankToCredit();
+    void moveTransferToBank();
+    void payoutBank();
+    // void removeFromTransfer(const int value);
+    uint16_t getCredit();
+    [[nodiscard]] uint16_t getBank() const;
+    uint16_t getTransfer();
+    [[nodiscard]] uint16_t getGameCount() const;
 
-  uint16_t getPayoutTotal();
-  [[nodiscard]] uint16_t getIncomeTotal() const;
+    uint16_t getPayoutTotal();
+    [[nodiscard]] uint16_t getIncomeTotal() const;
 
-  void setPayoutInProgress(bool inProgress);
-  bool isPayoutInProgress();
-  void resetCounters();
+    void setPayoutInProgress(bool inProgress);
+    bool isPayoutInProgress();
+    void resetCounters();
 
 private:
-  void loadValuesFromStorage();
+    void loadValuesFromStorage();
 
-  uint16_t credit;
-  uint16_t bank;
-  uint16_t transfer;
-  uint16_t gamecount;
-  uint16_t payoutTotal;
-  uint16_t incomeTotal;
-  uint16_t tenCentIn;
-  uint16_t twentyCentIn;
-  uint16_t fiftyCentIn;
-  uint16_t oneEuroIn;
-  uint16_t twoEuroIn;
+    uint16_t credit;
+    uint16_t bank;
+    uint16_t transfer;
+    uint16_t gamecount;
+    uint16_t payoutTotal;
+    uint16_t incomeTotal;
+    uint16_t tenCentIn;
+    uint16_t twentyCentIn;
+    uint16_t fiftyCentIn;
+    uint16_t oneEuroIn;
+    uint16_t twoEuroIn;
 
-  NvsController &nvsController;
-  CCTalkController &cctalkController;
+    NvsController& nvsController;
+    CCTalkController& cctalkController;
 
-  static constexpr std::string NVS_KEY_CREDIT = "credit";
-  static constexpr std::string NVS_KEY_BANK = "bank";
-  static constexpr std::string NVS_KEY_TRANSFER = "transfer";
-  static constexpr std::string NVS_KEY_GAME_COUNT = "gameCount";
-  static constexpr std::string NVS_KEY_PAYOUT_TOTAL = "payoutTotal";
-  static constexpr std::string NVS_KEY_INCOME_TOTAL = "incomeTotal";
-  static constexpr std::string NVS_KEY_TEN_CENT_IN = "tenCentIn";
-  static constexpr std::string NVS_KEY_TWENTY_CENT_IN = "twentyCentIn";
-  static constexpr std::string NVS_KEY_FIFTY_CENT_IN = "fiftyCentIn";
-  static constexpr std::string NVS_KEY_ONE_EURO_IN = "oneEuroIn";
-  static constexpr std::string NVS_KEY_TWO_EURO_IN = "twoEuroIn";
+    static constexpr std::string NVS_KEY_CREDIT = "credit";
+    static constexpr std::string NVS_KEY_BANK = "bank";
+    static constexpr std::string NVS_KEY_TRANSFER = "transfer";
+    static constexpr std::string NVS_KEY_GAME_COUNT = "gameCount";
+    static constexpr std::string NVS_KEY_PAYOUT_TOTAL = "payoutTotal";
+    static constexpr std::string NVS_KEY_INCOME_TOTAL = "incomeTotal";
+    static constexpr std::string NVS_KEY_TEN_CENT_IN = "tenCentIn";
+    static constexpr std::string NVS_KEY_TWENTY_CENT_IN = "twentyCentIn";
+    static constexpr std::string NVS_KEY_FIFTY_CENT_IN = "fiftyCentIn";
+    static constexpr std::string NVS_KEY_ONE_EURO_IN = "oneEuroIn";
+    static constexpr std::string NVS_KEY_TWO_EURO_IN = "twoEuroIn";
 
-  bool payoutInProgress;
+    bool payoutInProgress;
 };
 
 #endif

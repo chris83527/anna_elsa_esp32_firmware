@@ -13,13 +13,13 @@
 #include <chrono>
 #include <ctime>
 #include <functional>
-#include <cstdlib>
 #include <string>
 
-#include <ds3231.h>
-#include <esp_log.h>
-#include <esp_ota_ops.h>
-#include <freertos/FreeRTOS.h>
+#include "ds3231.h"
+#include "esp_log.h"
+#include "esp_ota_ops.h"
+#include "freertos/FreeRTOS.h"
+#include "esp_timer.h"
 
 #include "audiocontroller.h"
 #include "cctalkcontroller.h"
@@ -38,24 +38,16 @@
 // #include "errors.h"
 
 static const char* TAG = "MainController";
-static int blinkDelay = 250;
+static int blinkDelay = 250000; // µs, not ms
 
 MainController::MainController()
-    : oldReelStatus(0), i2c_manager(I2CManager(I2C_NUM_0, GPIO_NUM_22, GPIO_NUM_21)),
-      nvsController(NvsController()),
-      moneyController(nvsController, cctalkController),
-      displayController(DisplayController(moneyController, i2c_manager)),
-      audioController(i2c_manager),
-      reelController(audioController, displayController, i2c_manager),
-      game(Game(displayController, audioController, moneyController,
-                reelController)),
-      ds3231(DS3231(i2c_manager, DS3231_ADDR))
 {
     ESP_LOGD(TAG, "Entering constructor");
 
     ESP_LOGD(TAG, "Leaving constructor");
 }
 
+MainController::~MainController() = default;
 
 void MainController::start()
 {
@@ -76,43 +68,45 @@ void MainController::start()
     }
     else
     {
-        DisplayController::displayVFDText("INITIALISING 01");
+        displayController.displayVFDText("INITIALISING 01");
     }
 
-    auto cfg = esp_pthread_get_default_config();
-    cfg.thread_name = "BlinkRunLED";
-    cfg.prio = 1;
-    cfg.stack_size = 2048;
-    cfg.inherit_cfg = false;
-    esp_pthread_set_cfg(&cfg);
-    this->blinkCPUStatusLEDThread =
-        std::thread([&]() { blinkCPUStatusLEDTask(); });
-    this->blinkCPUStatusLEDThread.detach();
+    // Set up a timer to blink the CPU LED
+    constexpr esp_timer_create_args_t my_timer_args = {
+        .callback = &blinkCPUStatusLEDCallback,
+        .arg = nullptr,
+        .name = "CPU LED Timer",
+        .skip_unhandled_events = true,
+    };
+    esp_timer_handle_t timer_handler;
+    ESP_ERROR_CHECK(esp_timer_create(&my_timer_args, &timer_handler));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(timer_handler, blinkDelay));
 
-    DisplayController::displayVFDText("INITIALISING 02");
+
+    displayController.displayVFDText("INITIALISING 02");
     // Initialize NVS
     ESP_LOGD(TAG, "Setting up NVS");
-    this->displayController.scrollOledText("Init NVS");
-    esp_err_t err = this->nvsController.initialise();
+    displayController.scrollOledText("Init NVS");
+    esp_err_t err = nvsController.initialise();
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(err));
-        this->displayController.scrollOledText("  -> failed");
+        displayController.scrollOledText("  -> failed");
     }
     else
     {
         ESP_LOGD(TAG, "NVS opened ok.");
-        this->displayController.scrollOledText("  -> ok");
+        displayController.scrollOledText("  -> ok");
     }
 
 
     // Initialise WiFi
-    DisplayController::displayVFDText("INITIALISING 03");
-    this->displayController.scrollOledText("Init WiFi");
+    displayController.displayVFDText("INITIALISING 03");
+    displayController.scrollOledText("Init WiFi");
 
     // initialise ds3231 RTC
-    DisplayController::displayVFDText("INITIALISING 04");
-    this->displayController.scrollOledText("Init RTC");
+    displayController.displayVFDText("INITIALISING 04");
+    displayController.scrollOledText("Init RTC");
 
     setDateTime(); // Debug
 
@@ -122,11 +116,11 @@ void MainController::start()
     //    } else {
     //        //this->setDateTime(); // Debug only
     ESP_LOGI(TAG, "RTC initialised ok");
-    this->displayController.scrollOledText("  -> ok");
+    displayController.scrollOledText("  -> ok");
     //}
 
-    DisplayController::displayVFDText("INITIALISING 05");
-    this->displayController.scrollOledText("Init LittleFS");
+    displayController.displayVFDText("INITIALISING 05");
+    displayController.scrollOledText("Init LittleFS");
     esp_vfs_littlefs_conf_t conf = {
         .base_path = "/httpd",
         .partition_label = "httpd",
@@ -157,8 +151,8 @@ void MainController::start()
         }
     }
 
-    DisplayController::displayVFDText("INITIALISING 06");
-    this->displayController.scrollOledText("Init Webserver");
+    displayController.displayVFDText("INITIALISING 06");
+    displayController.scrollOledText("Init Webserver");
     // this->httpController->initialise(80, "/httpd", "INNUENDO",
     // "woodsamusements");
 
@@ -176,29 +170,29 @@ void MainController::start()
     }
 
     // initialise audio subsystem
-    DisplayController::displayVFDText("INITIALISING 07");
-    this->displayController.scrollOledText("Init Audio");
+    displayController.displayVFDText("INITIALISING 07");
+    displayController.scrollOledText("Init Audio");
     this->audioController.initialise();
 
-    DisplayController::displayVFDText("INITIALISING 08");
-    this->displayController.scrollOledText("Init Display");
-    if (this->displayController.initialise() != ESP_OK)
+    displayController.displayVFDText("INITIALISING 08");
+    displayController.scrollOledText("Init Display");
+    if (displayController.initialise() != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to initialise tableau subsystem");
-        this->displayController.scrollOledText("  -> failed");
+        displayController.scrollOledText("  -> failed");
     }
     else
     {
         ESP_LOGD(TAG, "Display controller initialisation ok.");
-        this->displayController.scrollOledText("  -> ok");
+        displayController.scrollOledText("  -> ok");
     }
 
-    DisplayController::displayVFDText("INITIALISING 09");
-    this->displayController.scrollOledText("Load stats");
+    displayController.displayVFDText("INITIALISING 09");
+    displayController.scrollOledText("Load stats");
     moneyController.initialise();
 
-    DisplayController::displayVFDText("INITIALISING 0A");
-    this->displayController.scrollOledText("Init cctalk");
+    displayController.displayVFDText("INITIALISING 0A");
+    displayController.scrollOledText("Init cctalk");
     cctalkController.setCreditAcceptedCallback(
         [&](uint8_t coin_id, const esp32cc::CcIdentifier& identifier)
         {
@@ -207,47 +201,55 @@ void MainController::start()
             moneyController.addToCredit(CCTalkController::COIN_VALUES[coin_id]);
         });
 
-    DisplayController::displayVFDText("INITIALISING 0B");
+    displayController.displayVFDText("INITIALISING 0B");
     if (cctalkController.initialise() != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
-        this->displayController.scrollOledText("  -> failed");
+        displayController.scrollOledText("  -> failed");
     }
     else
     {
-        this->displayController.scrollOledText("  -> ok");
+        displayController.scrollOledText("  -> ok");
     }
 
-    DisplayController::displayVFDText("INITIALISING 0C");
-    this->displayController.scrollOledText("Init reels");
+    displayController.displayVFDText("INITIALISING 0C");
+    displayController.scrollOledText("Init reels");
     if (!reelController.initialise())
     {
-        this->displayController.scrollOledText("  -> failed");
+        displayController.scrollOledText("  -> failed");
         ESP_LOGE(TAG, "Failed to initialise reel controller subsystem");
     }
     else
     {
-        this->displayController.scrollOledText("  -> ok");
+        displayController.scrollOledText("  -> ok");
         ESP_LOGD(TAG, "Reel controller initialisation ok.");
     }
 
     blinkDelay = 1000;
 
-    DisplayController::displayVFDText("INITIALISING 0D");
-    this->displayController.scrollOledText("Init game");
+    displayController.displayVFDText("INITIALISING 0D");
+    displayController.scrollOledText("Init game");
     this->game.initialise();
 
-    DisplayController::displayVFDText("INITIALISING 0E");
-    cfg = esp_pthread_get_default_config();
+    displayController.displayVFDText("INITIALISING 0E");
+    /*auto cfg = esp_pthread_get_default_config();
     cfg.thread_name = "UpdateStatistics";
     cfg.prio = 1;
     cfg.stack_size = 4096;
     esp_pthread_set_cfg(&cfg);
     this->updateStatisticsThread =
         std::thread([this]() { updateStatisticsDisplayTask(); });
-    this->updateStatisticsThread.detach();
+    this->updateStatisticsThread.detach();*/
 
-    DisplayController::displayVFDText("                    ");
+    // Set up a timer to update the statistics every 5 seconds
+    constexpr esp_timer_create_args_t updateStatisticsTimerArgs = {
+        .callback = &updateStatisticsDisplayCallback,
+        .name = "Update Statistics Timer"};
+    esp_timer_handle_t updateStatisticsTimerHandler;
+    ESP_ERROR_CHECK(esp_timer_create(&updateStatisticsTimerArgs, &updateStatisticsTimerHandler));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(updateStatisticsTimerHandler, 5000000));
+
+    displayController.displayVFDText("                    ");
 
     for (;;)
     {
@@ -321,25 +323,21 @@ void MainController::error(int errorCode)
     //    }
 }
 
-void MainController::blinkCPUStatusLEDTask()
+void MainController::blinkCPUStatusLEDCallback(void *param)
 {
-    while (true)
-    {
-        /* Blink off (output low) */
-        gpio_set_level(CPU_LED_GPIO, 0);
-        std::this_thread::sleep_for(std::chrono::milliseconds(blinkDelay));
-        /* Blink on (output high) */
-        gpio_set_level(CPU_LED_GPIO, 1);
-        std::this_thread::sleep_for(std::chrono::milliseconds(blinkDelay));
-    }
+    static bool on;
+    on = !on;
+    gpio_set_level(CPU_LED_GPIO, on);
 }
 
-void MainController::updateStatisticsDisplayTask()
+void MainController::updateStatisticsDisplayCallback(void *param)
 {
+    MainController* mainController = static_cast<MainController*>(param);
+
     tm time{};
     std::string dateString;
 
-    this->displayController.clearOledDisplay();
+    mainController->displayController.clearOledDisplay();
 
     char buf[21];
     esp_err_t ret;
@@ -347,7 +345,7 @@ void MainController::updateStatisticsDisplayTask()
     while (true)
     {
         ESP_LOGD(TAG, "Updating statics loop");
-        ret = ds3231.get_time(time);
+        ret = mainController->ds3231.get_time(time);
 
         if (ret == ESP_OK)
         {
@@ -357,21 +355,21 @@ void MainController::updateStatisticsDisplayTask()
 
             dateString.clear();
             dateString.append(buf);
-            this->displayController.displayOledText(dateString, 0, true);
+            mainController->displayController.displayOledText(dateString, 0, true);
 
             std::sprintf(buf, "Games    : %05d",
-                         this->moneyController.getGameCount());
-            this->displayController.displayOledText(buf, 2, false);
+                         mainController->moneyController.getGameCount());
+            mainController->displayController.displayOledText(buf, 2, false);
             std::sprintf(buf, "Total in : %05d",
-                         this->moneyController.getIncomeTotal());
-            this->displayController.displayOledText(buf, 3, false);
+                         mainController->moneyController.getIncomeTotal());
+            mainController->displayController.displayOledText(buf, 3, false);
             std::sprintf(buf, "Total out: %05d",
-                         this->moneyController.getPayoutTotal());
-            this->displayController.displayOledText(buf, 4, false);
-            std::sprintf(buf, "Credit   : %05d", this->moneyController.getCredit());
-            this->displayController.displayOledText(buf, 5, false);
-            std::sprintf(buf, "Bank     : %05d", this->moneyController.getBank());
-            this->displayController.displayOledText(buf, 6, false);
+                         mainController->moneyController.getPayoutTotal());
+            mainController->displayController.displayOledText(buf, 4, false);
+            std::sprintf(buf, "Credit   : %05d", mainController->moneyController.getCredit());
+            mainController->displayController.displayOledText(buf, 5, false);
+            std::sprintf(buf, "Bank     : %05d", mainController->moneyController.getBank());
+            mainController->displayController.displayOledText(buf, 6, false);
         }
         else
         {

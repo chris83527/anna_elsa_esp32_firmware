@@ -53,6 +53,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+
 #include "config.h"
 
 #include "ht16k33.h"
@@ -75,19 +76,17 @@
 static const char* TAG = "DisplayController";
 static std::string vfdText;
 
-DisplayController::DisplayController(MoneyController& moneyController,
-                                     I2CManager& i2cmgr)
-    : movesDisplay(HT16K33(i2cmgr, MOVES_DISPLAY_ADDRESS)),
-      creditDisplay(HT16K33(i2cmgr, CREDIT_DISPLAY_ADDRESS)),
-      bankDisplay(HT16K33(i2cmgr, BANK_DISPLAY_ADDRESS)),
-      buttonIO(MCP23x17(i2cmgr, BUTTONS_I2C_ADDRESS)),
-      moneyController(moneyController),
-      oledController(OledController(i2cmgr, 0x3c)), i2cManager(i2cmgr)
+DisplayController::DisplayController(MoneyController& moneyCtrlr,
+                                     I2CManager& i2cmgr) : i2cManager(i2cmgr), moneyController(moneyCtrlr)
 {
     ESP_LOGD(TAG, "Entering constructor");
 
+
+
     // Perform this here so we have debug output
     oledController.initialise();
+
+    attractMode = false;
 
     ESP_LOGD(TAG, "Leaving constructor");
 }
@@ -98,7 +97,7 @@ esp_err_t DisplayController::initialise()
 {
     ESP_LOGI(TAG, "Entering DisplayController::initialise()");
 
-    this->buttonStatus = 0;
+    buttonStatus = 0;
 
     FastLED.addLeds<WS2812B, LED_GPIO, GRB>(ws2812_buffer, LED_COUNT).setCorrection(TypicalLEDStrip);
     FastLED.setBrightness(MAX_BRIGHTNESS);
@@ -121,56 +120,44 @@ esp_err_t DisplayController::initialise()
     buttonIO.setGPIOBInputOutputMode(0x00); // PORT B (button lamps) - output
     buttonIO.setGPIOAPullup(0x00); // GPIOA Pullups off
     buttonIO.setGPIOBPullup(0x00); // GPIOB Pullups off
-    buttonIO.setGPIOAInputPolarity(
-        0xff); // Invert polarity (bit refelcts the opposite logic state of the
+    buttonIO.setGPIOAInputPolarity(0xff); // Invert polarity (bit refelcts the opposite logic state of the
     // input pin)
     ESP_LOGI(TAG, "Button interface initialisation succeeded");
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    resetLampData();
 
-    this->resetLampData();
+    // Blink
+    esp_timer_create_args_t blinkLampsTimerArgs = {
+        .callback = &blinkLampsCallback,
+        .arg = this,
+        .dispatch_method = ESP_TIMER_TASK,
+        .name = "Update Lamps Timer",
+        .skip_unhandled_events = true,
+    };
+    esp_timer_handle_t blinkLampsTimerHandler;
+    ESP_ERROR_CHECK(esp_timer_create(&blinkLampsTimerArgs, &blinkLampsTimerHandler));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(blinkLampsTimerHandler, 100000)); // 100ms
 
-    // Start a new thread to update the lamps
+    // Set up a timer to update the lamps every 5 seconds
+    esp_timer_create_args_t updateLampsTimerArgs = {
+        .callback = &updateLampsCallback,
+        .arg = this,
+        .dispatch_method = ESP_TIMER_TASK,
+        .name = "Update Lamps Timer",
+        .skip_unhandled_events = true,
+    };
+    esp_timer_handle_t updateLampsTimerHandler;
+    ESP_ERROR_CHECK(esp_timer_create(&updateLampsTimerArgs, &updateLampsTimerHandler));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(updateLampsTimerHandler, 30000)); // 30ms
+
+    testLamps();
+
+    attractMode = false;
     auto cfg = esp_pthread_get_default_config();
-    //cfg.thread_name = "BlinkLamps";
-    //cfg.prio = 2;
-    cfg.stack_size = 2048;
-    //cfg.pin_to_core = 1;
-    esp_pthread_set_cfg(&cfg);
-    this->blinkLampsThread = std::thread([&]() { blinkLampsTask(); });
-    this->blinkLampsThread.detach();
-
-    cfg = esp_pthread_get_default_config();
-    cfg.thread_name = "UpdateLamps";
-    //cfg.prio = 2;
-    cfg.stack_size = 4096;
-    //cfg.pin_to_core = 1;
-    esp_pthread_set_cfg(&cfg);
-    this->updateLampsThread = std::thread([&]() { updateLampsTask(); });
-    this->updateLampsThread.detach();
-
-    //cfg = esp_pthread_get_default_config();
-    cfg.thread_name = "UpdateSevenSeg";
-    //cfg.prio = 1;
-    //cfg.pin_to_core = 1;
-    cfg.stack_size = 4096;
-    esp_pthread_set_cfg(&cfg);
-    // Start a thread to update the 7-segment displays
-    this->updateSevenSegDisplaysThread =
-        std::thread([this]() { updateSevenSegDisplaysTask(); });
-    this->updateSevenSegDisplaysThread.detach();
-
-    this->testLamps();
-
-    this->attractMode = false;
-    //cfg = esp_pthread_get_default_config();
     cfg.thread_name = "AttractMode";
-    //cfg.prio = 1;
-    //cfg.pin_to_core = 1;
-    //cfg.stack_size = 4096;
-    //esp_pthread_set_cfg(&cfg);
-    this->attractModeThread = std::thread([&]() { attractModeTask(); });
-    this->attractModeThread.detach();
+    esp_pthread_set_cfg(&cfg);
+    attractModeThread = std::thread([&]() { attractModeTask(); });
+    attractModeThread.detach();
 
     ESP_LOGD(TAG, "Exiting DisplayController::initialise()");
 
@@ -214,7 +201,7 @@ void DisplayController::displayOledText(const std::string& text, int lineNumber,
     oledController.displayText(text, lineNumber, invert);
 }
 
-bool DisplayController::isAttractMode() const { return attractMode; }
+bool DisplayController::isAttractMode() { return attractMode; }
 
 void DisplayController::testLamps()
 {
@@ -226,8 +213,8 @@ void DisplayController::testLamps()
     {
         lampData[i].lampState = LampState::on;
         lampData[i].rgb = rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+    std::this_thread::sleep_for(std::chrono::seconds(3));
     resetLampData();
     ESP_LOGD(TAG, "Exiting testLamps()");
 }
@@ -247,46 +234,46 @@ DisplayController::getLampData()
 
 uint8_t DisplayController::getButtonStatus()
 {
-    esp_err_t err = buttonIO.readGPIOA(this->buttonStatus);
+    esp_err_t err = buttonIO.readGPIOA(buttonStatus);
 
     if (err == ESP_OK)
     {
-        if ((this->buttonStatus & (1 << BTN_DOOR)) == 0)
+        if ((buttonStatus & (1 << BTN_DOOR)) == 0)
         {
-            if (!this->doorOpen)
+            if (!doorOpen)
             {
                 ESP_LOGI(TAG, "Door open!");
             }
-            this->doorOpen = true;
+            doorOpen = true;
         }
         else
         {
-            if (this->doorOpen)
+            if (doorOpen)
             {
                 ESP_LOGI(TAG, "Door closed!");
             }
-            this->doorOpen = false;
+            doorOpen = false;
         }
     }
     else
     {
-        this->buttonStatus = 0;
+        buttonStatus = 0;
         ESP_LOGE(TAG, "An error occurred getting button status");
         // esp_backtrace_print
     }
 
-    return this->buttonStatus;
+    return buttonStatus;
 }
 
-uint8_t DisplayController::waitForButton(uint8_t mask) const
+uint8_t DisplayController::waitForButton(const uint8_t mask)
 {
     // loop waiting for button press.
-    while ((mask & this->buttonStatus) == 0)
+    while ((mask & buttonStatus) == 0)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
-    return this->buttonStatus;
+    return buttonStatus;
 }
 
 void DisplayController::displayVFDText(const std::string& text)
@@ -307,13 +294,13 @@ void DisplayController::displayVFDText(const std::string& text)
 
 void DisplayController::clearText() { m20ly02z_clear(); }
 
-MCP23x17& DisplayController::getButtonIO() { return this->buttonIO; }
+MCP23x17& DisplayController::getButtonIO() { return buttonIO; }
 
-HT16K33& DisplayController::getBankDisplay() { return this->bankDisplay; }
+HT16K33& DisplayController::getBankDisplay() { return bankDisplay; }
 
-HT16K33& DisplayController::getCreditDisplay() { return this->creditDisplay; }
+HT16K33& DisplayController::getCreditDisplay() { return creditDisplay; }
 
-HT16K33& DisplayController::getMovesDisplay() { return this->movesDisplay; }
+HT16K33& DisplayController::getMovesDisplay() { return movesDisplay; }
 
 void DisplayController::attractModeTask()
 {
@@ -321,7 +308,7 @@ void DisplayController::attractModeTask()
     static uint8_t startIndex = 0;
     while (true)
     {
-        if (this->isAttractMode())
+        if (isAttractMode())
         {
             ChangePalettePeriodically();
 
@@ -331,7 +318,7 @@ void DisplayController::attractModeTask()
         }
         else
         {
-            std::this_thread::yield();
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }
 }
@@ -441,7 +428,7 @@ void DisplayController::chaseEffect()
         // Trail
         for (int i : TRAIL_LAMPS)
         {
-            if (this->attractMode != true)
+            if (attractMode != true)
             {
                 return;
             }
@@ -453,7 +440,7 @@ void DisplayController::chaseEffect()
 
         for (int i : TRAIL_LAMPS)
         {
-            if (this->attractMode != true)
+            if (attractMode != true)
             {
                 return;
             }
@@ -463,246 +450,190 @@ void DisplayController::chaseEffect()
     }
 }
 
-// void DisplayController::rainbowEffect()
-// {
-//     uint8_t start_rgb = 0;
-//
-//     // Rainbow effect (10 repeats)
-//     for (int k = 0; k < 10; k++)
-//     {
-//         for (int i = 0; i < 3; i++)
-//         {
-//             for (int j = i; j < LED_COUNT; j += 3)
-//             {
-//                 if (!this->attractMode)
-//                 {
-//                     return;
-//                 }
-//
-//                 // Build RGB values
-//                 uint8_t hue = j * 360 / LED_COUNT + start_rgb;
-//                 uint8_t sat = 255;
-//                 uint8_t val = 255;
-//
-//                 // Write RGB values to strip driver
-//                 CRGB rgbData = {};
-//                 hsvToRgbRainbow(hue, sat, val, rgbData);
-//                 lampData.at(j).rgb = rgbData;
-//                 lampData.at(j).lampState = LampState::on;
-//             }
-//
-//             std::this_thread::sleep_for(std::chrono::milliseconds(CHASE_SPEED_MS));
-//         }
-//         start_rgb += 60;
-//     }
-//
-//     resetLampData();
-// }
-
-void DisplayController::blinkLampsTask()
+void DisplayController::blinkLampsCallback(void* param)
 {
-    for (;;)
+    DisplayController *displayController = static_cast<DisplayController*>(param);
+
+    static int state = 0;
+    ESP_LOGD(TAG, "blink lamp timer called");
+    switch (state)
     {
-        ESP_LOGD(TAG, "blink lamp loop");
-
+    case 0:
         for (int i = 0; i < (LED_COUNT + 6); i++)
         {
-            if (this->lampData[i].lampState == LampState::on ||
-                this->lampData[i].lampState == LampState::blinkfast ||
-                this->lampData[i].lampState == LampState::blinkslow)
+            if (displayController->lampData[i].lampState == LampState::on ||
+                displayController->lampData[i].lampState == LampState::blinkfast ||
+                displayController->lampData[i].lampState == LampState::blinkslow)
             {
                 if (i < LED_COUNT)
                 {
-                    this->lampData[i].activeRgb = this->lampData[i].rgb;
+                    displayController->lampData[i].activeRgb = displayController->lampData[i].rgb;
                 }
                 else
                 {
                     // non- RGB button lamps
-                    this->lampData[i].activeRgb =
-                        rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+                    displayController->lampData[i].activeRgb =
+                        displayController->rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
                 }
             }
             else
             {
                 // Set active rgb value to 0 (off or black)
-                this->lampData[i].activeRgb = rgbFromValues(0, 0, 0);
+                displayController->lampData[i].activeRgb = displayController->rgbFromValues(0, 0, 0);
             }
         }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
+        break;
+    case 1:
         for (int i = 0; i < (LED_COUNT + 6); i++)
         {
-            if (this->lampData[i].lampState == LampState::on ||
-                this->lampData[i].lampState == LampState::blinkslow)
+            if (displayController->lampData[i].lampState == LampState::on ||
+                displayController->lampData[i].lampState == LampState::blinkslow)
             {
                 if (i < LED_COUNT)
                 {
-                    this->lampData[i].activeRgb = this->lampData[i].rgb;
+                    displayController->lampData[i].activeRgb = displayController->lampData[i].rgb;
                 }
                 else
                 {
                     // non- RGB button lamps
-                    this->lampData[i].activeRgb =
-                        rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+                    displayController->lampData[i].activeRgb =
+                        displayController->rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
                 }
             }
             else
             {
                 // Set active rgb value to 0 (off or black)
-                this->lampData[i].activeRgb = rgbFromValues(0, 0, 0);
+                displayController->lampData[i].activeRgb = displayController->rgbFromValues(0, 0, 0);
             }
         }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-        for (int i = 0; i < (LED_COUNT + 6); i++)
-        {
-            if (this->lampData[i].lampState == LampState::on)
-            {
-                if (i < LED_COUNT)
-                {
-                    this->lampData[i].activeRgb = this->lampData[i].rgb;
-                }
-                else
-                {
-                    // non- RGB button lamps
-                    this->lampData[i].activeRgb =
-                        rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
-                }
-            }
-            else
-            {
-                // Set active rgb value to 0 (off or black)
-                this->lampData[i].activeRgb = rgbFromValues(0, 0, 0);
-            }
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-        for (int i = 0; i < (LED_COUNT + 6); i++)
-        {
-            if (this->lampData[i].lampState == LampState::on ||
-                this->lampData[i].lampState == LampState::blinkfast)
-            {
-                if (i < LED_COUNT)
-                {
-                    this->lampData[i].activeRgb = this->lampData[i].rgb;
-                }
-                else
-                {
-                    // non- RGB button lamps
-                    this->lampData[i].activeRgb =
-                        rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
-                }
-            }
-            else
-            {
-                // Set active rgb value to 0 (off or black)
-                this->lampData[i].activeRgb = rgbFromValues(0, 0, 0);
-            }
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-}
-
-void DisplayController::updateLampsTask()
-{
-    ESP_LOGI(TAG, "Update Lamps task started");
-
-    //esp_err_t err;
-
-    uint8_t lampVal = 0;
-
-    for (;;)
-    {
-        ESP_LOGD(TAG, "update lamp loop");
-
-        // set leds
-        lampVal = 0;
+        break;
+    case 2:
         for (int i = 0; i < LED_COUNT + 6; i++)
         {
-            if (i < LED_COUNT)
+            if (displayController->lampData[i].lampState == LampState::on)
             {
-                ws2812_buffer[i] = this->lampData[i].activeRgb;
+                if (i < LED_COUNT)
+                {
+                    displayController->lampData[i].activeRgb = displayController->lampData[i].rgb;
+                }
+                else
+                {
+                    // non- RGB button lamps
+                    displayController->lampData[i].activeRgb =
+                        displayController->rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+                }
             }
             else
             {
-                // GPB1 and GPB0 are unconnected
-                // activeRgb value must be have have at least one channel (r, g or b)
-                // with a positive value to light
-                if (this->lampData[i].activeRgb.r > 0 ||
-                    this->lampData[i].activeRgb.g > 0 ||
-                    this->lampData[i].activeRgb.b > 0)
-                {
-                    switch (i)
-                    {
-                    case LED_COUNT:
-                        lampVal |= (1 << 7); // GPB7 (Start)
-                        break;
-                    case LED_COUNT + 1:
-                        lampVal |= (1 << 6); // GPB6 (Collect)
-                        break;
-                    case LED_COUNT + 2:
-                        lampVal |= (1 << 5); // GPB5
-                        break;
-                    case LED_COUNT + 3:
-                        lampVal |= (1 << 4); // GPB4
-                        break;
-                    case LED_COUNT + 4:
-                        lampVal |= (1 << 3); // GPB3
-                        break;
-                    case LED_COUNT + 5:
-                        lampVal |= (1 << 2); // GPB2
-
-                        break;
-                    }
-                }
+                // Set active rgb value to 0 (off or black)
+                displayController->lampData[i].activeRgb = displayController->rgbFromValues(0, 0, 0);
             }
         }
+        break;
+    case 3:
+        for (int i = 0; i < (LED_COUNT + 6); i++)
+        {
+            if (displayController->lampData[i].lampState == LampState::on ||
+                displayController->lampData[i].lampState == LampState::blinkfast)
+            {
+                if (i < LED_COUNT)
+                {
+                    displayController->lampData[i].activeRgb = displayController->lampData[i].rgb;
+                }
+                else
+                {
+                    // non- RGB button lamps
+                    displayController->lampData[i].activeRgb =
+                        displayController->rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+                }
+            }
+            else
+            {
+                // Set active rgb value to 0 (off or black)
+                displayController->lampData[i].activeRgb = displayController->rgbFromValues(0, 0, 0);
+            }
+        }
+        break;
+    }
 
-        FastLED.show();
-        buttonIO.writeGPIOB(lampVal);
-        getButtonStatus();
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    // if we have completed all four states (0-3).. reset state to zero and start again
+    if (state == 4)
+    {
+        state = 0;
     }
 }
 
-/**
- * @brief Task to refresh the seven segment displays.
- *
- */
-void DisplayController::updateSevenSegDisplaysTask()
+void DisplayController::updateLampsCallback(void* param)
 {
-    ESP_LOGI(TAG, "Update 7-segment display task started");
+    ESP_LOGI(TAG, "Update Lamps Callback called");
 
-    //
-    uint16_t bank = 0;
-    uint16_t credit = 0;
-    bool initialRun = true;
+    DisplayController *displayController = static_cast<DisplayController*>(param);
 
-    for (;;)
+    static uint8_t lampVal = 0;
+    static uint16_t bank = 0;
+    static uint16_t credit = 0;
+    static bool initialRun = true;
+
+    // set leds
+    lampVal = 0;
+    for (int i = 0; i < LED_COUNT + 6; i++)
     {
-        ESP_LOGD(TAG, "7 seg display loop");
-
-        if (initialRun || (bank != this->moneyController.getBank()))
+        if (i < LED_COUNT)
         {
-            bank = this->moneyController.getBank();
-            bankDisplay.write_value("%05d", bank);
+            displayController->ws2812_buffer[i] = displayController->lampData[i].activeRgb;
         }
-
-        if (initialRun || (credit != this->moneyController.getCredit()))
+        else
         {
-            credit = this->moneyController.getCredit();
-            creditDisplay.write_value("%05d", credit);
+            // GPB1 and GPB0 are unconnected
+            // activeRgb value must be have have at least one channel (r, g or b)
+            // with a positive value to light
+            if (displayController->lampData[i].activeRgb.r > 0 ||
+                displayController->lampData[i].activeRgb.g > 0 ||
+                displayController->lampData[i].activeRgb.b > 0)
+            {
+                switch (i)
+                {
+                case LED_COUNT:
+                    lampVal |= (1 << 7); // GPB7 (Start)
+                    break;
+                case LED_COUNT + 1:
+                    lampVal |= (1 << 6); // GPB6 (Collect)
+                    break;
+                case LED_COUNT + 2:
+                    lampVal |= (1 << 5); // GPB5
+                    break;
+                case LED_COUNT + 3:
+                    lampVal |= (1 << 4); // GPB4
+                    break;
+                case LED_COUNT + 4:
+                    lampVal |= (1 << 3); // GPB3
+                    break;
+                case LED_COUNT + 5:
+                    lampVal |= (1 << 2); // GPB2
+
+                    break;
+                }
+            }
         }
-
-        initialRun = false;
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
+
+    FastLED.show();
+    displayController->buttonIO.writeGPIOB(lampVal);
+    displayController->getButtonStatus();
+
+    if (initialRun || bank != displayController->moneyController.getBank())
+    {
+        bank = displayController->moneyController.getBank();
+        displayController->bankDisplay.write_value("%05d", bank);
+    }
+
+    if (initialRun || credit != displayController->moneyController.getCredit())
+    {
+        credit = displayController->moneyController.getCredit();
+        displayController->creditDisplay.write_value("%05d", credit);
+    }
+
+    initialRun = false;
 }
 
 fl::CRGB DisplayController::rgbFromValues(uint8_t red, uint8_t green, uint8_t blue)

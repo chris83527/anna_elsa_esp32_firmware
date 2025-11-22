@@ -123,7 +123,7 @@ static constexpr uint8_t charmap[] = {
     SEG_A | SEG_F | SEG_G | SEG_C | SEG_D // S = 31
 };
 
-HT16K33::HT16K33(I2CManager& i2cmgr, const uint8_t address)
+HT16K33::HT16K33(const I2CManager& i2cmgr, const uint8_t address)
     : i2c_manager{i2cmgr}
 {
     ESP_LOGD(TAG, "i2c_address: %d", address);

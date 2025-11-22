@@ -46,7 +46,7 @@
 class HT16K33
 {
 public:
-    HT16K33(I2CManager& i2cmanager, const uint8_t address);
+    HT16K33(const I2CManager& i2cmanager, const uint8_t address);
     ~HT16K33();
 
     esp_err_t set_digits(uint8_t val);

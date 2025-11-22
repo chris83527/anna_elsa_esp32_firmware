@@ -44,8 +44,7 @@
 
 static const char* TAG = "MoneyController";
 
-MoneyController::MoneyController(NvsController& nvsCtrlr,
-                                 CCTalkController& cctalkController)
+MoneyController::MoneyController(NvsController& nvsCtrlr, CCTalkController& cctalkController)
     : credit(0), bank(0), transfer(0), gamecount(0), payoutTotal(0), incomeTotal(0), tenCentIn(0), twentyCentIn(0),
       fiftyCentIn(0),
       oneEuroIn(0),
