@@ -165,7 +165,7 @@ bool ReelController::initialise()
         {
             break;
         }
-        std::this_thread::yield();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     this->leftReel.home(PCA9629A::Direction::CW); // return to home
@@ -180,7 +180,7 @@ bool ReelController::initialise()
         {
             break;
         }
-        std::this_thread::yield();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);

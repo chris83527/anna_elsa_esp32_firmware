@@ -75,8 +75,9 @@ void MainController::start()
     constexpr esp_timer_create_args_t my_timer_args = {
         .callback = &blinkCPUStatusLEDCallback,
         .arg = nullptr,
+		.dispatch_method = ESP_TIMER_TASK,
         .name = "CPU LED Timer",
-        .skip_unhandled_events = true,
+        .skip_unhandled_events = true
     };
     esp_timer_handle_t timer_handler;
     ESP_ERROR_CHECK(esp_timer_create(&my_timer_args, &timer_handler));
@@ -225,26 +226,24 @@ void MainController::start()
         ESP_LOGD(TAG, "Reel controller initialisation ok.");
     }
 
-    blinkDelay = 1000;
+    blinkDelay = 1000000;
+	ESP_ERROR_CHECK(esp_timer_stop(timer_handler));
+	ESP_ERROR_CHECK(esp_timer_start_periodic(timer_handler, 5000000));
 
     displayController.displayVFDText("INITIALISING 0D");
     displayController.scrollOledText("Init game");
     this->game.initialise();
 
     displayController.displayVFDText("INITIALISING 0E");
-    /*auto cfg = esp_pthread_get_default_config();
-    cfg.thread_name = "UpdateStatistics";
-    cfg.prio = 1;
-    cfg.stack_size = 4096;
-    esp_pthread_set_cfg(&cfg);
-    this->updateStatisticsThread =
-        std::thread([this]() { updateStatisticsDisplayTask(); });
-    this->updateStatisticsThread.detach();*/
 
     // Set up a timer to update the statistics every 5 seconds
     constexpr esp_timer_create_args_t updateStatisticsTimerArgs = {
         .callback = &updateStatisticsDisplayCallback,
-        .name = "Update Statistics Timer"};
+		.arg = nullptr,
+		.dispatch_method = ESP_TIMER_TASK,
+        .name = "Update Statistics Timer",
+		.skip_unhandled_events = true
+	};
     esp_timer_handle_t updateStatisticsTimerHandler;
     ESP_ERROR_CHECK(esp_timer_create(&updateStatisticsTimerArgs, &updateStatisticsTimerHandler));
     ESP_ERROR_CHECK(esp_timer_start_periodic(updateStatisticsTimerHandler, 5000000));
@@ -342,40 +341,36 @@ void MainController::updateStatisticsDisplayCallback(void *param)
     char buf[21];
     esp_err_t ret;
 
-    while (true)
+    ESP_LOGD(TAG, "Updating statics loop");
+    ret = mainController->ds3231.get_time(time);
+
+    if (ret == ESP_OK)
     {
-        ESP_LOGD(TAG, "Updating statics loop");
-        ret = mainController->ds3231.get_time(time);
+        uint16_t years = time.tm_year + 1900;
+        std::sprintf(buf, "%02d-%02d-%04d %02d:%02d", time.tm_mday, time.tm_mon,
+                     years, time.tm_hour, time.tm_min);
 
-        if (ret == ESP_OK)
-        {
-            uint16_t years = time.tm_year + 1900;
-            std::sprintf(buf, "%02d-%02d-%04d %02d:%02d", time.tm_mday, time.tm_mon,
-                         years, time.tm_hour, time.tm_min);
+        dateString.clear();
+        dateString.append(buf);
+        mainController->displayController.displayOledText(dateString, 0, true);
 
-            dateString.clear();
-            dateString.append(buf);
-            mainController->displayController.displayOledText(dateString, 0, true);
-
-            std::sprintf(buf, "Games    : %05d",
-                         mainController->moneyController.getGameCount());
-            mainController->displayController.displayOledText(buf, 2, false);
-            std::sprintf(buf, "Total in : %05d",
-                         mainController->moneyController.getIncomeTotal());
-            mainController->displayController.displayOledText(buf, 3, false);
-            std::sprintf(buf, "Total out: %05d",
-                         mainController->moneyController.getPayoutTotal());
-            mainController->displayController.displayOledText(buf, 4, false);
-            std::sprintf(buf, "Credit   : %05d", mainController->moneyController.getCredit());
-            mainController->displayController.displayOledText(buf, 5, false);
-            std::sprintf(buf, "Bank     : %05d", mainController->moneyController.getBank());
-            mainController->displayController.displayOledText(buf, 6, false);
-        }
-        else
-        {
-            ESP_LOGW(TAG, "Couldn't read time from RTC!");
-        }
-
-        std::this_thread::sleep_for(std::chrono::seconds(5)); // 5 seconds
+        std::sprintf(buf, "Games    : %05d",
+                     mainController->moneyController.getGameCount());
+        mainController->displayController.displayOledText(buf, 2, false);
+        std::sprintf(buf, "Total in : %05d",
+                     mainController->moneyController.getIncomeTotal());
+        mainController->displayController.displayOledText(buf, 3, false);
+        std::sprintf(buf, "Total out: %05d",
+                     mainController->moneyController.getPayoutTotal());
+        mainController->displayController.displayOledText(buf, 4, false);
+        std::sprintf(buf, "Credit   : %05d", mainController->moneyController.getCredit());
+        mainController->displayController.displayOledText(buf, 5, false);
+        std::sprintf(buf, "Bank     : %05d", mainController->moneyController.getBank());
+        mainController->displayController.displayOledText(buf, 6, false);
     }
+    else
+    {
+        ESP_LOGW(TAG, "Couldn't read time from RTC!");
+    }
+
 }

@@ -131,7 +131,7 @@ esp_err_t DisplayController::initialise()
         .callback = &blinkLampsCallback,
         .arg = this,
         .dispatch_method = ESP_TIMER_TASK,
-        .name = "Update Lamps Timer",
+        .name = "BLink Lamps Timer",
         .skip_unhandled_events = true,
     };
     esp_timer_handle_t blinkLampsTimerHandler;
@@ -148,7 +148,7 @@ esp_err_t DisplayController::initialise()
     };
     esp_timer_handle_t updateLampsTimerHandler;
     ESP_ERROR_CHECK(esp_timer_create(&updateLampsTimerArgs, &updateLampsTimerHandler));
-    ESP_ERROR_CHECK(esp_timer_start_periodic(updateLampsTimerHandler, 30000)); // 30ms
+    ESP_ERROR_CHECK(esp_timer_start_periodic(updateLampsTimerHandler, 50000)); // 30ms
 
     testLamps();
 
@@ -192,13 +192,13 @@ void DisplayController::scrollOledText(const std::string& text)
 
 void DisplayController::clearOledDisplay()
 {
-    oledController.clearDisplay();
+   // oledController.clearDisplay();
 }
 
 void DisplayController::displayOledText(const std::string& text, int lineNumber,
                                         bool invert)
 {
-    oledController.displayText(text, lineNumber, invert);
+   // oledController.displayText(text, lineNumber, invert);
 }
 
 bool DisplayController::isAttractMode() { return attractMode; }
@@ -214,7 +214,7 @@ void DisplayController::testLamps()
         lampData[i].lampState = LampState::on;
         lampData[i].rgb = rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
     }
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+    std::this_thread::sleep_for(std::chrono::seconds(5));
     resetLampData();
     ESP_LOGD(TAG, "Exiting testLamps()");
 }
@@ -565,7 +565,7 @@ void DisplayController::blinkLampsCallback(void* param)
 
 void DisplayController::updateLampsCallback(void* param)
 {
-    ESP_LOGI(TAG, "Update Lamps Callback called");
+    ESP_LOGD(TAG, "Update Lamps Callback called");
 
     DisplayController *displayController = static_cast<DisplayController*>(param);
 
@@ -580,16 +580,17 @@ void DisplayController::updateLampsCallback(void* param)
     {
         if (i < LED_COUNT)
         {
-            displayController->ws2812_buffer[i] = displayController->lampData[i].activeRgb;
+            	displayController->ws2812_buffer[i] = displayController->lampData[i].activeRgb;
         }
         else
         {
             // GPB1 and GPB0 are unconnected
             // activeRgb value must be have have at least one channel (r, g or b)
             // with a positive value to light
-            if (displayController->lampData[i].activeRgb.r > 0 ||
+            if ((displayController->lampData[i].activeRgb.r > 0 ||
                 displayController->lampData[i].activeRgb.g > 0 ||
-                displayController->lampData[i].activeRgb.b > 0)
+                displayController->lampData[i].activeRgb.b > 0) &&
+				displayController->lampData[i].lampState == LampState::on)
             {
                 switch (i)
                 {

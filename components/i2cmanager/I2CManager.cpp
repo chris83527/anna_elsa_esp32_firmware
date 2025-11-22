@@ -143,8 +143,10 @@ esp_err_t I2CManager::readRegister(const i2c_master_dev_handle_t &deviceHandle,
   esp_err_t ret = i2c_master_transmit_receive(deviceHandle, &reg, 1, readBuffer,
                                               size, 5000);
 
+  ESP_ERROR_CHECK(ret);
+
   data.clear();
-  data.insert(data.begin(), std::begin(readBuffer), readBuffer + size);
+  data.insert(data.begin(), std::begin(readBuffer), &readBuffer[0] + size);
 
   i2c_master_bus_wait_all_done(_bus_handle, 5000);
 
