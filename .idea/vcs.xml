@@ -2,9 +2,6 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/components/FastLED" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/components/FastLED/wiki" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/components/arduino-esp32" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/components/esp_littlefs" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/components/esp_littlefs/src/littlefs" vcs="Git" />
     <mapping directory="$USER_HOME$/esp/esp-idf" vcs="Git" />
@@ -31,6 +28,8 @@
     <mapping directory="$USER_HOME$/esp/esp-idf/components/mqtt/esp-mqtt" vcs="Git" />
     <mapping directory="$USER_HOME$/esp/esp-idf/components/openthread/lib" vcs="Git" />
     <mapping directory="$USER_HOME$/esp/esp-idf/components/openthread/openthread" vcs="Git" />
+    <mapping directory="$USER_HOME$/esp/esp-idf/components/openthread/openthread/third_party/mbedtls/repo" vcs="Git" />
+    <mapping directory="$USER_HOME$/esp/esp-idf/components/openthread/openthread/third_party/mbedtls/repo/framework" vcs="Git" />
     <mapping directory="$USER_HOME$/esp/esp-idf/components/protobuf-c/protobuf-c" vcs="Git" />
     <mapping directory="$USER_HOME$/esp/esp-idf/components/spiffs/spiffs" vcs="Git" />
     <mapping directory="$USER_HOME$/esp/esp-idf/components/unity/unity" vcs="Git" />

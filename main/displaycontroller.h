@@ -49,22 +49,16 @@
 //#include "led_strip.h"
 
 #include "mcp23x17.h"
-#include "moneycontroller.h"
+#include "paymentcontroller.h"
 #include "oledcontroller.h"
-
-#define FASTLED_ESP32_I2S
-#define FASTLED_ESP32_I2S_NUM_DMA_BUFFERS 4
-
-#include "FastLED.h"
-//#include "FX.h"
-
+#include "ws2812b.h"
 
 #define CHASE_SPEED_MS (100)
 
 enum class LampState { off, blinkslow, blinkfast, on };
 
 extern CRGBPalette16 myRedWhiteBluePalette;
-extern const TProgmemPalette16 myRedWhiteBluePalette_p;
+extern const CRGBPalette16 myRedWhiteBluePalette_p;
 
 class DisplayController
 {
@@ -74,8 +68,8 @@ public:
 
     struct lamp_data_t
     {
-        fl::CRGB rgb = CRGB(255, 255, 255);
-        fl::CRGB activeRgb = CRGB(255, 255, 255);
+        CRGB rgb = CRGB(255, 255, 255);
+        CRGB activeRgb = CRGB(255, 255, 255);
         LampState lampState = LampState::off;
     };
 
@@ -94,7 +88,7 @@ public:
     void displayOledText(const std::string& text, int lineNumber, bool invert);
     bool isAttractMode();
 
-    fl::CRGB rgbFromValues(uint8_t red, uint8_t green, uint8_t blue);
+    CRGB rgbFromValues(uint8_t red, uint8_t green, uint8_t blue);
 
     uint8_t getButtonStatus();
     uint8_t waitForButton(uint8_t mask);
@@ -259,9 +253,12 @@ private:
     void SetupBlackAndWhiteStripedPalette();
     void SetupPurpleAndGreenPalette();
 
+    uint32_t millis();
+
     //void rainbowEffect();
     void chaseEffect();
     void fadeInOutEffect();
+    void trail();
 
     I2CManager& i2cManager;
     HT16K33 movesDisplay = HT16K33(i2cManager, MOVES_DISPLAY_ADDRESS);
@@ -269,8 +266,8 @@ private:
     HT16K33 bankDisplay = HT16K33(i2cManager, BANK_DISPLAY_ADDRESS);
     MCP23x17 buttonIO = MCP23x17(i2cManager, BUTTONS_I2C_ADDRESS);
     OledController oledController = OledController(i2cManager, 0x3c);
+    WS2812B strip = WS2812B(LED_GPIO, LED_COUNT);
 
-    fl::CRGB ws2812_buffer[LED_COUNT];
     CRGBPalette16 currentPalette;
     TBlendType    currentBlending;
 

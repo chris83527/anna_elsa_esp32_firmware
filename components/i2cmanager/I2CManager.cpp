@@ -56,7 +56,7 @@ I2CManager::I2CManager(i2c_port_num_t portNumber, gpio_num_t sclPin,
   _i2c_mst_config.scl_io_num = sclPin;
   _i2c_mst_config.sda_io_num = sdaPin;
   _i2c_mst_config.glitch_ignore_cnt = 7;
-  _i2c_mst_config.flags.enable_internal_pullup = true;
+  _i2c_mst_config.flags.enable_internal_pullup = false;
   _i2c_mst_config.intr_priority = 0;
   _i2c_mst_config.trans_queue_depth = 0;
 

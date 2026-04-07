@@ -19,11 +19,11 @@
 
 #include "NvsController.h"
 #include "audiocontroller.h"
-#include "cctalkcontroller.h"
+#include "cctalkcontroller.hpp"
 #include "displaycontroller.h"
 #include "ds3231.h"
 #include "game.h"
-#include "moneycontroller.h"
+#include "paymentcontroller.h"
 #include "reelcontroller.h"
 
 class MainController
@@ -37,7 +37,7 @@ public:
 
     I2CManager i2c_manager = I2CManager(I2C_NUM_0, GPIO_NUM_22, GPIO_NUM_21);
     NvsController nvsController;
-    CCTalkController cctalkController;
+    CctalkController cctalkController;
     MoneyController moneyController = MoneyController(nvsController, cctalkController);
     DisplayController displayController = DisplayController(moneyController, i2c_manager);
     AudioController audioController = AudioController(i2c_manager);
@@ -54,7 +54,7 @@ public:
 
     AudioController& getAudioController();
     ReelController& getReelController();
-    CCTalkController& getCCTalkController();
+    CctalkController& getCCTalkController();
     DisplayController& getDisplayController();
     MoneyController& getMoneyController();
     Game& getGame();

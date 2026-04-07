@@ -1,6 +1,7 @@
 # This file was automatically generated for projects
 # without default 'CMakeLists.txt.orig' file.
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.28)
+cmake_policy(SET CMP0111 NEW)
 
 FILE(GLOB_RECURSE app_sources ${CMAKE_SOURCE_DIR}/main/*.c*)
 

@@ -42,7 +42,7 @@
 
 #include "audiocontroller.h"
 #include "displaycontroller.h"
-#include "moneycontroller.h"
+#include "paymentcontroller.h"
 #include "reelcontroller.h"
 
 #define HANS 0

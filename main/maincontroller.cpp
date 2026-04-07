@@ -22,13 +22,14 @@
 #include "esp_timer.h"
 
 #include "audiocontroller.h"
-#include "cctalkcontroller.h"
+#include "cctalkcontroller.hpp"
+#include "esp_idf_cctalk_uart.hpp"
 #include "config.h"
 #include "displaycontroller.h"
 #include "esp_event.h"
 #include "game.h"
 #include "maincontroller.h"
-#include "moneycontroller.h"
+#include "paymentcontroller.h"
 #include "reelcontroller.h"
 
 #include "esp_littlefs.h"
@@ -194,26 +195,19 @@ void MainController::start()
 
     displayController.displayVFDText("INITIALISING 0A");
     displayController.scrollOledText("Init cctalk");
-    cctalkController.setCreditAcceptedCallback(
-        [&](uint8_t coin_id, const esp32cc::CcIdentifier& identifier)
-        {
-            ESP_LOGI(TAG, "Credit accepted: Coin id: %d, Identifier: %s", coin_id,
-                     identifier.id_string.c_str());
-            moneyController.addToCredit(CCTalkController::COIN_VALUES[coin_id]);
-        });
+
+    auto uart = std::make_unique<EspIdfCctalkUart>(CCTALK_UART);
+
+    CctalkController cctalkController (
+        std::move(uart),
+        1,   // host address
+        2,   // coin acceptor address
+        3    // hopper address
+    );
+
+    cctalkController.start();
 
     displayController.displayVFDText("INITIALISING 0B");
-    if (cctalkController.initialise() != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to initialise ccTalk subsystem");
-        displayController.scrollOledText("  -> failed");
-    }
-    else
-    {
-        displayController.scrollOledText("  -> ok");
-    }
-
-    displayController.displayVFDText("INITIALISING 0C");
     displayController.scrollOledText("Init reels");
     if (!reelController.initialise())
     {
@@ -230,11 +224,11 @@ void MainController::start()
 	ESP_ERROR_CHECK(esp_timer_stop(timer_handler));
 	ESP_ERROR_CHECK(esp_timer_start_periodic(timer_handler, 5000000));
 
-    displayController.displayVFDText("INITIALISING 0D");
+    displayController.displayVFDText("INITIALISING 0C");
     displayController.scrollOledText("Init game");
     this->game.initialise();
 
-    displayController.displayVFDText("INITIALISING 0E");
+    displayController.displayVFDText("INITIALISING 0D");
 
     // Set up a timer to update the statistics every 5 seconds
     constexpr esp_timer_create_args_t updateStatisticsTimerArgs = {
@@ -290,7 +284,7 @@ AudioController& MainController::getAudioController()
 
 ReelController& MainController::getReelController() { return reelController; }
 
-CCTalkController& MainController::getCCTalkController()
+CctalkController& MainController::getCCTalkController()
 {
     return cctalkController;
 }

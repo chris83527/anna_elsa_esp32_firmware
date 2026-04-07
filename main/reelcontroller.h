@@ -74,7 +74,7 @@
 //#define LEDC_DUTY_FULL (6554) // Set duty to 80%. (2 ** 13) * 80%  = 6554
 #define LEDC_DUTY_FULL (8191) // 100%
 
-#define LEDC_FREQUENCY (5000)   // Frequency in Hertz. Set frequency to 40Hz
+#define LEDC_FREQUENCY (200)   // Frequency in Hertz. Set frequency to 40Hz
 
 class ReelController
 {

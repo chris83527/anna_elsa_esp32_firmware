@@ -27,7 +27,7 @@
  */
 
 /**
- * @file moneycontroller.cpp
+ * @file PaymentController.cpp
  *
  * Routines for adding to bank, adding credit etc.
  *
@@ -35,16 +35,16 @@
  *
  * BSD Licensed as described in the file LICENSE
  */
-#include "cctalkcontroller.h"
+#include "cctalk.hpp"
 #include "esp_log.h"
 #include "nvs.h"
 
 #include "NvsController.h"
-#include "moneycontroller.h"
+#include "paymentcontroller.h"
 
-static const char* TAG = "MoneyController";
+static const char* TAG = "PaymentController";
 
-MoneyController::MoneyController(NvsController& nvsCtrlr, CCTalkController& cctalkController)
+PaymentController::PaymentController(NvsController& nvsCtrlr, CctalkController& cctalkController)
     : credit(0), bank(0), transfer(0), gamecount(0), payoutTotal(0), incomeTotal(0), tenCentIn(0), twentyCentIn(0),
       fiftyCentIn(0),
       oneEuroIn(0),
@@ -58,10 +58,10 @@ MoneyController::MoneyController(NvsController& nvsCtrlr, CCTalkController& ccta
     this->payoutInProgress = false;
 }
 
-MoneyController::~MoneyController()
+PaymentController::~PaymentController()
 = default;
 
-void MoneyController::initialise()
+void PaymentController::initialise()
 {
     ESP_LOGI(TAG, "initialise() called");
     loadValuesFromStorage();
@@ -72,7 +72,7 @@ void MoneyController::initialise()
  * credit and bank values after poweroff
  *
  */
-void MoneyController::loadValuesFromStorage()
+void PaymentController::loadValuesFromStorage()
 {
     this->credit = this->nvsController.readValueFromNVS(NVS_KEY_CREDIT.c_str());
     this->bank = this->nvsController.readValueFromNVS(NVS_KEY_BANK.c_str());
@@ -101,7 +101,7 @@ void MoneyController::loadValuesFromStorage()
  *
  * @param value The amount to be added to the player's total credit
  */
-void MoneyController::addToCredit(Payment& payment)
+void PaymentController::addToCredit(Payment& payment)
 {
     addToCredit(payment.getTenCent() * 10);
     this->nvsController.writeValueToNVS(NVS_KEY_TEN_CENT_IN.c_str(),
@@ -124,7 +124,7 @@ void MoneyController::addToCredit(Payment& payment)
     this->nvsController.writeValueToNVS(NVS_KEY_CREDIT.c_str(), credit);
 }
 
-void MoneyController::addToCredit(uint16_t value)
+void PaymentController::addToCredit(uint16_t value)
 {
     this->credit += value;
     this->incomeTotal += value;
@@ -138,7 +138,7 @@ void MoneyController::addToCredit(uint16_t value)
  *
  * @param value The amount to be added to the player's bank
  */
-void MoneyController::addToBank(const uint16_t value)
+void PaymentController::addToBank(const uint16_t value)
 {
     this->bank += value;
     this->nvsController.writeValueToNVS(NVS_KEY_BANK.c_str(), bank);
@@ -150,7 +150,7 @@ void MoneyController::addToBank(const uint16_t value)
  *
  * @param value The amount to be removed to the player's total credit
  */
-void MoneyController::removeFromCredit(const uint16_t value)
+void PaymentController::removeFromCredit(const uint16_t value)
 {
     // check for negative values
     if ((credit - value) >= 0)
@@ -160,9 +160,9 @@ void MoneyController::removeFromCredit(const uint16_t value)
     }
 }
 
-void MoneyController::payoutBank()
+void PaymentController::payoutBank()
 {
-    cctalkController.dispenseCoins(
+    dispenseCoins(
         (getBank() / 20), [&](const std::string& error_msg)
         {
             // TODO: Check status and see how many coins were returned and
@@ -188,7 +188,7 @@ void MoneyController::payoutBank()
  *
  * @param value
  */
-void MoneyController::removeFromBank(const uint16_t value)
+void PaymentController::removeFromBank(const uint16_t value)
 {
     // check for negative values
     if ((bank - value) >= 0)
@@ -203,37 +203,37 @@ void MoneyController::removeFromBank(const uint16_t value)
  *
  * @return int
  */
-uint16_t MoneyController::getBank() const { return bank; }
+uint16_t PaymentController::getBank() const { return bank; }
 
-uint16_t MoneyController::getGameCount() const { return gamecount; }
+uint16_t PaymentController::getGameCount() const { return gamecount; }
 
-uint16_t MoneyController::getPayoutTotal() { return payoutTotal; }
+uint16_t PaymentController::getPayoutTotal() { return payoutTotal; }
 
-uint16_t MoneyController::getIncomeTotal() const { return incomeTotal; }
+uint16_t PaymentController::getIncomeTotal() const { return incomeTotal; }
 
-void MoneyController::incrementGameCount()
+void PaymentController::incrementGameCount()
 {
     this->gamecount += 1;
     this->nvsController.writeValueToNVS(NVS_KEY_GAME_COUNT.c_str(), gamecount);
 }
 
-bool MoneyController::isPayoutInProgress() { return this->payoutInProgress; }
+bool PaymentController::isPayoutInProgress() { return this->payoutInProgress; }
 
-void MoneyController::setPayoutInProgress(bool payoutInProgress)
+void PaymentController::setPayoutInProgress(bool payoutInProgress)
 {
     this->payoutInProgress = payoutInProgress;
 }
 
-void MoneyController::moveBankToCredit()
+void PaymentController::moveBankToCredit()
 {
-    MoneyController::addToCredit(this->bank);
-    MoneyController::removeFromBank(this->bank);
+    PaymentController::addToCredit(this->bank);
+    PaymentController::removeFromBank(this->bank);
 }
 
-void MoneyController::moveTransferToBank()
+void PaymentController::moveTransferToBank()
 {
-    MoneyController::addToBank(this->transfer);
-    MoneyController::setTransfer(0);
+    PaymentController::addToBank(this->transfer);
+    PaymentController::setTransfer(0);
 }
 
 /*
@@ -241,15 +241,15 @@ void MoneyController::moveTransferToBank()
  *
  * @return int
  */
-uint16_t MoneyController::getCredit() { return credit; }
+uint16_t PaymentController::getCredit() { return credit; }
 
-void MoneyController::setTransfer(uint16_t amount)
+void PaymentController::setTransfer(uint16_t amount)
 {
     this->transfer = amount;
     nvsController.writeValueToNVS(NVS_KEY_TRANSFER.c_str(), transfer);
 }
 
-uint16_t MoneyController::getTransfer() { return transfer; }
+uint16_t PaymentController::getTransfer() { return transfer; }
 
 void Payment::clear()
 {

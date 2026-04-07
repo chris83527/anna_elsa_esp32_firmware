@@ -77,7 +77,7 @@ static const char* TAG = "ht16k33";
 #define SEG_DP (1 << 7)
 
 // Arrangement for display
-// )
+//
 //               a = A6
 //             _________
 //            |         |

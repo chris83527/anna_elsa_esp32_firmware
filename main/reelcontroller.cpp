@@ -37,11 +37,7 @@
  */
 #include <chrono>
 #include <cstdio>
-#include <cstring>
 #include <bitset>
-
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 
 #include "driver/gpio.h"
 #include "driver/ledc.h"
@@ -49,19 +45,13 @@
 #include "hal/ledc_types.h"
 #include "pca9629a.h"
 
-#define FASTLED_ESP32_I2S
-#define I2S_DEVICE 1
-#define FASTLED_ESP32_I2S_NUM_DMA_BUFFERS 4
-
-#include "FastLED.h"
-#include "lib8tion.h"
-
 #include "audiocontroller.h"
 #include "config.h"
 #include "displaycontroller.h"
-#include "esp_pthread.h"
 #include "game.h"
 #include "reelcontroller.h"
+
+#include "lib8tion/random8.h"
 
 static const char* TAG = "ReelController";
 
@@ -103,7 +93,7 @@ bool ReelController::initialise()
 
     // Prepare and then apply the LEDC PWM timer configuration
     ledc_timer_config_t ledc_timer = {
-        .speed_mode = LEDC_MODE,
+        .speed_mode = LEDC_SPEED_MODE_MAX,
         .duty_resolution = LEDC_DUTY_RES,
         .timer_num = LEDC_TIMER,
         .freq_hz = LEDC_FREQUENCY, // Set output frequency at 5000Hz

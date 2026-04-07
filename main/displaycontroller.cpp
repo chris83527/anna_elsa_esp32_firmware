@@ -39,20 +39,16 @@
 
 #include <bitset>
 #include <chrono>
-#include <cstddef>
-#include <cstdlib>
 #include <string>
 #include <vector>
 
 #include "driver/gpio.h"
 #include "driver/rmt_tx.h"
-#include "esp_debug_helpers.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 #include "esp_pthread.h"
 #include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-
 
 #include "config.h"
 
@@ -60,18 +56,13 @@
 #include "m20ly02z.h"
 #include "mcp23x17.h"
 
-#include "audiocontroller.h"
 #include "displaycontroller.h"
 #include "game.h"
-#include "moneycontroller.h"
+#include "paymentcontroller.h"
 
+#include "ws2812b.h"
+#include "lib8tion/random8.h"
 
-#define FASTLED_ESP32_I2S
-#define I2S_DEVICE 1
-#define FASTLED_ESP32_I2S_NUM_DMA_BUFFERS 4
-
-#include "FastLED.h"
-#include "fl/fill.h"
 
 static const char* TAG = "DisplayController";
 static std::string vfdText;
@@ -99,10 +90,11 @@ esp_err_t DisplayController::initialise()
 
     buttonStatus = 0;
 
-    FastLED.addLeds<WS2812B, LED_GPIO, GRB>(ws2812_buffer, LED_COUNT).setCorrection(TypicalLEDStrip);
-    FastLED.setBrightness(MAX_BRIGHTNESS);
     currentPalette = RainbowColors_p;
     currentBlending = LINEARBLEND;
+
+
+    strip.init();
 
     creditDisplay.display_on();
     creditDisplay.write_value("%05d", 88888);
@@ -192,13 +184,13 @@ void DisplayController::scrollOledText(const std::string& text)
 
 void DisplayController::clearOledDisplay()
 {
-   // oledController.clearDisplay();
+   oledController.clearDisplay();
 }
 
 void DisplayController::displayOledText(const std::string& text, int lineNumber,
                                         bool invert)
 {
-   // oledController.displayText(text, lineNumber, invert);
+   oledController.displayText(text, lineNumber, invert);
 }
 
 bool DisplayController::isAttractMode() { return attractMode; }
@@ -326,6 +318,7 @@ void DisplayController::attractModeTask()
 void DisplayController::fadeInOutEffect()
 {
     resetLampData();
+
 
     // Trail lamps fade in
     for (int i = 0; i < MAX_BRIGHTNESS; i += 2)
@@ -580,7 +573,7 @@ void DisplayController::updateLampsCallback(void* param)
     {
         if (i < LED_COUNT)
         {
-            	displayController->ws2812_buffer[i] = displayController->lampData[i].activeRgb;
+            	displayController->strip.set_pixel(i, displayController->lampData[i].activeRgb);
         }
         else
         {
@@ -618,7 +611,7 @@ void DisplayController::updateLampsCallback(void* param)
         }
     }
 
-    FastLED.show();
+    displayController->strip.show();
     displayController->buttonIO.writeGPIOB(lampVal);
     displayController->getButtonStatus();
 
@@ -637,15 +630,6 @@ void DisplayController::updateLampsCallback(void* param)
     initialRun = false;
 }
 
-fl::CRGB DisplayController::rgbFromValues(uint8_t red, uint8_t green, uint8_t blue)
-{
-    fl::CRGB result;
-    result.red = red;
-    result.green = green;
-    result.blue = blue;
-    return result;
-}
-
 void DisplayController::FillLEDsFromPaletteColors(uint8_t colorIndex)
 {
     uint8_t brightness = MAX_BRIGHTNESS;
@@ -653,7 +637,7 @@ void DisplayController::FillLEDsFromPaletteColors(uint8_t colorIndex)
     for (int i = 0; i < LED_COUNT; ++i)
     {
         lampData[i].lampState = LampState::on;
-        lampData[i].rgb = ColorFromPalette(currentPalette, colorIndex, brightness, currentBlending);
+        lampData[i].rgb = colorFromPalette(currentPalette, colorIndex, brightness, currentBlending);
         lampData[i].activeRgb = lampData[i].rgb;
         colorIndex += 3;
     }
@@ -682,7 +666,7 @@ void DisplayController::ChangePalettePeriodically()
         if (secondHand == 15)
         {
             displayVFDText("       FROZEN       ");
-            currentPalette = RainbowStripeColors_p;
+            currentPalette = RainbowColors_p;
             currentBlending = LINEARBLEND;
         }
         if (secondHand == 20)
@@ -720,12 +704,12 @@ void DisplayController::ChangePalettePeriodically()
         }
         if (secondHand == 50)
         {
-            currentPalette = myRedWhiteBluePalette_p;
+            currentPalette = myRedWhiteBluePalette;
             currentBlending = NOBLEND;
         }
         if (secondHand == 55)
         {
-            currentPalette = myRedWhiteBluePalette_p;
+            currentPalette = myRedWhiteBluePalette;
             currentBlending = LINEARBLEND;
         }
     }
@@ -736,7 +720,7 @@ void DisplayController::SetupTotallyRandomPalette()
 {
     for (int i = 0; i < 16; ++i)
     {
-        currentPalette[i] = CHSV(random8(), 255, random8());
+        currentPalette.colors[i] = hsv2rgb(CHSV(random8(), 255, random8()));
     }
 }
 
@@ -747,51 +731,66 @@ void DisplayController::SetupTotallyRandomPalette()
 void DisplayController::SetupBlackAndWhiteStripedPalette()
 {
     // 'black out' all 16 palette entries...
-    fill_solid(currentPalette, 16, fl::CRGB::Black);
+    strip.fill_solid(currentPalette, 16, CRGB::Black);
     // and set every fourth one to white.
-    currentPalette[0] = fl::CRGB::White;
-    currentPalette[4] = fl::CRGB::White;
-    currentPalette[8] = fl::CRGB::White;
-    currentPalette[12] = fl::CRGB::White;
+    currentPalette.colors[0] = CRGB::White;
+    currentPalette.colors[4] = CRGB::White;
+    currentPalette.colors[8] = CRGB::White;
+    currentPalette.colors[12] = CRGB::White;
 }
 
 // This function sets up a palette of purple and green stripes.
 void DisplayController::SetupPurpleAndGreenPalette()
 {
-    fl::CRGB purple = CHSV(HUE_PURPLE, 255, 255);
-    fl::CRGB green = CHSV(HUE_GREEN, 255, 255);
-    fl::CRGB black = fl::CRGB::Black;
+    CRGB purple = hsv2rgb(CHSV(CHSV::HUE_PURPLE, 255, 255));
+    CRGB green = hsv2rgb(CHSV(CHSV::HUE_GREEN, 255, 255));
+    CRGB black = CRGB::Black;
 
-    currentPalette = CRGBPalette16(
+    currentPalette = CRGBPalette16({
         green, green, black, black,
         purple, purple, black, black,
         green, green, black, black,
-        purple, purple, black, black);
+        purple, purple, black, black});
 }
 
-
-// This example shows how to set up a static color palette
-// which is stored in PROGMEM (flash), which is almost always more
-// plentiful than RAM.  A static PROGMEM palette like this
-// takes up 64 bytes of flash.
-const TProgmemPalette16 myRedWhiteBluePalette_p =
+const CRGBPalette16 myRedWhiteBluePalette_p =
 {
-    fl::CRGB::Red,
-    fl::CRGB::Gray, // 'white' is too bright compared to red and blue
-    fl::CRGB::Blue,
-    fl::CRGB::Black,
+    CRGB::Red,
+    CRGB::Gray, // 'white' is too bright compared to red and blue
+    CRGB::Blue,
+    CRGB::Black,
 
-    fl::CRGB::Red,
-    fl::CRGB::Gray,
-    fl::CRGB::Blue,
-    fl::CRGB::Black,
+    CRGB::Red,
+    CRGB::Gray,
+    CRGB::Blue,
+    CRGB::Black,
 
-    fl::CRGB::Red,
-    fl::CRGB::Red,
-    fl::CRGB::Gray,
-    fl::CRGB::Gray,
-    fl::CRGB::Blue,
-    fl::CRGB::Blue,
-    fl::CRGB::Black,
-    fl::CRGB::Black
+    CRGB::Red,
+    CRGB::Red,
+    CRGB::Gray,
+    CRGB::Gray,
+    CRGB::Blue,
+    CRGB::Blue,
+    CRGB::Black,
+    CRGB::Black
 };
+
+void DisplayController::trail()
+{
+    uint8_t hue = 0;
+
+    for (int j = 0; j < 5; j++) {
+        strip.fadeToBlackBy(20);          // fade old pixels
+        strip.set_pixel(0, hsv2rgb(CHSV(hue, 255, 255)));
+        strip.show();
+
+        hue += 4;
+
+        //vTaskDelay(pdMS_TO_TICKS(30));
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    }
+}
+
+uint32_t DisplayController::millis() {
+    return esp_timer_get_time() / 1000;
+}

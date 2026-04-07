@@ -27,7 +27,7 @@
  */
 
 /**
- * @file moneycontroller.h
+ * @file PaymentController.h
  *
  * Routines for adding to bank, adding credit etc.
  *
@@ -35,13 +35,13 @@
  *
  * BSD Licensed as described in the file LICENSE
  */
-#ifndef __MONEYCONTROLLER_H__
-#define __MONEYCONTROLLER_H__
+#ifndef __PaymentController_H__
+#define __PaymentController_H__
 
 #include <string>
 
 #include "NvsController.h"
-#include "cctalkcontroller.h"
+#include "cctalkcontroller.hpp"
 
 class Payment
 {
@@ -68,11 +68,11 @@ private:
     uint16_t twoEuroIn = 0;
 };
 
-class MoneyController
+class PaymentController
 {
 public:
-    MoneyController(NvsController& nvsController, CCTalkController& cctalkController);
-    ~MoneyController();
+    PaymentController(NvsController& nvsController, CctalkController& cctalkController);
+    ~PaymentController();
 
     void initialise();
 
@@ -115,7 +115,7 @@ private:
     uint16_t twoEuroIn;
 
     NvsController& nvsController;
-    CCTalkController& cctalkController;
+    CctalkController& cctalkController;
 
     static constexpr std::string NVS_KEY_CREDIT = "credit";
     static constexpr std::string NVS_KEY_BANK = "bank";
