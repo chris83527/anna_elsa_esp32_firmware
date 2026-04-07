@@ -274,7 +274,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop,
         // Update the moves value - just a bit of decoration here really
         if (count == 0)
         {
-            this->displayController.setMoves(random8(13));
+            this->displayController.setMoves(frand::random8(13));
         }
         else if (count == 10)
         {
@@ -398,7 +398,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
         // Update the moves value - just a bit of decoration here really
         if (count == 0)
         {
-            this->displayController.setMoves(random8(13));
+            this->displayController.setMoves(frand::random8(13));
         }
         else if (count == 10)
         {
@@ -519,7 +519,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
         // Update the moves value - just a bit of decoration here really
         if (count == 0)
         {
-            this->displayController.setMoves(random8(13));
+            this->displayController.setMoves(frand::random8(13));
         }
         else if (count == 10)
         {

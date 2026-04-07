@@ -704,12 +704,12 @@ void DisplayController::ChangePalettePeriodically()
         }
         if (secondHand == 50)
         {
-            currentPalette = myRedWhiteBluePalette;
+            currentPalette = myRedWhiteBluePalette_p;
             currentBlending = NOBLEND;
         }
         if (secondHand == 55)
         {
-            currentPalette = myRedWhiteBluePalette;
+            currentPalette = myRedWhiteBluePalette_p;
             currentBlending = LINEARBLEND;
         }
     }
@@ -720,7 +720,7 @@ void DisplayController::SetupTotallyRandomPalette()
 {
     for (int i = 0; i < 16; ++i)
     {
-        currentPalette.colors[i] = hsv2rgb(CHSV(random8(), 255, random8()));
+        currentPalette.colors[i] = hsv2rgb(CHSV(frand::random8(), 255, frand::random8()));
     }
 }
 
@@ -731,12 +731,16 @@ void DisplayController::SetupTotallyRandomPalette()
 void DisplayController::SetupBlackAndWhiteStripedPalette()
 {
     // 'black out' all 16 palette entries...
-    strip.fill_solid(currentPalette, 16, CRGB::Black);
+    for (int i = 0; i < 16; i++)
+    {
+        currentPalette.colors[i] = Colour::Black;
+    }
+
     // and set every fourth one to white.
-    currentPalette.colors[0] = CRGB::White;
-    currentPalette.colors[4] = CRGB::White;
-    currentPalette.colors[8] = CRGB::White;
-    currentPalette.colors[12] = CRGB::White;
+    currentPalette.colors[0] = Colour::White;
+    currentPalette.colors[4] = Colour::White;
+    currentPalette.colors[8] = Colour::White;
+    currentPalette.colors[12] = Colour::White;
 }
 
 // This function sets up a palette of purple and green stripes.
@@ -744,7 +748,7 @@ void DisplayController::SetupPurpleAndGreenPalette()
 {
     CRGB purple = hsv2rgb(CHSV(CHSV::HUE_PURPLE, 255, 255));
     CRGB green = hsv2rgb(CHSV(CHSV::HUE_GREEN, 255, 255));
-    CRGB black = CRGB::Black;
+    CRGB black = Colour::Black;
 
     currentPalette = CRGBPalette16({
         green, green, black, black,
@@ -755,24 +759,24 @@ void DisplayController::SetupPurpleAndGreenPalette()
 
 const CRGBPalette16 myRedWhiteBluePalette_p =
 {
-    CRGB::Red,
-    CRGB::Gray, // 'white' is too bright compared to red and blue
-    CRGB::Blue,
-    CRGB::Black,
+    Colour::Red,
+    Colour::Gray, // 'white' is too bright compared to red and blue
+    Colour::Blue,
+    Colour::Black,
 
-    CRGB::Red,
-    CRGB::Gray,
-    CRGB::Blue,
-    CRGB::Black,
+    Colour::Red,
+    Colour::Gray,
+    Colour::Blue,
+    Colour::Black,
 
-    CRGB::Red,
-    CRGB::Red,
-    CRGB::Gray,
-    CRGB::Gray,
-    CRGB::Blue,
-    CRGB::Blue,
-    CRGB::Black,
-    CRGB::Black
+    Colour::Red,
+    Colour::Red,
+    Colour::Gray,
+    Colour::Gray,
+    Colour::Blue,
+    Colour::Blue,
+    Colour::Black,
+    Colour::Black
 };
 
 void DisplayController::trail()

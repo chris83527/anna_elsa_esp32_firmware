@@ -42,7 +42,6 @@
 #include "paymentcontroller.h"
 
 
-
 static const char* TAG = "PaymentController";
 
 PaymentController::PaymentController(NvsController& nvsCtrlr, std::unique_ptr<ICctalkUart> uart,
@@ -56,6 +55,8 @@ PaymentController::PaymentController(NvsController& nvsCtrlr, std::unique_ptr<IC
                                                            twoEuroIn(0),
                                                            nvsController(nvsCtrlr)
 {
+    ESP_LOGI(TAG, "Entering constructor");
+
     bus_ = std::make_unique<CctalkBus>(*uart_, hostAddr);
 
     // Create high-level façade
@@ -66,23 +67,57 @@ PaymentController::PaymentController(NvsController& nvsCtrlr, std::unique_ptr<IC
     // Create worker threads
     acceptorThread_ = std::make_unique<CoinAcceptorThread>(*facade_, eventQueue_);
     hopperThread_ = std::make_unique<HopperThread>(*facade_, eventQueue_);
-    dispatcherThread_ = std::make_unique<EventDispatcherThread>(
-        eventQueue_,
-        [this](const CctalkEvent& evt) { this->onEvent(evt); }
-    );
 
-    ESP_LOGI(TAG, "Entering constructor");
+    setEventHandler([this](const CctalkEvent& evt) {this->onEvent(evt);});
+
     this->payoutInProgress = false;
     ESP_LOGI(TAG, "Leaving constructor");
 }
 
 PaymentController::~PaymentController()
-= default;
+{
+    stop();
+}
 
-void PaymentController::initialise()
+void PaymentController::setEventHandler(EventHandler handler)
+{
+    handler_ = std::move(handler);
+}
+
+void PaymentController::start()
 {
     ESP_LOGI(TAG, "initialise() called");
     loadValuesFromStorage();
+    if (running_) return;
+    running_ = true;
+
+    acceptorThread_->start();
+    hopperThread_->start();
+
+    dispatcherThread_ = std::make_unique<EventDispatcherThread>(
+        eventQueue_,
+        handler_
+            ? handler_
+            : [](const CctalkEvent&)
+            {
+            }
+    );
+
+    dispatcherThread_->start();
+}
+
+void PaymentController::stop()
+{
+    if (!running_) return;
+    running_ = false;
+
+    acceptorThread_->stop();
+    hopperThread_->stop();
+
+    if (dispatcherThread_)
+    {
+        dispatcherThread_->stop();
+    }
 }
 
 /**
@@ -233,14 +268,14 @@ void PaymentController::setPayoutInProgress(bool payoutInProgress)
 
 void PaymentController::moveBankToCredit()
 {
-    PaymentController::addToCredit(this->bank);
-    PaymentController::removeFromBank(this->bank);
+    addToCredit(this->bank);
+    removeFromBank(this->bank);
 }
 
 void PaymentController::moveTransferToBank()
 {
-    PaymentController::addToBank(this->transfer);
-    PaymentController::setTransfer(0);
+    addToBank(this->transfer);
+    setTransfer(0);
 }
 
 /*
@@ -268,65 +303,66 @@ void PaymentController::onEvent(const CctalkEvent& evt)
 
     case CctalkEventType::HopperStatusChanged:
         //updateHopperUI(evt.hopper);
+        // TODO: Error
         break;
     }
 }
 
 void Payment::clear()
 {
-    Payment::tenCentIn = 0;
-    Payment::twentyCentIn = 0;
-    Payment::fiftyCentIn = 0;
-    Payment::oneEuroIn = 0;
-    Payment::twoEuroIn = 0;
+    tenCentIn = 0;
+    twentyCentIn = 0;
+    fiftyCentIn = 0;
+    oneEuroIn = 0;
+    twoEuroIn = 0;
 }
 
 void Payment::addTenCent()
 {
-    Payment::tenCentIn++;
+    tenCentIn++;
 }
 
 uint16_t Payment::getTenCent()
 {
-    return Payment::tenCentIn;
+    return tenCentIn;
 }
 
 void Payment::addTwentyCent()
 {
-    Payment::twentyCentIn++;
+    twentyCentIn++;
 }
 
 uint16_t Payment::getTwentyCent()
 {
-    return Payment::twentyCentIn;
+    return twentyCentIn;
 }
 
 void Payment::addFiftyCent()
 {
-    Payment::fiftyCentIn++;
+    fiftyCentIn++;
 }
 
 uint16_t Payment::getFiftyCent()
 {
-    return Payment::fiftyCentIn;
+    return fiftyCentIn;
 }
 
 void Payment::addOneEuro()
 {
-    Payment::oneEuroIn++;
+    oneEuroIn++;
 }
 
 uint16_t Payment::getOneEuro()
 {
-    return Payment::oneEuroIn;
+    return oneEuroIn;
 }
 
 void Payment::addTwoEuro()
 {
-    Payment::twoEuroIn++;
+    twoEuroIn++;
 }
 
 uint16_t Payment::getTwoEuro()
 {
-    return Payment::twoEuroIn;
+    return twoEuroIn;
 }

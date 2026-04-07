@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef __CRGB_H__
+#define __CRGB_H__
+
 struct CRGB
 {
     uint8_t r, g, b;
@@ -12,119 +15,61 @@ struct CRGB
     {
     }
 
-    void nscale8(uint8_t scale)
-    {
-        r = (uint16_t(r) * scale) >> 8;
-        g = (uint16_t(g) * scale) >> 8;
-        b = (uint16_t(b) * scale) >> 8;
-    }
-
-    void fadeToBlackBy(uint8_t amount)
-    {
-        uint8_t scale = 255 - amount;
-        nscale8(scale);
-    }
-
-    // --- Basic Colors ---
-    static const CRGB Black;
-    static const CRGB White;
-    static const CRGB Red;
-    static const CRGB Green;
-    static const CRGB Blue;
-    static const CRGB Yellow;
-    static const CRGB Cyan;
-    static const CRGB Magenta;
-    static const CRGB Orange;
-    static const CRGB Purple;
-    static const CRGB Pink;
-
-    // --- Grayscale ---
-    static const CRGB VeryDarkGray;
-    static const CRGB DarkGray;
-    static const CRGB Gray;
-    static const CRGB LightGray;
-    static const CRGB VeryLightGray;
-
-
-    // --- Extended Colors (FastLED style) ---
-    static const CRGB Aqua;
-    static const CRGB Aquamarine;
-    static const CRGB Azure;
-    static const CRGB Beige;
-    static const CRGB Coral;
-    static const CRGB Crimson;
-    static const CRGB Gold;
-    static const CRGB Goldenrod;
-    static const CRGB HotPink;
-    static const CRGB Indigo;
-    static const CRGB Lavender;
-    static const CRGB Lime;
-    static const CRGB Maroon;
-    static const CRGB Navy;
-    static const CRGB Olive;
-    static const CRGB OrangeRed;
-    static const CRGB Orchid;
-    static const CRGB Salmon;
-    static const CRGB SeaGreen;
-    static const CRGB SkyBlue;
-    static const CRGB SlateBlue;
-    static const CRGB SpringGreen;
-    static const CRGB Teal;
-    static const CRGB Tomato;
-    static const CRGB Turquoise;
-    static const CRGB Violet;
-    static const CRGB Wheat;
 };
 
+
 // Basic
-const CRGB CRGB::Black = CRGB(0, 0, 0);
-const CRGB CRGB::White = CRGB(255, 255, 255);
-const CRGB CRGB::Red = CRGB(255, 0, 0);
-const CRGB CRGB::Green = CRGB(0, 255, 0);
-const CRGB CRGB::Blue = CRGB(0, 0, 255);
-const CRGB CRGB::Yellow = CRGB(255, 255, 0);
-const CRGB CRGB::Cyan = CRGB(0, 255, 255);
-const CRGB CRGB::Magenta = CRGB(255, 0, 255);
-const CRGB CRGB::Orange = CRGB(255, 165, 0);
-const CRGB CRGB::Purple = CRGB(128, 0, 128);
-const CRGB CRGB::Pink = CRGB(255, 105, 180);
+namespace Colour
+{
+    static const CRGB Black = CRGB(0, 0, 0);
+    static const CRGB White = CRGB(255, 255, 255);
+    static const CRGB Red = CRGB(255, 0, 0);
+    static const CRGB Green = CRGB(0, 255, 0);
+    static const CRGB Blue = CRGB(0, 0, 255);
+    static const CRGB Yellow = CRGB(255, 255, 0);
+    static const CRGB Cyan = CRGB(0, 255, 255);
+    static const CRGB Magenta = CRGB(255, 0, 255);
+    static const CRGB Orange = CRGB(255, 165, 0);
+    static const CRGB Purple = CRGB(128, 0, 128);
+    static const CRGB Pink = CRGB(255, 105, 180);
 
-// Greyscale
-const CRGB CRGB::VeryDarkGray = CRGB(64, 64, 64);
-const CRGB CRGB::DarkGray = CRGB(96, 96, 96);
-const CRGB CRGB::Gray = CRGB(128, 128, 128);
-const CRGB CRGB::LightGray = CRGB(192, 192, 192);
-const CRGB CRGB::VeryLightGray = CRGB(224, 224, 224);
+    // Greyscale
+    static const CRGB VeryDarkGray = CRGB(64, 64, 64);
+    static const CRGB DarkGray = CRGB(96, 96, 96);
+    static const CRGB Gray = CRGB(128, 128, 128);
+    static const CRGB LightGray = CRGB(192, 192, 192);
+    static const CRGB VeryLightGray = CRGB(224, 224, 224);
 
 
-// Extended
-const CRGB CRGB::Aqua = CRGB(0, 255, 255);
-const CRGB CRGB::Aquamarine = CRGB(127, 255, 212);
-const CRGB CRGB::Azure = CRGB(240, 255, 255);
-const CRGB CRGB::Beige = CRGB(245, 245, 220);
-const CRGB CRGB::Coral = CRGB(255, 127, 80);
-const CRGB CRGB::Crimson = CRGB(220, 20, 60);
-const CRGB CRGB::Gold = CRGB(255, 215, 0);
-const CRGB CRGB::Goldenrod = CRGB(218, 165, 32);
-const CRGB CRGB::HotPink = CRGB(255, 105, 180);
-const CRGB CRGB::Indigo = CRGB(75, 0, 130);
-const CRGB CRGB::Lavender = CRGB(230, 230, 250);
-const CRGB CRGB::Lime = CRGB(0, 255, 0);
-const CRGB CRGB::Maroon = CRGB(128, 0, 0);
-const CRGB CRGB::Navy = CRGB(0, 0, 128);
-const CRGB CRGB::Olive = CRGB(128, 128, 0);
-const CRGB CRGB::OrangeRed = CRGB(255, 69, 0);
-const CRGB CRGB::Orchid = CRGB(218, 112, 214);
-const CRGB CRGB::Salmon = CRGB(250, 128, 114);
-const CRGB CRGB::SeaGreen = CRGB(46, 139, 87);
-const CRGB CRGB::SkyBlue = CRGB(135, 206, 235);
-const CRGB CRGB::SlateBlue = CRGB(106, 90, 205);
-const CRGB CRGB::SpringGreen = CRGB(0, 255, 127);
-const CRGB CRGB::Teal = CRGB(0, 128, 128);
-const CRGB CRGB::Tomato = CRGB(255, 99, 71);
-const CRGB CRGB::Turquoise = CRGB(64, 224, 208);
-const CRGB CRGB::Violet = CRGB(238, 130, 238);
-const CRGB CRGB::Wheat = CRGB(245, 222, 179);
+    // Extended
+    static const CRGB Aqua = CRGB(0, 255, 255);
+    static const CRGB Aquamarine = CRGB(127, 255, 212);
+    static const CRGB Azure = CRGB(240, 255, 255);
+    static const CRGB Beige = CRGB(245, 245, 220);
+    static const CRGB Coral = CRGB(255, 127, 80);
+    static const CRGB Crimson = CRGB(220, 20, 60);
+    static const CRGB Gold = CRGB(255, 215, 0);
+    static const CRGB Goldenrod = CRGB(218, 165, 32);
+    static const CRGB HotPink = CRGB(255, 105, 180);
+    static const CRGB Indigo = CRGB(75, 0, 130);
+    static const CRGB Lavender = CRGB(230, 230, 250);
+    static const CRGB Lime = CRGB(0, 255, 0);
+    static const CRGB Maroon = CRGB(128, 0, 0);
+    static const CRGB Navy = CRGB(0, 0, 128);
+    static const CRGB Olive = CRGB(128, 128, 0);
+    static const CRGB OrangeRed = CRGB(255, 69, 0);
+    static const CRGB Orchid = CRGB(218, 112, 214);
+    static const CRGB Salmon = CRGB(250, 128, 114);
+    static const CRGB SeaGreen = CRGB(46, 139, 87);
+    static const CRGB SkyBlue = CRGB(135, 206, 235);
+    static const CRGB SlateBlue = CRGB(106, 90, 205);
+    static const CRGB SpringGreen = CRGB(0, 255, 127);
+    static const CRGB Teal = CRGB(0, 128, 128);
+    static const CRGB Tomato = CRGB(255, 99, 71);
+    static const CRGB Turquoise = CRGB(64, 224, 208);
+    static const CRGB Violet = CRGB(238, 130, 238);
+    static const CRGB Wheat = CRGB(245, 222, 179);
+}
 
 struct CHSV
 {
@@ -186,3 +131,5 @@ inline CRGB ColorWheel(uint8_t hue)
     CHSV hsv(hue, 255, 255);
     return hsv2rgb(hsv);
 }
+
+#endif

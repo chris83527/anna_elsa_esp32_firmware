@@ -1,13 +1,13 @@
 #pragma once
 
+#ifndef __WS2812B_H__
+#define __WS2812B_H__
+
 #include "led_strip.h"
-#include "led_strip_rmt.h"
 #include "driver/rmt_tx.h"
 #include "esp_err.h"
-#include <cstdint>
 #include <vector>
 
-#include "crgb.hpp"
 #include "palette.hpp"
 
 class WS2812B {
@@ -25,7 +25,6 @@ public:
                        uint8_t step,
                        TBlendType blend = LINEARBLEND);
     esp_err_t fill_solid(const CRGB &color);
-    esp_err_t fill_solid(CRGBPalette16 &pal, uint8_t count, const CRGB &color);
     esp_err_t fill_rainbow(uint8_t initial_hue, uint8_t delta_hue);
     esp_err_t fadeToBlackBy(uint8_t amount);
     esp_err_t nscale8(uint8_t scale);
@@ -41,3 +40,5 @@ private:
     led_strip_handle_t strip_ = nullptr;
     std::vector<uint8_t> buffer_;   // GRB order
 };
+
+#endif

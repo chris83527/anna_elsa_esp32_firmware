@@ -1,4 +1,6 @@
 #pragma once
+#ifndef __PALETTE_H__
+#define __PALETTE_H__
 
 #include "crgb.hpp"
 
@@ -14,7 +16,7 @@ struct CRGBPalette16
 
     CRGBPalette16()
     {
-        for (auto& c : colors) c = CRGB::Black;
+        for (auto& c : colors) c = Colour::Black;
     }
 
     CRGBPalette16(std::initializer_list<CRGB> list)
@@ -24,7 +26,7 @@ struct CRGBPalette16
         {
             if (i < 16) colors[i++] = c;
         }
-        for (; i < 16; i++) colors[i] = CRGB::Black;
+        for (; i < 16; i++) colors[i] = Colour::Black;
     }
 
     CRGB getColor(uint8_t index, TBlendType blend = LINEARBLEND) const
@@ -122,3 +124,5 @@ inline CRGB colorFromPalette(
 
     return c;
 }
+
+#endif

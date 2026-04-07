@@ -40,8 +40,10 @@
 
 #include <string>
 
+#include "cctalk.hpp"
 #include "cctalk_device_facade.hpp"
-#include "cctalk_event.hpp"
+#include "cctalk_event_queue.hpp"
+
 #include "coin_acceptor_thread.hpp"
 #include "hopper_thread.hpp"
 #include "cctalk_event_dispatcher_thread.hpp"
@@ -76,13 +78,19 @@ private:
 class PaymentController
 {
 public:
+    using EventHandler = EventDispatcherThread::Handler;
+
     PaymentController(NvsController& nvsController, std::unique_ptr<ICctalkUart> uart,
                   uint8_t hostAddr,
                   uint8_t coinAcceptorAddr,
                   uint8_t hopperAddr);
     ~PaymentController();
 
-    void initialise();
+    void start();
+    void stop();
+
+    void setEventHandler(EventHandler handler);
+    CctalkDeviceFacade& devices() { return *facade_; }
 
     void addToCredit(Payment& payment);
     void addToCredit(uint16_t value);
@@ -149,9 +157,10 @@ private:
     std::unique_ptr<HopperThread> hopperThread_;
     std::unique_ptr<EventDispatcherThread> dispatcherThread_;
 
-    std::atomic<bool> running_{false};
+    EventHandler handler_;
+    bool running_ = false;
 
-    void onEvent(const CctalkEvent& evt);
+    void onEvent(const CctalkEvent& event);
 };
 
 #endif

@@ -58,7 +58,6 @@
 
 enum class LampState { off, blinkslow, blinkfast, on };
 
-extern CRGBPalette16 myRedWhiteBluePalette;
 extern const CRGBPalette16 myRedWhiteBluePalette_p;
 
 class DisplayController

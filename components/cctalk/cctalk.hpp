@@ -7,7 +7,6 @@
 #include "cctalk.hpp"
 #include "cctalk_error.hpp"
 
-
 class ICctalkUart {
 public:
     virtual ~ICctalkUart() = default;

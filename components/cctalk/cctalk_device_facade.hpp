@@ -8,6 +8,9 @@
 #include "cctalk_error.hpp"
 #include "cctalk_headers.hpp"
 
+#include "cctalk_event_dispatcher_thread.hpp"
+#include "cctalk_event_queue.hpp"
+
 #include "coin_acceptor_types.hpp"
 #include "hopper_types.hpp"
 

@@ -124,15 +124,6 @@ esp_err_t WS2812B::fill_solid(const CRGB &color) {
     return ESP_OK;
 }
 
-esp_err_t fill_solid(CRGBPalette16 &pal, uint8_t count, const CRGB &color)
-{
-    for (uint16_t i = 0; i < count; i++)
-    {
-        pal.colors[i] = color;
-    }
-    return ESP_OK;
-}
-
 esp_err_t WS2812B::fill_rainbow(uint8_t initial_hue, uint8_t delta_hue) {
     uint8_t hue = initial_hue;
 
