@@ -19,7 +19,6 @@
 
 #include "NvsController.h"
 #include "audiocontroller.h"
-#include "cctalkcontroller.hpp"
 #include "displaycontroller.h"
 #include "ds3231.h"
 #include "game.h"
@@ -29,7 +28,7 @@
 class MainController
 {
 public:
-    MainController();
+    MainController(std::unique_ptr<ICctalkUart> uart);
     //MainController(const MainController &orig);
     ~MainController();
 
@@ -37,12 +36,11 @@ public:
 
     I2CManager i2c_manager = I2CManager(I2C_NUM_0, GPIO_NUM_22, GPIO_NUM_21);
     NvsController nvsController;
-    CctalkController cctalkController;
-    MoneyController moneyController = MoneyController(nvsController, cctalkController);
-    DisplayController displayController = DisplayController(moneyController, i2c_manager);
+    std::shared_ptr<PaymentController> paymentController;
+    DisplayController displayController = DisplayController(*paymentController, i2c_manager);
     AudioController audioController = AudioController(i2c_manager);
     ReelController reelController = ReelController(audioController, displayController, i2c_manager);
-    Game game = Game(displayController, audioController, moneyController, reelController);
+    Game game = Game(displayController, audioController, *paymentController, reelController);
     DS3231 ds3231 = DS3231(i2c_manager, DS3231_ADDR);
 
 
@@ -54,9 +52,9 @@ public:
 
     AudioController& getAudioController();
     ReelController& getReelController();
-    CctalkController& getCCTalkController();
+    //CctalkController& getCCTalkController();
     DisplayController& getDisplayController();
-    MoneyController& getMoneyController();
+    std::shared_ptr<PaymentController> getPaymentController();
     Game& getGame();
     DS3231& getDs3231();
 

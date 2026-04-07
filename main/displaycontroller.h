@@ -51,7 +51,8 @@
 #include "mcp23x17.h"
 #include "paymentcontroller.h"
 #include "oledcontroller.h"
-#include "ws2812b.h"
+#include "ws2812b.hpp"
+
 
 #define CHASE_SPEED_MS (100)
 
@@ -63,7 +64,7 @@ extern const CRGBPalette16 myRedWhiteBluePalette_p;
 class DisplayController
 {
 public:
-    DisplayController(MoneyController& moneyController, I2CManager& i2cmgr);
+    DisplayController(PaymentController& paymentController, I2CManager& i2cmgr);
     ~DisplayController();
 
     struct lamp_data_t
@@ -87,8 +88,6 @@ public:
     void clearOledDisplay();
     void displayOledText(const std::string& text, int lineNumber, bool invert);
     bool isAttractMode();
-
-    CRGB rgbFromValues(uint8_t red, uint8_t green, uint8_t blue);
 
     uint8_t getButtonStatus();
     uint8_t waitForButton(uint8_t mask);
@@ -271,7 +270,7 @@ private:
     CRGBPalette16 currentPalette;
     TBlendType    currentBlending;
 
-    MoneyController& moneyController;
+    PaymentController& paymentController;
 
     uint8_t buttonStatus;
     bool doorOpen;

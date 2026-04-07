@@ -49,12 +49,12 @@ using namespace std;
 static const char* TAG = "Game";
 
 Game::Game(DisplayController& displayController,
-           AudioController& audioController, MoneyController& moneyController,
+           AudioController& audioController, PaymentController& paymentController,
            ReelController& reelController)
     : mainController(nullptr),
       displayController(displayController),
       audioController(audioController),
-      moneyController(moneyController), reelController(reelController), moves(0)
+      paymentController(paymentController), reelController(reelController), moves(0)
 {
     ESP_LOGI(TAG, "Entering constructor");
 
@@ -105,8 +105,8 @@ void Game::start()
         .lampState = LampState::off;
 
     // payout
-    if ((this->moneyController.getBank() > 0) &&
-        (this->moneyController.getCredit() < 20))
+    if ((this->paymentController.getBank() > 0) &&
+        (this->paymentController.getCredit() < 20))
     {
         collectOrContinue();
     }
@@ -276,8 +276,8 @@ void Game::playNormalSpin()
         .at(displayController.LMP_START)
         .lampState = LampState::off;
 
-    this->moneyController.incrementGameCount();
-    this->moneyController.removeFromCredit(20);
+    this->paymentController.incrementGameCount();
+    this->paymentController.removeFromCredit(20);
     this->audioController.playAudioFile(Sounds::SND_NOW_THATS_ICE);
 
     spinReels(holdLeft, holdCentre, holdRight);
@@ -313,7 +313,7 @@ void Game::playNudges(int nudges)
         // have to take off 1, because array is zero-indexed
         this->displayController.getLampData()
             .at(displayController.NUDGE_LAMPS.at(nudges - 1))
-            .rgb = displayController.rgbFromValues(255, 255, 255);
+            .rgb = CRGB(255, 255, 255);
         this->displayController.getLampData()
             .at(displayController.NUDGE_LAMPS.at(nudges - 1))
             .lampState = LampState::blinkfast;
@@ -327,7 +327,7 @@ void Game::playNudges(int nudges)
                     .lampState = LampState::on;
                 this->displayController.getLampData()
                     .at(displayController.NUDGE_LAMPS.at(nudges - 1))
-                    .rgb = displayController.rgbFromValues(0, 0, 255);
+                    .rgb = CRGB(0, 0, 255);
             }
         }
 
@@ -454,7 +454,7 @@ void Game::transferOrGamble()
 
     if ((btnStatus & BTN_TRANSFER) == BTN_TRANSFER)
     {
-        this->moneyController.moveTransferToBank();
+        this->paymentController.moveTransferToBank();
         this->audioController.playAudioFile(Sounds::SND_KERCHING);
     }
     else if ((btnStatus & BTN_START) == BTN_START)
@@ -490,11 +490,11 @@ void Game::collectOrContinue() const
     {
         ESP_LOGI(TAG, "Calling payout...");
 
-        this->moneyController.payoutBank();
+        this->paymentController.payoutBank();
     }
     else if ((btnStatus & BTN_START) == BTN_START)
     {
-        this->moneyController.moveBankToCredit();
+        this->paymentController.moveBankToCredit();
     }
 
     ESP_LOGD(TAG, "Exiting collectOrContinue()");
@@ -528,7 +528,7 @@ bool Game::isWinningLine() const
             ((rightSymbolId == winningCombinations[i].rightSymbolId) ||
                 (winningCombinations[i].rightSymbolId == 255)))
         {
-            this->moneyController.setTransfer(winningCombinations[i].amount);
+            this->paymentController.setTransfer(winningCombinations[i].amount);
             isWin = true;
             break;
         }
@@ -607,7 +607,7 @@ void Game::playFeatureMatrix()
 void Game::playTrail()
 {
     uint8_t index = 0;
-    while (PRIZE_TRAIL_PRIZES[index] < this->moneyController.getTransfer() &&
+    while (PRIZE_TRAIL_PRIZES[index] < this->paymentController.getTransfer() &&
         index < PRIZE_TRAIL_PRIZES_LENGTH)
     {
         index++;
@@ -716,8 +716,8 @@ void Game::playShuffle()
         .at(displayController.LMP_START)
         .lampState = LampState::off;
 
-    this->moneyController.incrementGameCount();
-    this->moneyController.removeFromCredit(20);
+    this->paymentController.incrementGameCount();
+    this->paymentController.removeFromCredit(20);
     this->audioController.playAudioFile(Sounds::SND_NOW_THATS_ICE);
 
     shuffleReels(holdLeft, holdCentre, holdRight);

@@ -22,8 +22,6 @@
 #include "esp_timer.h"
 
 #include "audiocontroller.h"
-#include "cctalkcontroller.hpp"
-#include "esp_idf_cctalk_uart.hpp"
 #include "config.h"
 #include "displaycontroller.h"
 #include "esp_event.h"
@@ -41,10 +39,15 @@
 static const char* TAG = "MainController";
 static int blinkDelay = 250000; // µs, not ms
 
-MainController::MainController()
+MainController::MainController(std::unique_ptr<ICctalkUart> uart)
 {
     ESP_LOGD(TAG, "Entering constructor");
-
+    paymentController = std::make_shared<PaymentController> (nvsController,
+            std::move(uart),
+            1,   // host address
+            2,   // coin acceptor address
+            3    // hopper address
+        );
     ESP_LOGD(TAG, "Leaving constructor");
 }
 
@@ -191,21 +194,10 @@ void MainController::start()
 
     displayController.displayVFDText("INITIALISING 09");
     displayController.scrollOledText("Load stats");
-    moneyController.initialise();
+
 
     displayController.displayVFDText("INITIALISING 0A");
     displayController.scrollOledText("Init cctalk");
-
-    auto uart = std::make_unique<EspIdfCctalkUart>(CCTALK_UART);
-
-    CctalkController cctalkController (
-        std::move(uart),
-        1,   // host address
-        2,   // coin acceptor address
-        3    // hopper address
-    );
-
-    cctalkController.start();
 
     displayController.displayVFDText("INITIALISING 0B");
     displayController.scrollOledText("Init reels");
@@ -247,7 +239,7 @@ void MainController::start()
     for (;;)
     {
         if ((!this->game.isGameInProgress()) &&
-            (this->moneyController.getCredit() >= 20))
+            (this->paymentController->getCredit() >= 20))
         {
             ESP_LOGD(TAG, "Starting game...");
             this->game.start();
@@ -284,19 +276,14 @@ AudioController& MainController::getAudioController()
 
 ReelController& MainController::getReelController() { return reelController; }
 
-CctalkController& MainController::getCCTalkController()
-{
-    return cctalkController;
-}
-
 DisplayController& MainController::getDisplayController()
 {
     return displayController;
 }
 
-MoneyController& MainController::getMoneyController()
+std::shared_ptr<PaymentController> MainController::getPaymentController()
 {
-    return moneyController;
+    return paymentController;
 }
 
 Game& MainController::getGame() { return game; }
@@ -325,18 +312,18 @@ void MainController::blinkCPUStatusLEDCallback(void *param)
 
 void MainController::updateStatisticsDisplayCallback(void *param)
 {
-    MainController* mainController = static_cast<MainController*>(param);
+    MainController* paymentController = static_cast<MainController*>(param);
 
     tm time{};
     std::string dateString;
 
-    mainController->displayController.clearOledDisplay();
+    paymentController->displayController.clearOledDisplay();
 
     char buf[21];
     esp_err_t ret;
 
     ESP_LOGD(TAG, "Updating statics loop");
-    ret = mainController->ds3231.get_time(time);
+    ret = paymentController->ds3231.get_time(time);
 
     if (ret == ESP_OK)
     {
@@ -346,21 +333,21 @@ void MainController::updateStatisticsDisplayCallback(void *param)
 
         dateString.clear();
         dateString.append(buf);
-        mainController->displayController.displayOledText(dateString, 0, true);
+        paymentController->displayController.displayOledText(dateString, 0, true);
 
         std::sprintf(buf, "Games    : %05d",
-                     mainController->moneyController.getGameCount());
-        mainController->displayController.displayOledText(buf, 2, false);
+                     paymentController->paymentController->getGameCount());
+        paymentController->displayController.displayOledText(buf, 2, false);
         std::sprintf(buf, "Total in : %05d",
-                     mainController->moneyController.getIncomeTotal());
-        mainController->displayController.displayOledText(buf, 3, false);
+                     paymentController->paymentController->getIncomeTotal());
+        paymentController->displayController.displayOledText(buf, 3, false);
         std::sprintf(buf, "Total out: %05d",
-                     mainController->moneyController.getPayoutTotal());
-        mainController->displayController.displayOledText(buf, 4, false);
-        std::sprintf(buf, "Credit   : %05d", mainController->moneyController.getCredit());
-        mainController->displayController.displayOledText(buf, 5, false);
-        std::sprintf(buf, "Bank     : %05d", mainController->moneyController.getBank());
-        mainController->displayController.displayOledText(buf, 6, false);
+                     paymentController->paymentController->getPayoutTotal());
+        paymentController->displayController.displayOledText(buf, 4, false);
+        std::sprintf(buf, "Credit   : %05d", paymentController->paymentController->getCredit());
+        paymentController->displayController.displayOledText(buf, 5, false);
+        std::sprintf(buf, "Bank     : %05d", paymentController->paymentController->getBank());
+        paymentController->displayController.displayOledText(buf, 6, false);
     }
     else
     {

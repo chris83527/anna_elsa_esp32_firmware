@@ -37,25 +37,43 @@
  */
 #include "cctalk.hpp"
 #include "esp_log.h"
-#include "nvs.h"
 
 #include "NvsController.h"
 #include "paymentcontroller.h"
 
+
+
 static const char* TAG = "PaymentController";
 
-PaymentController::PaymentController(NvsController& nvsCtrlr, CctalkController& cctalkController)
-    : credit(0), bank(0), transfer(0), gamecount(0), payoutTotal(0), incomeTotal(0), tenCentIn(0), twentyCentIn(0),
-      fiftyCentIn(0),
-      oneEuroIn(0),
-      twoEuroIn(0),
-      nvsController(nvsCtrlr),
-      cctalkController(cctalkController)
+PaymentController::PaymentController(NvsController& nvsCtrlr, std::unique_ptr<ICctalkUart> uart,
+                                     uint8_t hostAddr,
+                                     uint8_t coinAcceptorAddr,
+                                     uint8_t hopperAddr) : credit(0), bank(0), transfer(0), gamecount(0),
+                                                           payoutTotal(0), incomeTotal(0), tenCentIn(0),
+                                                           twentyCentIn(0),
+                                                           fiftyCentIn(0),
+                                                           oneEuroIn(0),
+                                                           twoEuroIn(0),
+                                                           nvsController(nvsCtrlr)
 {
-    ESP_LOGI(TAG, "Entering constructor");
-    ESP_LOGI(TAG, "Leaving constructor");
+    bus_ = std::make_unique<CctalkBus>(*uart_, hostAddr);
 
+    // Create high-level façade
+    facade_ = std::make_unique<CctalkDeviceFacade>(
+        *bus_, hostAddr, coinAcceptorAddr, hopperAddr
+    );
+
+    // Create worker threads
+    acceptorThread_ = std::make_unique<CoinAcceptorThread>(*facade_, eventQueue_);
+    hopperThread_ = std::make_unique<HopperThread>(*facade_, eventQueue_);
+    dispatcherThread_ = std::make_unique<EventDispatcherThread>(
+        eventQueue_,
+        [this](const CctalkEvent& evt) { this->onEvent(evt); }
+    );
+
+    ESP_LOGI(TAG, "Entering constructor");
     this->payoutInProgress = false;
+    ESP_LOGI(TAG, "Leaving constructor");
 }
 
 PaymentController::~PaymentController()
@@ -162,25 +180,14 @@ void PaymentController::removeFromCredit(const uint16_t value)
 
 void PaymentController::payoutBank()
 {
-    dispenseCoins(
-        (getBank() / 20), [&](const std::string& error_msg)
-        {
-            // TODO: Check status and see how many coins were returned and
-            // remove these from bank. For now we will just set bank to 0 (and
-            // presume all coins were paid out)
-            if (!error_msg.empty())
-            {
-                ESP_LOGE(TAG, "An error occurred during payout: %s",
-                         error_msg.c_str());
-            }
-            else
-            {
-                this->payoutTotal += getBank();
-                this->removeFromBank(getBank());
-                this->nvsController.writeValueToNVS(NVS_KEY_PAYOUT_TOTAL.c_str(),
-                                                    this->payoutTotal);
-            }
-        });
+    CctalkError err = facade_->hopperPayout(getBank() / 20);
+
+    if (err == CctalkError::OK)
+    {
+        this->payoutTotal += getBank();
+        this->removeFromBank(getBank());
+        this->nvsController.writeValueToNVS(NVS_KEY_PAYOUT_TOTAL.c_str(), this->payoutTotal);
+    }
 }
 
 /**
@@ -251,6 +258,20 @@ void PaymentController::setTransfer(uint16_t amount)
 
 uint16_t PaymentController::getTransfer() { return transfer; }
 
+void PaymentController::onEvent(const CctalkEvent& evt)
+{
+    switch (evt.type)
+    {
+    case CctalkEventType::CoinAccepted:
+        this->addToCredit(evt.coin.coin_value);
+        break;
+
+    case CctalkEventType::HopperStatusChanged:
+        //updateHopperUI(evt.hopper);
+        break;
+    }
+}
+
 void Payment::clear()
 {
     Payment::tenCentIn = 0;
@@ -260,22 +281,52 @@ void Payment::clear()
     Payment::twoEuroIn = 0;
 }
 
-void Payment::addTenCent() { Payment::tenCentIn++; }
+void Payment::addTenCent()
+{
+    Payment::tenCentIn++;
+}
 
-uint16_t Payment::getTenCent() { return Payment::tenCentIn; }
+uint16_t Payment::getTenCent()
+{
+    return Payment::tenCentIn;
+}
 
-void Payment::addTwentyCent() { Payment::twentyCentIn++; }
+void Payment::addTwentyCent()
+{
+    Payment::twentyCentIn++;
+}
 
-uint16_t Payment::getTwentyCent() { return Payment::twentyCentIn; }
+uint16_t Payment::getTwentyCent()
+{
+    return Payment::twentyCentIn;
+}
 
-void Payment::addFiftyCent() { Payment::fiftyCentIn++; }
+void Payment::addFiftyCent()
+{
+    Payment::fiftyCentIn++;
+}
 
-uint16_t Payment::getFiftyCent() { return Payment::fiftyCentIn; }
+uint16_t Payment::getFiftyCent()
+{
+    return Payment::fiftyCentIn;
+}
 
-void Payment::addOneEuro() { Payment::oneEuroIn++; }
+void Payment::addOneEuro()
+{
+    Payment::oneEuroIn++;
+}
 
-uint16_t Payment::getOneEuro() { return Payment::oneEuroIn; }
+uint16_t Payment::getOneEuro()
+{
+    return Payment::oneEuroIn;
+}
 
-void Payment::addTwoEuro() { Payment::twoEuroIn++; }
+void Payment::addTwoEuro()
+{
+    Payment::twoEuroIn++;
+}
 
-uint16_t Payment::getTwoEuro() { return Payment::twoEuroIn; }
+uint16_t Payment::getTwoEuro()
+{
+    return Payment::twoEuroIn;
+}

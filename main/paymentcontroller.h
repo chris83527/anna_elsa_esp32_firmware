@@ -40,8 +40,13 @@
 
 #include <string>
 
+#include "cctalk_device_facade.hpp"
+#include "cctalk_event.hpp"
+#include "coin_acceptor_thread.hpp"
+#include "hopper_thread.hpp"
+#include "cctalk_event_dispatcher_thread.hpp"
+
 #include "NvsController.h"
-#include "cctalkcontroller.hpp"
 
 class Payment
 {
@@ -71,7 +76,10 @@ private:
 class PaymentController
 {
 public:
-    PaymentController(NvsController& nvsController, CctalkController& cctalkController);
+    PaymentController(NvsController& nvsController, std::unique_ptr<ICctalkUart> uart,
+                  uint8_t hostAddr,
+                  uint8_t coinAcceptorAddr,
+                  uint8_t hopperAddr);
     ~PaymentController();
 
     void initialise();
@@ -99,6 +107,7 @@ public:
     bool isPayoutInProgress();
     void resetCounters();
 
+
 private:
     void loadValuesFromStorage();
 
@@ -115,7 +124,6 @@ private:
     uint16_t twoEuroIn;
 
     NvsController& nvsController;
-    CctalkController& cctalkController;
 
     static constexpr std::string NVS_KEY_CREDIT = "credit";
     static constexpr std::string NVS_KEY_BANK = "bank";
@@ -130,6 +138,20 @@ private:
     static constexpr std::string NVS_KEY_TWO_EURO_IN = "twoEuroIn";
 
     bool payoutInProgress;
+
+    std::unique_ptr<ICctalkUart> uart_;
+    std::unique_ptr<CctalkBus> bus_;
+    std::unique_ptr<CctalkDeviceFacade> facade_;
+
+    CctalkEventQueue eventQueue_;
+
+    std::unique_ptr<CoinAcceptorThread> acceptorThread_;
+    std::unique_ptr<HopperThread> hopperThread_;
+    std::unique_ptr<EventDispatcherThread> dispatcherThread_;
+
+    std::atomic<bool> running_{false};
+
+    void onEvent(const CctalkEvent& evt);
 };
 
 #endif

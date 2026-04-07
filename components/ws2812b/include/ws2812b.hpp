@@ -7,8 +7,8 @@
 #include <cstdint>
 #include <vector>
 
-#include "crgb.h"
-#include "palette.h"
+#include "crgb.hpp"
+#include "palette.hpp"
 
 class WS2812B {
 public:

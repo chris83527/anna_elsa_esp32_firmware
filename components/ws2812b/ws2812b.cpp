@@ -1,4 +1,4 @@
-#include "ws2812b.h"
+#include "ws2812b.hpp"
 
 #include "esp_err.h"
 #include "esp_log.h"

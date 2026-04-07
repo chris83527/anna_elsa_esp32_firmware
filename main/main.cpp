@@ -42,6 +42,7 @@
 #include "maincontroller.h"
 
 #include "config.h"
+#include "esp_idf_cctalk_uart.hpp"
 
 using namespace std;
 
@@ -82,6 +83,8 @@ extern "C" void app_main() {
   esp_log_level_set("MainController", ESP_LOG_INFO);
   esp_log_level_set("CCTALK_CONTROLLER", ESP_LOG_INFO);
 
-  MainController mainController;
+  auto uart = std::make_unique<EspIdfCctalkUart>(CCTALK_UART);
+
+  MainController mainController(std::move(uart));
   mainController.start();
 }

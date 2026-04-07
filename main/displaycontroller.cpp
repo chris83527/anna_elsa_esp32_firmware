@@ -60,15 +60,15 @@
 #include "game.h"
 #include "paymentcontroller.h"
 
-#include "ws2812b.h"
+#include "ws2812b.hpp"
 #include "lib8tion/random8.h"
 
 
 static const char* TAG = "DisplayController";
 static std::string vfdText;
 
-DisplayController::DisplayController(MoneyController& moneyCtrlr,
-                                     I2CManager& i2cmgr) : i2cManager(i2cmgr), moneyController(moneyCtrlr)
+DisplayController::DisplayController(PaymentController& paymentController,
+                                     I2CManager& i2cmgr) : i2cManager(i2cmgr), paymentController(paymentController)
 {
     ESP_LOGD(TAG, "Entering constructor");
 
@@ -168,7 +168,7 @@ void DisplayController::resetLampData()
     {
         lampData[i].lampState = LampState::off;
         // set lamp colour to white
-        lampData[i].rgb = rgbFromValues(
+        lampData[i].rgb = CRGB(
             MAX_BRIGHTNESS, MAX_BRIGHTNESS,
             MAX_BRIGHTNESS); // changed from 255 to try and prevent voltage drop
         // browning out vfd display
@@ -204,7 +204,7 @@ void DisplayController::testLamps()
     for (int i = 0; i < (LED_COUNT); i++)
     {
         lampData[i].lampState = LampState::on;
-        lampData[i].rgb = rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+        lampData[i].rgb = CRGB(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
     }
     std::this_thread::sleep_for(std::chrono::seconds(5));
     resetLampData();
@@ -329,7 +329,7 @@ void DisplayController::fadeInOutEffect()
             {
                 return;
             }
-            lampData[j].rgb = rgbFromValues(i, i, i);
+            lampData[j].rgb = CRGB(i, i, i);
             lampData[j].lampState = LampState::on;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -344,7 +344,7 @@ void DisplayController::fadeInOutEffect()
             {
                 return;
             }
-            lampData[j].rgb = rgbFromValues(i, i, i);
+            lampData[j].rgb = CRGB(i, i, i);
             lampData[j].lampState = LampState::on;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -359,7 +359,7 @@ void DisplayController::fadeInOutEffect()
             {
                 return;
             }
-            lampData[j].rgb = rgbFromValues(i, i, i);
+            lampData[j].rgb = CRGB(i, i, i);
             lampData[j].lampState = LampState::on;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -374,7 +374,7 @@ void DisplayController::fadeInOutEffect()
             {
                 return;
             }
-            lampData[j].rgb = rgbFromValues(i, i, i);
+            lampData[j].rgb = CRGB(i, i, i);
             lampData[j].lampState = LampState::on;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -389,7 +389,7 @@ void DisplayController::fadeInOutEffect()
             {
                 return;
             }
-            lampData[j].rgb = rgbFromValues(i, i, i);
+            lampData[j].rgb = CRGB(i, i, i);
             lampData[j].lampState = LampState::on;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -404,7 +404,7 @@ void DisplayController::fadeInOutEffect()
             {
                 return;
             }
-            lampData[j].rgb = rgbFromValues(i, i, i);
+            lampData[j].rgb = CRGB(i, i, i);
             lampData[j].lampState = (LampState::on);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
@@ -426,7 +426,7 @@ void DisplayController::chaseEffect()
                 return;
             }
             lampData[i].rgb =
-                rgbFromValues(0, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+                CRGB(0, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
             lampData[i].lampState = LampState::on;
             std::this_thread::sleep_for(std::chrono::milliseconds(30));
         }
@@ -466,13 +466,13 @@ void DisplayController::blinkLampsCallback(void* param)
                 {
                     // non- RGB button lamps
                     displayController->lampData[i].activeRgb =
-                        displayController->rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+                        CRGB(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
                 }
             }
             else
             {
                 // Set active rgb value to 0 (off or black)
-                displayController->lampData[i].activeRgb = displayController->rgbFromValues(0, 0, 0);
+                displayController->lampData[i].activeRgb = CRGB(0, 0, 0);
             }
         }
         break;
@@ -490,13 +490,13 @@ void DisplayController::blinkLampsCallback(void* param)
                 {
                     // non- RGB button lamps
                     displayController->lampData[i].activeRgb =
-                        displayController->rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+                        CRGB(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
                 }
             }
             else
             {
                 // Set active rgb value to 0 (off or black)
-                displayController->lampData[i].activeRgb = displayController->rgbFromValues(0, 0, 0);
+                displayController->lampData[i].activeRgb = CRGB(0, 0, 0);
             }
         }
         break;
@@ -513,13 +513,13 @@ void DisplayController::blinkLampsCallback(void* param)
                 {
                     // non- RGB button lamps
                     displayController->lampData[i].activeRgb =
-                        displayController->rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+                        CRGB(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
                 }
             }
             else
             {
                 // Set active rgb value to 0 (off or black)
-                displayController->lampData[i].activeRgb = displayController->rgbFromValues(0, 0, 0);
+                displayController->lampData[i].activeRgb = CRGB(0, 0, 0);
             }
         }
         break;
@@ -537,13 +537,13 @@ void DisplayController::blinkLampsCallback(void* param)
                 {
                     // non- RGB button lamps
                     displayController->lampData[i].activeRgb =
-                        displayController->rgbFromValues(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+                        CRGB(MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
                 }
             }
             else
             {
                 // Set active rgb value to 0 (off or black)
-                displayController->lampData[i].activeRgb = displayController->rgbFromValues(0, 0, 0);
+                displayController->lampData[i].activeRgb = CRGB(0, 0, 0);
             }
         }
         break;
@@ -615,15 +615,15 @@ void DisplayController::updateLampsCallback(void* param)
     displayController->buttonIO.writeGPIOB(lampVal);
     displayController->getButtonStatus();
 
-    if (initialRun || bank != displayController->moneyController.getBank())
+    if (initialRun || bank != displayController->paymentController.getBank())
     {
-        bank = displayController->moneyController.getBank();
+        bank = displayController->paymentController.getBank();
         displayController->bankDisplay.write_value("%05d", bank);
     }
 
-    if (initialRun || credit != displayController->moneyController.getCredit())
+    if (initialRun || credit != displayController->paymentController.getCredit())
     {
-        credit = displayController->moneyController.getCredit();
+        credit = displayController->paymentController.getCredit();
         displayController->creditDisplay.write_value("%05d", credit);
     }
 

@@ -45,13 +45,16 @@
 #include "paymentcontroller.h"
 #include "reelcontroller.h"
 
-#define HANS 0
-#define OLAF 1
-#define SVEN 2
-#define ANNA 3
-#define KRISTOF 4
-#define ELSA 5
-#define PALACE 6
+typedef enum Symbols
+{
+    HANS = 0,
+    OLAF,
+    SVEN,
+    ANNA,
+    KRISTOF,
+    ELSA,
+    PALACE
+} symbols_t;
 
 class MainController; // forward declaration
 
@@ -59,7 +62,7 @@ class Game
 {
 public:
     Game(DisplayController& displayController, AudioController& audioController,
-         MoneyController& moneyController, ReelController& reelController);
+         PaymentController& paymentController, ReelController& reelController);
     ~Game();
     void start();
     [[nodiscard]] bool isGameInProgress() const;
@@ -84,17 +87,17 @@ public:
     };
 
     // Map symbols to physical stops on reels (25 stops on a reel)
-    static constexpr uint8_t symbolsLeftReel[25] = {
+    static constexpr symbols_t symbolsLeftReel[25] = {
         HANS, OLAF, HANS, HANS, ANNA, SVEN, KRISTOF, HANS, OLAF,
         OLAF, SVEN, KRISTOF, ELSA, SVEN, KRISTOF, SVEN, OLAF, KRISTOF,
         ELSA, OLAF, ANNA, KRISTOF, PALACE, SVEN, OLAF
     };
-    static constexpr uint8_t symbolsCentreReel[25] = {
+    static constexpr symbols_t symbolsCentreReel[25] = {
         SVEN, HANS, OLAF, ELSA, HANS, SVEN, HANS, KRISTOF, OLAF,
         ELSA, SVEN, KRISTOF, OLAF, SVEN, KRISTOF, KRISTOF, OLAF, SVEN,
         ELSA, SVEN, KRISTOF, PALACE, OLAF, ANNA, HANS
     };
-    static constexpr uint8_t symbolsRightReel[25] = {
+    static constexpr symbols_t symbolsRightReel[25] = {
         KRISTOF, KRISTOF, OLAF, OLAF, SVEN, HANS, HANS, OLAF, SVEN,
         KRISTOF, PALACE, OLAF, ELSA, HANS, SVEN, KRISTOF, PALACE, OLAF,
         SVEN, HANS, ANNA, SVEN, ELSA, KRISTOF, OLAF
@@ -121,7 +124,7 @@ private:
 
     DisplayController& displayController;
     AudioController& audioController;
-    MoneyController& moneyController;
+    PaymentController& paymentController;
     ReelController& reelController;
 
     struct PositionValueMapping
