@@ -4,11 +4,18 @@
 #define __WS2812B_H__
 
 #include "led_strip.h"
-#include "driver/rmt_tx.h"
+//#include "driver/rmt_tx.h"
+#include "driver/i2s_common.h"
+#include "driver/i2s_std.h"
 #include "esp_err.h"
 #include <vector>
 
 #include "palette.hpp"
+
+#define PIXEL_SIZE 12
+#define SAMPLE_RATE (93750)
+#define ZERO_BUFFER 48
+#define I2S_NUM I2S_NUM_1
 
 class WS2812B {
 public:
@@ -37,8 +44,15 @@ private:
     gpio_num_t gpio_;
     uint16_t led_count_;
 
-    led_strip_handle_t strip_ = nullptr;
+    static constexpr uint16_t bitpatterns[4] = {0x88, 0x8e, 0xe8, 0xee};
+    std::vector<uint8_t> out_buffer_; // [LED_NUMBER * PIXEL_SIZE] = {0};
+    std::vector<uint8_t> off_buffer_; // [ZERO_BUFFER] = {0};
     std::vector<uint8_t> buffer_;   // GRB order
+    uint16_t size_buffer_;
+
+    i2s_chan_handle_t channelHandle{};
+    i2s_chan_config_t channelConfig{};
+    i2s_std_config_t i2sConfig{};
 };
 
 #endif
