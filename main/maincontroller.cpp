@@ -179,6 +179,8 @@ void MainController::start()
     displayController.scrollOledText("Init Audio");
     this->audioController.initialise();
 
+paymentController->start();
+
     displayController.displayVFDText("INITIALISING 08");
     displayController.scrollOledText("Init Display");
     if (displayController.initialise() != ESP_OK)

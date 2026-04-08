@@ -41,7 +41,7 @@ esp_err_t WS2812B::init()
         .resolution_hz = 10'000'000, // 10 MHz recommended
         .mem_block_symbols = 64,
         .flags = {
-          .with_dma = 1
+          .with_dma = 0
         },
     };
 
