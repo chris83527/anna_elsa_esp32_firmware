@@ -65,7 +65,7 @@ void MainController::start()
 {
     ESP_LOGD(TAG, "start() called");
 
-    i2c_bus.init(GPIO_NUM_22, GPIO_NUM_21);
+    i2c_bus.init(GPIO_NUM_21, GPIO_NUM_22);
 
     // CPU LED is on a GPIO
     esp_rom_gpio_pad_select_gpio(CPU_LED_GPIO);
