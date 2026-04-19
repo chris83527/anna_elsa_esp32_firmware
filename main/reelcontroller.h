@@ -71,10 +71,10 @@
 #define LEDC_DUTY_QUARTER (3176)        // Set duty to 50% (2**13) * 50%
 // Don't set this to 100%, otherwise cctalk fails (presumably something gets
 // blocked somewhere)
-//#define LEDC_DUTY_FULL (6554) // Set duty to 80%. (2 ** 13) * 80%  = 6554
-#define LEDC_DUTY_FULL (8191) // 100%
+#define LEDC_DUTY_FULL (6553) // Set duty to 80%. ((2 ** 13) - 1) * 80%  = 6553
+//#define LEDC_DUTY_FULL (8191) // 100%
 
-#define LEDC_FREQUENCY (200)   // Frequency in Hertz. Set frequency to 40Hz
+#define LEDC_FREQUENCY (200)   // Frequency in Hertz. Set frequency to 200Hz
 
 class ReelController
 {

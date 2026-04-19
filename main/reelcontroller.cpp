@@ -64,9 +64,9 @@ ReelController::ReelController(AudioController& audioController,
                                I2CManager& i2cmgr)
     : audioController(audioController),
       displayController(displayController),
-      leftReel(PCA9629A(i2cmgr, REEL_LEFT_I2C_ADDRESS)),
-      centreReel(PCA9629A(i2cmgr, REEL_CENTRE_I2C_ADDRESS)),
-      rightReel(PCA9629A(i2cmgr, REEL_RIGHT_I2C_ADDRESS))
+      leftReel(i2cmgr, REEL_LEFT_I2C_ADDRESS),
+      centreReel(i2cmgr, REEL_CENTRE_I2C_ADDRESS),
+      rightReel(i2cmgr, REEL_RIGHT_I2C_ADDRESS)
 {
     ESP_LOGD(TAG, "Entering constructor");
 

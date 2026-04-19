@@ -89,7 +89,7 @@ esp_err_t I2CManager::writeRegister(const i2c_master_dev_handle_t &deviceHandle,
     size = data.size();
   }
 
-  std::unique_lock lock = std::unique_lock(mutex);
+  std::unique_lock lock(mutex);
 
   data.insert(data.begin(), reg);
 
@@ -116,7 +116,7 @@ esp_err_t I2CManager::write(const i2c_master_dev_handle_t &deviceHandle,
     size = data.size();
   }
 
-  std::unique_lock lock = std::unique_lock(mutex);
+  std::unique_lock lock(mutex);
 
   esp_err_t ret = i2c_master_transmit(deviceHandle, data.data(), size, 5000);
 
@@ -135,7 +135,7 @@ esp_err_t I2CManager::readRegister(const i2c_master_dev_handle_t &deviceHandle,
                                    const uint8_t reg,
                                    std::vector<uint8_t> &data, int size) {
 
-  std::unique_lock lock = std::unique_lock(mutex);
+  std::unique_lock lock(mutex);
 
 
   uint8_t readBuffer[1024] = {0};
@@ -161,7 +161,7 @@ esp_err_t I2CManager::readRegister(const i2c_master_dev_handle_t &deviceHandle,
 esp_err_t I2CManager::read(const i2c_master_dev_handle_t &deviceHandle,
                            std::vector<uint8_t> &data, int size) const
 {
-  std::unique_lock lock = std::unique_lock(mutex);
+  std::unique_lock lock(mutex);
 
   uint8_t readBuffer[1024] = {0};
 
@@ -182,7 +182,8 @@ esp_err_t I2CManager::read(const i2c_master_dev_handle_t &deviceHandle,
 
 bool I2CManager::probe(int address) const
 {
-  std::unique_lock lock = std::unique_lock(mutex);
+  std::unique_lock lock(mutex);
+
   esp_err_t ret = i2c_master_probe(_bus_handle, address, 5000);
 
   i2c_master_bus_wait_all_done(_bus_handle, 5000);
