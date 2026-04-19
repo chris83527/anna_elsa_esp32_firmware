@@ -93,7 +93,7 @@ bool ReelController::initialise()
 
     // Prepare and then apply the LEDC PWM timer configuration
     ledc_timer_config_t ledc_timer = {
-        .speed_mode = LEDC_SPEED_MODE_MAX,
+        .speed_mode = LEDC_MODE,
         .duty_resolution = LEDC_DUTY_RES,
         .timer_num = LEDC_TIMER,
         .freq_hz = LEDC_FREQUENCY, // Set output frequency at 5000Hz
@@ -129,6 +129,7 @@ bool ReelController::initialise()
     }
 
     ledc_bind_channel_timer(LEDC_MODE, LEDC_CHANNEL, LEDC_TIMER);
+ledc_fade_func_install(ESP_INTR_FLAG_IRAM);
 
     reelLeftInitOk = false;
     reelCentreInitOk = false;
@@ -139,8 +140,7 @@ bool ReelController::initialise()
     this->rightReel.initialise();
 
     // Switch on
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
 
     // return ESP_OK; // DEBUG
 
@@ -173,9 +173,7 @@ bool ReelController::initialise()
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-
+    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER, 0);
     // calibrate();
     // test();
 
@@ -214,8 +212,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop,
     int rightSteps = (((this->reelStopInfo.rightStop - 1) + 25) * STEPS_PER_STOP);
 
     // Switch on
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
 
     if (leftStop > 0)
     {
@@ -301,8 +298,7 @@ void ReelController::spin(const uint8_t leftStop, const uint8_t centreStop,
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     // Switch off
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER, 0);
 
     this->commandInProgress = false;
 }
@@ -339,8 +335,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
     int rightSteps = (((this->reelStopInfo.rightStop - 1) + 25) * STEPS_PER_STOP);
 
     // Switch on
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
 
     if (leftStop > 0)
     {
@@ -425,8 +420,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     // Switch off
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER, 0);
 
     this->commandInProgress = false;
 }
@@ -460,8 +454,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
     int rightSteps = rightStops * STEPS_PER_STOP;
 
     // Switch on
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
 
     if (leftStops > 0)
     {
@@ -546,8 +539,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     // Switch off
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER, 0);
 
     this->commandInProgress = false;
 }
@@ -563,8 +555,7 @@ void ReelController::calibrate()
     int rightCcwCorrection = 0;
 
     // Switch on
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
 
     displayController.displayVFDText("LEFT CW: 00");
     this->leftReel.home(PCA9629A::Direction::CW);
@@ -711,8 +702,7 @@ void ReelController::calibrate()
     }
 
     // Switch off
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER, 0);
 }
 
 void ReelController::test()
@@ -731,8 +721,7 @@ void ReelController::test()
                  Game::symbolMap[rightSymbolId].c_str());
 
         // Switch on
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
 
         uint8_t leftSteps = i * STEPS_PER_STOP;
         uint8_t centreSteps = i * STEPS_PER_STOP;
@@ -763,7 +752,6 @@ void ReelController::test()
         this->displayController.waitForButton(BTN_START_MASK_BIT);
 
         // Switch off
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER, 0);
     }
 }
