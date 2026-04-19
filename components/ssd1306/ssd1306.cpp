@@ -198,15 +198,18 @@ void SSD1306::display_text_x3(int page, const std::string& text, bool invert)
 
 void SSD1306::clear_screen(bool invert)
 {
+/*
     for (int page = 0; page < this->_pages; page++)
     {
-        SSD1306::display_text(page, "                ", invert);
+    //    display_text(page, "                ", invert);
     }
+
+ */
 }
 
 void SSD1306::clear_line(int page, bool invert)
 {
-    SSD1306::display_text(page, "                ", invert);
+    display_text(page, "                ", invert);
 }
 
 void SSD1306::contrast(int contrast) { i2c_contrast(contrast); }

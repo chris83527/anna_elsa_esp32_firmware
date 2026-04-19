@@ -175,7 +175,7 @@ esp_err_t DS3231::set_alarm(const alarm_t alarms, const struct tm *time1,
  */
 esp_err_t DS3231::get_flag(const uint8_t reg, const uint8_t mask,
                            uint8_t &flag) {
-  std::vector<uint8_t> data;
+  std::vector<uint8_t> data(1);
 
   /* get register */
   esp_err_t res = i2c_manager.readRegister(this->deviceHandle, reg, data, 1);
@@ -195,7 +195,7 @@ esp_err_t DS3231::get_flag(const uint8_t reg, const uint8_t mask,
  */
 esp_err_t DS3231::set_flag(const uint8_t reg, const uint8_t bits,
                            const uint8_t mode) {
-  std::vector<uint8_t> data;
+  std::vector<uint8_t> data(1);
 
   /* get status register */
   esp_err_t res = i2c_manager.readRegister(this->deviceHandle, reg, data, 1);
@@ -295,7 +295,7 @@ esp_err_t DS3231::get_squarewave_freq(sqwave_freq_t &freq) {
 esp_err_t DS3231::get_raw_temp(int16_t &temp) {
   CHECK_ARG(temp);
 
-  std::vector<uint8_t> data;
+  std::vector<uint8_t> data(2);
 
   i2c_manager.readRegister(this->deviceHandle, DS3231_ADDR_TEMP, data, 2);
 
@@ -331,7 +331,7 @@ esp_err_t DS3231::get_temp_float(float &temp) {
 }
 
 esp_err_t DS3231::get_time(struct tm &time) {
-  std::vector<uint8_t> data;
+  std::vector<uint8_t> data(7);
 
   i2c_manager.readRegister(this->deviceHandle, DS3231_ADDR_TIME, data, 7);
 
@@ -381,7 +381,7 @@ esp_err_t DS3231::set_aging_offset(int8_t age) {
 esp_err_t DS3231::get_aging_offset(int8_t &age) {
   CHECK_ARG(age);
 
-  std::vector<uint8_t> data;
+  std::vector<uint8_t> data(1);
 
   i2c_manager.readRegister(this->deviceHandle, DS3231_ADDR_AGING, data, 1);
 
