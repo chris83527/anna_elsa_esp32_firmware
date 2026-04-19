@@ -116,8 +116,8 @@ void SSD1306::display_text(int page, const std::string& text, bool invert)
         if (invert)
             SSD1306::invert(image, 8);
         if (this->_flip)
-            SSD1306::flip(image, 8);
-        SSD1306::display_image(page, seg, image, 8);
+            flip(image, 8);
+        display_image(page, seg, image, 8);
         seg = seg + 8;
     }
 }
@@ -292,7 +292,7 @@ void SSD1306::scroll_clear()
     }
 }
 
-void SSD1306::hardware_scroll(SSD1306::scroll_type_t scroll)
+void SSD1306::hardware_scroll(scroll_type_t scroll)
 {
     i2c_hardware_scroll(scroll);
 }
@@ -301,7 +301,7 @@ void SSD1306::hardware_scroll(SSD1306::scroll_type_t scroll)
 // delay > 0 : display with wait
 // delay < 0 : no display
 
-void SSD1306::wrap_arround(SSD1306::scroll_type_t scroll, int start, int end,
+void SSD1306::wrap_around(scroll_type_t scroll, int start, int end,
                            int8_t delay)
 {
     if (scroll == SCROLL_RIGHT)
@@ -364,9 +364,9 @@ void SSD1306::wrap_arround(SSD1306::scroll_type_t scroll, int start, int end,
                 wk0 = this->_page[page]._segs[seg];
                 wk1 = this->_page[page + 1]._segs[seg];
                 if (this->_flip)
-                    wk0 = SSD1306::rotate_byte(wk0);
+                    wk0 = rotate_byte(wk0);
                 if (this->_flip)
-                    wk1 = SSD1306::rotate_byte(wk1);
+                    wk1 = rotate_byte(wk1);
                 if (seg == 0)
                 {
                     ESP_LOGD(TAG, "b page=%d wk0=%02x wk1=%02x", page, wk0, wk1);
@@ -381,7 +381,7 @@ void SSD1306::wrap_arround(SSD1306::scroll_type_t scroll, int start, int end,
                              wk2);
                 }
                 if (this->_flip)
-                    wk2 = SSD1306::rotate_byte(wk2);
+                    wk2 = rotate_byte(wk2);
                 this->_page[page]._segs[seg] = wk2;
             }
         }
@@ -393,9 +393,9 @@ void SSD1306::wrap_arround(SSD1306::scroll_type_t scroll, int start, int end,
             wk0 = this->_page[pages]._segs[seg];
             wk1 = save[seg];
             if (this->_flip)
-                wk0 = SSD1306::rotate_byte(wk0);
+                wk0 = rotate_byte(wk0);
             if (this->_flip)
-                wk1 = SSD1306::rotate_byte(wk1);
+                wk1 = rotate_byte(wk1);
             wk0 = wk0 >> 1;
             wk1 = wk1 & 0x01;
             wk1 = wk1 << 7;
@@ -430,9 +430,9 @@ void SSD1306::wrap_arround(SSD1306::scroll_type_t scroll, int start, int end,
                 wk0 = this->_page[page]._segs[seg];
                 wk1 = this->_page[page - 1]._segs[seg];
                 if (this->_flip)
-                    wk0 = SSD1306::rotate_byte(wk0);
+                    wk0 = rotate_byte(wk0);
                 if (this->_flip)
-                    wk1 = SSD1306::rotate_byte(wk1);
+                    wk1 = rotate_byte(wk1);
                 if (seg == 0)
                 {
                     ESP_LOGD(TAG, "b page=%d wk0=%02x wk1=%02x", page, wk0, wk1);
@@ -514,9 +514,9 @@ void SSD1306::bitmaps(int xpos, int ypos, const uint8_t* bitmap, int tmpWidth,
                     wk1 = ~wk1;
 
                 // wk2 = SSD1306::copy_bit(bitmap[index+offset], srcBits, wk0, dstBits);
-                wk2 = SSD1306::copy_bit(wk1, srcBits, wk0, dstBits);
+                wk2 = copy_bit(wk1, srcBits, wk0, dstBits);
                 if (this->_flip)
-                    wk2 = SSD1306::rotate_byte(wk2);
+                    wk2 = rotate_byte(wk2);
 
                 ESP_LOGD(TAG, "index=%d offset=%d page=%d _seg=%d, wk2=%02x", index,
                          offset, page, _seg, wk2);
@@ -545,7 +545,7 @@ void SSD1306::bitmaps(int xpos, int ypos, const uint8_t* bitmap, int tmpWidth,
         SSD1306::dump_page(page, _seg);
     }
 #endif
-    SSD1306::show_buffer();
+    show_buffer();
 }
 
 // Set pixel to internal buffer. Not show it.
@@ -567,7 +567,7 @@ void SSD1306::pixel(int xpos, int ypos, bool invert)
         wk0 = wk0 | wk1;
     }
     if (this->_flip)
-        wk0 = SSD1306::rotate_byte(wk0);
+        wk0 = rotate_byte(wk0);
     ESP_LOGD(TAG, "wk0=0x%02x wk1=0x%02x", wk0, wk1);
     this->_page[page]._segs[_seg] = wk0;
 }
@@ -593,7 +593,7 @@ void SSD1306::line(int x1, int y1, int x2, int y2, bool invert)
         E = -dx;
         for (i = 0; i <= dx; i++)
         {
-            SSD1306::pixel(x1, y1, invert);
+            pixel(x1, y1, invert);
             x1 += sx;
             E += 2 * dy;
             if (E >= 0)
@@ -610,7 +610,7 @@ void SSD1306::line(int x1, int y1, int x2, int y2, bool invert)
         E = -dy;
         for (i = 0; i <= dy; i++)
         {
-            SSD1306::pixel(x1, y1, invert);
+            pixel(x1, y1, invert);
             y1 += sy;
             E += 2 * dx;
             if (E >= 0)
@@ -828,82 +828,83 @@ void SSD1306::i2c_contrast(int contrast)
     i2c_manager.write(this->deviceHandle, data);
 }
 
-void SSD1306::i2c_hardware_scroll(scroll_type_t scroll) {
-//     esp_err_t espRc;
-//
-//     i2c_master_write_byte(cmd, OLED_CONTROL_BYTE_CMD_STREAM, true);
-//
-//     if (scroll == SCROLL_RIGHT) {
-//         i2c_master_write_byte(cmd, OLED_CMD_HORIZONTAL_RIGHT, true); // 26
-//         i2c_master_write_byte(cmd, 0x00, true); // Dummy byte
-//         i2c_master_write_byte(cmd, 0x00, true); // Define start page address
-//         i2c_master_write_byte(cmd, 0x07, true); // Frame frequency
-//         i2c_master_write_byte(cmd, 0x07, true); // Define end page address
-//         i2c_master_write_byte(cmd, 0x00, true); //
-//         i2c_master_write_byte(cmd, 0xFF, true); //
-//         i2c_master_write_byte(cmd, OLED_CMD_ACTIVE_SCROLL, true); // 2F
-//     }
-//
-//     if (scroll == SCROLL_LEFT) {
-//         i2c_master_write_byte(cmd, OLED_CMD_HORIZONTAL_LEFT, true); // 27
-//         i2c_master_write_byte(cmd, 0x00, true); // Dummy byte
-//         i2c_master_write_byte(cmd, 0x00, true); // Define start page address
-//         i2c_master_write_byte(cmd, 0x07, true); // Frame frequency
-//         i2c_master_write_byte(cmd, 0x07, true); // Define end page address
-//         i2c_master_write_byte(cmd, 0x00, true); //
-//         i2c_master_write_byte(cmd, 0xFF, true); //
-//         i2c_master_write_byte(cmd, OLED_CMD_ACTIVE_SCROLL, true); // 2F
-//     }
-//
-//     if (scroll == SCROLL_DOWN) {
-//         i2c_master_write_byte(cmd, OLED_CMD_CONTINUOUS_SCROLL, true); // 29
-//         i2c_master_write_byte(cmd, 0x00, true); // Dummy byte
-//         i2c_master_write_byte(cmd, 0x00, true); // Define start page address
-//         i2c_master_write_byte(cmd, 0x07, true); // Frame frequency
-//         //i2c_master_write_byte(cmd, 0x01, true); // Define end page address
-//         i2c_master_write_byte(cmd, 0x00, true); // Define end page address
-//         i2c_master_write_byte(cmd, 0x3F, true); // Vertical scrolling offset
-//
-//         i2c_master_write_byte(cmd, OLED_CMD_VERTICAL, true); // A3
-//         i2c_master_write_byte(cmd, 0x00, true);
-//         if (this->_height == 64)
-//             //i2c_master_write_byte(cmd, 0x7F, true);
-//             i2c_master_write_byte(cmd, 0x40, true);
-//         if (this->_height == 32)
-//             i2c_master_write_byte(cmd, 0x20, true);
-//         i2c_master_write_byte(cmd, OLED_CMD_ACTIVE_SCROLL, true); // 2F
-//     }
-//
-//     if (scroll == SCROLL_UP) {
-//         i2c_master_write_byte(cmd, OLED_CMD_CONTINUOUS_SCROLL, true); // 29
-//         i2c_master_write_byte(cmd, 0x00, true); // Dummy byte
-//         i2c_master_write_byte(cmd, 0x00, true); // Define start page address
-//         i2c_master_write_byte(cmd, 0x07, true); // Frame frequency
-//         //i2c_master_write_byte(cmd, 0x01, true); // Define end page address
-//         i2c_master_write_byte(cmd, 0x00, true); // Define end page address
-//         i2c_master_write_byte(cmd, 0x01, true); // Vertical scrolling offset
-//
-//         i2c_master_write_byte(cmd, OLED_CMD_VERTICAL, true); // A3
-//         i2c_master_write_byte(cmd, 0x00, true);
-//         if (this->_height == 64)
-//             //i2c_master_write_byte(cmd, 0x7F, true);
-//             i2c_master_write_byte(cmd, 0x40, true);
-//         if (this->_height == 32)
-//             i2c_master_write_byte(cmd, 0x20, true);
-//         i2c_master_write_byte(cmd, OLED_CMD_ACTIVE_SCROLL, true); // 2F
-//     }
-//
-//     if (scroll == SCROLL_STOP) {
-//         i2c_master_write_byte(cmd, OLED_CMD_DEACTIVE_SCROLL, true); // 2E
-//     }
-//
-//     i2c_master_stop(cmd);
-//     espRc = i2c_master_cmd_begin(I2C_NUM, cmd, 10 / portTICK_PERIOD_MS);
-//     if (espRc == ESP_OK) {
-//         ESP_LOGD(tag, "Scroll command succeeded");
-//     } else {
-//         ESP_LOGE(tag, "Scroll command failed. code: 0x%.2X", espRc);
-//     }
-//
-//     i2c_cmd_link_delete(cmd);
+void SSD1306::i2c_hardware_scroll(scroll_type_t scroll)
+{
+    //     esp_err_t espRc;
+    //
+    //     i2c_master_write_byte(cmd, OLED_CONTROL_BYTE_CMD_STREAM, true);
+    //
+    //     if (scroll == SCROLL_RIGHT) {
+    //         i2c_master_write_byte(cmd, OLED_CMD_HORIZONTAL_RIGHT, true); // 26
+    //         i2c_master_write_byte(cmd, 0x00, true); // Dummy byte
+    //         i2c_master_write_byte(cmd, 0x00, true); // Define start page address
+    //         i2c_master_write_byte(cmd, 0x07, true); // Frame frequency
+    //         i2c_master_write_byte(cmd, 0x07, true); // Define end page address
+    //         i2c_master_write_byte(cmd, 0x00, true); //
+    //         i2c_master_write_byte(cmd, 0xFF, true); //
+    //         i2c_master_write_byte(cmd, OLED_CMD_ACTIVE_SCROLL, true); // 2F
+    //     }
+    //
+    //     if (scroll == SCROLL_LEFT) {
+    //         i2c_master_write_byte(cmd, OLED_CMD_HORIZONTAL_LEFT, true); // 27
+    //         i2c_master_write_byte(cmd, 0x00, true); // Dummy byte
+    //         i2c_master_write_byte(cmd, 0x00, true); // Define start page address
+    //         i2c_master_write_byte(cmd, 0x07, true); // Frame frequency
+    //         i2c_master_write_byte(cmd, 0x07, true); // Define end page address
+    //         i2c_master_write_byte(cmd, 0x00, true); //
+    //         i2c_master_write_byte(cmd, 0xFF, true); //
+    //         i2c_master_write_byte(cmd, OLED_CMD_ACTIVE_SCROLL, true); // 2F
+    //     }
+    //
+    //     if (scroll == SCROLL_DOWN) {
+    //         i2c_master_write_byte(cmd, OLED_CMD_CONTINUOUS_SCROLL, true); // 29
+    //         i2c_master_write_byte(cmd, 0x00, true); // Dummy byte
+    //         i2c_master_write_byte(cmd, 0x00, true); // Define start page address
+    //         i2c_master_write_byte(cmd, 0x07, true); // Frame frequency
+    //         //i2c_master_write_byte(cmd, 0x01, true); // Define end page address
+    //         i2c_master_write_byte(cmd, 0x00, true); // Define end page address
+    //         i2c_master_write_byte(cmd, 0x3F, true); // Vertical scrolling offset
+    //
+    //         i2c_master_write_byte(cmd, OLED_CMD_VERTICAL, true); // A3
+    //         i2c_master_write_byte(cmd, 0x00, true);
+    //         if (this->_height == 64)
+    //             //i2c_master_write_byte(cmd, 0x7F, true);
+    //             i2c_master_write_byte(cmd, 0x40, true);
+    //         if (this->_height == 32)
+    //             i2c_master_write_byte(cmd, 0x20, true);
+    //         i2c_master_write_byte(cmd, OLED_CMD_ACTIVE_SCROLL, true); // 2F
+    //     }
+    //
+    //     if (scroll == SCROLL_UP) {
+    //         i2c_master_write_byte(cmd, OLED_CMD_CONTINUOUS_SCROLL, true); // 29
+    //         i2c_master_write_byte(cmd, 0x00, true); // Dummy byte
+    //         i2c_master_write_byte(cmd, 0x00, true); // Define start page address
+    //         i2c_master_write_byte(cmd, 0x07, true); // Frame frequency
+    //         //i2c_master_write_byte(cmd, 0x01, true); // Define end page address
+    //         i2c_master_write_byte(cmd, 0x00, true); // Define end page address
+    //         i2c_master_write_byte(cmd, 0x01, true); // Vertical scrolling offset
+    //
+    //         i2c_master_write_byte(cmd, OLED_CMD_VERTICAL, true); // A3
+    //         i2c_master_write_byte(cmd, 0x00, true);
+    //         if (this->_height == 64)
+    //             //i2c_master_write_byte(cmd, 0x7F, true);
+    //             i2c_master_write_byte(cmd, 0x40, true);
+    //         if (this->_height == 32)
+    //             i2c_master_write_byte(cmd, 0x20, true);
+    //         i2c_master_write_byte(cmd, OLED_CMD_ACTIVE_SCROLL, true); // 2F
+    //     }
+    //
+    //     if (scroll == SCROLL_STOP) {
+    //         i2c_master_write_byte(cmd, OLED_CMD_DEACTIVE_SCROLL, true); // 2E
+    //     }
+    //
+    //     i2c_master_stop(cmd);
+    //     espRc = i2c_master_cmd_begin(I2C_NUM, cmd, 10 / portTICK_PERIOD_MS);
+    //     if (espRc == ESP_OK) {
+    //         ESP_LOGD(tag, "Scroll command succeeded");
+    //     } else {
+    //         ESP_LOGE(tag, "Scroll command failed. code: 0x%.2X", espRc);
+    //     }
+    //
+    //     i2c_cmd_link_delete(cmd);
 }

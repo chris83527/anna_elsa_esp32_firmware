@@ -142,7 +142,7 @@ public:
   void scroll_text(const std::string& text, bool invert);
   void scroll_clear();
   void hardware_scroll(scroll_type_t scroll);
-  void wrap_arround(scroll_type_t scroll, int start, int end, int8_t delay);
+  void wrap_around(scroll_type_t scroll, int start, int end, int8_t delay);
   void bitmaps(int xpos, int ypos, const uint8_t* bitmap, int width, int height,
                bool invert);
   static void invert(uint8_t *buf, size_t blen);

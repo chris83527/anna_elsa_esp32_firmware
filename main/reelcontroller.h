@@ -68,7 +68,7 @@
 #define LEDC_MODE LEDC_HIGH_SPEED_MODE
 #define LEDC_CHANNEL LEDC_CHANNEL_0
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
-#define LEDC_DUTY_QUARTER (3176)        // Set duty to 50% (2**13) * 50%
+#define LEDC_DUTY_QUARTER (2048)        // Set duty to 50% ((2**13)-1) * 50%
 // Don't set this to 100%, otherwise cctalk fails (presumably something gets
 // blocked somewhere)
 #define LEDC_DUTY_FULL (6553) // Set duty to 80%. ((2 ** 13) - 1) * 80%  = 6553
