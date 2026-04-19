@@ -25,7 +25,7 @@ private:
         HopperStatus last{};
 
         while (running_) {
-            HopperStatus st;
+            HopperStatus st{};
             facade_.getHopperStatus(st);
 
             if (st.raw_status != last.raw_status) {

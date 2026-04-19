@@ -52,9 +52,9 @@ void OledController::initialise()
 
 #if CONFIG_FLIP
     ssd1306->_flip = true;
-    ESP_LOGW(TAG, "SSD1306: Flipped orientation");
+    ESP_LOGD(TAG, "SSD1306: Flipped orientation");
 #endif
-    ESP_LOGW(TAG, "SSD1306: Normal orientation");
+    ESP_LOGD(TAG, "SSD1306: Normal orientation");
     ssd1306.clear_screen(false);
     ssd1306.contrast(0xff);
 }

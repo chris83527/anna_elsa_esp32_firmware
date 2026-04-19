@@ -59,16 +59,6 @@ extern "C" void app_main() {
     cfg = esp_pthread_get_default_config();
   }
 
-  //    cfg.prio = 1;
-  // cfg.inherit_cfg = true;
-  cfg.thread_name = "testStack";
-//  cfg.pin_to_core = 1;
-  cfg.stack_size = (9216);
-  if (esp_pthread_set_cfg(&cfg) != ESP_OK) {
-    printf("esp_pthread_set_cfg failed\n");
-    abort();
-  };
-
   esp_log_level_set("gpio", ESP_LOG_WARN);
   esp_log_level_set("ReelController", ESP_LOG_INFO);
   esp_log_level_set("m20ly02z", ESP_LOG_WARN);

@@ -38,7 +38,7 @@ struct CctalkFrame {
         checksum = static_cast<uint8_t>(-static_cast<int8_t>(sum & 0xFF));
     }
 
-    bool validateChecksum() const {
+    [[nodiscard]] bool validateChecksum() const {
         uint16_t sum = 0;
         sum += destination;
         sum += data_length;

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/components/esp_littlefs" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/components/esp_littlefs" vcs="" />
     <mapping directory="$PROJECT_DIR$/../esp/esp-idf" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../esp/esp-idf-lib" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc" vcs="Git" />
@@ -27,8 +27,8 @@
     <mapping directory="$PROJECT_DIR$/../esp/esp-idf/components/mqtt/esp-mqtt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../esp/esp-idf/components/openthread/lib" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../esp/esp-idf/components/openthread/openthread" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/../esp/esp-idf/components/openthread/openthread/third_party/mbedtls/repo" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/../esp/esp-idf/components/openthread/openthread/third_party/mbedtls/repo/framework" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../esp/esp-idf/components/openthread/openthread/third_party/mbedtls/repo" vcs="" />
+    <mapping directory="$PROJECT_DIR$/../esp/esp-idf/components/openthread/openthread/third_party/mbedtls/repo/framework" vcs="" />
     <mapping directory="$PROJECT_DIR$/../esp/esp-idf/components/protobuf-c/protobuf-c" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../esp/esp-idf/components/spiffs/spiffs" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../esp/esp-idf/components/unity/unity" vcs="Git" />

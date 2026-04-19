@@ -51,6 +51,8 @@ esp_err_t WS2812B::init()
         return err;
     }
     */
+    this->channelConfig = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_1, I2S_ROLE_MASTER);
+    i2s_new_channel(&channelConfig, &channelHandle, nullptr);
 
     this->i2sConfig = {
         .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(SAMPLE_RATE),

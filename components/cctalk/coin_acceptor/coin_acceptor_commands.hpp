@@ -115,7 +115,7 @@ inline CctalkError cctalk_read_buffered_credit_events(
         ev.event_counter = resp.data[i];
         ev.channel       = resp.data[i+1];
 
-        auto it = std::find_if(channel_table.begin(), channel_table.end(),
+        auto it = std::ranges::find_if(channel_table.begin(), channel_table.end(),
                                [&](const CoinChannelInfo& c){ return c.channel == ev.channel; });
         ev.coin_value = (it != channel_table.end()) ? it->value : 0;
         ev.routing    = (ev.channel > 0) ? CoinRouting::Accepted : CoinRouting::Rejected;

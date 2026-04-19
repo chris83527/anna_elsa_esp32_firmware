@@ -1,4 +1,6 @@
 // cctalk.cpp
+#include <vector>
+
 #include "cctalk.hpp"
 #include "cctalk_device_facade.hpp"
 
@@ -8,8 +10,9 @@ CctalkError CctalkBus::writeFrameLocked(const CctalkFrame& frame,
     tmp.data_length = static_cast<uint8_t>(tmp.data.size());
     tmp.computeChecksum();
 
+    uint8_t totalSize = (5 + tmp.data.size());
     std::vector<uint8_t> buf;
-    buf.reserve(5 + tmp.data.size());
+    buf.reserve(totalSize);
     buf.push_back(tmp.destination);
     buf.push_back(tmp.data_length);
     buf.push_back(tmp.source);
@@ -19,7 +22,7 @@ CctalkError CctalkBus::writeFrameLocked(const CctalkFrame& frame,
 
     int written = uart_.write(buf.data(), buf.size(), timeout);
     if (written < 0) return CctalkError::UartError;
-    if (static_cast<std::size_t>(written) != buf.size()) return CctalkError::Timeout;
+    if (static_cast<std::size_t>(written) != totalSize) return CctalkError::Timeout;
     return CctalkError::OK;
 }
 
@@ -50,20 +53,20 @@ CctalkError CctalkBus::readFrameLocked(CctalkFrame& frame,
 
 CctalkError CctalkBus::send(const CctalkFrame& frame,
                             std::chrono::milliseconds timeout) {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard lock(mutex_);
     return writeFrameLocked(frame, timeout);
 }
 
 CctalkError CctalkBus::readFrame(CctalkFrame& frame,
                                  std::chrono::milliseconds timeout) {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard lock(mutex_);
     return readFrameLocked(frame, timeout);
 }
 
 CctalkError CctalkBus::sendAndReceive(const CctalkFrame& request,
                                       CctalkFrame& response,
                                       std::chrono::milliseconds timeout) {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard lock(mutex_);
 
     auto err = writeFrameLocked(request, timeout);
     if (err != CctalkError::OK) return err;

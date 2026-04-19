@@ -15,15 +15,14 @@ struct CctalkEvent {
         HopperStatus hopper;
     };
 
-    CctalkEvent() = default;
     static CctalkEvent makeCoin(const CoinEvent& ev) {
-        CctalkEvent e;
+        CctalkEvent e{};
         e.type = CctalkEventType::CoinAccepted;
         e.coin = ev;
         return e;
     }
     static CctalkEvent makeHopper(const HopperStatus& st) {
-        CctalkEvent e;
+        CctalkEvent e{};
         e.type = CctalkEventType::HopperStatusChanged;
         e.hopper = st;
         return e;

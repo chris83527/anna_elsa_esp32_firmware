@@ -86,13 +86,13 @@ void PaymentController::setEventHandler(EventHandler handler)
 
 void PaymentController::start()
 {
-    ESP_LOGI(TAG, "initialise() called");
+    ESP_LOGI(TAG, "start() called");
     loadValuesFromStorage();
     if (running_) return;
     running_ = true;
 
-    acceptorThread_->start();
-    hopperThread_->start();
+    //acceptorThread_->start();
+    //hopperThread_->start();
 
     dispatcherThread_ = std::make_unique<EventDispatcherThread>(
         eventQueue_,
@@ -127,6 +127,7 @@ void PaymentController::stop()
  */
 void PaymentController::loadValuesFromStorage()
 {
+    resetCounters();
     this->credit = this->nvsController.readValueFromNVS(NVS_KEY_CREDIT.c_str());
     this->bank = this->nvsController.readValueFromNVS(NVS_KEY_BANK.c_str());
     this->gamecount =
@@ -239,6 +240,22 @@ void PaymentController::removeFromBank(const uint16_t value)
         this->nvsController.writeValueToNVS(NVS_KEY_BANK.c_str(), bank);
     }
 }
+
+void PaymentController::resetCounters()
+{
+    credit =0;
+    bank = 0;
+    transfer = 0;
+    gamecount = 0;
+    payoutTotal =0;
+     incomeTotal= 0;
+    tenCentIn =0;
+     twentyCentIn=0;
+     fiftyCentIn=0;
+    oneEuroIn=0;
+    twoEuroIn=0;
+}
+
 
 /**
  * @brief Get the Bank object

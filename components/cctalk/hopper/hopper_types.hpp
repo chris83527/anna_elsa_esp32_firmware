@@ -14,10 +14,10 @@ enum class HopperStatusFlags : uint8_t {
 };
 
 struct HopperStatus {
-    uint8_t raw_status;
-    bool empty;
-    bool jammed;
-    bool motor_running;
-    bool motor_timeout;
-    bool sensor_blocked;
+    uint8_t raw_status = 0;
+    bool empty = false;
+    bool jammed = false;
+    bool motor_running = false;
+    bool motor_timeout = false;
+    bool sensor_blocked = false;
 };

@@ -7,7 +7,7 @@
 
 class EspIdfCctalkUart : public ICctalkUart {
 public:
-    EspIdfCctalkUart(uart_port_t uart_num)
+    explicit EspIdfCctalkUart(uart_port_t uart_num)
         : uart_num_(uart_num) {}
 
     int write(const uint8_t* data, size_t len,  std::chrono::milliseconds timeout) override {

@@ -31,22 +31,23 @@
 #include "reelcontroller.h"
 
 #include "esp_littlefs.h"
-#include "esp_pthread.h"
 #include "m20ly02z.h"
-
-// #include "errors.h"
 
 static const char* TAG = "MainController";
 static int blinkDelay = 250000; // µs, not ms
+
+static constexpr uint8_t HOST_ADDRESS = 1;
+static constexpr uint8_t COIN_ACCEPTOR_ADDRESS = 2;
+static constexpr uint8_t HOPPER_ADDRESS = 3;
 
 MainController::MainController(std::unique_ptr<ICctalkUart> uart)
 {
     ESP_LOGD(TAG, "Entering constructor");
     paymentController = std::make_shared<PaymentController> (nvsController,
             std::move(uart),
-            1,   // host address
-            2,   // coin acceptor address
-            3    // hopper address
+            HOST_ADDRESS,   // host address
+            COIN_ACCEPTOR_ADDRESS,   // coin acceptor address
+            HOPPER_ADDRESS   // hopper address
         );
     ESP_LOGD(TAG, "Leaving constructor");
 }
@@ -314,10 +315,9 @@ void MainController::blinkCPUStatusLEDCallback(void *param)
 
 void MainController::updateStatisticsDisplayCallback(void *param)
 {
-    MainController* paymentController = static_cast<MainController*>(param);
+    auto paymentController = static_cast<MainController*>(param);
 
     tm time{};
-    std::string dateString;
 
     paymentController->displayController.clearOledDisplay();
 
@@ -329,6 +329,7 @@ void MainController::updateStatisticsDisplayCallback(void *param)
 
     if (ret == ESP_OK)
     {
+        std::string dateString;
         uint16_t years = time.tm_year + 1900;
         std::sprintf(buf, "%02d-%02d-%04d %02d:%02d", time.tm_mday, time.tm_mon,
                      years, time.tm_hour, time.tm_min);

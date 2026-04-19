@@ -67,7 +67,7 @@ private:
 
     uint8_t letitgoCountdown = 0;
 
-    uint8_t oldReelStatus;
+    uint8_t oldReelStatus = 0;
 
     // HttpController httpController;
 

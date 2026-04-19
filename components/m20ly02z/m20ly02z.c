@@ -126,15 +126,15 @@ void m20ly02z_send_byte(const uint8_t data)
 
     for (int i = 7; i >= 0; i--)
     {
-        ESP_LOGD(TAG, "Bit #%d, value: %d", i, !!(data & (1 << i)));
+        //ESP_LOGD(TAG, "Bit #%d, value: %d", i, !!(data & (1 << i)));
         gpio_set_level(_doutPin, !!(data & (1 << i)));
         gpio_set_level(_clockPin, 1);
-        vTaskDelay(pdMS_TO_TICKS(1));
+        vTaskDelay(1);
         gpio_set_level(_clockPin, 0);
-        vTaskDelay(pdMS_TO_TICKS(1));
+        vTaskDelay(1);
     }
     gpio_set_level(_latchPin, 1);
-    vTaskDelay(pdMS_TO_TICKS(1));
+    vTaskDelay(1);
     gpio_set_level(_latchPin, 0);
 }
 
