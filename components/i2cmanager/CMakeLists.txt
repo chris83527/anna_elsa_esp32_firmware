@@ -1,1 +1,1 @@
-idf_component_register(SRCS "I2CManager.cpp" INCLUDE_DIRS "." REQUIRES log driver)
+idf_component_register(SRCS "i2c_bus.cpp" INCLUDE_DIRS "." REQUIRES driver)

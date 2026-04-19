@@ -5,7 +5,7 @@
 
 #include "esp_log.h"
 
-#include "I2CManager.h"
+#include "typed_i2c_device.hpp"
 
 /** SSD1306 class
  *
@@ -18,7 +18,7 @@
  *
  *  @endcode
  */
-class SSD1306 {
+class SSD1306 : public TypedI2CDevice {
 public:
   // Following definitions are borrowed from
   // http://robotcantalk.blogspot.com/2015/03/interfacing-arduino-with-ssd1306-driven.html
@@ -120,7 +120,7 @@ public:
    * @param width The width of the display in pixels
    * @param height The height of the display in pixels
    */
-  SSD1306(I2CManager &i2cmgr, uint8_t i2c_address, int width,
+  SSD1306(I2CBus &i2cbus, uint8_t i2c_address, int width,
           int height);
   ~SSD1306();
 
@@ -340,7 +340,6 @@ private:
       {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}  // U+007F
   };
 
-  I2CManager i2c_manager;
 };
 
 #endif /* MAIN_SSD1306_H_ */

@@ -17,6 +17,7 @@
 #include <chrono>
 #include <thread>
 
+#include "i2c_bus.hpp"
 #include "NvsController.h"
 #include "audiocontroller.h"
 #include "displaycontroller.h"
@@ -34,7 +35,7 @@ public:
 
     void start();
 
-    I2CManager i2c_manager;
+    I2CBus i2c_bus;
     NvsController nvsController;
     PaymentController paymentController;
     DisplayController displayController;

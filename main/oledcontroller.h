@@ -36,7 +36,7 @@
 
 class OledController {
 public:
-  OledController(I2CManager &i2cmgr, int address);
+  OledController(I2CBus &i2bus, int address);
   virtual ~OledController();
   void initialise();
   void displayText(std::string textToDisplay, int lineNumber, bool invert);

@@ -41,17 +41,17 @@ static constexpr uint8_t COIN_ACCEPTOR_ADDRESS = 2;
 static constexpr uint8_t HOPPER_ADDRESS = 3;
 
 MainController::MainController(std::unique_ptr<ICctalkUart> uart) :
-    i2c_manager(I2C_NUM_0, GPIO_NUM_22, GPIO_NUM_21),
+    i2c_bus(I2C_NUM_0),
     paymentController(nvsController,
                       std::move(uart),
                       HOST_ADDRESS, // host address
                       COIN_ACCEPTOR_ADDRESS, // coin acceptor address
                       HOPPER_ADDRESS),
-    displayController(paymentController, i2c_manager),
-    audioController(i2c_manager),
-    reelController(audioController, displayController, i2c_manager),
+    displayController(paymentController, i2c_bus),
+    audioController(i2c_bus),
+    reelController(audioController, displayController, i2c_bus),
     game(displayController, audioController, paymentController, reelController),
-    ds3231(i2c_manager, DS3231_ADDR)
+    ds3231(i2c_bus, DS3231_ADDR)
 
 {
     ESP_LOGD(TAG, "Entering constructor");
@@ -64,6 +64,8 @@ MainController::~MainController() = default;
 void MainController::start()
 {
     ESP_LOGD(TAG, "start() called");
+
+    i2c_bus.init(GPIO_NUM_22, GPIO_NUM_21);
 
     // CPU LED is on a GPIO
     esp_rom_gpio_pad_select_gpio(CPU_LED_GPIO);
@@ -228,7 +230,7 @@ void MainController::start()
 
     displayController.displayVFDText("INITIALISING 0C");
     displayController.scrollOledText("Init game");
-    this->game.initialise();
+    game.initialise();
 
     displayController.displayVFDText("INITIALISING 0D");
 

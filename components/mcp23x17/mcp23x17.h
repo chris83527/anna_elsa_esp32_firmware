@@ -40,7 +40,7 @@
 #ifndef __MCP23X17_H__
 #define __MCP23X17_H__
 
-#include "I2CManager.h"
+#include "typed_i2c_device.hpp"
 #include "esp_err.h"
 #include <mutex>
 
@@ -55,7 +55,7 @@
  *
  *  @endcode
  */
-class MCP23x17
+class MCP23x17 : public TypedI2CDevice
 {
 public:
     /**
@@ -92,9 +92,8 @@ public:
      * @param i2cmgr The I2C port to use (default: 0)
      * @param i2c_address I2C-bus address (default: 0x20)
      */
-    MCP23x17(const I2CManager& i2cmgr, uint8_t i2c_address);
-
-    ~MCP23x17();
+    MCP23x17(I2CBus& i2c_bus, uint8_t address) : TypedI2CDevice(i2c_bus, address) {}
+    ~MCP23x17() = default;
 
     esp_err_t setGPIOAInputPolarity(uint8_t polarity);
     esp_err_t setGPIOBInputPolarity(uint8_t polarity);
@@ -327,12 +326,6 @@ private:
     esp_err_t writeRegisterBit8(const uint8_t reg, const bool val,
                                 const uint8_t bit);
 
-    i2c_device_config_t deviceConfig{};
-    i2c_master_dev_handle_t deviceHandle{};
-
-    I2CManager i2c_manager;
-
-    std::mutex _mutex;
 };
 
 #endif /* __MCP23X17_H__ */

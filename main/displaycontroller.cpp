@@ -68,10 +68,15 @@ static const char* TAG = "DisplayController";
 static std::string vfdText;
 
 DisplayController::DisplayController(PaymentController& paymentController,
-                                     I2CManager& i2cmgr) : i2cManager(i2cmgr), paymentController(paymentController)
+                                     I2CBus& i2bus) : movesDisplay(i2bus, MOVES_DISPLAY_ADDRESS),
+                                                      creditDisplay(i2bus, CREDIT_DISPLAY_ADDRESS),
+                                                      bankDisplay(i2bus, BANK_DISPLAY_ADDRESS),
+                                                      buttonIO(i2bus, BUTTONS_I2C_ADDRESS),
+                                                      oledController(i2bus, 0x3c),
+                                                      strip(LED_GPIO, LED_COUNT),
+                                                      paymentController(paymentController)
 {
     ESP_LOGD(TAG, "Entering constructor");
-
 
 
     // Perform this here so we have debug output
@@ -184,13 +189,13 @@ void DisplayController::scrollOledText(const std::string& text)
 
 void DisplayController::clearOledDisplay()
 {
-   oledController.clearDisplay();
+    oledController.clearDisplay();
 }
 
 void DisplayController::displayOledText(const std::string& text, int lineNumber,
                                         bool invert)
 {
-   oledController.displayText(text, lineNumber, invert);
+    oledController.displayText(text, lineNumber, invert);
 }
 
 bool DisplayController::isAttractMode() { return attractMode; }
@@ -445,7 +450,7 @@ void DisplayController::chaseEffect()
 
 void DisplayController::blinkLampsCallback(void* param)
 {
-    DisplayController *displayController = static_cast<DisplayController*>(param);
+    DisplayController* displayController = static_cast<DisplayController*>(param);
 
     static int state = 0;
     ESP_LOGD(TAG, "blink lamp timer called");
@@ -560,7 +565,7 @@ void DisplayController::updateLampsCallback(void* param)
 {
     ESP_LOGD(TAG, "Update Lamps Callback called");
 
-    DisplayController *displayController = static_cast<DisplayController*>(param);
+    DisplayController* displayController = static_cast<DisplayController*>(param);
 
     static uint8_t lampVal = 0;
     static uint16_t bank = 0;
@@ -573,7 +578,7 @@ void DisplayController::updateLampsCallback(void* param)
     {
         if (i < LED_COUNT)
         {
-            	displayController->strip.set_pixel(i, displayController->lampData[i].activeRgb);
+            displayController->strip.set_pixel(i, displayController->lampData[i].activeRgb);
         }
         else
         {
@@ -581,9 +586,9 @@ void DisplayController::updateLampsCallback(void* param)
             // activeRgb value must be have have at least one channel (r, g or b)
             // with a positive value to light
             if ((displayController->lampData[i].activeRgb.r > 0 ||
-                displayController->lampData[i].activeRgb.g > 0 ||
-                displayController->lampData[i].activeRgb.b > 0) &&
-				displayController->lampData[i].lampState == LampState::on)
+                    displayController->lampData[i].activeRgb.g > 0 ||
+                    displayController->lampData[i].activeRgb.b > 0) &&
+                displayController->lampData[i].lampState == LampState::on)
             {
                 switch (i)
                 {
@@ -754,7 +759,8 @@ void DisplayController::SetupPurpleAndGreenPalette()
         green, green, black, black,
         purple, purple, black, black,
         green, green, black, black,
-        purple, purple, black, black});
+        purple, purple, black, black
+    });
 }
 
 const CRGBPalette16 myRedWhiteBluePalette_p =
@@ -783,8 +789,9 @@ void DisplayController::trail()
 {
     uint8_t hue = 0;
 
-    for (int j = 0; j < 5; j++) {
-        strip.fadeToBlackBy(20);          // fade old pixels
+    for (int j = 0; j < 5; j++)
+    {
+        strip.fadeToBlackBy(20); // fade old pixels
         strip.set_pixel(0, hsv2rgb(CHSV(hue, 255, 255)));
         strip.show();
 
@@ -795,6 +802,7 @@ void DisplayController::trail()
     }
 }
 
-uint32_t DisplayController::millis() {
+uint32_t DisplayController::millis()
+{
     return esp_timer_get_time() / 1000;
 }

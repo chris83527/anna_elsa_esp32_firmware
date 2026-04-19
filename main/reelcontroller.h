@@ -80,7 +80,7 @@ class ReelController
 {
 public:
     ReelController(AudioController& audioController,
-                   DisplayController& displayController, I2CManager& i2cmgr);
+                   DisplayController& displayController, I2CBus& bus);
     ~ReelController();
 
     struct reel_stop_info_t

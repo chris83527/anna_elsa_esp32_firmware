@@ -40,14 +40,13 @@
 #ifndef __MCP23008_H__
 #define __MCP23008_H__
 
-#include "I2CManager.h"
+#include "typed_i2c_device.hpp"
 #include <driver/gpio.h>
 #include <esp_err.h>
-#include <vector>
 
 #define MCP23008_I2C_ADDR_BASE 0x20
 
-class MCP23008 {
+class MCP23008 : public TypedI2CDevice {
 public:
   /**
    * GPIO mode
@@ -76,11 +75,11 @@ public:
   /** Create an MCP23008 instance connected to specified I2C pins with specified
    * address
    *
-   * @param i2c_port The I2C port to use (default: 0)
+   * @param i2c_bus The bus object
    * @param i2c_address I2C-bus address (default: 0x20)
    */
-  MCP23008(I2CManager &i2cmgr, const uint8_t address);
-  ~MCP23008();
+  MCP23008(I2CBus& i2c_bus, uint8_t address) : TypedI2CDevice(i2c_bus, address) {}
+  ~MCP23008() = default;
 
   /**
    * @brief Get INT pins mode
@@ -250,10 +249,6 @@ private:
   esp_err_t read_reg_bit(const uint8_t reg, bool &val, const uint8_t bit);
   esp_err_t write_reg_bit(const uint8_t reg, bool val, const uint8_t bit);
 
-  i2c_device_config_t deviceConfig;
-  i2c_master_dev_handle_t deviceHandle;
-
-  I2CManager &i2c_manager;
 };
 
 #endif /* __MCP23008_H__ */

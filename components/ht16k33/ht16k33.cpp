@@ -123,20 +123,6 @@ static constexpr uint8_t charmap[] = {
     SEG_A | SEG_F | SEG_G | SEG_C | SEG_D // S = 31
 };
 
-HT16K33::HT16K33(const I2CManager& i2cmgr, const uint8_t address)
-    : i2c_manager{i2cmgr}
-{
-    ESP_LOGD(TAG, "i2c_address: %d", address);
-
-    this->deviceConfig.device_address = address;
-    this->deviceConfig.scl_speed_hz = 400000;
-    this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
-
-    i2c_manager.addDevice(this->deviceConfig, this->deviceHandle);
-}
-
-HT16K33::~HT16K33() = default;
-
 esp_err_t HT16K33::set_digits(uint8_t val)
 {
     return ESP_OK; // dummy
@@ -144,20 +130,20 @@ esp_err_t HT16K33::set_digits(uint8_t val)
 
 esp_err_t HT16K33::display_on()
 {
-    HT16K33::write_cmd(HT16K33_ON);
-    HT16K33::write_cmd(HT16K33_DISPLAYON);
-    HT16K33::write_cmd(HT16K33_DIM);
+    write_cmd(HT16K33_ON);
+    write_cmd(HT16K33_DISPLAYON);
+    write_cmd(HT16K33_DIM);
 
     return ESP_OK;
 }
 
 esp_err_t HT16K33::display(const uint8_t* arr, const uint8_t dp)
 {
-    HT16K33::write_pos(0, charmap[arr[0]], dp == 0);
-    HT16K33::write_pos(1, charmap[arr[1]], dp == 1);
-    HT16K33::write_pos(2, charmap[arr[2]], dp == 2);
-    HT16K33::write_pos(3, charmap[arr[3]], dp == 3);
-    HT16K33::write_pos(4, charmap[arr[4]], dp == 4);
+    write_pos(0, charmap[arr[0]], dp == 0);
+    write_pos(1, charmap[arr[1]], dp == 1);
+    write_pos(2, charmap[arr[2]], dp == 2);
+    write_pos(3, charmap[arr[3]], dp == 3);
+    write_pos(4, charmap[arr[4]], dp == 4);
 
     return ESP_OK;
 }
@@ -165,7 +151,7 @@ esp_err_t HT16K33::display(const uint8_t* arr, const uint8_t dp)
 esp_err_t HT16K33::write_digit(const uint8_t pos, const uint8_t val,
                                const uint8_t dp)
 {
-    HT16K33::write_pos(pos, charmap[val], dp == pos);
+    write_pos(pos, charmap[val], dp == pos);
 
     return ESP_OK;
 }
@@ -178,7 +164,7 @@ esp_err_t HT16K33::write_value(const char* fmt, const int value)
 
     for (int pos = 0; pos < 5; pos++)
     {
-        HT16K33::write_digit(static_cast<uint8_t>(pos), static_cast<uint8_t>(buf[pos] - 48), (uint8_t)2);
+        write_digit(static_cast<uint8_t>(pos), static_cast<uint8_t>(buf[pos] - 48), (uint8_t)2);
     }
 
     return ESP_OK;
@@ -189,7 +175,7 @@ esp_err_t HT16K33::write_cmd(const uint8_t cmd)
     std::vector<uint8_t> data;
     data.push_back(cmd);
 
-    esp_err_t ret = this->i2c_manager.write(this->deviceHandle, data);
+    esp_err_t ret = write(data);
 
     if (ret != ESP_OK)
     {
@@ -211,8 +197,7 @@ esp_err_t HT16K33::write_pos(const uint8_t pos, const uint8_t mask,
     std::vector<uint8_t> data;
     data.push_back(new_mask);
 
-    esp_err_t ret =
-        this->i2c_manager.writeRegister(this->deviceHandle, pos * 2, data);
+    esp_err_t ret = writeReg(pos * 2, data);
 
     if (ret != ESP_OK)
     {

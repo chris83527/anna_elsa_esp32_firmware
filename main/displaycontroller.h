@@ -63,7 +63,7 @@ extern const CRGBPalette16 myRedWhiteBluePalette_p;
 class DisplayController
 {
 public:
-    DisplayController(PaymentController& paymentController, I2CManager& i2cmgr);
+    DisplayController(PaymentController& paymentController, I2CBus& bus);
     ~DisplayController();
 
     struct lamp_data_t
@@ -258,13 +258,12 @@ private:
     void fadeInOutEffect();
     void trail();
 
-    I2CManager& i2cManager;
-    HT16K33 movesDisplay = HT16K33(i2cManager, MOVES_DISPLAY_ADDRESS);
-    HT16K33 creditDisplay = HT16K33(i2cManager, CREDIT_DISPLAY_ADDRESS);
-    HT16K33 bankDisplay = HT16K33(i2cManager, BANK_DISPLAY_ADDRESS);
-    MCP23x17 buttonIO = MCP23x17(i2cManager, BUTTONS_I2C_ADDRESS);
-    OledController oledController = OledController(i2cManager, 0x3c);
-    WS2812B strip = WS2812B(LED_GPIO, LED_COUNT);
+    HT16K33 movesDisplay;
+    HT16K33 creditDisplay;
+    HT16K33 bankDisplay;
+    MCP23x17 buttonIO;
+    OledController oledController;
+    WS2812B strip;
 
     CRGBPalette16 currentPalette;
     TBlendType    currentBlending;

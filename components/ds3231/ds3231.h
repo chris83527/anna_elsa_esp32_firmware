@@ -46,11 +46,11 @@
 #include "esp_err.h"
 #include "esp_log.h"
 
-#include "I2CManager.h"
+#include "typed_i2c_device.hpp"
 
 #define DS3231_ADDR 0x68 //!< I2C address
 
-class DS3231
+class DS3231 : public TypedI2CDevice
 {
 public:
     /**
@@ -106,9 +106,9 @@ public:
      * @param i2cmgr The I2C port to use (default: 0)
      * @param address I2C-bus address (default: 0x20)
      */
-    DS3231(I2CManager& i2cmgr, uint8_t address);
+     DS3231(I2CBus& i2c_bus, uint8_t address) : TypedI2CDevice(i2c_bus, address) {}
+    ~DS3231() = default;
 
-    ~DS3231();
 
     /**
      * @brief Set the time on the RTC
@@ -350,10 +350,6 @@ private:
     static inline int days_since_january_1st(int year, int month,
                                       int day);
 
-    i2c_device_config_t deviceConfig{};
-    i2c_master_dev_handle_t deviceHandle{};
-
-    I2CManager i2c_manager;
 };
 
 #endif /* __DS3231_H__ */

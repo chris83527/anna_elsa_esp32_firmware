@@ -56,19 +56,6 @@ static auto TAG = "mcp23x17";
   } while (0)
 #define BV(x) (1 << (x))
 
-MCP23x17::MCP23x17(const I2CManager& i2cmgr, const uint8_t address)
-    : i2c_manager{i2cmgr}
-{
-    ESP_LOGD(TAG, "i2c_address: %d", address);
-    this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
-    this->deviceConfig.device_address = address;
-    this->deviceConfig.scl_speed_hz = I2C_FREQ_HZ;
-
-    this->i2c_manager.addDevice(this->deviceConfig, this->deviceHandle);
-}
-
-MCP23x17::~MCP23x17() = default;
-
 esp_err_t MCP23x17::getGPIOExpanderConfiguration(uint8_t& config)
 {
     bool buf;
@@ -339,31 +326,22 @@ esp_err_t MCP23x17::setGPIOBPinInterrupt(uint8_t pin, gpio_intr_t intr)
 
 esp_err_t MCP23x17::readRegister8(const uint8_t reg, uint8_t& val)
 {
-    _mutex.lock();
-
     std::vector<uint8_t> data;
 
-    esp_err_t res =
-        this->i2c_manager.readRegister(this->deviceHandle, reg, data, 1);
+    esp_err_t res = readReg(reg, data, 1);
 
     val = data[0];
-
-    _mutex.unlock();
 
     return res;
 }
 
 esp_err_t MCP23x17::readRegister16(const uint8_t reg, uint16_t& val)
 {
-    _mutex.lock();
     std::vector<uint8_t> data;
 
-    esp_err_t res =
-        this->i2c_manager.readRegister(this->deviceHandle, reg, data, 2);
+    esp_err_t res = readReg(reg, data, 2);
 
     val = (data[1] << 8 | data[0]);
-
-    _mutex.unlock();
 
     return res;
 }
@@ -383,27 +361,21 @@ esp_err_t MCP23x17::readRegisterBit16(const uint8_t reg, bool& val,
 esp_err_t MCP23x17::readRegisterBit8(const uint8_t reg, bool& val,
                                      uint8_t bit)
 {
-    _mutex.lock();
     std::vector<uint8_t> data;
 
-    esp_err_t ret =
-        this->i2c_manager.readRegister(this->deviceHandle, reg, data, 1);
+    esp_err_t ret = readReg(reg, data, 1);
 
     val = (data.at(0) & BV(bit)) >> bit;
-    _mutex.unlock();
     return ret;
 }
 
 esp_err_t MCP23x17::writeRegister16(const uint8_t reg, const uint16_t val)
 {
-    _mutex.lock();
     std::vector<uint8_t> data;
     data.push_back((val & 0xff));
     data.push_back((val >> 8));
 
-    esp_err_t ret =
-        this->i2c_manager.writeRegister(this->deviceHandle, reg, data);
-    _mutex.unlock();
+    esp_err_t ret = writeReg(reg, data);
 
     return ret;
 }
@@ -411,11 +383,9 @@ esp_err_t MCP23x17::writeRegister16(const uint8_t reg, const uint16_t val)
 esp_err_t MCP23x17::writeRegisterBit16(const uint8_t reg, bool val,
                                        uint16_t bit)
 {
-    _mutex.lock();
     std::vector<uint8_t> data;
 
-    esp_err_t ret =
-        this->i2c_manager.readRegister(this->deviceHandle, reg, data, 2);
+    esp_err_t ret = readReg(reg, data, 2);
 
     uint16_t buf16 = (data[1] << 8 | data[0]);
 
@@ -424,23 +394,17 @@ esp_err_t MCP23x17::writeRegisterBit16(const uint8_t reg, bool val,
     std::vector<uint8_t> writeData;
     writeData.push_back((buf16 & 0xff));
     writeData.push_back((buf16 >> 8));
-    ret &= this->i2c_manager.writeRegister(this->deviceHandle, reg, writeData);
-
-    _mutex.unlock();
+    ret &= writeReg(reg, writeData);
 
     return ret;
 }
 
 esp_err_t MCP23x17::writeRegister8(const uint8_t reg, const uint8_t val)
 {
-    _mutex.lock();
     std::vector<uint8_t> data;
     data.push_back(val);
 
-    esp_err_t ret =
-        this->i2c_manager.writeRegister(this->deviceHandle, reg, data);
-
-    _mutex.unlock();
+    esp_err_t ret = writeReg(reg, data);
 
     return ret;
 }
@@ -448,16 +412,11 @@ esp_err_t MCP23x17::writeRegister8(const uint8_t reg, const uint8_t val)
 esp_err_t MCP23x17::writeRegisterBit8(const uint8_t reg, const bool val,
                                       const uint8_t bit)
 {
-    _mutex.lock();
-
     std::vector<uint8_t> data;
 
-    this->i2c_manager.readRegister(this->deviceHandle, reg, data, 1);
+    readReg(reg, data, 1);
     data.at(0) = (data.at(0) & ~BV(bit)) | (val ? BV(bit) : 0);
-    esp_err_t ret =
-        this->i2c_manager.writeRegister(this->deviceHandle, reg, data);
-
-    _mutex.unlock();
+    esp_err_t ret = writeReg(reg, data);
 
     return ret;
 }

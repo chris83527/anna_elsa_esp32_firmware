@@ -36,7 +36,7 @@
 #include <mutex>
 #include <thread>
 
-#include "I2CManager.h"
+#include "typed_i2c_device.hpp"
 
 #define PCA_9629A_DEFAULT_STEPS_PER_ROTATION 48
 #define PCA9629A_I2C_ADDR_BASE 0x20
@@ -54,7 +54,7 @@
  *
  *  @endcode
  */
-class PCA9629A
+class PCA9629A : public TypedI2CDevice
 {
 public:
     /** name of the PCA9629 registers */
@@ -110,10 +110,8 @@ public:
      * @param i2cmgr The I2C port to use (default: 0)
      * @param i2c_address I2C-bus address (default: 0x20)
      */
-    explicit PCA9629A(I2CManager& i2cmgr,
-                      const uint8_t i2c_address = PCA9629A_I2C_ADDR_BASE);
-
-    ~PCA9629A();
+    PCA9629A(I2CBus& i2c_bus, uint8_t address) : TypedI2CDevice(i2c_bus, address) {}
+    ~PCA9629A() = default;
 
     void initialise();
 
@@ -187,7 +185,7 @@ private:
      *  @param register_name the register name: data writing into
      *  @param value 8 bits writing data
      */
-    esp_err_t write(RegisterName register_name, const uint8_t value);
+    esp_err_t write8(RegisterName register_name, const uint8_t value);
 
     /** Write 2 bytes data into a register
      *
@@ -207,7 +205,7 @@ private:
      *  @param register_name the register name: data reading from
      *  @return read 8 bits data from the register
      */
-    esp_err_t read(RegisterName register_name, uint8_t& result);
+    esp_err_t read8(RegisterName register_name, uint8_t& result);
 
     /** Read 2 byte data from registers
      *
@@ -241,14 +239,7 @@ private:
                                      3145.728ms( 0.32pps) */
     } PrescalerRange;
 
-    i2c_device_config_t deviceConfig{};
-    i2c_master_dev_handle_t deviceHandle{};
-
     bool performingAction;
-
-    std::mutex _mutex;
-
-    I2CManager i2c_manager;
 };
 
 #endif /* PCA9629_H */

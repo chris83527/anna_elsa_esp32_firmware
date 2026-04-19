@@ -19,10 +19,10 @@ typedef union out_column_t
 }
     PACK8 out_column_t;
 
-SSD1306::SSD1306(I2CManager& i2cmgr, const uint8_t address,
+SSD1306::SSD1306(I2CBus& bus, const uint8_t address,
                  const int width = 128, const int height = 64)
-    : _pages(0), _dc(0), _scEnable(false), _scStart(0), _scEnd(0), _scDirection(0), _page{}, _flip(false),
-      i2c_manager{i2cmgr}
+    : TypedI2CDevice(bus, address), _pages(0), _dc(0), _scEnable(false), _scStart(0), _scEnd(0), _scDirection(0), _page{},
+      _flip(false)
 {
     ESP_LOGD(TAG, "i2c_address: %d", address);
     ESP_LOGD(TAG, "width: %d, height: %d", width, height);
@@ -30,8 +30,6 @@ SSD1306::SSD1306(I2CManager& i2cmgr, const uint8_t address,
     this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
     this->deviceConfig.device_address = address;
     this->deviceConfig.scl_speed_hz = 400000;
-
-    i2c_manager.addDevice(this->deviceConfig, this->deviceHandle);
 
     this->_width = width;
     this->_height = height;
@@ -507,7 +505,7 @@ void SSD1306::bitmaps(int xpos, int ypos, const uint8_t* bitmap, int tmpWidth,
             {
                 wk0 = this->_page[page]._segs[_seg];
                 if (this->_flip)
-                    wk0 = SSD1306::rotate_byte(wk0);
+                    wk0 = rotate_byte(wk0);
 
                 wk1 = bitmap[index + offset];
                 if (invert)
@@ -775,7 +773,7 @@ void SSD1306::i2c_init()
     data.push_back(OLED_CMD_DISPLAY_ON);
 
     // initialise display
-    i2c_manager.write(this->deviceHandle, data);
+    write(data);
 }
 
 void SSD1306::i2c_display_image(int page, int seg, uint8_t* images, int width)
@@ -801,13 +799,13 @@ void SSD1306::i2c_display_image(int page, int seg, uint8_t* images, int width)
     data.push_back((0x10 + columHigh));
     data.push_back((0xB0 | _page));
 
-    i2c_manager.write(this->deviceHandle, data);
+    write(data);
 
     std::vector<uint8_t> imagedata;
     imagedata.push_back(OLED_CONTROL_BYTE_DATA_STREAM);
     imagedata.insert(imagedata.end(), &images[0], &images[width]);
 
-    i2c_manager.write(this->deviceHandle, imagedata, width + 1);
+    write(imagedata);
 }
 
 void SSD1306::i2c_contrast(int contrast)
@@ -825,7 +823,7 @@ void SSD1306::i2c_contrast(int contrast)
         static_cast<uint8_t>(_contrast),
     };
 
-    i2c_manager.write(this->deviceHandle, data);
+    write(data);
 }
 
 void SSD1306::i2c_hardware_scroll(scroll_type_t scroll)

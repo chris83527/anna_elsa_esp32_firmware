@@ -38,7 +38,7 @@
 
 #include <esp_log.h>
 
-#include "I2CManager.h"
+#include "i2c_bus.hpp"
 #include "mcp23008.h"
 
 #define I2C_FREQ_HZ                                                            \
@@ -76,18 +76,6 @@ static const char *TAG = "mcp23008";
       return ESP_ERR_INVALID_ARG;                                              \
   } while (0)
 #define BV(x) (1 << (x))
-
-MCP23008::MCP23008(I2CManager &i2cmgr, const uint8_t address)
-    : i2c_manager{i2cmgr} {
-  ESP_LOGD(TAG, "i2c_address: %d", address);
-  this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
-  this->deviceConfig.device_address = address;
-  this->deviceConfig.scl_speed_hz = I2C_FREQ_HZ;
-
-  i2c_manager.addDevice(this->deviceConfig, this->deviceHandle);
-}
-
-MCP23008::~MCP23008() {}
 
 esp_err_t MCP23008::get_int_out_mode(int_out_mode_t &mode) {
   CHECK_ARG(mode);
@@ -226,7 +214,7 @@ esp_err_t MCP23008::read_reg(const uint8_t reg, uint8_t &val) {
   CHECK_ARG(val);
   std::vector<uint8_t> data;
 
-  i2c_manager.readRegister(this->deviceHandle, reg, data, 1);
+  readReg(reg, data, 1);
 
   val = data.at(0);
 
@@ -236,7 +224,7 @@ esp_err_t MCP23008::read_reg(const uint8_t reg, uint8_t &val) {
 esp_err_t MCP23008::write_reg(const uint8_t reg, uint8_t val) {
   std::vector<uint8_t> data;
   data.push_back(val);
-  return i2c_manager.writeRegister(this->deviceHandle, reg, data);
+  return writeReg(reg, data);
 }
 
 esp_err_t MCP23008::read_reg_bit(const uint8_t reg, bool &val,
@@ -245,7 +233,7 @@ esp_err_t MCP23008::read_reg_bit(const uint8_t reg, bool &val,
 
   std::vector<uint8_t> data;
 
-  i2c_manager.readRegister(this->deviceHandle, reg, data, 1);
+  readReg(reg, data, 1);
 
   val = (data.at(0) & BV(bit)) >> bit;
 
@@ -257,11 +245,11 @@ esp_err_t MCP23008::write_reg_bit(const uint8_t reg, const bool val,
 
   std::vector<uint8_t> data;
 
-  i2c_manager.readRegister(this->deviceHandle, reg, data, 1);
+  readReg(reg, data, 1);
 
   data.at(0) = (data.at(0) & ~BV(bit)) | (val ? BV(bit) : 0);
 
-  i2c_manager.writeRegister(this->deviceHandle, reg, data);
+  writeReg(reg, data);
 
   return ESP_OK;
 }

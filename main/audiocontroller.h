@@ -38,7 +38,7 @@
 #ifndef __AUDIOCONTROLLER_H__
 #define __AUDIOCONTROLLER_H__
 
-#include "I2CManager.h"
+#include "typed_i2c_device.hpp"
 #include "driver/i2s_std.h"
 
 class Sounds
@@ -71,11 +71,11 @@ public:
     static constexpr const char* SND_STARTUP = "startup.wav";
 };
 
-class AudioController
+class AudioController : public TypedI2CDevice
 {
 public:
-    explicit AudioController(I2CManager& i2cmgr);
-    virtual ~AudioController();
+    explicit AudioController(I2CBus& bus) : TypedI2CDevice(bus, TAS5731M_I2C_ADDRESS) {}
+    ~AudioController() = default;
 
     void initialise();
     void playAudioFile(const char* filepath);
@@ -97,9 +97,6 @@ private:
     i2s_chan_handle_t channelHandle{};
     i2s_chan_config_t channelConfig{};
     i2s_std_config_t i2sConfig{};
-    I2CManager i2cManager;
-    i2c_device_config_t deviceConfig{};
-    i2c_master_dev_handle_t deviceHandle{};
 
     static constexpr int AUDIO_BUFFER = 1024;
     static constexpr int TAS5731M_I2C_ADDRESS = 0x1a;
