@@ -48,33 +48,37 @@ using namespace std;
 
 // #define CONFIG_FIRMWARE_SERVICE
 
-static const char *TAG = "main";
+static const char* TAG = "main";
 
-extern "C" void app_main() {
-  ESP_LOGI(TAG, "app_main() called");
+extern "C" void app_main()
+{
+    ESP_LOGI(TAG, "app_main() called");
 
-  // See https://github.com/espressif/esp-idf/issues/3544
-  esp_pthread_cfg_t cfg;
-  if (esp_pthread_get_cfg(&cfg) != ESP_OK) {
-    cfg = esp_pthread_get_default_config();
-  }
+    /*
+    // See https://github.com/espressif/esp-idf/issues/3544
+    esp_pthread_cfg_t cfg;
+    if (esp_pthread_get_cfg(&cfg) != ESP_OK)
+    {
+        cfg = esp_pthread_get_default_config();
+    }
+    */
 
-  esp_log_level_set("gpio", ESP_LOG_WARN);
-  esp_log_level_set("ReelController", ESP_LOG_INFO);
-  esp_log_level_set("m20ly02z", ESP_LOG_WARN);
-  esp_log_level_set("i2cmanager", ESP_LOG_WARN);
-  esp_log_level_set("i2c.master", ESP_LOG_WARN);
-  esp_log_level_set("ssd1306", ESP_LOG_INFO);
-  esp_log_level_set("cctalkDevice", ESP_LOG_INFO);
-  esp_log_level_set("cctalk_link_controller", ESP_LOG_INFO);
-  esp_log_level_set("serial_worker", ESP_LOG_INFO);
-  esp_log_level_set("AudioController", ESP_LOG_INFO);
-  esp_log_level_set("DisplayController", ESP_LOG_INFO);
-  esp_log_level_set("MainController", ESP_LOG_INFO);
-  esp_log_level_set("CCTALK_CONTROLLER", ESP_LOG_INFO);
+    esp_log_level_set("gpio", ESP_LOG_WARN);
+    esp_log_level_set("ReelController", ESP_LOG_INFO);
+    esp_log_level_set("m20ly02z", ESP_LOG_WARN);
+    esp_log_level_set("i2cmanager", ESP_LOG_WARN);
+    esp_log_level_set("i2c.master", ESP_LOG_WARN);
+    esp_log_level_set("ssd1306", ESP_LOG_INFO);
+    esp_log_level_set("cctalkDevice", ESP_LOG_INFO);
+    esp_log_level_set("cctalk_link_controller", ESP_LOG_INFO);
+    esp_log_level_set("serial_worker", ESP_LOG_INFO);
+    esp_log_level_set("AudioController", ESP_LOG_INFO);
+    esp_log_level_set("DisplayController", ESP_LOG_INFO);
+    esp_log_level_set("MainController", ESP_LOG_INFO);
+    esp_log_level_set("CCTALK_CONTROLLER", ESP_LOG_INFO);
 
-  auto uart = std::make_unique<EspIdfCctalkUart>(CCTALK_UART);
+    auto uart = std::make_unique<EspIdfCctalkUart>(CCTALK_UART);
 
-  MainController mainController(std::move(uart));
-  mainController.start();
+    MainController mainController(std::move(uart));
+    mainController.start();
 }

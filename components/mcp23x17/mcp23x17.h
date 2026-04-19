@@ -284,7 +284,7 @@ public:
 
 private:
     static constexpr int I2C_FREQ_HZ =
-        100000; // Max 1MHz for esp-idf, but device supports up to 1.7Mhz
+        400000; // Max 1MHz for esp-idf, but device supports up to 1.7Mhz
 
     static constexpr uint8_t REG_IODIRA = 0x00;
     static constexpr uint8_t REG_IODIRB = 0x01;

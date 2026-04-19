@@ -266,7 +266,7 @@ uint16_t PaymentController::getBank() const { return bank; }
 
 uint16_t PaymentController::getGameCount() const { return gamecount; }
 
-uint16_t PaymentController::getPayoutTotal() { return payoutTotal; }
+uint16_t PaymentController::getPayoutTotal() const { return payoutTotal; }
 
 uint16_t PaymentController::getIncomeTotal() const { return incomeTotal; }
 
@@ -276,7 +276,7 @@ void PaymentController::incrementGameCount()
     this->nvsController.writeValueToNVS(NVS_KEY_GAME_COUNT.c_str(), gamecount);
 }
 
-bool PaymentController::isPayoutInProgress() { return this->payoutInProgress; }
+bool PaymentController::isPayoutInProgress() const { return this->payoutInProgress; }
 
 void PaymentController::setPayoutInProgress(bool payoutInProgress)
 {
@@ -300,7 +300,7 @@ void PaymentController::moveTransferToBank()
  *
  * @return int
  */
-uint16_t PaymentController::getCredit() { return credit; }
+uint16_t PaymentController::getCredit() const { return credit; }
 
 void PaymentController::setTransfer(uint16_t amount)
 {
@@ -308,7 +308,7 @@ void PaymentController::setTransfer(uint16_t amount)
     nvsController.writeValueToNVS(NVS_KEY_TRANSFER.c_str(), transfer);
 }
 
-uint16_t PaymentController::getTransfer() { return transfer; }
+uint16_t PaymentController::getTransfer() const { return transfer; }
 
 void PaymentController::onEvent(const CctalkEvent& evt)
 {
@@ -339,7 +339,7 @@ void Payment::addTenCent()
     tenCentIn++;
 }
 
-uint16_t Payment::getTenCent()
+uint16_t Payment::getTenCent() const
 {
     return tenCentIn;
 }
@@ -349,7 +349,7 @@ void Payment::addTwentyCent()
     twentyCentIn++;
 }
 
-uint16_t Payment::getTwentyCent()
+uint16_t Payment::getTwentyCent() const
 {
     return twentyCentIn;
 }
@@ -359,7 +359,7 @@ void Payment::addFiftyCent()
     fiftyCentIn++;
 }
 
-uint16_t Payment::getFiftyCent()
+uint16_t Payment::getFiftyCent() const
 {
     return fiftyCentIn;
 }
@@ -369,7 +369,7 @@ void Payment::addOneEuro()
     oneEuroIn++;
 }
 
-uint16_t Payment::getOneEuro()
+uint16_t Payment::getOneEuro() const
 {
     return oneEuroIn;
 }
@@ -379,7 +379,7 @@ void Payment::addTwoEuro()
     twoEuroIn++;
 }
 
-uint16_t Payment::getTwoEuro()
+uint16_t Payment::getTwoEuro() const
 {
     return twoEuroIn;
 }

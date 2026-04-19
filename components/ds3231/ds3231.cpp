@@ -94,7 +94,7 @@ DS3231::DS3231(I2CManager &i2cmgr, const uint8_t address)
     : i2c_manager{i2cmgr} {
   ESP_LOGD(TAG, "i2c_address: %d", address);
   this->deviceConfig.device_address = address;
-  this->deviceConfig.scl_speed_hz = 100000;
+  this->deviceConfig.scl_speed_hz = 400000;
   this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
 
   i2c_manager.addDevice(this->deviceConfig, this->deviceHandle);

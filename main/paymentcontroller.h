@@ -59,11 +59,11 @@ public:
     void addOneEuro();
     void addTwoEuro();
 
-    uint16_t getTenCent();
-    uint16_t getTwentyCent();
-    uint16_t getFiftyCent();
-    uint16_t getOneEuro();
-    uint16_t getTwoEuro();
+    uint16_t getTenCent() const;
+    uint16_t getTwentyCent() const;
+    uint16_t getFiftyCent() const;
+    uint16_t getOneEuro() const;
+    uint16_t getTwoEuro() const;
     void clear();
     void payoutBank();
 
@@ -103,16 +103,16 @@ public:
     void moveTransferToBank();
     void payoutBank();
     // void removeFromTransfer(const int value);
-    uint16_t getCredit();
+    uint16_t getCredit() const;
     [[nodiscard]] uint16_t getBank() const;
-    uint16_t getTransfer();
+    uint16_t getTransfer() const;
     [[nodiscard]] uint16_t getGameCount() const;
 
-    uint16_t getPayoutTotal();
+    uint16_t getPayoutTotal() const;
     [[nodiscard]] uint16_t getIncomeTotal() const;
 
     void setPayoutInProgress(bool inProgress);
-    bool isPayoutInProgress();
+    bool isPayoutInProgress() const;
     void resetCounters();
 
 

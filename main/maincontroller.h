@@ -34,14 +34,14 @@ public:
 
     void start();
 
-    I2CManager i2c_manager = I2CManager(I2C_NUM_0, GPIO_NUM_22, GPIO_NUM_21);
+    I2CManager i2c_manager;
     NvsController nvsController;
-    std::shared_ptr<PaymentController> paymentController;
-    DisplayController displayController = DisplayController(*paymentController, i2c_manager);
-    AudioController audioController = AudioController(i2c_manager);
-    ReelController reelController = ReelController(audioController, displayController, i2c_manager);
-    Game game = Game(displayController, audioController, *paymentController, reelController);
-    DS3231 ds3231 = DS3231(i2c_manager, DS3231_ADDR);
+    PaymentController paymentController;
+    DisplayController displayController;
+    AudioController audioController;
+    ReelController reelController;
+    Game game;
+    DS3231 ds3231;
 
 
     //void print_binary(uint8_t value);
@@ -54,7 +54,7 @@ public:
     ReelController& getReelController();
     //CctalkController& getCCTalkController();
     DisplayController& getDisplayController();
-    std::shared_ptr<PaymentController> getPaymentController();
+    PaymentController& getPaymentController();
     Game& getGame();
     DS3231& getDs3231();
 

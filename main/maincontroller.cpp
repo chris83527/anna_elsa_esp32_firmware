@@ -40,15 +40,22 @@ static constexpr uint8_t HOST_ADDRESS = 1;
 static constexpr uint8_t COIN_ACCEPTOR_ADDRESS = 2;
 static constexpr uint8_t HOPPER_ADDRESS = 3;
 
-MainController::MainController(std::unique_ptr<ICctalkUart> uart)
+MainController::MainController(std::unique_ptr<ICctalkUart> uart) :
+    i2c_manager(I2C_NUM_0, GPIO_NUM_22, GPIO_NUM_21),
+    paymentController(nvsController,
+                      std::move(uart),
+                      HOST_ADDRESS, // host address
+                      COIN_ACCEPTOR_ADDRESS, // coin acceptor address
+                      HOPPER_ADDRESS),
+    displayController(paymentController, i2c_manager),
+    audioController(i2c_manager),
+    reelController(audioController, displayController, i2c_manager),
+    game(displayController, audioController, paymentController, reelController),
+    ds3231(i2c_manager, DS3231_ADDR)
+
 {
     ESP_LOGD(TAG, "Entering constructor");
-    paymentController = std::make_shared<PaymentController> (nvsController,
-            std::move(uart),
-            HOST_ADDRESS,   // host address
-            COIN_ACCEPTOR_ADDRESS,   // coin acceptor address
-            HOPPER_ADDRESS   // hopper address
-        );
+
     ESP_LOGD(TAG, "Leaving constructor");
 }
 
@@ -80,7 +87,7 @@ void MainController::start()
     constexpr esp_timer_create_args_t my_timer_args = {
         .callback = &blinkCPUStatusLEDCallback,
         .arg = nullptr,
-		.dispatch_method = ESP_TIMER_TASK,
+        .dispatch_method = ESP_TIMER_TASK,
         .name = "CPU LED Timer",
         .skip_unhandled_events = true
     };
@@ -180,7 +187,7 @@ void MainController::start()
     displayController.scrollOledText("Init Audio");
     this->audioController.initialise();
 
-paymentController->start();
+    paymentController.start();
 
     displayController.displayVFDText("INITIALISING 08");
     displayController.scrollOledText("Init Display");
@@ -216,8 +223,8 @@ paymentController->start();
     }
 
     blinkDelay = 1000000;
-	ESP_ERROR_CHECK(esp_timer_stop(timer_handler));
-	ESP_ERROR_CHECK(esp_timer_start_periodic(timer_handler, 5000000));
+    ESP_ERROR_CHECK(esp_timer_stop(timer_handler));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(timer_handler, 5000000));
 
     displayController.displayVFDText("INITIALISING 0C");
     displayController.scrollOledText("Init game");
@@ -228,11 +235,11 @@ paymentController->start();
     // Set up a timer to update the statistics every 5 seconds
     constexpr esp_timer_create_args_t updateStatisticsTimerArgs = {
         .callback = &updateStatisticsDisplayCallback,
-		.arg = nullptr,
-		.dispatch_method = ESP_TIMER_TASK,
+        .arg = nullptr,
+        .dispatch_method = ESP_TIMER_TASK,
         .name = "Update Statistics Timer",
-		.skip_unhandled_events = true
-	};
+        .skip_unhandled_events = true
+    };
     esp_timer_handle_t updateStatisticsTimerHandler;
     ESP_ERROR_CHECK(esp_timer_create(&updateStatisticsTimerArgs, &updateStatisticsTimerHandler));
     ESP_ERROR_CHECK(esp_timer_start_periodic(updateStatisticsTimerHandler, 5000000));
@@ -242,7 +249,7 @@ paymentController->start();
     for (;;)
     {
         if ((!this->game.isGameInProgress()) &&
-            (this->paymentController->getCredit() >= 20))
+            (this->paymentController.getCredit() >= 20))
         {
             ESP_LOGD(TAG, "Starting game...");
             this->game.start();
@@ -284,7 +291,7 @@ DisplayController& MainController::getDisplayController()
     return displayController;
 }
 
-std::shared_ptr<PaymentController> MainController::getPaymentController()
+PaymentController& MainController::getPaymentController()
 {
     return paymentController;
 }
@@ -306,26 +313,26 @@ void MainController::error(int errorCode)
     //    }
 }
 
-void MainController::blinkCPUStatusLEDCallback(void *param)
+void MainController::blinkCPUStatusLEDCallback(void* param)
 {
     static bool on;
     on = !on;
     gpio_set_level(CPU_LED_GPIO, on);
 }
 
-void MainController::updateStatisticsDisplayCallback(void *param)
+void MainController::updateStatisticsDisplayCallback(void* param)
 {
-    auto paymentController = static_cast<MainController*>(param);
+    auto mainController = static_cast<MainController*>(param);
 
     tm time{};
 
-    paymentController->displayController.clearOledDisplay();
+    mainController->displayController.clearOledDisplay();
 
     char buf[21];
     esp_err_t ret;
 
     ESP_LOGD(TAG, "Updating statics loop");
-    ret = paymentController->ds3231.get_time(time);
+    ret = mainController->ds3231.get_time(time);
 
     if (ret == ESP_OK)
     {
@@ -336,25 +343,24 @@ void MainController::updateStatisticsDisplayCallback(void *param)
 
         dateString.clear();
         dateString.append(buf);
-        paymentController->displayController.displayOledText(dateString, 0, true);
+        mainController->displayController.displayOledText(dateString, 0, true);
 
         std::sprintf(buf, "Games    : %05d",
-                     paymentController->paymentController->getGameCount());
-        paymentController->displayController.displayOledText(buf, 2, false);
+                     mainController->getPaymentController().getGameCount());
+        mainController->displayController.displayOledText(buf, 2, false);
         std::sprintf(buf, "Total in : %05d",
-                     paymentController->paymentController->getIncomeTotal());
-        paymentController->displayController.displayOledText(buf, 3, false);
+                     mainController->getPaymentController().getIncomeTotal());
+        mainController->displayController.displayOledText(buf, 3, false);
         std::sprintf(buf, "Total out: %05d",
-                     paymentController->paymentController->getPayoutTotal());
-        paymentController->displayController.displayOledText(buf, 4, false);
-        std::sprintf(buf, "Credit   : %05d", paymentController->paymentController->getCredit());
-        paymentController->displayController.displayOledText(buf, 5, false);
-        std::sprintf(buf, "Bank     : %05d", paymentController->paymentController->getBank());
-        paymentController->displayController.displayOledText(buf, 6, false);
+                     mainController->getPaymentController().getPayoutTotal());
+        mainController->displayController.displayOledText(buf, 4, false);
+        std::sprintf(buf, "Credit   : %05d", mainController->getPaymentController().getCredit());
+        mainController->displayController.displayOledText(buf, 5, false);
+        std::sprintf(buf, "Bank     : %05d", mainController->getPaymentController().getBank());
+        mainController->displayController.displayOledText(buf, 6, false);
     }
     else
     {
         ESP_LOGW(TAG, "Couldn't read time from RTC!");
     }
-
 }

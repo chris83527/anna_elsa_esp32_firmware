@@ -50,7 +50,7 @@ PCA9629A::PCA9629A(I2CManager& i2cmgr, const uint8_t i2c_address)
 
     this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
     this->deviceConfig.device_address = i2c_address;
-    this->deviceConfig.scl_speed_hz = 100000;
+    this->deviceConfig.scl_speed_hz = 400000;
 
     i2c_manager.addDevice(this->deviceConfig, this->deviceHandle);
 }
