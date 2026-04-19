@@ -65,8 +65,6 @@ void MainController::start()
 {
     ESP_LOGD(TAG, "start() called");
 
-    i2c_bus.init(GPIO_NUM_21, GPIO_NUM_22);
-
     // CPU LED is on a GPIO
     esp_rom_gpio_pad_select_gpio(CPU_LED_GPIO);
     /* Set the GPIO as a push/pull output */
@@ -75,6 +73,8 @@ void MainController::start()
     gpio_set_level(CPU_LED_GPIO, 0);
 
     esp_event_loop_create_default();
+
+    ESP_ERROR_CHECK(i2c_bus.init(GPIO_I2C_SDA, GPIO_I2C_SCL));
 
     if (m20ly02z_init(MD_STROBE, MD_OE, MD_CLK, MD_DATA) != ESP_OK)
     {

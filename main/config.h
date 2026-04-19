@@ -44,7 +44,7 @@
 
 
 
-static constexpr int I2C_FREQ_HZ = 100000;
+static constexpr int I2C_FREQ_HZ = 400000;
 
 // Running LED
 static constexpr gpio_num_t CPU_LED_GPIO = GPIO_NUM_19;
