@@ -45,9 +45,9 @@
 static const char* TAG = "PaymentController";
 
 PaymentController::PaymentController(NvsController& nvsCtrlr, std::unique_ptr<ICctalkUart> uart,
-                                     uint8_t hostAddr,
-                                     uint8_t coinAcceptorAddr,
-                                     uint8_t hopperAddr) : credit(0), bank(0), transfer(0), gamecount(0),
+                                     const uint8_t hostAddr,
+                                     const uint8_t coinAcceptorAddr,
+                                     const uint8_t hopperAddr) : credit(0), bank(0), transfer(0), gamecount(0),
                                                            payoutTotal(0), incomeTotal(0), tenCentIn(0),
                                                            twentyCentIn(0),
                                                            fiftyCentIn(0),

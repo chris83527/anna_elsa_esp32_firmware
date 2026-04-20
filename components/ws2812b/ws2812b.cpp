@@ -24,33 +24,6 @@ WS2812B::~WS2812B()
 
 esp_err_t WS2812B::init()
 {
-    /*
-    led_strip_config_t strip_config = {
-        .strip_gpio_num = gpio_,
-        .max_leds = led_count_,
-        .led_model = LED_MODEL_WS2812,
-        .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT_GRB,
-        .flags = {
-            .invert_out = false,
-        },
-
-    };
-
-    led_strip_rmt_config_t rmt_config = {
-        .clk_src = RMT_CLK_SRC_DEFAULT,
-        .resolution_hz = 10'000'000, // 10 MHz recommended
-        .mem_block_symbols = 64,
-        .flags = {
-          .with_dma = 0
-        },
-    };
-
-    esp_err_t err = led_strip_new_rmt_device(&strip_config, &rmt_config, &strip_);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to create LED strip: %s", esp_err_to_name(err));
-        return err;
-    }
-    */
     this->channelConfig = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_1, I2S_ROLE_MASTER);
     i2s_new_channel(&channelConfig, &channelHandle, nullptr);
 
@@ -106,28 +79,6 @@ esp_err_t WS2812B::clear()
     std::fill(buffer_.begin(), buffer_.end(), 0);
     return show();
 }
-
-/*
-esp_err_t WS2812B::show() {
-    if (!strip_) return ESP_ERR_INVALID_STATE;
-
-    esp_err_t err = led_strip_refresh(strip_);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Refresh failed: %s", esp_err_to_name(err));
-        return err;
-    }
-
-    // Push pixel data
-    for (uint16_t i = 0; i < led_count_; i++) {
-        uint8_t g = buffer_[i * 3 + 0];
-        uint8_t r = buffer_[i * 3 + 1];
-        uint8_t b = buffer_[i * 3 + 2];
-        led_strip_set_pixel(strip_, i, r, g, b);
-    }
-
-    return led_strip_refresh(strip_);
-}
-*/
 
 esp_err_t WS2812B::show()
 {

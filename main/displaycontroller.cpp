@@ -312,8 +312,6 @@ void DisplayController::attractModeTask()
             startIndex++; /* motion speed */
             FillLEDsFromPaletteColors(startIndex);
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
-
-            trail();
         }
         else
         {

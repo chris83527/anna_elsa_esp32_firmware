@@ -90,6 +90,7 @@ void SSD1306::display_image(int page, int seg, uint8_t* images, int width)
 
 void SSD1306::display_text(int page, const std::string& text, bool invert)
 {
+    return;
     if (page >= this->_pages)
         return;
 

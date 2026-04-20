@@ -8,7 +8,15 @@
 class EspIdfCctalkUart : public ICctalkUart {
 public:
     explicit EspIdfCctalkUart(uart_port_t uart_num)
-        : uart_num_(uart_num) {}
+        : uart_num_(uart_num)
+    {
+        uart_driver_install(uart_num_, 1024,1024,0, nullptr, CONFIG_UART_ISR_IN_IRAM);
+    }
+
+    ~EspIdfCctalkUart() override
+    {
+        uart_driver_delete(uart_num_);
+    }
 
     int write(const uint8_t* data, size_t len,  std::chrono::milliseconds timeout) override {
         // uart_write_bytes is blocking; timeout is handled by driver config
