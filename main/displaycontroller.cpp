@@ -312,6 +312,8 @@ void DisplayController::attractModeTask()
             startIndex++; /* motion speed */
             FillLEDsFromPaletteColors(startIndex);
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
+
+            trail();
         }
         else
         {
@@ -797,7 +799,6 @@ void DisplayController::trail()
 
         hue += 4;
 
-        //vTaskDelay(pdMS_TO_TICKS(30));
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
 }

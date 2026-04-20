@@ -53,7 +53,8 @@ PaymentController::PaymentController(NvsController& nvsCtrlr, std::unique_ptr<IC
                                                            fiftyCentIn(0),
                                                            oneEuroIn(0),
                                                            twoEuroIn(0),
-                                                           nvsController(nvsCtrlr)
+                                                           nvsController(nvsCtrlr),
+                                                           uart_(std::move(uart))
 {
     ESP_LOGI(TAG, "Entering constructor");
 
@@ -91,8 +92,8 @@ void PaymentController::start()
     if (running_) return;
     running_ = true;
 
-    //acceptorThread_->start();
-    //hopperThread_->start();
+    acceptorThread_->start();
+    hopperThread_->start();
 
     dispatcherThread_ = std::make_unique<EventDispatcherThread>(
         eventQueue_,

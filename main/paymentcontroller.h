@@ -119,17 +119,17 @@ public:
 private:
     void loadValuesFromStorage();
 
-    uint16_t credit =0;
-    uint16_t bank = 0;
-    uint16_t transfer = 0;
-    uint16_t gamecount = 0;
-    uint16_t payoutTotal =0;
-    uint16_t incomeTotal= 0;
-    uint16_t tenCentIn =0;
-    uint16_t twentyCentIn=0;
-    uint16_t fiftyCentIn=0;
-    uint16_t oneEuroIn=0;
-    uint16_t twoEuroIn=0;
+    uint16_t credit;
+    uint16_t bank;
+    uint16_t transfer;
+    uint16_t gamecount;
+    uint16_t payoutTotal;
+    uint16_t incomeTotal;
+    uint16_t tenCentIn;
+    uint16_t twentyCentIn;
+    uint16_t fiftyCentIn;
+    uint16_t oneEuroIn;
+    uint16_t twoEuroIn;
 
     NvsController& nvsController;
 
