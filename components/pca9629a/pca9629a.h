@@ -170,7 +170,7 @@ private:
      *
      *  The initializing values are defined in the function
      */
-    void init_registers(void);
+    void init_registers();
 
     /** Initialize all registers
      *
@@ -185,7 +185,7 @@ private:
      *  @param register_name the register name: data writing into
      *  @param value 8 bits writing data
      */
-    esp_err_t write8(RegisterName register_name, const uint8_t value);
+    esp_err_t write8(RegisterName register_name, uint8_t value);
 
     /** Write 2 bytes data into a register
      *
@@ -196,7 +196,7 @@ private:
      * "CCWRCOUNT_" )
      *  @param value 16 bits writing data
      */
-    esp_err_t write16(RegisterName register_name, const uint16_t value);
+    esp_err_t write16(RegisterName register_name, uint16_t value);
 
     /** Read 1 byte data from a register
      *
@@ -239,7 +239,7 @@ private:
                                      3145.728ms( 0.32pps) */
     } PrescalerRange;
 
-    bool performingAction;
+    bool performingAction{};
 };
 
-#endif /* PCA9629_H */
+#endif /* PCA9629A_H */

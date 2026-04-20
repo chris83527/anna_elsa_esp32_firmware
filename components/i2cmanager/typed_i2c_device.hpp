@@ -15,12 +15,12 @@
 class TypedI2CDevice
 {
 public:
-    explicit TypedI2CDevice(I2CBus& bus, uint8_t addr_7bit)
+    TypedI2CDevice(I2CBus& bus, uint8_t addr_7bit)
         : m_dev(bus, addr_7bit)
     {
     }
 
-    bool valid() const { return m_dev.valid(); }
+    [[nodiscard]] bool valid() const { return m_dev.valid(); }
 
     esp_err_t write(const std::vector<uint8_t>& data,
                        std::chrono::milliseconds timeout = std::chrono::milliseconds(100))

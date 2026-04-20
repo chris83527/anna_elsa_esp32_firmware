@@ -40,7 +40,7 @@
 #include "esp_pthread.h"
 
 #include "maincontroller.h"
-
+#include "typed_i2c_device.hpp"
 #include "config.h"
 #include "esp_idf_cctalk_uart.hpp"
 
@@ -66,8 +66,7 @@ extern "C" void app_main()
     esp_log_level_set("gpio", ESP_LOG_WARN);
     esp_log_level_set("ReelController", ESP_LOG_INFO);
     esp_log_level_set("m20ly02z", ESP_LOG_WARN);
-    esp_log_level_set("i2cmanager", ESP_LOG_WARN);
-    esp_log_level_set("i2c.master", ESP_LOG_WARN);
+    esp_log_level_set("i2c.master", ESP_LOG_DEBUG);
     esp_log_level_set("ssd1306", ESP_LOG_INFO);
     esp_log_level_set("cctalkDevice", ESP_LOG_INFO);
     esp_log_level_set("cctalk_link_controller", ESP_LOG_INFO);

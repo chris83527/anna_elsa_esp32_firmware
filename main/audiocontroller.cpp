@@ -103,7 +103,7 @@ void AudioController::initialise()
 
 esp_err_t AudioController::i2cInit()
 {
-    std::vector<uint8_t> data = std::vector<uint8_t>(4);
+    std::vector<uint8_t> data;
 
     data.push_back(0x00);
     // init sequence

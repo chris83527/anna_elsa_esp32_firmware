@@ -38,7 +38,7 @@
 static const char* TAG = "OledController";
 
 OledController::OledController(I2CBus& i2cbus, const int address)
-    : ssd1306(SSD1306(i2cbus, address, 128, 64))
+    : ssd1306(i2cbus, address, 128, 64)
 {
 }
 

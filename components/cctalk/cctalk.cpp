@@ -11,8 +11,9 @@ CctalkError CctalkBus::writeFrameLocked(const CctalkFrame& frame,
     tmp.computeChecksum();
 
     uint8_t totalSize = (5 + tmp.data.size());
-    std::vector<uint8_t> buf;
+    std::vector<uint8_t> buf(totalSize);
     buf.reserve(totalSize);
+
     buf.push_back(tmp.destination);
     buf.push_back(tmp.data_length);
     buf.push_back(tmp.source);

@@ -41,7 +41,7 @@ static constexpr uint8_t COIN_ACCEPTOR_ADDRESS = 2;
 static constexpr uint8_t HOPPER_ADDRESS = 3;
 
 MainController::MainController(std::unique_ptr<ICctalkUart> uart) :
-    i2c_bus(I2C_NUM_0),
+    i2c_bus(I2C_NUM_0, GPIO_I2C_SDA, GPIO_I2C_SCL, I2C_CLK_SRC_APB, false),
     paymentController(nvsController,
                       std::move(uart),
                       HOST_ADDRESS, // host address
@@ -56,6 +56,7 @@ MainController::MainController(std::unique_ptr<ICctalkUart> uart) :
 {
     ESP_LOGD(TAG, "Entering constructor");
 
+
     ESP_LOGD(TAG, "Leaving constructor");
 }
 
@@ -64,6 +65,7 @@ MainController::~MainController() = default;
 void MainController::start()
 {
     ESP_LOGD(TAG, "start() called");
+
 
     // CPU LED is on a GPIO
     esp_rom_gpio_pad_select_gpio(CPU_LED_GPIO);
@@ -74,7 +76,6 @@ void MainController::start()
 
     esp_event_loop_create_default();
 
-    ESP_ERROR_CHECK(i2c_bus.init(GPIO_I2C_SDA, GPIO_I2C_SCL));
 
     if (m20ly02z_init(MD_STROBE, MD_OE, MD_CLK, MD_DATA) != ESP_OK)
     {
@@ -235,9 +236,9 @@ void MainController::start()
     displayController.displayVFDText("INITIALISING 0D");
 
     // Set up a timer to update the statistics every 5 seconds
-    constexpr esp_timer_create_args_t updateStatisticsTimerArgs = {
+    esp_timer_create_args_t updateStatisticsTimerArgs = {
         .callback = &updateStatisticsDisplayCallback,
-        .arg = nullptr,
+        .arg = this,
         .dispatch_method = ESP_TIMER_TASK,
         .name = "Update Statistics Timer",
         .skip_unhandled_events = true

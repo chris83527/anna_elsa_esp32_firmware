@@ -29,7 +29,7 @@
 class MainController
 {
 public:
-    MainController(std::unique_ptr<ICctalkUart> uart);
+    explicit MainController(std::unique_ptr<ICctalkUart> uart);
     //MainController(const MainController &orig);
     ~MainController();
 

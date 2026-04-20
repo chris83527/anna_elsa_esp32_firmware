@@ -27,9 +27,6 @@ SSD1306::SSD1306(I2CBus& bus, const uint8_t address,
     ESP_LOGD(TAG, "i2c_address: %d", address);
     ESP_LOGD(TAG, "width: %d, height: %d", width, height);
 
-    this->deviceConfig.dev_addr_length = I2C_ADDR_BIT_LEN_7;
-    this->deviceConfig.device_address = address;
-    this->deviceConfig.scl_speed_hz = 400000;
 
     this->_width = width;
     this->_height = height;

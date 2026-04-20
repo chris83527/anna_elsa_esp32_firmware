@@ -51,12 +51,12 @@ public:
 
     esp_err_t set_digits(uint8_t val);
     esp_err_t display_on();
-    esp_err_t display(const uint8_t* arr, const uint8_t dp);
-    esp_err_t write_digit(const uint8_t pos, const uint8_t val, const uint8_t dp);
-    esp_err_t write_value(const char* fmt, const int value);
+    esp_err_t display(const uint8_t* arr, uint8_t dp);
+    esp_err_t write_digit( uint8_t pos, uint8_t val, uint8_t dp);
+    esp_err_t write_value(const char* fmt, int value);
 
 private:
-    esp_err_t write_cmd(const uint8_t cmd);
-    esp_err_t write_pos(const uint8_t pos, const uint8_t mask, const bool dp);
+    esp_err_t write_cmd(uint8_t cmd);
+    esp_err_t write_pos(uint8_t pos, uint8_t mask, bool dp);
 };
 #endif

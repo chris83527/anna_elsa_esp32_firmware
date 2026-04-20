@@ -68,16 +68,16 @@ static const char* TAG = "DisplayController";
 static std::string vfdText;
 
 DisplayController::DisplayController(PaymentController& paymentController,
-                                     I2CBus& i2bus) : movesDisplay(i2bus, MOVES_DISPLAY_ADDRESS),
-                                                      creditDisplay(i2bus, CREDIT_DISPLAY_ADDRESS),
-                                                      bankDisplay(i2bus, BANK_DISPLAY_ADDRESS),
-                                                      buttonIO(i2bus, BUTTONS_I2C_ADDRESS),
-                                                      oledController(i2bus, 0x3c),
-                                                      strip(LED_GPIO, LED_COUNT),
-                                                      paymentController(paymentController)
+                                     I2CBus& i2c_bus) : movesDisplay(i2c_bus, MOVES_DISPLAY_ADDRESS),
+                                                        creditDisplay(i2c_bus, CREDIT_DISPLAY_ADDRESS),
+                                                        bankDisplay(i2c_bus, BANK_DISPLAY_ADDRESS),
+                                                        buttonIO(i2c_bus, BUTTONS_I2C_ADDRESS),
+                                                        oledController(i2c_bus, 0x3c),
+                                                        strip(LED_GPIO, LED_COUNT), currentBlending(),
+                                                        paymentController(paymentController), buttonStatus(0),
+                                                        doorOpen(false)
 {
     ESP_LOGD(TAG, "Entering constructor");
-
 
     // Perform this here so we have debug output
     oledController.initialise();
@@ -117,7 +117,7 @@ esp_err_t DisplayController::initialise()
     buttonIO.setGPIOBInputOutputMode(0x00); // PORT B (button lamps) - output
     buttonIO.setGPIOAPullup(0x00); // GPIOA Pullups off
     buttonIO.setGPIOBPullup(0x00); // GPIOB Pullups off
-    buttonIO.setGPIOAInputPolarity(0xff); // Invert polarity (bit refelcts the opposite logic state of the
+    buttonIO.setGPIOAInputPolarity(0xff); // Invert polarity (bit reflects the opposite logic state of the
     // input pin)
     ESP_LOGI(TAG, "Button interface initialisation succeeded");
 

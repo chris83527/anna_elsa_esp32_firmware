@@ -52,7 +52,7 @@ public:
                              uint16_t& out,
                              std::chrono::milliseconds timeout = std::chrono::milliseconds(100));
 
-    bool valid() const { return m_dev != nullptr; }
+    [[nodiscard]] bool valid() const { return m_dev != nullptr; }
 
 private:
     friend class I2CBus;
@@ -65,7 +65,7 @@ private:
 class I2CBus {
 public:
     I2CBus() = default;
-    explicit I2CBus(i2c_port_num_t port);
+    explicit I2CBus(i2c_port_num_t port, gpio_num_t sda, gpio_num_t scl, i2c_clock_source_t clockSource, bool pullup);
 
     I2CBus(const I2CBus&) = delete;
     I2CBus& operator=(const I2CBus&) = delete;
@@ -77,16 +77,16 @@ public:
 
     esp_err_t init(gpio_num_t sda,
                    gpio_num_t scl,
-                   uint32_t clk_source_hz = 0,   // 0 = default
+                   i2c_clock_source_t clk_source_hz = I2C_CLK_SRC_DEFAULT,   // 0 = default
                    bool pullup = true);
 
-    bool valid() const { return m_bus != nullptr; }
+    [[nodiscard]] bool valid() const { return m_bus != nullptr; }
 
     esp_err_t add_device(uint8_t addr_7bit,
                          I2CDevice& out_dev,
                          uint32_t scl_speed_hz = 400000);
 
-    i2c_master_bus_handle_t handle() const { return m_bus; }
+    [[nodiscard]] i2c_master_bus_handle_t handle() const { return m_bus; }
 
 private:
     i2c_port_num_t          m_port = I2C_NUM_0;

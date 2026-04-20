@@ -5,9 +5,10 @@ using namespace std::chrono;
 
 static const char* TAG = "I2C_NEW";
 
-I2CBus::I2CBus(i2c_port_num_t port)
+I2CBus::I2CBus(const i2c_port_num_t port, const gpio_num_t sda, const gpio_num_t scl, i2c_clock_source_t clockSource, bool pullup)
     : m_port(port)
 {
+    init(sda, scl, clockSource, pullup);
 }
 
 I2CBus::I2CBus(I2CBus&& other) noexcept
@@ -43,10 +44,10 @@ I2CBus::~I2CBus()
 
 esp_err_t I2CBus::init(gpio_num_t sda,
                        gpio_num_t scl,
-                       uint32_t clk_source_hz,
+                       i2c_clock_source_t clk_source_hz,
                        bool pullup)
 {
-    if (m_bus)
+    if (m_bus != nullptr)
     {
         return ESP_OK;
     }
@@ -55,7 +56,7 @@ esp_err_t I2CBus::init(gpio_num_t sda,
     bus_cfg.i2c_port = m_port;
     bus_cfg.sda_io_num = sda;
     bus_cfg.scl_io_num = scl;
-    bus_cfg.clk_source = clk_source_hz ? I2C_CLK_SRC_DEFAULT : I2C_CLK_SRC_DEFAULT;
+    bus_cfg.clk_source = clk_source_hz ? clk_source_hz : I2C_CLK_SRC_DEFAULT;
     bus_cfg.glitch_ignore_cnt = 7;
     bus_cfg.flags.enable_internal_pullup = pullup;
 
@@ -89,6 +90,9 @@ esp_err_t I2CBus::add_device(uint8_t addr_7bit,
     {
         ESP_LOGE(TAG, "i2c_master_bus_add_device failed: %s", esp_err_to_name(err));
         return err;
+    } else
+    {
+        ESP_LOGI(TAG, "i2c_master_bus_add_device successful");
     }
 
     out_dev.m_bus = this;
@@ -184,8 +188,7 @@ esp_err_t I2CDevice::write_read(const uint8_t* wdata,
         return err;
     }
 
-    return i2c_master_receive(m_dev, rdata, rlen,
-                              static_cast<int>(timeout.count()));
+    return i2c_master_receive(m_dev, rdata, rlen, static_cast<int>(timeout.count()));
 }
 
 esp_err_t I2CDevice::writeRegister(uint8_t reg,

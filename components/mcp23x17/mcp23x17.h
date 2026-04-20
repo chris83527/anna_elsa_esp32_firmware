@@ -89,10 +89,10 @@ public:
     /** Create an MCP23x17 instance connected to specified I2C pins with specified
      * address
      *
-     * @param i2cmgr The I2C port to use (default: 0)
-     * @param i2c_address I2C-bus address (default: 0x20)
+     * @param i2c_bus The shared i2c_bus object
+     * @param address I2C-bus address (default: 0x20)
      */
-    MCP23x17(I2CBus& i2c_bus, uint8_t address) : TypedI2CDevice(i2c_bus, address) {}
+    explicit MCP23x17(I2CBus& i2c_bus, uint8_t address) : TypedI2CDevice(i2c_bus, address) {}
     ~MCP23x17() = default;
 
     esp_err_t setGPIOAInputPolarity(uint8_t polarity);

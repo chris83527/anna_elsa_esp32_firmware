@@ -67,7 +67,7 @@ public:
     void start();
     [[nodiscard]] bool isGameInProgress() const;
     void playNudges(int nudges);
-    static void initialise();
+    void initialise();
 
 public:
     // 0 = Hans

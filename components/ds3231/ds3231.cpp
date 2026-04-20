@@ -340,9 +340,9 @@ esp_err_t DS3231::get_temp_float(float& temp)
     return res;
 }
 
-esp_err_t DS3231::get_time(struct tm& time)
+esp_err_t DS3231::get_time(tm& time)
 {
-    std::vector<uint8_t> data(7);
+    std::vector<uint8_t> data(8);
 
     readReg(DS3231_ADDR_TIME, data, 7);
 

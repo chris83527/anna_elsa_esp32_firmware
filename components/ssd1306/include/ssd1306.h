@@ -163,9 +163,6 @@ private:
   void i2c_contrast(int contrast);
   void i2c_hardware_scroll(scroll_type_t scroll);
 
-  i2c_device_config_t deviceConfig{};
-  i2c_master_dev_handle_t deviceHandle{};
-
   int _width;
   int _height;
   int _pages;
