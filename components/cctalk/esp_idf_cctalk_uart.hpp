@@ -6,13 +6,15 @@
 #include "esp_log.h"
 #include "rom/uart.h"
 
+#define MAX_BUFFER_SIZE 1024
+
 class EspIdfCctalkUart : public ICctalkUart
 {
 public:
-    explicit EspIdfCctalkUart(uart_port_t uart_num)
+    explicit EspIdfCctalkUart(uart_port_t uart_num, int txPin, int rxPin)
         : uart_num_(uart_num)
     {
-        uart_driver_install(uart_num_, 1024, 1024, 0, nullptr, CONFIG_UART_ISR_IN_IRAM);
+        int intr_alloc_flags = 0;
 
         uart_config_t uart_config = {
             .baud_rate = 9600,
@@ -20,16 +22,21 @@ public:
             .parity = UART_PARITY_DISABLE,
             .stop_bits = UART_STOP_BITS_1,
             .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-            .rx_flow_ctrl_thresh = 122,
+            .rx_flow_ctrl_thresh = 0,
             .source_clk = UART_SCLK_APB,
             .flags = {}
         };
 
-        // Configure UART parameters
-        ESP_ERROR_CHECK(uart_param_config(uart_num_, &uart_config));
+#if CONFIG_UART_ISR_IN_IRAM
+        intr_alloc_flags = ESP_INTR_FLAG_IRAM;
+#endif
+        uart_driver_install(uart_num_, MAX_BUFFER_SIZE, 0, 0, nullptr, intr_alloc_flags);
 
         ESP_ERROR_CHECK(
-            uart_set_pin(uart_num_, 16, 17, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+            uart_set_pin(uart_num_, txPin, rxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+
+        // Configure UART parameters
+        ESP_ERROR_CHECK(uart_param_config(uart_num_, &uart_config));
     }
 
     ~EspIdfCctalkUart() override
@@ -41,6 +48,8 @@ public:
     {
         // uart_write_bytes is blocking; timeout is handled by driver config
         int res = uart_write_bytes(uart_num_, data, len);
+        uart_wait_tx_done(uart_num_, pdMS_TO_TICKS(timeout.count())); // wait 1s max
+
         return res;
     }
 

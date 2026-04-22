@@ -76,7 +76,7 @@ extern "C" void app_main()
     esp_log_level_set("MainController", ESP_LOG_INFO);
     esp_log_level_set("CCTALK_CONTROLLER", ESP_LOG_INFO);
 
-    auto uart = std::make_unique<EspIdfCctalkUart>(CCTALK_UART);
+    auto uart = std::make_unique<EspIdfCctalkUart>(CCTALK_UART, CCTALK_GPIO_TX, CCTALK_GPIO_RX);
 
     MainController mainController(std::move(uart));
     mainController.start();
