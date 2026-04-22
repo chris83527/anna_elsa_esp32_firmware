@@ -80,10 +80,7 @@ class PaymentController
 public:
     using EventHandler = EventDispatcherThread::Handler;
 
-    PaymentController(NvsController& nvsController, std::unique_ptr<ICctalkUart> uart,
-                  uint8_t hostAddr,
-                  uint8_t coinAcceptorAddr,
-                  uint8_t hopperAddr);
+    PaymentController(NvsController& nvsController, std::unique_ptr<ICctalkUart> uart);
     ~PaymentController();
 
     void start();

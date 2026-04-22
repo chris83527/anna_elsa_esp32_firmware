@@ -41,13 +41,12 @@
 #include "NvsController.h"
 #include "paymentcontroller.h"
 
+#include <iostream>
+
 
 static const char* TAG = "PaymentController";
 
-PaymentController::PaymentController(NvsController& nvsCtrlr, std::unique_ptr<ICctalkUart> uart,
-                                     const uint8_t hostAddr,
-                                     const uint8_t coinAcceptorAddr,
-                                     const uint8_t hopperAddr) : credit(0), bank(0), transfer(0), gamecount(0),
+PaymentController::PaymentController(NvsController& nvsCtrlr, std::unique_ptr<ICctalkUart> uart) : credit(0), bank(0), transfer(0), gamecount(0),
                                                            payoutTotal(0), incomeTotal(0), tenCentIn(0),
                                                            twentyCentIn(0),
                                                            fiftyCentIn(0),
@@ -58,11 +57,11 @@ PaymentController::PaymentController(NvsController& nvsCtrlr, std::unique_ptr<IC
 {
     ESP_LOGI(TAG, "Entering constructor");
 
-    bus_ = std::make_unique<CctalkBus>(*uart_, hostAddr);
+    bus_ = std::make_unique<CctalkBus>(*uart_, CCTALK_HOST_ADDRESS);
 
     // Create high-level façade
     facade_ = std::make_unique<CctalkDeviceFacade>(
-        *bus_, hostAddr, coinAcceptorAddr, hopperAddr
+        *bus_, CCTALK_HOST_ADDRESS, CCTALK_COIN_ACCEPTOR_ADDRESS, CCTALK_HOPPER_ADDRESS
     );
 
     // Create worker threads
@@ -105,6 +104,46 @@ void PaymentController::start()
     );
 
     dispatcherThread_->start();
+
+    std::string out;
+    facade_->getSerialNumber(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
+    ESP_LOGI(TAG, "Serial Number: ", out.c_str());
+    facade_->getCategoryId(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
+    ESP_LOGI(TAG, "Category ID: ", out.c_str());
+    facade_->getBuildCode(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
+    ESP_LOGI(TAG, "Build code: ", out.c_str());
+    facade_->getSoftwareRevision(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
+    ESP_LOGI(TAG, "Software Revision: ", out.c_str());
+
+    facade_->getSerialNumber(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
+    ESP_LOGI(TAG, "Serial Number: ", out.c_str());
+    facade_->getCategoryId(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
+    ESP_LOGI(TAG, "Category ID: ", out.c_str());
+    facade_->getBuildCode(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
+    ESP_LOGI(TAG, "Build code: ", out.c_str());
+    facade_->getSoftwareRevision(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
+    ESP_LOGI(TAG, "Software Revision: ", out.c_str());
+
+
+    facade_->enableAllChannels();
+    // adapter slot D, cctalk sort chute 1
+    facade_->modifyDefaultSorterPath(1);
+    // 5ct  (Kasse - rejected anyway)
+    facade_->modifySorterPaths(1, 1);
+    // 10ct (Kasse, adapter slot D, cctalk sort chute 1)
+    facade_->modifySorterPaths(2, 1);
+    // 20ct (Hopper, adapter slot C, cctalk sort chute 2)
+    facade_->modifySorterPaths(3, 2);
+    // 50ct (Kasse, adapter slot D, cctalk sort chute 1)
+    facade_->modifySorterPaths(4, 1);
+    // 1eur (Kasse, adapter slot D, cctalk sort chute 1)
+    facade_->modifySorterPaths(5, 1);
+    // 2eur (Kasse, adapter slot D, cctalk sort chute 1)
+    facade_->modifySorterPaths(6, 1);
+    // the coin validator automatically sends coins to cash box - stop this.
+    facade_->modifySorterOverrideStatus(255);
+    // Allow all coins except 5ct
+    facade_->setInhibitMask(254, 0);
 }
 
 void PaymentController::stop()

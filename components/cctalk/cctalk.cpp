@@ -4,6 +4,7 @@
 #include "cctalk.hpp"
 #include "cctalk_device_facade.hpp"
 
+
 CctalkError CctalkBus::writeFrameLocked(const CctalkFrame& frame,
                                         std::chrono::milliseconds timeout) {
     CctalkFrame tmp = frame;

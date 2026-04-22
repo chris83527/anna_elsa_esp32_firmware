@@ -29,24 +29,17 @@
 #include "maincontroller.h"
 #include "paymentcontroller.h"
 #include "reelcontroller.h"
-
+#include "cctalk.hpp"
 #include "esp_littlefs.h"
 #include "m20ly02z.h"
 
 static const char* TAG = "MainController";
 static int blinkDelay = 250000; // µs, not ms
 
-static constexpr uint8_t HOST_ADDRESS = 1;
-static constexpr uint8_t COIN_ACCEPTOR_ADDRESS = 2;
-static constexpr uint8_t HOPPER_ADDRESS = 3;
-
 MainController::MainController(std::unique_ptr<ICctalkUart> uart) :
     i2c_bus(I2C_NUM_0, GPIO_I2C_SDA, GPIO_I2C_SCL, I2C_CLK_SRC_APB, false),
     paymentController(nvsController,
-                      std::move(uart),
-                      HOST_ADDRESS, // host address
-                      COIN_ACCEPTOR_ADDRESS, // coin acceptor address
-                      HOPPER_ADDRESS),
+                      std::move(uart)),
     displayController(paymentController, i2c_bus),
     audioController(i2c_bus),
     reelController(audioController, displayController, i2c_bus),

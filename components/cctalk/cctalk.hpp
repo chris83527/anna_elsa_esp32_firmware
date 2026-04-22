@@ -4,8 +4,11 @@
 #include <vector>
 #include <mutex>
 #include <chrono>
-#include "cctalk.hpp"
 #include "cctalk_error.hpp"
+
+static constexpr uint8_t CCTALK_HOST_ADDRESS = 1;
+static constexpr uint8_t CCTALK_COIN_ACCEPTOR_ADDRESS = 2;
+static constexpr uint8_t CCTALK_HOPPER_ADDRESS = 3;
 
 class ICctalkUart {
 public:
