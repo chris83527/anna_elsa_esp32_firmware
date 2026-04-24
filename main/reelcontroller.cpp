@@ -129,7 +129,7 @@ bool ReelController::initialise()
     }
 
     ledc_bind_channel_timer(LEDC_MODE, LEDC_CHANNEL, LEDC_TIMER);
-ledc_fade_func_install(ESP_INTR_FLAG_IRAM);
+    ledc_fade_func_install(ESP_INTR_FLAG_IRAM);
 
     reelLeftInitOk = false;
     reelCentreInitOk = false;
@@ -139,9 +139,10 @@ ledc_fade_func_install(ESP_INTR_FLAG_IRAM);
     this->centreReel.initialise();
     this->rightReel.initialise();
 
+    gpio_set_level(GPIO_MOTOR_EN, 1);
+
     // Switch on
     ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
-
     // return ESP_OK; // DEBUG
 
     this->leftReel.start(PCA9629A::Direction::CW, 75, 1); // 3x complete turn

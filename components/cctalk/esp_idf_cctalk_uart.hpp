@@ -8,6 +8,8 @@
 
 #define MAX_BUFFER_SIZE 1024
 
+static const char *TAG = "cctalk_uart";
+
 class EspIdfCctalkUart : public ICctalkUart
 {
 public:
@@ -23,20 +25,20 @@ public:
             .stop_bits = UART_STOP_BITS_1,
             .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
             .rx_flow_ctrl_thresh = 0,
-            .source_clk = UART_SCLK_APB,
+            .source_clk = UART_SCLK_DEFAULT,
             .flags = {}
         };
+
+        // Configure UART parameters
+        ESP_ERROR_CHECK(uart_param_config(uart_num_, &uart_config));
+
+        ESP_ERROR_CHECK(
+            uart_set_pin(uart_num_, txPin, rxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
 
 #if CONFIG_UART_ISR_IN_IRAM
         intr_alloc_flags = ESP_INTR_FLAG_IRAM;
 #endif
         uart_driver_install(uart_num_, MAX_BUFFER_SIZE, 0, 0, nullptr, intr_alloc_flags);
-
-        ESP_ERROR_CHECK(
-            uart_set_pin(uart_num_, txPin, rxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
-
-        // Configure UART parameters
-        ESP_ERROR_CHECK(uart_param_config(uart_num_, &uart_config));
     }
 
     ~EspIdfCctalkUart() override
@@ -56,6 +58,9 @@ public:
     int read(uint8_t* data, size_t len, std::chrono::milliseconds timeout) override
     {
         int res = uart_read_bytes(uart_num_, data, len, pdMS_TO_TICKS(timeout.count()));
+        if (res > 0) {
+            ESP_LOGD(TAG, "Received %d bytes: '%.*s'", res, res, data);
+        }
         return res;
     }
 
