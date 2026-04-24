@@ -3,7 +3,7 @@
   <component name="ESP-IDF_SETTINGS">
     <option name="cmakeProfile" value="Debug" />
     <option name="monitorBaud" value="Auto" />
-    <option name="port" value="/dev/ttyUSB0" />
+    <option name="port" value="/dev/ttyUSB1" />
     <option name="uploadBaud" value="921600" />
   </component>
 </project>
