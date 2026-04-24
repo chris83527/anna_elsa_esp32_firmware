@@ -41,9 +41,6 @@
 #include "driver/gpio.h"
 #include "driver/uart.h"
 
-
-
-
 static constexpr int I2C_FREQ_HZ = 400000;
 
 // Running LED
@@ -97,15 +94,15 @@ static constexpr gpio_num_t GPIO_MOTOR_EN = GPIO_NUM_23;
 #define BTN_TRANSFER_MASK_BIT (1<<BTN_TRANSFER)
 
 
-#define CREDIT_DISPLAY_ADDRESS      HT16K33_ADDR_BASE      // 0x70
-#define BANK_DISPLAY_ADDRESS        HT16K33_ADDR_BASE + 1  // 0x71
-#define MOVES_DISPLAY_ADDRESS       HT16K33_ADDR_BASE + 2  // 0x72
+#define CREDIT_DISPLAY_ADDRESS       HT16K33_ADDR_BASE      // 0x70
+#define BANK_DISPLAY_ADDRESS         HT16K33_ADDR_BASE + 1  // 0x71
+#define MOVES_DISPLAY_ADDRESS        HT16K33_ADDR_BASE + 2  // 0x72
 
 #define REEL_RIGHT_I2C_ADDRESS       PCA9629A_I2C_ADDR_BASE // 0x20
-#define REEL_LEFT_I2C_ADDRESS     PCA9629A_I2C_ADDR_BASE + 1 // 0x21
+#define REEL_LEFT_I2C_ADDRESS        PCA9629A_I2C_ADDR_BASE + 1 // 0x21
 #define REEL_CENTRE_I2C_ADDRESS      PCA9629A_I2C_ADDR_BASE + 2 // 0x22
 
-#define BUTTONS_I2C_ADDRESS         MCP23X17_ADDR_BASE + 7 // 0x27
+#define BUTTONS_I2C_ADDRESS          MCP23X17_ADDR_BASE + 7 // 0x27
 
 
 #endif /* CONFIG_H */

@@ -108,7 +108,7 @@ esp_err_t AudioController::i2cInit()
     data.push_back(0x00);
     // init sequence
     writeReg(0x1b, data);
-    vTaskDelay(pdMS_TO_TICKS(50));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     data.resize(1);
     data[0] = 0x03;

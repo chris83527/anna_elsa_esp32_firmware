@@ -58,6 +58,8 @@ public:
      */
     int write(const uint8_t* data, size_t len, std::chrono::milliseconds timeout) override
     {
+        uint32_t timeoutMs = static_cast<uint32_t>(timeout.count());
+        ESP_LOGI(TAG, "Write timeoutMs = %lu", timeoutMs);
         // uart_write_bytes is blocking; timeout is handled by driver config
         int res = uart_write_bytes(uart_num_, data, len);
         uart_wait_tx_done(uart_num_, pdMS_TO_TICKS(timeout.count())); // wait 1s max
@@ -76,8 +78,9 @@ public:
      */
     int read(uint8_t* data, size_t len, std::chrono::milliseconds timeout) override
     {
+        uint32_t timeoutMs = static_cast<uint32_t>(timeout.count());
+        ESP_LOGI(TAG, "Read timeoutMs = %lu", timeoutMs);
         int bytesReadOut = 0;
-        int timeoutMs = timeout.count();
         int64_t start = esp_timer_get_time(); // microseconds
 
         while (bytesReadOut < len) {

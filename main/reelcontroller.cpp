@@ -61,12 +61,12 @@ bool reelRightInitOk;
 
 ReelController::ReelController(AudioController& audioController,
                                DisplayController& displayController,
-                               I2CBus& bus)
+                               I2CBus& i2c_bus)
     : audioController(audioController),
       displayController(displayController),
-      leftReel(bus, REEL_LEFT_I2C_ADDRESS),
-      centreReel(bus, REEL_CENTRE_I2C_ADDRESS),
-      rightReel(bus, REEL_RIGHT_I2C_ADDRESS)
+      leftReel(i2c_bus, REEL_LEFT_I2C_ADDRESS),
+      centreReel(i2c_bus, REEL_CENTRE_I2C_ADDRESS),
+      rightReel(i2c_bus, REEL_RIGHT_I2C_ADDRESS)
 {
     ESP_LOGD(TAG, "Entering constructor");
 
