@@ -139,8 +139,6 @@ bool ReelController::initialise()
     this->centreReel.initialise();
     this->rightReel.initialise();
 
-    gpio_set_level(GPIO_MOTOR_EN, 1);
-
     // Switch on
     ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
     // return ESP_OK; // DEBUG

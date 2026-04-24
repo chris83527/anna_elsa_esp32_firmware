@@ -8,7 +8,7 @@
 
 #define MAX_BUFFER_SIZE 1024
 
-static const char *TAG = "cctalk_uart";
+
 
 class EspIdfCctalkUart : public ICctalkUart
 {
@@ -46,6 +46,8 @@ public:
         uart_driver_delete(uart_num_);
     }
 
+    const char *TAG = "cctalk_uart";
+
     int write(const uint8_t* data, size_t len, std::chrono::milliseconds timeout) override
     {
         // uart_write_bytes is blocking; timeout is handled by driver config
@@ -59,7 +61,7 @@ public:
     {
         int res = uart_read_bytes(uart_num_, data, len, pdMS_TO_TICKS(timeout.count()));
         if (res > 0) {
-            ESP_LOGD(TAG, "Received %d bytes: '%.*s'", res, res, data);
+            ESP_LOGE(TAG, "Received %d bytes: '%.*s'", res, res, data);
         }
         return res;
     }
