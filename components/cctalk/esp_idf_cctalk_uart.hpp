@@ -84,12 +84,7 @@ public:
     int read(uint8_t* data, size_t len, std::chrono::milliseconds timeout) override
     {
         auto timeoutMs = static_cast<uint32_t>(timeout.count());
-        return  uart_read_bytes(
-                uart_num_,
-                data,
-                len,
-                pdMS_TO_TICKS(timeoutMs)
-            );
+
         //ESP_LOGI(TAG, "UART read called with timeout %lu", timeoutMs);
         int bytesReadOut = 0;
 

@@ -31,12 +31,24 @@ CctalkError CctalkBus::writeFrameLocked(const CctalkFrame& frame,
         ESP_LOGE(TAG, "Failed to send request: %d", CctalkError::UartError);
         return CctalkError::UartError;
     }
-    //ESP_LOGI(TAG, "%d bytes written from %d", written, buf.size());
+    ESP_LOGI(TAG, "%d bytes of %d written", written, buf.size());
     if (written != totalSize)
     {
         ESP_LOGE(TAG, "Failed to send request: %d", CctalkError::Timeout);
         return CctalkError::Timeout;
     }
+
+    // Read back the echo and ignore it
+    std::vector<uint8_t> readBuf;
+    readBuf.reserve(totalSize);
+    int bytesRead = uart_.read(readBuf.data(), totalSize, timeout);
+    // These should be equal because it is an echo of the data sent
+    if (readBuf != buf)
+    {
+        ESP_LOGE(TAG, "Failed to read loopback data. Wrote %d bytes, but received %d bytes ", written, bytesRead);
+        return CctalkError::MalformedFrame;
+    }
+
     return CctalkError::OK;
 }
 
@@ -53,7 +65,7 @@ CctalkError CctalkBus::readFrameLocked(CctalkFrame& frame,
     frame.source = header_bytes[2];
     frame.header = header_bytes[3];
 
-    uint8_t to_read = frame.data_length + 1;
+    uint8_t to_read = frame.data_length + 1; // The additional byte (+1) is for the checksum
     std::vector<uint8_t> tail(to_read);
     r = uart_.read(tail.data(), to_read, timeout);
     ESP_LOGI(TAG, "%d bytes read", r);
