@@ -7,7 +7,7 @@
 #include "cctalk.hpp"
 #include "cctalk_headers.hpp"
 
-#include <cstring>
+#include <string>
 
 namespace cctalk::general {
 

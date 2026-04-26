@@ -62,12 +62,13 @@ public:
     int write(const uint8_t* data, size_t len, std::chrono::milliseconds timeout) override
     {
         auto timeoutMs = static_cast<uint32_t>(timeout.count());
-        //ESP_LOGI(TAG, "UART write called. Timeout set to %lums", timeoutMs);
+        ESP_LOGI(TAG, "UART write called. Timeout set to %lums. Bytes to write: %d", timeoutMs, len);
         //ESP_LOGI(TAG, "%d bytes to write", len);
         // uart_write_bytes is blocking; timeout is handled by driver config
+        uart_flush(uart_num_);
         int res = uart_write_bytes(uart_num_, data, len);
-        ESP_LOGI(TAG, "%d bytes written", res);
-        esp_err_t err = uart_wait_tx_done(uart_num_, pdMS_TO_TICKS(timeoutMs)); // wait 1s max
+        ESP_LOGD(TAG, "%d bytes written", res);
+        //esp_err_t err = uart_wait_tx_done(uart_num_, pdMS_TO_TICKS(timeoutMs)); // wait 1s max
 
         return res;
     }
@@ -85,7 +86,9 @@ public:
     {
         auto timeoutMs = static_cast<uint32_t>(timeout.count());
 
-        //ESP_LOGI(TAG, "UART read called with timeout %lu", timeoutMs);
+        ESP_LOGD(TAG, "UART read called with timeout %lu expecting %d bytes", timeoutMs * 2, len);
+
+
         int bytesReadOut = 0;
 
         int64_t start = esp_timer_get_time(); // microseconds
@@ -125,6 +128,7 @@ public:
             bytesReadOut += chunk;
         }
 
+        ESP_LOGD(TAG, "%d bytes read", bytesReadOut);
         return bytesReadOut;
     }
 

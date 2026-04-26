@@ -10,6 +10,7 @@ enum class CctalkError
     UnexpectedDestination,
     MalformedFrame,
     DeviceError,
+    InvalidHeader,
     Unknown
 };
 

@@ -115,13 +115,13 @@ void PaymentController::start()
     facade_->getSoftwareRevision(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
     ESP_LOGI(TAG, "Software Revision: ", out.c_str());
 
-    facade_->getSerialNumber(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
+    facade_->getSerialNumber(CCTALK_HOPPER_ADDRESS, out);
     ESP_LOGI(TAG, "Serial Number: ", out.c_str());
-    facade_->getCategoryId(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
+    facade_->getCategoryId(CCTALK_HOPPER_ADDRESS, out);
     ESP_LOGI(TAG, "Category ID: ", out.c_str());
-    facade_->getBuildCode(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
+    facade_->getBuildCode(CCTALK_HOPPER_ADDRESS, out);
     ESP_LOGI(TAG, "Build code: ", out.c_str());
-    facade_->getSoftwareRevision(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
+    facade_->getSoftwareRevision(CCTALK_HOPPER_ADDRESS, out);
     ESP_LOGI(TAG, "Software Revision: ", out.c_str());
 
 
@@ -352,6 +352,7 @@ uint16_t PaymentController::getTransfer() const { return transfer; }
 
 void PaymentController::onEvent(const CctalkEvent& evt)
 {
+    ESP_LOGI(TAG, "onEvent called!");
     switch (evt.type)
     {
     case CctalkEventType::CoinAccepted:
