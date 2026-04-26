@@ -125,7 +125,7 @@ void PaymentController::start()
     ESP_LOGI(TAG, "Software Revision: ", out.c_str());
 
 
-    facade_->enableAllChannels();
+    //facade_->enableAllChannels();
     // adapter slot D, cctalk sort chute 1
     facade_->modifyDefaultSorterPath(1);
     // 5ct  (Kasse - rejected anyway)

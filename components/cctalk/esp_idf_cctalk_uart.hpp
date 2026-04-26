@@ -16,7 +16,7 @@ public:
     explicit EspIdfCctalkUart(const uart_port_t uart_num, const int txPin, const int rxPin)
         : uart_num_(uart_num)
     {
-        ESP_LOGI(TAG, "EspIdfCctalkUart constructor");
+        ESP_LOGD(TAG, "EspIdfCctalkUart constructor");
 
         int intr_alloc_flags = 0;
 
@@ -62,7 +62,7 @@ public:
     int write(const uint8_t* data, size_t len, std::chrono::milliseconds timeout) override
     {
         auto timeoutMs = static_cast<uint32_t>(timeout.count());
-        ESP_LOGI(TAG, "UART write called. Timeout set to %lums. Bytes to write: %d", timeoutMs, len);
+        ESP_LOGD(TAG, "UART write called. Timeout set to %lums. Bytes to write: %d", timeoutMs, len);
         //ESP_LOGI(TAG, "%d bytes to write", len);
         // uart_write_bytes is blocking; timeout is handled by driver config
         uart_flush(uart_num_);

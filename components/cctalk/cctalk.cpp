@@ -78,7 +78,7 @@ CctalkError CctalkBus::readFrameLocked(CctalkFrame& frame,
     frame.header = header_bytes[3];
 
 
-    ESP_LOGI(TAG, "READ: dest: %d, data_length: %d, source: %d, header: %d", frame.destination, frame.data_length,
+    ESP_LOGD(TAG, "READ: dest: %d, data_length: %d, source: %d, header: %d", frame.destination, frame.data_length,
              frame.source, frame.header);
 
     uint8_t to_read = frame.data_length + 1; // The additional byte (+1) is for the checksum

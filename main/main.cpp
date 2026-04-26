@@ -68,7 +68,7 @@ extern "C" void app_main()
     esp_log_level_set("m20ly02z", ESP_LOG_WARN);
     esp_log_level_set("i2c.master", ESP_LOG_DEBUG);
     esp_log_level_set("ssd1306", ESP_LOG_INFO);
-    esp_log_level_set("ctalk_uart", ESP_LOG_DEBUG);
+    esp_log_level_set("ctalk_uart", ESP_LOG_WARN);
     esp_log_level_set("serial_worker", ESP_LOG_INFO);
     esp_log_level_set("AudioController", ESP_LOG_INFO);
     esp_log_level_set("DisplayController", ESP_LOG_INFO);
