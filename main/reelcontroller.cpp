@@ -97,7 +97,7 @@ bool ReelController::initialise()
         .duty_resolution = LEDC_DUTY_RES,
         .timer_num = LEDC_TIMER,
         .freq_hz = LEDC_FREQUENCY, // Set output frequency at 5000Hz
-        .clk_cfg = LEDC_AUTO_CLK,
+        .clk_cfg = LEDC_USE_RC_FAST_CLK,
         .deconfigure = false,
     };
 

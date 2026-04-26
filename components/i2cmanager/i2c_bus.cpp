@@ -149,7 +149,7 @@ esp_err_t I2CDevice::write(const uint8_t* data,
         return ESP_ERR_INVALID_STATE;
     }
 
-    std::unique_lock<std::mutex> lk(m_mutex, std::defer_lock);
+    std::unique_lock lk(m_mutex, std::defer_lock);
     return i2c_master_transmit(m_dev, data, len,
                                static_cast<int>(timeout.count()));
 }
@@ -163,7 +163,7 @@ esp_err_t I2CDevice::read(uint8_t* data,
         return ESP_ERR_INVALID_STATE;
     }
 
-    std::unique_lock<std::mutex> lk(m_mutex, std::defer_lock);
+    std::unique_lock lk(m_mutex, std::defer_lock);
     return i2c_master_receive(m_dev, data, len,
                               static_cast<int>(timeout.count()));
 }
@@ -197,7 +197,7 @@ esp_err_t I2CDevice::writeRegister(uint8_t reg,
 {
     uint8_t buf[2] = {reg, value};
 
-    std::unique_lock<std::mutex> lk(m_mutex, std::defer_lock);
+    std::unique_lock lk(m_mutex, std::defer_lock);
     return i2c_master_transmit(
         m_dev,
         buf,
