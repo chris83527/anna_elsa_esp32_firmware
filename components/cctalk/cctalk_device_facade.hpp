@@ -110,6 +110,22 @@ public:
         return err;
     }
 
+    CctalkError requestCommsRevision(uint8_t destination, std::string& out, std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
+    {
+        CctalkFrame req;
+        req.destination = destination;
+        req.source = host_;
+        req.header = static_cast<std::uint8_t>(CctalkHeader::RequestCommsRevision);
+
+        CctalkFrame resp;
+        auto err = bus_.sendAndReceive(req, resp, timeout);
+        if (err == CctalkError::OK)
+        {
+            out.assign(toHex(resp.data));
+        }
+        return err;
+    }
+
     //
     // --- Coin Acceptor ---
     //
@@ -268,4 +284,15 @@ private:
     std::uint8_t host_;
     std::uint8_t coin_;
     std::uint8_t hopper_;
+
+    std::string toHex(const std::vector<uint8_t>& v) {
+        static constexpr char hex[] = "0123456789ABCDEF";
+        std::string out;
+        out.reserve(v.size() * 2);
+        for (uint8_t b : v) {
+            out.push_back(hex[b >> 4]);
+            out.push_back(hex[b & 0x0F]);
+        }
+        return out;
+    }
 };
