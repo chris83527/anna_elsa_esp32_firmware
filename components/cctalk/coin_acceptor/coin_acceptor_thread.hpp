@@ -26,7 +26,7 @@ public:
     }
 
 private:
-    static constexpr char *TAG = "CoinAcceptorThread";
+    static constexpr const char *TAG = "CoinAcceptorThread";
 
     void run() {
         std::vector<CoinChannelInfo> channels;
@@ -37,7 +37,7 @@ private:
             facade_.readBufferedCreditEvents(channels, events);
 
             for (auto& ev : events) {
-                ESP_LOGI(TAG, "Coin value: %s", ev.coin_value().c_str());
+                ESP_LOGI(TAG, "Coin value: %d", ev.coin_value);
                 queue_.push(CctalkEvent::makeCoin(ev));
             }
 
