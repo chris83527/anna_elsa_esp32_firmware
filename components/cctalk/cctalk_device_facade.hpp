@@ -71,7 +71,7 @@ public:
         auto err = bus_.sendAndReceive(req, resp, timeout);
         if (err == CctalkError::OK)
         {
-            out.assign(resp.data.begin(), resp.data.end());
+            decodeSerialNumber(resp.data, out);
         }
         return err;
     }
@@ -121,7 +121,7 @@ public:
         auto err = bus_.sendAndReceive(req, resp, timeout);
         if (err == CctalkError::OK)
         {
-            out.assign(toHex(resp.data));
+            toHex(resp.data, out);
         }
         return err;
     }
@@ -285,14 +285,20 @@ private:
     std::uint8_t coin_;
     std::uint8_t hopper_;
 
-    std::string toHex(const std::vector<uint8_t>& v) {
+    void toHex(const std::vector<uint8_t>& v, std::string& out) {
         static constexpr char hex[] = "0123456789ABCDEF";
-        std::string out;
         out.reserve(v.size() * 2);
         for (uint8_t b : v) {
             out.push_back(hex[b >> 4]);
             out.push_back(hex[b & 0x0F]);
         }
-        return out;
+    }
+
+    void decodeSerialNumber(const std::vector<uint8_t>& responseData, std::string& out) {
+        if (responseData.size() == 3) {
+            uint32_t serialNumber = 0;
+            serialNumber = responseData.at(0) << 16 | responseData.at(1) << 8 | responseData.at(2);
+            out = std::to_string(serialNumber);
+        }
     }
 };

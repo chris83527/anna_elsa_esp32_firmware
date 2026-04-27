@@ -49,17 +49,15 @@ CctalkError CctalkBus::writeFrameLocked(const CctalkFrame& frame,
     std::vector<uint8_t> readBuf;
     readBuf.reserve(buf.size());
     int bytesRead = uart_.read(readBuf.data(), buf.size(), timeout);
-    // These should be equal because it is an echo of the data sent
-    ESP_LOGD(TAG, "Data sent (1st 4 bytes): %d, %d, %d, %d. Data received (1st 4 bytes) %d, %d, %d, %d", buf[0], buf[1], buf[2], buf[3], readBuf[0], readBuf[1], readBuf[2], readBuf[3]);
-    /*
-    if (readBuf != buf)
-    {
-        ESP_LOGW(TAG, "Failed to read loopback data. Wrote %d bytes. received %d bytes but contents did not match", written, bytesRead);
 
+    if (written != bytesRead)
+    {
+        ESP_LOGW(TAG, "Failed to read loopback data. Wrote %d bytes, but received %d bytes", written, bytesRead);
         return CctalkError::MalformedFrame;
     }
-    */
 
+    // These should be equal because it is an echo of the data sent
+    ESP_LOGD(TAG, "Data sent (1st 4 bytes): %d, %d, %d, %d. Data received (1st 4 bytes) %d, %d, %d, %d", buf[0], buf[1], buf[2], buf[3], readBuf[0], readBuf[1], readBuf[2], readBuf[3]);
 
     return CctalkError::OK;
 }
@@ -76,7 +74,6 @@ CctalkError CctalkBus::readFrameLocked(CctalkFrame& frame,
     frame.data_length = header_bytes[1];
     frame.source = header_bytes[2];
     frame.header = header_bytes[3];
-
 
     ESP_LOGD(TAG, "READ: dest: %d, data_length: %d, source: %d, header: %d", frame.destination, frame.data_length,
              frame.source, frame.header);
@@ -119,6 +116,7 @@ CctalkError CctalkBus::sendAndReceive(const CctalkFrame& request,
 {
     std::lock_guard lock(mutex_);
 
+    // Write request
     auto err = writeFrameLocked(request, timeout);
     if (err != CctalkError::OK)
     {
@@ -126,6 +124,7 @@ CctalkError CctalkBus::sendAndReceive(const CctalkFrame& request,
         return err;
     }
 
+    // Read response
     err = readFrameLocked(response, timeout);
     if (err != CctalkError::OK)
     {

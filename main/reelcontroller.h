@@ -96,8 +96,8 @@ public:
 
     bool initialise();
 
-    void spin(uint8_t leftStop, uint8_t midStop,
-              uint8_t rightStop);
+    void spin(uint8_t leftSymbol, uint8_t midStop,
+              uint8_t rightSymbol);
     void nudge(uint8_t leftStop, uint8_t midStop,
                uint8_t rightStop);
     void shuffle(uint8_t leftStop, uint8_t midStop,
@@ -121,9 +121,9 @@ private:
     AudioController& audioController;
     DisplayController& displayController;
 
-    PCA9629A leftReel;
-    PCA9629A centreReel;
-    PCA9629A rightReel;
+    pca9629a::Driver leftReel;
+    pca9629a::Driver centreReel;
+    pca9629a::Driver rightReel;
 
 
 

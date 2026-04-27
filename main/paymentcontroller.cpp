@@ -88,34 +88,35 @@ void PaymentController::setEventHandler(EventHandler handler)
 void PaymentController::start()
 {
     ESP_LOGI(TAG, "start() called");
-    loadValuesFromStorage();
+
     if (running_) return;
     running_ = true;
 
+    loadValuesFromStorage();
 
     std::string out;
     facade_->getSerialNumber(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
-    ESP_LOGI(TAG, "Serial Number: ", out.c_str());
+    ESP_LOGI(TAG, "Serial Number: %s", out.c_str());
 
     facade_->getCategoryId(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
-    ESP_LOGI(TAG, "Category ID: ", out.c_str());
+    ESP_LOGI(TAG, "Category ID: %s", out.c_str());
     facade_->getBuildCode(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
-    ESP_LOGI(TAG, "Build code: ", out.c_str());
+    ESP_LOGI(TAG, "Build code: %s", out.c_str());
     facade_->getSoftwareRevision(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
-    ESP_LOGI(TAG, "Software Revision: ", out.c_str());
+    ESP_LOGI(TAG, "Software Revision: %s", out.c_str());
     facade_->requestCommsRevision(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
-    ESP_LOGI(TAG, "Comms revision: ", out.c_str());
+    ESP_LOGI(TAG, "Comms revision: %s", out.c_str());
 
     facade_->getSerialNumber(CCTALK_HOPPER_ADDRESS, out);
-    ESP_LOGI(TAG, "Serial Number: ", out.c_str());
+    ESP_LOGI(TAG, "Serial Number: %s", out.c_str());
     facade_->getCategoryId(CCTALK_HOPPER_ADDRESS, out);
-    ESP_LOGI(TAG, "Category ID: ", out.c_str());
+    ESP_LOGI(TAG, "Category ID: %s", out.c_str());
     facade_->getBuildCode(CCTALK_HOPPER_ADDRESS, out);
-    ESP_LOGI(TAG, "Build code: ", out.c_str());
+    ESP_LOGI(TAG, "Build code: %s", out.c_str());
     facade_->getSoftwareRevision(CCTALK_HOPPER_ADDRESS, out);
-    ESP_LOGI(TAG, "Software Revision: ", out.c_str());
+    ESP_LOGI(TAG, "Software Revision: %s", out.c_str());
     facade_->requestCommsRevision(CCTALK_HOPPER_ADDRESS, out);
-    ESP_LOGI(TAG, "Comms revision: ", out.c_str());
+    ESP_LOGI(TAG, "Comms revision: %s", out.c_str());
 
 
     facade_->resetDevice(CCTALK_COIN_ACCEPTOR_ADDRESS);
