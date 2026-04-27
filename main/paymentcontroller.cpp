@@ -149,6 +149,7 @@ void PaymentController::start()
             ? handler_
             : [](const CctalkEvent&)
             {
+                ESP_LOGI(TAG, "Dummy handler called!");
             }
     );
 
