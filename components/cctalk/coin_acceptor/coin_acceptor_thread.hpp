@@ -1,8 +1,13 @@
 #pragma once
 #include <thread>
 #include <atomic>
+
+#include "esp_log.h"
+
 #include "cctalk_device_facade.hpp"
 #include "cctalk_event_queue.hpp"
+
+
 
 class CoinAcceptorThread {
 public:
@@ -21,6 +26,8 @@ public:
     }
 
 private:
+    static constexpr char *TAG = "CoinAcceptorThread";
+
     void run() {
         std::vector<CoinChannelInfo> channels;
         facade_.getChannelValues(channels);
@@ -30,10 +37,11 @@ private:
             facade_.readBufferedCreditEvents(channels, events);
 
             for (auto& ev : events) {
+                ESP_LOGI(TAG, "Coin value: %s", ev.coin_value().c_str());
                 queue_.push(CctalkEvent::makeCoin(ev));
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
     }
 

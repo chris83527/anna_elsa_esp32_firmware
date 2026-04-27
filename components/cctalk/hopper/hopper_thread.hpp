@@ -4,8 +4,11 @@
 #include "cctalk_device_facade.hpp"
 #include "cctalk_event_queue.hpp"
 
+
+
 class HopperThread {
 public:
+
     HopperThread(CctalkDeviceFacade& facade,
                  CctalkEventQueue& queue)
         : facade_(facade), queue_(queue) {}
@@ -21,6 +24,9 @@ public:
     }
 
 private:
+
+    static constexpr char* TAG = "HopperThread";
+
     void run() {
         HopperStatus last{};
 
@@ -29,11 +35,12 @@ private:
             facade_.getHopperStatus(st);
 
             if (st.raw_status != last.raw_status) {
+                ESP_LOGI(TAG, "Hopper status changed from %d to %d", last.raw_status, st.raw_status);
                 queue_.push(CctalkEvent::makeHopper(st));
                 last = st;
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }
 
