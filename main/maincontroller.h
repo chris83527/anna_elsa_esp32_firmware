@@ -25,6 +25,8 @@
 #include "game.h"
 #include "paymentcontroller.h"
 #include "reelcontroller.h"
+#include "wifi_manager.hpp"
+#include "httpcontroller.hpp"
 
 class MainController
 {
@@ -34,16 +36,6 @@ public:
     ~MainController();
 
     void start();
-
-    I2CBus i2c_bus;
-    NvsController nvsController;
-    PaymentController paymentController;
-    DisplayController displayController;
-    AudioController audioController;
-    ReelController reelController;
-    Game game;
-    DS3231 ds3231;
-
 
     //void print_binary(uint8_t value);
     void setDateTime();
@@ -70,7 +62,16 @@ private:
 
     uint8_t oldReelStatus = 0;
 
-    // HttpController httpController;
+    I2CBus i2c_bus;
+    NvsController nvsController;
+    PaymentController paymentController;
+    DisplayController displayController;
+    AudioController audioController;
+    ReelController reelController;
+    Game game;
+    DS3231 ds3231;
+    WifiManager wifi;
+    HttpController httpController;
 
     enum class MachineState : uint8_t
     {

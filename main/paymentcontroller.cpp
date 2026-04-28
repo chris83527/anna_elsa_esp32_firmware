@@ -95,9 +95,10 @@ void PaymentController::start()
     loadValuesFromStorage();
 
     std::string out;
+    facade_->getManufacturer(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
+    ESP_LOGI(TAG, "Manufacturer Id: %s", out.c_str());
     facade_->getSerialNumber(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
     ESP_LOGI(TAG, "Serial Number: %s", out.c_str());
-
     facade_->getCategoryId(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
     ESP_LOGI(TAG, "Category ID: %s", out.c_str());
     facade_->getBuildCode(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
@@ -107,6 +108,9 @@ void PaymentController::start()
     facade_->requestCommsRevision(CCTALK_COIN_ACCEPTOR_ADDRESS, out);
     ESP_LOGI(TAG, "Comms revision: %s", out.c_str());
 
+
+    facade_->getManufacturer(CCTALK_HOPPER_ADDRESS, out);
+    ESP_LOGI(TAG, "Manufacturer Id: %s", out.c_str());
     facade_->getSerialNumber(CCTALK_HOPPER_ADDRESS, out);
     ESP_LOGI(TAG, "Serial Number: %s", out.c_str());
     facade_->getCategoryId(CCTALK_HOPPER_ADDRESS, out);

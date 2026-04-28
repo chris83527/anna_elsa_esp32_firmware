@@ -44,7 +44,7 @@ MainController::MainController(std::unique_ptr<ICctalkUart> uart) :
     audioController(i2c_bus),
     reelController(audioController, displayController, i2c_bus),
     game(displayController, audioController, paymentController, reelController),
-    ds3231(i2c_bus, DS3231_ADDR)
+    ds3231(i2c_bus, DS3231_ADDR), httpController(wifi)
 
 {
     ESP_LOGD(TAG, "Entering constructor");
@@ -112,6 +112,23 @@ void MainController::start()
     // Initialise WiFi
     displayController.displayVFDText("INITIALISING 03");
     displayController.scrollOledText("Init WiFi");
+
+    ESP_ERROR_CHECK(wifi.init());
+    ESP_ERROR_CHECK(wifi.start());
+
+    if (wifi.is_ap_mode()) {
+        ESP_LOGW(TAG, "AP provisioning mode: start provisioning UI");
+        httpController.start(); // serve provisioning page + /provision
+        // no need to wait for connection; device will reboot after provisioning
+        while (true) vTaskDelay(pdMS_TO_TICKS(1000));
+    } else {
+        if (!wifi.wait_for_sta(pdMS_TO_TICKS(15000))) {
+            ESP_LOGE(TAG, "STA failed; you could force AP mode here");
+            return;
+        }
+        ESP_LOGI(TAG, "STA connected, starting dashboard");
+        httpController.start(); // your normal dashboard with WS, OTA, charts
+    }
 
     // initialise ds3231 RTC
     displayController.displayVFDText("INITIALISING 04");

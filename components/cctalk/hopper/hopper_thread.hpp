@@ -25,7 +25,7 @@ public:
 
 private:
 
-    static constexpr char* TAG = "HopperThread";
+    static constexpr const char* TAG = "HopperThread";
 
     void run() {
         HopperStatus last{};

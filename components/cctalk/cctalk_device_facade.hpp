@@ -110,6 +110,23 @@ public:
         return err;
     }
 
+    CctalkError getManufacturer(uint8_t destination, std::string& out,
+                            std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
+    {
+        CctalkFrame req;
+        req.destination = destination;
+        req.source = host_;
+        req.header = static_cast<std::uint8_t>(CctalkHeader::RequestManufacturerId);
+
+        CctalkFrame resp;
+        auto err = bus_.sendAndReceive(req, resp, timeout);
+        if (err == CctalkError::OK)
+        {
+            out.assign(resp.data.begin(), resp.data.end());
+        }
+        return err;
+    }
+
     CctalkError requestCommsRevision(uint8_t destination, std::string& out, std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
     {
         CctalkFrame req;

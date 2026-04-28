@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Frozen Wi-Fi Setup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/httpd/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<div class="container mt-4">
+    <h3>Frozen Wi-Fi Setup</h3>
+    <form id="prov-form">
+        <div class="mb-3">
+            <label class="form-label">SSID</label>
+            <input type="text" class="form-control" id="ssid" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" id="pass" required>
+        </div>
+        <button class="btn btn-primary" type="submit">Save & Reboot</button>
+    </form>
+    <div class="mt-2" id="prov-status"></div>
+</div>
+<script>
+    document.getElementById('prov-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const ssid = document.getElementById('ssid').value;
+        const pass = document.getElementById('pass').value;
+        const statusEl = document.getElementById('prov-status');
+
+        statusEl.textContent = 'Saving...';
+
+        try {
+            const res = await fetch('/provision', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ssid, pass })
+            });
+            const text = await res.text();
+            statusEl.textContent = text;
+        } catch (err) {
+            statusEl.textContent = 'Error: ' + err;
+        }
+    });
+</script>
+</body>
+</html>
