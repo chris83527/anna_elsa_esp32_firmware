@@ -12,7 +12,6 @@
  */
 #include <chrono>
 #include <ctime>
-#include <functional>
 #include <string>
 
 #include "ds3231.h"
@@ -24,7 +23,6 @@
 #include "audiocontroller.h"
 #include "config.h"
 #include "displaycontroller.h"
-#include "esp_event.h"
 #include "game.h"
 #include "maincontroller.h"
 #include "paymentcontroller.h"
@@ -59,16 +57,12 @@ void MainController::start()
 {
     ESP_LOGD(TAG, "start() called");
 
-
     // CPU LED is on a GPIO
     esp_rom_gpio_pad_select_gpio(CPU_LED_GPIO);
     /* Set the GPIO as a push/pull output */
     gpio_set_direction(CPU_LED_GPIO, GPIO_MODE_OUTPUT);
     /* Switch off to start */
     gpio_set_level(CPU_LED_GPIO, 0);
-
-    esp_event_loop_create_default();
-
 
     if (m20ly02z_init(MD_STROBE, MD_OE, MD_CLK, MD_DATA) != ESP_OK)
     {
@@ -108,10 +102,8 @@ void MainController::start()
         displayController.scrollOledText("  -> ok");
     }
 
-
-
     // initialise ds3231 RTC
-    displayController.displayVFDText("INITIALISING 04");
+    displayController.displayVFDText("INITIALISING 03");
     displayController.scrollOledText("Init RTC");
 
     setDateTime(); // Debug
@@ -125,7 +117,7 @@ void MainController::start()
     displayController.scrollOledText("  -> ok");
     //}
 
-    displayController.displayVFDText("INITIALISING 05");
+    displayController.displayVFDText("INITIALISING 04");
     displayController.scrollOledText("Init LittleFS");
     esp_vfs_littlefs_conf_t conf = {
         .base_path = "/httpd",
@@ -157,26 +149,24 @@ void MainController::start()
         }
     }
 
-    displayController.displayVFDText("INITIALISING 06");
-    displayController.scrollOledText("Init Webserver");
+    displayController.displayVFDText("INITIALISING 05");
+    displayController.scrollOledText("Init WiFi");
     
     ESP_ERROR_CHECK(wifi.init());
-    ESP_ERROR_CHECK(wifi.start());
+    ESP_ERROR_CHECK(wifi.start_async());
+
+    displayController.displayVFDText("INITIALISING 06");
+    displayController.scrollOledText("Init Webserver");
+
+    httpController.start(); // serve provisioning page + /provision
+
+    // Wait until Wi-Fi mode is known
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     if (wifi.is_ap_mode()) {
-        ESP_LOGW(TAG, "AP provisioning mode: start provisioning UI");
-        httpController.start(); // serve provisioning page + /provision
-        // no need to wait for connection; device will reboot after provisioning
-        while (true) vTaskDelay(pdMS_TO_TICKS(1000));
-    } else {
-        if (!wifi.wait_for_sta(pdMS_TO_TICKS(15000))) {
-            ESP_LOGE(TAG, "STA failed; you could force AP mode here");
-            return;
-        }
-        ESP_LOGI(TAG, "STA connected, starting dashboard");
-        httpController.start(); // your normal dashboard with WS, OTA, charts
+        dnsServer.start("192.168.4.1");
+        ESP_LOGW("main", "Captive portal active");
     }
-
 
     /* Mark current app as valid */
     const esp_partition_t* partition = esp_ota_get_running_partition();
@@ -254,6 +244,7 @@ void MainController::start()
 
     displayController.displayVFDText("                    ");
 
+    // "state machine"
     for (;;)
     {
         if ((!this->game.isGameInProgress()) &&
@@ -281,7 +272,7 @@ void MainController::setDateTime()
     time.tm_sec = 0;
     time.tm_isdst = true;
     time.tm_mon = 01;
-    time.tm_year = (2023 - 1900); // tm_year = number of years since 1900
+    time.tm_year = (2026 - 1900); // tm_year = number of years since 1900
     time.tm_mday = 24;
 
     ds3231.set_time(&time);

@@ -9,9 +9,12 @@
 
 static const char* TAG = "WifiManager";
 
-WifiManager::WifiManager() {}
+WifiManager::WifiManager()
+{
+}
 
-esp_err_t WifiManager::init() {
+esp_err_t WifiManager::init()
+{
     if (!wifi_event_group)
         wifi_event_group = xEventGroupCreate();
 
@@ -21,10 +24,12 @@ esp_err_t WifiManager::init() {
     return load_credentials();
 }
 
-esp_err_t WifiManager::load_credentials() {
+esp_err_t WifiManager::load_credentials()
+{
     nvs_handle_t nvs;
     esp_err_t err = nvs_open("wifi", NVS_READONLY, &nvs);
-    if (err != ESP_OK) {
+    if (err != ESP_OK)
+    {
         ESP_LOGI(TAG, "No Wi-Fi namespace yet");
         creds_loaded = false;
         return ESP_OK;
@@ -34,7 +39,8 @@ esp_err_t WifiManager::load_credentials() {
     size_t pass_len = sizeof(creds.pass);
 
     err = nvs_get_str(nvs, "ssid", creds.ssid, &ssid_len);
-    if (err != ESP_OK) {
+    if (err != ESP_OK)
+    {
         ESP_LOGI(TAG, "No stored SSID");
         nvs_close(nvs);
         creds_loaded = false;
@@ -42,7 +48,8 @@ esp_err_t WifiManager::load_credentials() {
     }
 
     err = nvs_get_str(nvs, "pass", creds.pass, &pass_len);
-    if (err != ESP_OK) {
+    if (err != ESP_OK)
+    {
         ESP_LOGI(TAG, "No stored password");
         nvs_close(nvs);
         creds_loaded = false;
@@ -55,7 +62,8 @@ esp_err_t WifiManager::load_credentials() {
     return ESP_OK;
 }
 
-esp_err_t WifiManager::save_credentials(const char* ssid, const char* pass) {
+esp_err_t WifiManager::save_credentials(const char* ssid, const char* pass)
+{
     nvs_handle_t nvs;
     ESP_ERROR_CHECK(nvs_open("wifi", NVS_READWRITE, &nvs));
 
@@ -65,16 +73,17 @@ esp_err_t WifiManager::save_credentials(const char* ssid, const char* pass) {
     nvs_close(nvs);
 
     strncpy(creds.ssid, ssid, sizeof(creds.ssid));
-    creds.ssid[sizeof(creds.ssid)-1] = '\0';
+    creds.ssid[sizeof(creds.ssid) - 1] = '\0';
     strncpy(creds.pass, pass, sizeof(creds.pass));
-    creds.pass[sizeof(creds.pass)-1] = '\0';
+    creds.pass[sizeof(creds.pass) - 1] = '\0';
     creds_loaded = true;
 
     ESP_LOGI(TAG, "Saved Wi-Fi credentials to NVS");
     return ESP_OK;
 }
 
-esp_err_t WifiManager::clear_credentials() {
+esp_err_t WifiManager::clear_credentials()
+{
     nvs_handle_t nvs;
     esp_err_t err = nvs_open("wifi", NVS_READWRITE, &nvs);
     if (err != ESP_OK) return err;
@@ -90,34 +99,50 @@ esp_err_t WifiManager::clear_credentials() {
     return ESP_OK;
 }
 
-esp_err_t WifiManager::start() {
-    retry_count = 0;
+void WifiManager::wifi_thread()
+{
+    ESP_LOGI(TAG, "Wi-Fi background thread starting");
 
-    esp_netif_create_default_wifi_sta();
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,
-                                               ESP_EVENT_ANY_ID,
-                                               &WifiManager::event_handler,
-                                               this));
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT,
-                                               IP_EVENT_STA_GOT_IP,
-                                               &WifiManager::event_handler,
-                                               this));
-
-    if (creds_loaded) {
-        ESP_LOGI(TAG, "Starting in STA mode with stored credentials");
-        return start_sta();
-    } else {
+    if (creds_loaded)
+    {
+        ESP_LOGI(TAG, "Starting STA mode");
+        start_sta();
+    }
+    else
+    {
         ESP_LOGW(TAG, "No credentials, starting AP provisioning");
-        return start_ap_provisioning();
+        start_ap_provisioning();
+    }
+
+    while (true)
+    {
+        EventBits_t bits = xEventGroupWaitBits(
+            wifi_event_group,
+            WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
+            pdTRUE,
+            pdFALSE,
+            portMAX_DELAY
+        );
+
+        if (bits & WIFI_CONNECTED_BIT)
+        {
+            connected.store(true);
+            ESP_LOGI(TAG, "Wi-Fi connected");
+        }
+
+        if (bits & WIFI_FAIL_BIT)
+        {
+            connected.store(false);
+            ESP_LOGE(TAG, "Wi-Fi failed, switching to AP mode");
+            start_ap_provisioning();
+        }
     }
 }
 
-esp_err_t WifiManager::start_sta() {
+esp_err_t WifiManager::start_sta()
+{
     wifi_config_t wifi_config = {};
-    strncpy((char*)wifi_config.sta.ssid,  creds.ssid, sizeof(wifi_config.sta.ssid));
+    strncpy((char*)wifi_config.sta.ssid, creds.ssid, sizeof(wifi_config.sta.ssid));
     strncpy((char*)wifi_config.sta.password, creds.pass, sizeof(wifi_config.sta.password));
 
     wifi_config.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
@@ -131,13 +156,14 @@ esp_err_t WifiManager::start_sta() {
     return esp_wifi_start();
 }
 
-esp_err_t WifiManager::start_ap_provisioning() {
+esp_err_t WifiManager::start_ap_provisioning()
+{
     ESP_LOGW(TAG, "Starting AP provisioning mode");
 
     esp_netif_create_default_wifi_ap();
 
     wifi_config_t ap_config = {};
-    strcpy((char*)ap_config.ap.ssid, "Frozen-Setup");
+    strcpy(reinterpret_cast<char*>(ap_config.ap.ssid), "Frozen-Setup");
     ap_config.ap.ssid_len = strlen("Frozen-Setup");
     ap_config.ap.channel = 1;
     ap_config.ap.max_connection = 4;
@@ -153,16 +179,12 @@ esp_err_t WifiManager::start_ap_provisioning() {
     return ESP_OK;
 }
 
-bool WifiManager::wait_for_sta(TickType_t timeout) {
-    EventBits_t bits = xEventGroupWaitBits(
-        wifi_event_group,
-        WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
-        pdFALSE,
-        pdFALSE,
-        timeout
-    );
 
-    return bits & WIFI_CONNECTED_BIT;
+esp_err_t WifiManager::start_async()
+{
+    worker = std::thread(&WifiManager::wifi_thread, this);
+    worker.detach(); // background forever
+    return ESP_OK;
 }
 
 void WifiManager::event_handler(void* arg,
@@ -172,22 +194,19 @@ void WifiManager::event_handler(void* arg,
     auto* self = static_cast<WifiManager*>(arg);
 
     if (base == WIFI_EVENT && id == WIFI_EVENT_STA_START) {
-        ESP_LOGI(TAG, "STA started, connecting…");
         esp_wifi_connect();
     }
 
     else if (base == WIFI_EVENT && id == WIFI_EVENT_STA_DISCONNECTED) {
+        self->connected.store(false);
+
         if (retry_count < MAX_RETRY) {
             retry_count++;
             int delay_ms = 200 * retry_count;
-            ESP_LOGW(TAG, "STA disconnected, retry %d/%d (delay %d ms)",
-                     retry_count, MAX_RETRY, delay_ms);
-            vTaskDelay(pdMS_TO_TICKS(delay_ms));
+            std::this_thread::sleep_for(std::chrono::milliseconds(delay_ms));
             esp_wifi_connect();
         } else {
-            ESP_LOGE(TAG, "STA failed after %d retries, switching to AP provisioning", MAX_RETRY);
             xEventGroupSetBits(wifi_event_group, WIFI_FAIL_BIT);
-            self->start_ap_provisioning();
         }
     }
 

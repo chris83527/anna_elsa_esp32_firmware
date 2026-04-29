@@ -18,9 +18,7 @@
 
 static const char *TAG = "HttpController";
 
-WifiManager wifi_manager;
-
-HttpController::HttpController(WifiManager& wifi) : server(nullptr) { wifi_manager = wifi; }
+HttpController::HttpController(WifiManager& wifi) : wifi(wifi), server(nullptr) { }
 HttpController::~HttpController() { stop(); }
 
 esp_err_t HttpController::start() {
@@ -76,12 +74,20 @@ esp_err_t HttpController::start() {
         .user_ctx = nullptr
     };
 
+    httpd_uri_t captive = {
+        .uri       = "/*",
+        .method    = HTTP_GET,
+        .handler   = captive_redirect_handler,
+        .user_ctx  = this   // <‑‑ pass instance pointer
+    };
+
     httpd_register_uri_handler(server, &root);
     httpd_register_uri_handler(server, &assets);
     httpd_register_uri_handler(server, &api_status);
     httpd_register_uri_handler(server, &ws);
     httpd_register_uri_handler(server, &ota);
     httpd_register_uri_handler(server, &prov_uri);
+    httpd_register_uri_handler(server, &captive);
 
     ESP_LOGI(TAG, "HTTP server started");
     return ESP_OK;
@@ -115,18 +121,21 @@ esp_err_t HttpController::send_file(httpd_req_t *req, const char *path) {
 }
 
 esp_err_t HttpController::root_handler(httpd_req_t *req) {
+
     httpd_resp_set_type(req, "text/html");
+    /**
     if (wifi_manager.is_ap_mode())
     {
-        return send_file(req, "wifiprovision.html");
+        return send_file(req, "/httpd/wifiprovision.html");
     }
-    return send_file(req, "index.html");
+    */
+    return send_file(req, "/httpd/index.html");
 }
 
 esp_err_t HttpController::asset_handler(httpd_req_t *req) {
     const char *uri = req->uri; // e.g. "/httpd/bootstrap.min.css"
     char path[520];
-    snprintf(path, sizeof(path), "/httpd/%s", uri);
+    snprintf(path, sizeof(path), "%s", uri);
 
     if (strstr(uri, ".css"))
         httpd_resp_set_type(req, "text/css");
@@ -136,7 +145,22 @@ esp_err_t HttpController::asset_handler(httpd_req_t *req) {
     return send_file(req, path);
 }
 
+esp_err_t HttpController::captive_redirect_handler(httpd_req_t *req) {
+    // Only active in AP mode
+    auto* self = static_cast<HttpController*>(req->user_ctx);
+
+    if (!self->wifi.is_ap_mode()) {
+        return httpd_resp_send_404(req);
+    }
+
+    httpd_resp_set_status(req, "302 Temporary Redirect");
+    httpd_resp_set_hdr(req, "Location", "/provision");
+    return httpd_resp_send(req, nullptr, 0);
+}
+
 esp_err_t HttpController::provision_handler(httpd_req_t *req) {
+    auto* self = static_cast<HttpController*>(req->user_ctx);
+
     char buf[256];
     int len = httpd_req_recv(req, buf, sizeof(buf)-1);
     if (len <= 0) {
@@ -153,7 +177,7 @@ esp_err_t HttpController::provision_handler(httpd_req_t *req) {
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid SSID");
     }
 
-    wifi_manager.save_credentials(ssid, pass);
+    self->wifi.save_credentials(ssid, pass);
 
     httpd_resp_sendstr(req, "Saved, rebooting...");
     vTaskDelay(pdMS_TO_TICKS(1000));

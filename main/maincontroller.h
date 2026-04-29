@@ -27,6 +27,7 @@
 #include "reelcontroller.h"
 #include "wifi_manager.hpp"
 #include "httpcontroller.hpp"
+#include "dns_server.hpp"
 
 class MainController
 {
@@ -72,6 +73,7 @@ private:
     DS3231 ds3231;
     WifiManager wifi;
     HttpController httpController;
+    DnsServer dnsServer;
 
     enum class MachineState : uint8_t
     {
@@ -82,7 +84,7 @@ private:
         PAYING_OUT
     };
 
-    static std::thread gameThread;
+    std::thread gameThread;
 };
 
 #endif /* MAINCONTROLLER_H */

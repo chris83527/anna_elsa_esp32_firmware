@@ -215,7 +215,7 @@ public:
         std::array{LAMP_PRIZE_PALACE, LAMP_PRIZE_400_CENT},
     };
 
-    static constexpr int MAX_BRIGHTNESS = 75;
+    static constexpr int MAX_BRIGHTNESS = 200;
 
     /*
 
@@ -276,8 +276,6 @@ private:
     std::array<lamp_data_t, LED_COUNT + 6> lampData;
 
     void testLamps();
-
-    //uint8_t keyStatus{};
 
     bool attractMode;
 
