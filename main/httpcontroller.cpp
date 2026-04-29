@@ -41,7 +41,7 @@ esp_err_t HttpController::start() {
     };
 
     httpd_uri_t assets = {
-        .uri       = "/assets/*",
+        .uri       = "/httpd/*",
         .method    = HTTP_GET,
         .handler   = asset_handler,
         .user_ctx  = nullptr
@@ -118,13 +118,13 @@ esp_err_t HttpController::root_handler(httpd_req_t *req) {
     httpd_resp_set_type(req, "text/html");
     if (wifi_manager.is_ap_mode())
     {
-        return send_file(req, "/httpd/wifiprovision.html");
+        return send_file(req, "wifiprovision.html");
     }
-    return send_file(req, "/httpd/index.html");
+    return send_file(req, "index.html");
 }
 
 esp_err_t HttpController::asset_handler(httpd_req_t *req) {
-    const char *uri = req->uri; // e.g. "/assets/bootstrap.min.css"
+    const char *uri = req->uri; // e.g. "/httpd/bootstrap.min.css"
     char path[520];
     snprintf(path, sizeof(path), "/httpd/%s", uri);
 

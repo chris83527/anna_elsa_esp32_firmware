@@ -109,26 +109,6 @@ void MainController::start()
     }
 
 
-    // Initialise WiFi
-    displayController.displayVFDText("INITIALISING 03");
-    displayController.scrollOledText("Init WiFi");
-
-    ESP_ERROR_CHECK(wifi.init());
-    ESP_ERROR_CHECK(wifi.start());
-
-    if (wifi.is_ap_mode()) {
-        ESP_LOGW(TAG, "AP provisioning mode: start provisioning UI");
-        httpController.start(); // serve provisioning page + /provision
-        // no need to wait for connection; device will reboot after provisioning
-        while (true) vTaskDelay(pdMS_TO_TICKS(1000));
-    } else {
-        if (!wifi.wait_for_sta(pdMS_TO_TICKS(15000))) {
-            ESP_LOGE(TAG, "STA failed; you could force AP mode here");
-            return;
-        }
-        ESP_LOGI(TAG, "STA connected, starting dashboard");
-        httpController.start(); // your normal dashboard with WS, OTA, charts
-    }
 
     // initialise ds3231 RTC
     displayController.displayVFDText("INITIALISING 04");
@@ -179,8 +159,24 @@ void MainController::start()
 
     displayController.displayVFDText("INITIALISING 06");
     displayController.scrollOledText("Init Webserver");
-    // this->httpController->initialise(80, "/httpd", "INNUENDO",
-    // "woodsamusements");
+    
+    ESP_ERROR_CHECK(wifi.init());
+    ESP_ERROR_CHECK(wifi.start());
+
+    if (wifi.is_ap_mode()) {
+        ESP_LOGW(TAG, "AP provisioning mode: start provisioning UI");
+        httpController.start(); // serve provisioning page + /provision
+        // no need to wait for connection; device will reboot after provisioning
+        while (true) vTaskDelay(pdMS_TO_TICKS(1000));
+    } else {
+        if (!wifi.wait_for_sta(pdMS_TO_TICKS(15000))) {
+            ESP_LOGE(TAG, "STA failed; you could force AP mode here");
+            return;
+        }
+        ESP_LOGI(TAG, "STA connected, starting dashboard");
+        httpController.start(); // your normal dashboard with WS, OTA, charts
+    }
+
 
     /* Mark current app as valid */
     const esp_partition_t* partition = esp_ota_get_running_partition();
