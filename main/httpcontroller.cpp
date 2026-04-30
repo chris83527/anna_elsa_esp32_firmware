@@ -37,9 +37,9 @@ esp_err_t HttpController::start()
         .uri = "/",
         .method = HTTP_GET,
         .handler = root_handler,
-        .user_ctx = nullptr,
+        .user_ctx = this,
         .is_websocket = false,
-        .supported_subprotocol = this,
+        .supported_subprotocol = nullptr,
 
     };
 
