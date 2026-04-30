@@ -23,9 +23,9 @@ public:
 
   esp_err_t initialise();
   void writeValueToNVS(const char *key, uint16_t value) const;
-  void writeStringValueToNVS(const char *key, const char* value) const;
+  esp_err_t writeStringValueToNVS(const char *key, const char* value) const;
   uint16_t readValueFromNVS(const char *key) const;
-  void readStringValueFromNVS(const char *key, char *value, size_t len) const;
+  esp_err_t readStringValueFromNVS(const char *key, char *value, size_t len) const;
 
 public:
 private:

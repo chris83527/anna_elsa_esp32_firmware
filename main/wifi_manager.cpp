@@ -33,8 +33,18 @@ esp_err_t WifiManager::load_credentials()
     size_t ssid_len = sizeof(creds.ssid);
     size_t pass_len = sizeof(creds.pass);
 
-    nvsController.readStringValueFromNVS("ssid", creds.ssid, ssid_len);
-    nvsController.readStringValueFromNVS( "pass", creds.pass, pass_len);
+    err = nvsController.readStringValueFromNVS("ssid", creds.ssid, ssid_len);
+    if (err != ESP_OK) {
+        ESP_LOGI(TAG, "No stored SSID");
+        creds_loaded = false;
+        return ESP_OK;
+    }
+    err = nvsController.readStringValueFromNVS( "pass", creds.pass, pass_len);
+    if (err != ESP_OK) {
+        ESP_LOGI(TAG, "No stored password");
+        creds_loaded = false;
+        return ESP_OK;
+    }
 
     creds_loaded = true;
     ESP_LOGI(TAG, "Loaded Wi-Fi credentials from NVS (SSID='%s')", creds.ssid);

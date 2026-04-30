@@ -85,7 +85,7 @@ void NvsController::writeValueToNVS(const char* key, uint16_t value) const
     }
 }
 
-void NvsController::writeStringValueToNVS(const char* key, const char* value) const
+esp_err_t NvsController::writeStringValueToNVS(const char* key, const char* value) const
 {
     esp_err_t err;
 
@@ -113,9 +113,11 @@ void NvsController::writeStringValueToNVS(const char* key, const char* value) co
     } else {
         ESP_LOGE(TAG, "Commit Failed! Reason: %s", esp_err_to_name(err));
     }
+
+    return err;
 }
 
-void NvsController::readStringValueFromNVS(const char* key, char* value, size_t len) const
+esp_err_t NvsController::readStringValueFromNVS(const char* key, char* value, size_t len) const
 {
     esp_err_t err;
 
@@ -133,13 +135,14 @@ void NvsController::readStringValueFromNVS(const char* key, char* value, size_t 
         ESP_LOGE(TAG,
                  "The value for %s is not initialized yet! Initialising now to 0",
                  key);
-        writeStringValueToNVS(key, "");
+        //writeStringValueToNVS(key, "");
 
         break;
     default:
         ESP_LOGE(TAG, "Error reading %s!", esp_err_to_name(err));
     }
 
+    return err;
 }
 
 uint16_t NvsController::readValueFromNVS(const char* key) const
