@@ -27,9 +27,11 @@ private:
     static esp_err_t ws_handler(httpd_req_t *req);
     static esp_err_t ota_upload_handler(httpd_req_t *req);
     static esp_err_t captive_redirect_handler(httpd_req_t *req);
+    static esp_err_t wifi_scan_handler(httpd_req_t *req);
+    static esp_err_t wifi_ws_handler(httpd_req_t *req);
 
     static esp_err_t send_file(httpd_req_t *req, const char *path);
-    static void ws_broadcast(httpd_handle_t server, int uptime_sec, int heap_free);
+    static void ws_broadcast(httpd_handle_t server, int uptime_sec, int heap_free, int rssi);
 
     WifiManager& wifi;
 

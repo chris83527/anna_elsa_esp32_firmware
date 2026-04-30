@@ -74,6 +74,14 @@ esp_err_t HttpController::start() {
         .user_ctx = nullptr
     };
 
+    httpd_uri_t scan_uri = {
+        .uri      = "/wifi/scan",
+        .method   = HTTP_GET,
+        .handler  = wifi_scan_handler,
+        .user_ctx = this
+    };
+    httpd_register_uri_handler(server, &scan_uri);
+
     httpd_uri_t captive = {
         .uri       = "/*",
         .method    = HTTP_GET,
@@ -81,12 +89,23 @@ esp_err_t HttpController::start() {
         .user_ctx  = this   // <‑‑ pass instance pointer
     };
 
+    httpd_uri_t wifi_ws = {
+        .uri         = "/ws/wifi",
+        .method      = HTTP_GET,
+        .handler     = wifi_ws_handler,
+        .user_ctx    = this,
+        .is_websocket = true
+    };
+
+
+
     httpd_register_uri_handler(server, &root);
     httpd_register_uri_handler(server, &assets);
     httpd_register_uri_handler(server, &api_status);
     httpd_register_uri_handler(server, &ws);
     httpd_register_uri_handler(server, &ota);
     httpd_register_uri_handler(server, &prov_uri);
+    httpd_register_uri_handler(server, &wifi_ws);
     httpd_register_uri_handler(server, &captive);
 
     ESP_LOGI(TAG, "HTTP server started");
@@ -191,6 +210,28 @@ esp_err_t HttpController::api_status_handler(httpd_req_t *req) {
     return httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);
 }
 
+esp_err_t HttpController::wifi_scan_handler(httpd_req_t *req) {
+    auto* self = static_cast<HttpController*>(req->user_ctx);
+
+    auto networks = self->wifi.scan_networks();
+
+    std::string json = "[";
+    for (size_t i = 0; i < networks.size(); i++) {
+        const auto& n = networks[i];
+        json += "{";
+        json += "\"ssid\":\"" + n.ssid + "\",";
+        json += "\"rssi\":" + std::to_string(n.rssi) + ",";
+        json += "\"auth\":" + std::to_string(n.auth) + ",";
+        json += "\"hidden\":" + std::string(n.is_hidden ? "true" : "false");
+        json += "}";
+        if (i + 1 < networks.size()) json += ",";
+    }
+    json += "]";
+
+    httpd_resp_set_type(req, "application/json");
+    return httpd_resp_send(req, json.c_str(), json.size());
+}
+
 // ---------- WebSocket (ESP-IDF 5.5) ----------
 
 esp_err_t HttpController::ws_handler(httpd_req_t *req) {
@@ -220,13 +261,13 @@ esp_err_t HttpController::ws_handler(httpd_req_t *req) {
     return ESP_OK;
 }
 
-void HttpController::ws_broadcast(httpd_handle_t server, int uptime_sec, int heap_free) {
+void HttpController::ws_broadcast(httpd_handle_t server, int uptime_sec, int heap_free, int rssi) {
     if (!server) return;
 
     char msg[128];
     snprintf(msg, sizeof(msg),
-             R"({"uptime":%d,"heap_free":%d})",
-             uptime_sec, heap_free);
+             R"({"uptime":%d,"heap_free":%d,"rssi":%d"})",
+             uptime_sec, heap_free, rssi);
 
     httpd_ws_frame_t frame;
     memset(&frame, 0, sizeof(frame));
@@ -244,7 +285,7 @@ void HttpController::ws_broadcast(httpd_handle_t server, int uptime_sec, int hea
 }
 
 void HttpController::broadcast_status(int uptime_sec, int heap_free) {
-    ws_broadcast(server, uptime_sec, heap_free);
+    ws_broadcast(server, uptime_sec, heap_free, wifi.get_rssi());
 }
 
 // ---------- OTA upload (ESP-IDF 5.5) ----------
@@ -310,5 +351,66 @@ esp_err_t HttpController::ota_upload_handler(httpd_req_t *req) {
     httpd_resp_sendstr(req, "OK, rebooting");
     vTaskDelay(pdMS_TO_TICKS(1000));
     esp_restart();
+    return ESP_OK;
+}
+
+esp_err_t HttpController::wifi_ws_handler(httpd_req_t *req) {
+    auto* self = static_cast<HttpController*>(req->user_ctx);
+
+    if (req->method == HTTP_GET) {
+        ESP_LOGI("HttpController", "WiFi WS handshake");
+        return ESP_OK;
+    }
+
+    httpd_ws_frame_t frame{};
+    frame.type = HTTPD_WS_TYPE_TEXT;
+
+    ESP_ERROR_CHECK(httpd_ws_recv_frame(req, &frame, 0));
+    if (!frame.len) return ESP_OK;
+
+    std::string payload(frame.len, '\0');
+    frame.payload = reinterpret_cast<uint8_t*>(payload.data());
+    ESP_ERROR_CHECK(httpd_ws_recv_frame(req, &frame, frame.len));
+
+    // Very simple protocol: {"cmd":"scan"} or {"cmd":"status"}
+    if (payload.find("\"scan\"") != std::string::npos) {
+        auto nets = self->wifi.scan_networks();
+
+        std::string json = R"({"type":"scan","networks":[)";
+        for (size_t i = 0; i < nets.size(); ++i) {
+            const auto& n = nets[i];
+            json += "{";
+            json += "\"ssid\":\"" + n.ssid + "\",";
+            json += "\"rssi\":" + std::to_string(n.rssi) + ",";
+            json += "\"auth\":" + std::to_string(n.auth) + ",";
+            json += "\"hidden\":" + std::string(n.is_hidden ? "true" : "false");
+            json += "}";
+            if (i + 1 < nets.size()) json += ",";
+        }
+        json += "]}";
+
+        httpd_ws_frame_t out{};
+        out.type = HTTPD_WS_TYPE_TEXT;
+        out.payload = reinterpret_cast<uint8_t*>(json.data());
+        out.len = json.size();
+        return httpd_ws_send_frame(req, &out);
+    }
+
+    if (payload.find("\"status\"") != std::string::npos) {
+        int rssi = self->wifi.get_rssi();
+        bool connected = self->wifi.is_connected();
+
+        char buf[128];
+        snprintf(buf, sizeof(buf),
+                 R"({"type":"status","connected":%s,"rssi":%d})",
+                 connected ? "true" : "false", rssi);
+
+        httpd_ws_frame_t out{};
+        out.type = HTTPD_WS_TYPE_TEXT;
+        out.payload = reinterpret_cast<uint8_t*>(buf);
+        out.len = strlen(buf);
+        return httpd_ws_send_frame(req, &out);
+    }
+
     return ESP_OK;
 }

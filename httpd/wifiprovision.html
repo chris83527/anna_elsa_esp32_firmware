@@ -1,14 +1,22 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
     <title>Frozen Wi-Fi Setup</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/httpd/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/bootstrap.min.css">
 </head>
 <body class="bg-light">
 <div class="container mt-4">
-    <h3>Frozen Wi-Fi Setup</h3>
+    <h3>Frozen Setup</h3>
+
+    <div class="mb-3">
+        <button id="scan-btn" class="btn btn-secondary btn-sm">Scan Networks</button>
+        <span id="scan-status" class="ms-2 text-muted"></span>
+    </div>
+
+    <ul class="list-group mb-3" id="net-list"></ul>
+
     <form id="prov-form">
         <div class="mb-3">
             <label class="form-label">SSID</label>
@@ -22,7 +30,75 @@
     </form>
     <div class="mt-2" id="prov-status"></div>
 </div>
+
+<script src="/assets/bootstrap.bundle.min.js"></script>
 <script>
+    let wifiWS;
+
+    function rssiToBars(rssi) {
+        if (rssi >= -60) return 4;
+        if (rssi >= -70) return 3;
+        if (rssi >= -80) return 2;
+        return 1;
+    }
+
+    function barsHtml(bars) {
+        let html = '';
+        for (let i = 1; i <= 4; i++) {
+            html += `<span style="display:inline-block;width:4px;height:${4*i}px;margin-right:2px;` +
+                `background-color:${i <= bars ? '#198754' : '#ced4da'}"></span>`;
+        }
+        return html;
+    }
+
+    function connectWifiWS() {
+        const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+        wifiWS = new WebSocket(proto + '://' + location.host + '/ws/wifi');
+
+        wifiWS.onopen = () => {
+            document.getElementById('scan-status').textContent = 'Connected';
+        };
+
+        wifiWS.onclose = () => {
+            document.getElementById('scan-status').textContent = 'Disconnected';
+            setTimeout(connectWifiWS, 2000);
+        };
+
+        wifiWS.onmessage = (ev) => {
+            const msg = JSON.parse(ev.data);
+            if (msg.type === 'scan') {
+                const list = document.getElementById('net-list');
+                list.innerHTML = '';
+                msg.networks.forEach(n => {
+                    const bars = rssiToBars(n.rssi);
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                    li.innerHTML = `
+          <span>
+            <strong>${n.ssid || '(hidden)'}</strong>
+            <small class="text-muted ms-2">${n.rssi} dBm</small>
+          </span>
+          <span>${barsHtml(bars)}</span>
+        `;
+                    li.onclick = () => {
+                        if (n.ssid) document.getElementById('ssid').value = n.ssid;
+                    };
+                    list.appendChild(li);
+                });
+                document.getElementById('scan-status').textContent = `Found ${msg.networks.length} networks`;
+            }
+            if (msg.type === 'status') {
+                // could show live RSSI somewhere if you want
+            }
+        };
+    }
+
+    document.getElementById('scan-btn').addEventListener('click', () => {
+        if (!wifiWS || wifiWS.readyState !== WebSocket.OPEN) return;
+        document.getElementById('scan-status').textContent = 'Scanning...';
+        wifiWS.send(JSON.stringify({ cmd: 'scan' }));
+    });
+
     document.getElementById('prov-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const ssid = document.getElementById('ssid').value;
@@ -43,6 +119,8 @@
             statusEl.textContent = 'Error: ' + err;
         }
     });
+
+    connectWifiWS();
 </script>
 </body>
 </html>
