@@ -194,7 +194,7 @@ esp_err_t WifiManager::start_ap() {
     ap_config.ap.max_connection = 4;
     ap_config.ap.authmode = WIFI_AUTH_OPEN;
 
-    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_set_config(WIFI_IF_AP, &ap_config));
+    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &ap_config));
 
     return ESP_OK;
 }
@@ -204,29 +204,34 @@ std::vector<WifiNetwork> WifiManager::scan_networks() {
     std::vector<WifiNetwork> result;
 
     wifi_scan_config_t scan_config = {};
-    scan_config.show_hidden = true;
+    scan_config.show_hidden = true;   // still scan hidden, but we filter them
 
-    // Blocking scan
-    esp_err_t err = esp_wifi_scan_start(&scan_config, true);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Wi-Fi scan failed: %s", esp_err_to_name(err));
-        return result;
-    }
+    esp_wifi_scan_start(&scan_config, true);
 
     uint16_t count = 0;
-    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_scan_get_ap_num(&count));
+    esp_wifi_scan_get_ap_num(&count);
 
     std::vector<wifi_ap_record_t> records(count);
-    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_scan_get_ap_records(&count, records.data()));
+    esp_wifi_scan_get_ap_records(&count, records.data());
 
     for (auto& r : records) {
+        // ⭐ Skip hidden networks
+        if (r.ssid[0] == '\0')
+            continue;
+
         WifiNetwork n;
         n.ssid = reinterpret_cast<const char*>(r.ssid);
         n.rssi = r.rssi;
         n.auth = r.authmode;
-        n.is_hidden = r.ssid[0] == '\0';
+        n.is_hidden = false;
         result.push_back(n);
     }
+
+    // ⭐ Sort strongest first
+    std::sort(result.begin(), result.end(),
+              [](const WifiNetwork& a, const WifiNetwork& b) {
+                  return a.rssi > b.rssi;
+              });
 
     return result;
 }

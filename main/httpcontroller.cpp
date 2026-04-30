@@ -23,6 +23,7 @@ HttpController::~HttpController() { stop(); }
 
 esp_err_t HttpController::start() {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.max_uri_handlers = 10;
     config.server_port = 80;
     config.uri_match_fn = httpd_uri_match_wildcard;
 
@@ -80,7 +81,6 @@ esp_err_t HttpController::start() {
         .handler  = wifi_scan_handler,
         .user_ctx = this
     };
-    httpd_register_uri_handler(server, &scan_uri);
 
     httpd_uri_t captive = {
         .uri       = "/*",
@@ -106,6 +106,7 @@ esp_err_t HttpController::start() {
     httpd_register_uri_handler(server, &ota);
     httpd_register_uri_handler(server, &prov_uri);
     httpd_register_uri_handler(server, &wifi_ws);
+    httpd_register_uri_handler(server, &scan_uri);
     httpd_register_uri_handler(server, &captive);
 
     ESP_LOGI(TAG, "HTTP server started");
@@ -140,14 +141,7 @@ esp_err_t HttpController::send_file(httpd_req_t *req, const char *path) {
 }
 
 esp_err_t HttpController::root_handler(httpd_req_t *req) {
-
     httpd_resp_set_type(req, "text/html");
-    /**
-    if (wifi_manager.is_ap_mode())
-    {
-        return send_file(req, "/httpd/wifiprovision.html");
-    }
-    */
     return send_file(req, "/httpd/index.html");
 }
 

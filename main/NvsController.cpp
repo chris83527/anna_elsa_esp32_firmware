@@ -135,6 +135,7 @@ esp_err_t NvsController::readStringValueFromNVS(const char* key, char* value, si
         ESP_LOGE(TAG,
                  "The value for %s is not initialized yet! Initialising now to 0",
                  key);
+        return ESP_ERR_NVS_NOT_FOUND;
         //writeStringValueToNVS(key, "");
 
         break;
@@ -176,9 +177,5 @@ uint16_t NvsController::readValueFromNVS(const char* key) const
 
 esp_err_t NvsController::eraseValueFromNVS(const char* key) const
 {
-    esp_err_t err;
-
-    err = nvsHandle->erase_item(key);
-
-    return err;
+    return nvsHandle->erase_item(key);
 }

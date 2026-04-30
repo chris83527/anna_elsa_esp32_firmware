@@ -7,31 +7,43 @@
     <link rel="stylesheet" href="/httpd/bootstrap.min.css">
 </head>
 <body class="bg-light">
+
 <div class="container mt-4">
-    <h3>Frozen Setup</h3>
+    <nav class="navbar navbar-dark bg-dark mb-4">
+        <div class="container-fluid">
+            <span class="navbar-brand">Frozen Setup</span>
+        </div>
+    </nav>
 
-    <div class="mb-3">
-        <button id="scan-btn" class="btn btn-secondary btn-sm">Scan Networks</button>
-        <span id="scan-status" class="ms-2 text-muted"></span>
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-md-6">
+
+                <div class="mb-3">
+                    <button id="scan-btn" class="btn btn-secondary btn-sm">Scan Networks</button>
+                    <span id="scan-status" class="ms-2 text-muted"></span>
+                </div>
+
+                <ul class="list-group mb-3" id="net-list"></ul>
+
+                <form id="prov-form">
+                    <div class="mb-3">
+                        <label class="form-label">SSID</label>
+                        <input type="text" class="form-control" id="ssid" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" id="pass" required>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Save & Reboot</button>
+                </form>
+                <div class="mt-2" id="prov-status"></div>
+            </div>
+        </div>
     </div>
-
-    <ul class="list-group mb-3" id="net-list"></ul>
-
-    <form id="prov-form">
-        <div class="mb-3">
-            <label class="form-label">SSID</label>
-            <input type="text" class="form-control" id="ssid" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Password</label>
-            <input type="password" class="form-control" id="pass" required>
-        </div>
-        <button class="btn btn-primary" type="submit">Save & Reboot</button>
-    </form>
-    <div class="mt-2" id="prov-status"></div>
 </div>
 
-<script src="/httpd/bootstrap.bundle.min.js"></script>
+<script src="/httpd/bootstrap.min.js"></script>
 <script>
     let wifiWS;
 
@@ -45,11 +57,31 @@
     function barsHtml(bars) {
         let html = '';
         for (let i = 1; i <= 4; i++) {
-            html += `<span style="display:inline-block;width:4px;height:${4*i}px;margin-right:2px;` +
+            html += `<span style="display:inline-block;width:4px;height:${4 * i}px;margin-right:2px;` +
                 `background-color:${i <= bars ? '#198754' : '#ced4da'}"></span>`;
         }
         return html;
     }
+
+    function securityIcon(auth) {
+        switch (auth) {
+            case 0:  // WIFI_AUTH_OPEN
+                return "🔓";
+            case 1:  // WEP (rare)
+                return "🛑";
+            case 2:  // WPA_PSK
+            case 3:  // WPA2_PSK
+            case 4:  // WPA_WPA2_PSK
+                return "🔐";
+            case 5:  // WPA2_ENTERPRISE
+            case 6:  // WPA3_PSK
+            case 7:  // WPA2_WPA3_PSK
+                return "🛡️";
+            default:
+                return "❓";
+        }
+    }
+
 
     function connectWifiWS() {
         const proto = location.protocol === 'https:' ? 'wss' : 'ws';
@@ -69,23 +101,34 @@
             if (msg.type === 'scan') {
                 const list = document.getElementById('net-list');
                 list.innerHTML = '';
+
                 msg.networks.forEach(n => {
                     const bars = rssiToBars(n.rssi);
+                    const sec = securityIcon(n.auth);
+
                     const li = document.createElement('li');
                     li.className = 'list-group-item d-flex justify-content-between align-items-center';
+
                     li.innerHTML = `
       <span>
         <strong>${n.ssid || '(hidden)'}</strong>
         <small class="text-muted ms-2">${n.rssi} dBm</small>
+        <span class="ms-2">${sec}</span>
       </span>
       <span>${barsHtml(bars)}</span>
     `;
+
                     li.onclick = () => {
                         if (n.ssid) document.getElementById('ssid').value = n.ssid;
                     };
+
                     list.appendChild(li);
                 });
+
+                document.getElementById('scan-status').textContent =
+                    `Found ${msg.networks.length} networks`;
             }
+
             if (msg.type === 'status') {
                 // could show live RSSI somewhere if you want
             }
@@ -94,7 +137,7 @@
     }
 
     document.getElementById('scan-btn').addEventListener('click', () => {
-        wifiWS.send(JSON.stringify({ cmd: 'scan' }));
+        wifiWS.send(JSON.stringify({cmd: 'scan'}));
     });
 
     document.getElementById('prov-form').addEventListener('submit', async (e) => {
@@ -108,8 +151,8 @@
         try {
             const res = await fetch('/provision', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ssid, pass })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ssid, pass})
             });
             const text = await res.text();
             statusEl.textContent = text;
