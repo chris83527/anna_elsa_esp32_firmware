@@ -39,7 +39,7 @@ esp_err_t HttpController::start()
         .handler = root_handler,
         .user_ctx = nullptr,
         .is_websocket = false,
-        .supported_subprotocol = nullptr,
+        .supported_subprotocol = this,
 
     };
 
@@ -47,21 +47,21 @@ esp_err_t HttpController::start()
         .uri = "/httpd/*",
         .method = HTTP_GET,
         .handler = asset_handler,
-        .user_ctx = nullptr
+        .user_ctx = this
     };
 
     httpd_uri_t api_status = {
         .uri = "/api/status",
         .method = HTTP_GET,
         .handler = api_status_handler,
-        .user_ctx = nullptr
+        .user_ctx = this
     };
 
     httpd_uri_t ws = {
         .uri = "/ws",
         .method = HTTP_GET,
         .handler = ws_handler,
-        .user_ctx = nullptr,
+        .user_ctx = this,
         .is_websocket = true
     };
 
@@ -69,14 +69,14 @@ esp_err_t HttpController::start()
         .uri = "/update",
         .method = HTTP_POST,
         .handler = ota_upload_handler,
-        .user_ctx = nullptr
+        .user_ctx = this
     };
 
     httpd_uri_t prov_uri = {
         .uri = "/provision",
         .method = HTTP_POST,
         .handler = provision_handler,
-        .user_ctx = nullptr
+        .user_ctx = this
     };
 
     httpd_uri_t scan_uri = {
@@ -199,7 +199,7 @@ esp_err_t HttpController::provision_handler(httpd_req_t* req)
     // Very simple JSON parsing (for brevity); in production use a JSON lib
     char ssid[32] = {0};
     char pass[64] = {0};
-    sscanf(buf, "{\"ssid\":\"%31[^\"]\",\"pass\":\"%63[^\"]\"}", ssid, pass);
+    sscanf(buf, R"({"ssid":"%31[^"]","pass":"%63[^"]"})", ssid, pass);
 
     if (ssid[0] == '\0')
     {
