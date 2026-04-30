@@ -205,6 +205,7 @@ esp_err_t HttpController::provision_handler(httpd_req_t *req) {
 }
 
 esp_err_t HttpController::api_status_handler(httpd_req_t *req) {
+    // TODO: credits, number of games, payout stats etc.
     const char *json = R"({"status":"ok","uptime":1234,"heap_free":45678})";
     httpd_resp_set_type(req, "application/json");
     return httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);

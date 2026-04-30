@@ -53,9 +53,20 @@ esp_err_t WifiManager::load_credentials()
 
 esp_err_t WifiManager::save_credentials(const char* ssid, const char* pass)
 {
+    esp_err_t err;
 
-    nvsController.writeStringValueToNVS("ssid", ssid);
-    nvsController.writeStringValueToNVS("ssid", pass);
+    err = nvsController.writeStringValueToNVS("ssid", ssid);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Could not write SSID to NVS: %s", esp_err_to_name(err));
+        return err;
+    }
+    err = nvsController.writeStringValueToNVS("pass", pass);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Could not write password to NVS: %s", esp_err_to_name(err));
+        return err;
+    }
 
     strncpy(creds.ssid, ssid, sizeof(creds.ssid));
     creds.ssid[sizeof(creds.ssid) - 1] = '\0';
@@ -69,14 +80,21 @@ esp_err_t WifiManager::save_credentials(const char* ssid, const char* pass)
 
 esp_err_t WifiManager::clear_credentials()
 {
-    nvs_handle_t nvs;
-    esp_err_t err = nvs_open("wifi", NVS_READWRITE, &nvs);
-    if (err != ESP_OK) return err;
+    esp_err_t err;
 
-    nvs_erase_key(nvs, "ssid");
-    nvs_erase_key(nvs, "pass");
-    nvs_commit(nvs);
-    nvs_close(nvs);
+    err = nvsController.eraseValueFromNVS("ssid");
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Could not clear SSID from NVS: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    err = nvsController.eraseValueFromNVS("pass");
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Could not clear password from NVS: %s", esp_err_to_name(err));
+        return err;
+    }
 
     creds_loaded = false;
     memset(&creds, 0, sizeof(creds));

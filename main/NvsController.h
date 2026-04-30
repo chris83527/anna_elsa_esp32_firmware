@@ -26,6 +26,7 @@ public:
   esp_err_t writeStringValueToNVS(const char *key, const char* value) const;
   uint16_t readValueFromNVS(const char *key) const;
   esp_err_t readStringValueFromNVS(const char *key, char *value, size_t len) const;
+  esp_err_t eraseValueFromNVS(const char *key) const;
 
 public:
 private:

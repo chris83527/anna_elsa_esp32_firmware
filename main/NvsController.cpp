@@ -173,3 +173,12 @@ uint16_t NvsController::readValueFromNVS(const char* key) const
 
     return value;
 }
+
+esp_err_t NvsController::eraseValueFromNVS(const char* key) const
+{
+    esp_err_t err;
+
+    err = nvsHandle->erase_item(key);
+
+    return err;
+}
