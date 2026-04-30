@@ -4,12 +4,11 @@
 
 #include "wifi_manager.hpp"
 #include "esp_log.h"
-#include "nvs_flash.h"
-#include "nvs.h"
+#include "NvsController.h"
 
 static const char* TAG = "WifiManager";
 
-WifiManager::WifiManager()
+WifiManager::WifiManager(NvsController& controller) : nvsController(controller)
 {
 }
 
@@ -29,37 +28,14 @@ esp_err_t WifiManager::init()
 
 esp_err_t WifiManager::load_credentials()
 {
-    nvs_handle_t nvs;
-    esp_err_t err = nvs_open("wifi", NVS_READONLY, &nvs);
-    if (err != ESP_OK)
-    {
-        ESP_LOGI(TAG, "No Wi-Fi namespace yet");
-        creds_loaded = false;
-        return ESP_OK;
-    }
+    esp_err_t err;
 
     size_t ssid_len = sizeof(creds.ssid);
     size_t pass_len = sizeof(creds.pass);
 
-    err = nvs_get_str(nvs, "ssid", creds.ssid, &ssid_len);
-    if (err != ESP_OK)
-    {
-        ESP_LOGI(TAG, "No stored SSID");
-        nvs_close(nvs);
-        creds_loaded = false;
-        return ESP_OK;
-    }
+    nvsController.readStringValueFromNVS("ssid", creds.ssid, ssid_len);
+    nvsController.readStringValueFromNVS( "pass", creds.pass, pass_len);
 
-    err = nvs_get_str(nvs, "pass", creds.pass, &pass_len);
-    if (err != ESP_OK)
-    {
-        ESP_LOGI(TAG, "No stored password");
-        nvs_close(nvs);
-        creds_loaded = false;
-        return ESP_OK;
-    }
-
-    nvs_close(nvs);
     creds_loaded = true;
     ESP_LOGI(TAG, "Loaded Wi-Fi credentials from NVS (SSID='%s')", creds.ssid);
     return ESP_OK;
@@ -67,13 +43,9 @@ esp_err_t WifiManager::load_credentials()
 
 esp_err_t WifiManager::save_credentials(const char* ssid, const char* pass)
 {
-    nvs_handle_t nvs;
-    ESP_ERROR_CHECK(nvs_open("wifi", NVS_READWRITE, &nvs));
 
-    ESP_ERROR_CHECK(nvs_set_str(nvs, "ssid", ssid));
-    ESP_ERROR_CHECK(nvs_set_str(nvs, "pass", pass));
-    ESP_ERROR_CHECK(nvs_commit(nvs));
-    nvs_close(nvs);
+    nvsController.writeStringValueToNVS("ssid", ssid);
+    nvsController.writeStringValueToNVS("ssid", pass);
 
     strncpy(creds.ssid, ssid, sizeof(creds.ssid));
     creds.ssid[sizeof(creds.ssid) - 1] = '\0';
@@ -206,7 +178,12 @@ std::vector<WifiNetwork> WifiManager::scan_networks() {
     wifi_scan_config_t scan_config = {};
     scan_config.show_hidden = true;
 
-    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_scan_start(&scan_config, true)); // blocking scan
+    // Blocking scan
+    esp_err_t err = esp_wifi_scan_start(&scan_config, true);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Wi-Fi scan failed: %s", esp_err_to_name(err));
+        return result;
+    }
 
     uint16_t count = 0;
     ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_scan_get_ap_num(&count));

@@ -10,6 +10,8 @@
 #include "esp_netif.h"
 #include "esp_err.h"
 
+#include "NvsController.h"
+
 struct WifiNetwork {
     std::string ssid;
     int rssi;
@@ -19,7 +21,7 @@ struct WifiNetwork {
 
 class WifiManager {
 public:
-    WifiManager();
+    WifiManager(NvsController& controller);
 
     esp_err_t init();          // call once after NVS init
     esp_err_t start_async();   // non-blocking Wi-Fi start
@@ -72,4 +74,6 @@ private:
 
     static inline int retry_count = 0;
     static constexpr int MAX_RETRY = 10;
+
+    NvsController& nvsController;
 };

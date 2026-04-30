@@ -7,6 +7,8 @@
 
 #include "NvsController.h"
 
+#include <utility>
+
 #include "nvs_flash.h"
 
 static const char* TAG = "NvsController";
@@ -65,6 +67,36 @@ void NvsController::writeValueToNVS(const char* key, uint16_t value) const
     {
         ESP_LOGD(TAG, "Done");
     } else {
+        ESP_LOGE(TAG, "Failed! Reason: %s", esp_err_to_name(err));
+    }
+
+    // Commit written value.
+    // After setting any values, nvs_commit() must be called to ensure changes are
+    // written to flash storage. Implementations may write to storage at other
+    // times, but this is not guaranteed.
+    ESP_LOGD(TAG, "Committing updates in NVS ... ");
+    err = nvsHandle->commit();
+
+    if (err == ESP_OK)
+    {
+        ESP_LOGD(TAG, "Commit Done");
+    } else {
+        ESP_LOGE(TAG, "Commit Failed! Reason: %s", esp_err_to_name(err));
+    }
+}
+
+void NvsController::writeStringValueToNVS(const char* key, const char* value) const
+{
+    esp_err_t err;
+
+    // Write
+    ESP_LOGD(TAG, "Updating %s in NVS ... ", key);
+
+    err = nvsHandle->set_string(key, value);
+    if (err == ESP_OK)
+    {
+        ESP_LOGD(TAG, "Done");
+    } else {
         ESP_LOGE(TAG, "Failed!");
     }
 
@@ -79,8 +111,35 @@ void NvsController::writeValueToNVS(const char* key, uint16_t value) const
     {
         ESP_LOGD(TAG, "Commit Done");
     } else {
-        ESP_LOGE(TAG, "Commit Failed!");
+        ESP_LOGE(TAG, "Commit Failed! Reason: %s", esp_err_to_name(err));
     }
+}
+
+void NvsController::readStringValueFromNVS(const char* key, char* value, size_t len) const
+{
+    esp_err_t err;
+
+    // Read
+    ESP_LOGD(TAG, "Reading %s from NVS ... ", key);
+
+    err = nvsHandle->get_string(key, value, len);
+    switch (err)
+    {
+    case ESP_OK:
+        ESP_LOGD(TAG, "Done");
+        ESP_LOGD(TAG, "%s = %s", key, value);
+        break;
+    case ESP_ERR_NVS_NOT_FOUND:
+        ESP_LOGE(TAG,
+                 "The value for %s is not initialized yet! Initialising now to 0",
+                 key);
+        writeStringValueToNVS(key, "");
+
+        break;
+    default:
+        ESP_LOGE(TAG, "Error reading %s!", esp_err_to_name(err));
+    }
+
 }
 
 uint16_t NvsController::readValueFromNVS(const char* key) const

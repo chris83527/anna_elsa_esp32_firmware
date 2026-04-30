@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Frozen Wi-Fi Setup</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/assets/bootstrap.min.css">
+    <link rel="stylesheet" href="/httpd/bootstrap.min.css">
 </head>
 <body class="bg-light">
 <div class="container mt-4">
@@ -31,7 +31,7 @@
     <div class="mt-2" id="prov-status"></div>
 </div>
 
-<script src="/assets/bootstrap.bundle.min.js"></script>
+<script src="/httpd/bootstrap.bundle.min.js"></script>
 <script>
     let wifiWS;
 
@@ -74,28 +74,26 @@
                     const li = document.createElement('li');
                     li.className = 'list-group-item d-flex justify-content-between align-items-center';
                     li.innerHTML = `
-          <span>
-            <strong>${n.ssid || '(hidden)'}</strong>
-            <small class="text-muted ms-2">${n.rssi} dBm</small>
-          </span>
-          <span>${barsHtml(bars)}</span>
-        `;
+      <span>
+        <strong>${n.ssid || '(hidden)'}</strong>
+        <small class="text-muted ms-2">${n.rssi} dBm</small>
+      </span>
+      <span>${barsHtml(bars)}</span>
+    `;
                     li.onclick = () => {
                         if (n.ssid) document.getElementById('ssid').value = n.ssid;
                     };
                     list.appendChild(li);
                 });
-                document.getElementById('scan-status').textContent = `Found ${msg.networks.length} networks`;
             }
             if (msg.type === 'status') {
                 // could show live RSSI somewhere if you want
             }
+
         };
     }
 
     document.getElementById('scan-btn').addEventListener('click', () => {
-        if (!wifiWS || wifiWS.readyState !== WebSocket.OPEN) return;
-        document.getElementById('scan-status').textContent = 'Scanning...';
         wifiWS.send(JSON.stringify({ cmd: 'scan' }));
     });
 

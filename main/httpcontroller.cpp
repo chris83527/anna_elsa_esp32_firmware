@@ -377,7 +377,7 @@ esp_err_t HttpController::wifi_ws_handler(httpd_req_t *req) {
         auto nets = self->wifi.scan_networks();
 
         std::string json = R"({"type":"scan","networks":[)";
-        for (size_t i = 0; i < nets.size(); ++i) {
+        for (size_t i = 0; i < nets.size(); i++) {
             const auto& n = nets[i];
             json += "{";
             json += "\"ssid\":\"" + n.ssid + "\",";
@@ -391,7 +391,7 @@ esp_err_t HttpController::wifi_ws_handler(httpd_req_t *req) {
 
         httpd_ws_frame_t out{};
         out.type = HTTPD_WS_TYPE_TEXT;
-        out.payload = reinterpret_cast<uint8_t*>(json.data());
+        out.payload = (uint8_t*)json.data();
         out.len = json.size();
         return httpd_ws_send_frame(req, &out);
     }
