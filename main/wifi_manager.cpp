@@ -170,9 +170,9 @@ esp_err_t WifiManager::start_ap_provisioning()
     ap_config.ap.authmode = WIFI_AUTH_OPEN; // or WPA2 if you want
     ap_config.ap.ssid_hidden = 0;
 
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
-    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &ap_config));
-    ESP_ERROR_CHECK(esp_wifi_start());
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_set_mode(WIFI_MODE_AP));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_set_config(WIFI_IF_AP, &ap_config));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_start());
 
     ap_mode = true;
     ESP_LOGI(TAG, "AP started: SSID='Frozen-Setup'");

@@ -89,7 +89,7 @@ namespace cctalk::coin_validator
 
         out.events.clear();
         for (std::size_t i = 0; i < resp.data.size(); i += 2) {
-            CoinEvent ev;
+            CoinEvent ev{};
             ev.event_counter = resp.data[i];
             ev.channel       = resp.data[i+1];
 

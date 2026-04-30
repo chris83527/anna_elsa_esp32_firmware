@@ -253,7 +253,7 @@ public:
 
     CctalkError hopperPayout(std::uint8_t coins, std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
     {
-        cctalk::hopper::RspHopperCipherKey out;
+        cctalk::hopper::RspHopperCipherKey out{};
         CctalkError err = requestCipherKey(out);
 
         if (err == CctalkError::OK)

@@ -16,16 +16,16 @@ public:
     esp_err_t init();          // call once after NVS init
     esp_err_t start_async();   // non-blocking Wi-Fi start
 
-    bool is_connected() const { return connected.load(); }
-    bool is_ap_mode()   const { return ap_mode.load(); }
-    bool has_credentials() const { return creds_loaded; }
+    [[nodiscard]] bool is_connected() const { return connected.load(); }
+    [[nodiscard]] bool is_ap_mode()   const { return ap_mode.load(); }
+    [[nodiscard]] bool has_credentials() const { return creds_loaded; }
 
     // Provisioning API
     esp_err_t save_credentials(const char* ssid, const char* pass);
     esp_err_t clear_credentials();
 
 private:
-    void wifi_thread();        // background thread
+    [[noreturn]] void wifi_thread();        // background thread
     esp_err_t load_credentials();
     esp_err_t start_sta();
     esp_err_t start_ap_provisioning();
