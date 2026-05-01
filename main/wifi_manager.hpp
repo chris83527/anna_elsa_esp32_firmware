@@ -48,6 +48,8 @@ private:
     esp_err_t start_sta();
     esp_err_t start_ap();
     esp_err_t start_ap_provisioning();
+    esp_err_t init_mdns();
+    std::string generate_hostname();
 
     static void event_handler(void* arg, esp_event_base_t base, int32_t id, void* data);
 
@@ -74,6 +76,8 @@ private:
 
     static inline int retry_count = 0;
     static constexpr int MAX_RETRY = 10;
+
+    std::string hostname;
 
     NvsController& nvsController;
 };

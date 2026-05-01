@@ -4,6 +4,9 @@
 
 #include "wifi_manager.hpp"
 #include "esp_log.h"
+#include "esp_mac.h"
+#include "esp_chip_info.h"
+#include "esp_mdns.h"
 #include "NvsController.h"
 
 static const char* TAG = "WifiManager";
@@ -20,13 +23,29 @@ esp_err_t WifiManager::init()
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
+    esp_netif_create_default_wifi_sta();
+    esp_netif_create_default_wifi_ap();
+
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
-    esp_netif_create_default_wifi_ap();
+    init_mdns();
 
     return load_credentials();
 }
+
+std::string WifiManager::generate_hostname() {
+    uint8_t mac[6];
+    esp_efuse_mac_get_default(mac);
+
+    char buf[32];
+    snprintf(buf, sizeof(buf),
+             "esp32-%02x%02x%02x",
+             mac[3], mac[4], mac[5]);
+
+    return std::string(buf);
+}
+
 
 esp_err_t WifiManager::load_credentials()
 {
@@ -304,5 +323,32 @@ void WifiManager::event_handler(void* arg,
         ESP_LOGI(TAG, "Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
         retry_count = 0;
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
+
+        // ⭐ Refresh mDNS
+        mdns_hostname_set(self->hostname.c_str());
+        mdns_instance_name_set("Woods Amusements Frozen Device");
     }
+}
+
+esp_err_t WifiManager::init_mdns() {
+    ESP_LOGI(TAG, "Initializing mDNS");
+
+    esp_err_t err = mdns_init();
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "mDNS init failed: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    // ⭐ Generate dynamic hostname
+    hostname = generate_hostname();
+
+    mdns_hostname_set(hostname.c_str());
+    mdns_instance_name_set("Woods Amusements Frozen Device");
+
+    // Advertise HTTP service
+    mdns_service_add("Frozen Web", "_http", "_tcp", 80, nullptr, 0);
+
+    ESP_LOGI(TAG, "mDNS hostname: %s.local", hostname.c_str());
+
+    return ESP_OK;
 }
