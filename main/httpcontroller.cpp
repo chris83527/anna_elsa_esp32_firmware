@@ -343,7 +343,7 @@ void HttpController::ws_broadcast(HttpController* httpController, httpd_handle_t
 
     // credits, number of games, payout stats etc.
     std::string json = "{";
-    json += ",\"bank\":\"" + std::to_string(bank)+ "\"";
+    json += "\"bank\":\"" + std::to_string(bank)+ "\"";
     json += ",\"credit\":\"" + std::to_string(credit)+ "\"";
     json += ",\"gameCount\":\"" + std::to_string(gameCount)+ "\"";
     json += ",\"incomeTotal\":\"" + std::to_string(incomeTotal)+ "\"";
