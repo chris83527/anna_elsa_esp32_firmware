@@ -18,6 +18,8 @@
 #include "hopper_commands.hpp"
 #include "cctalk_general_commands.hpp"
 
+constexpr const char* TAG = "cctalk_device_facade";
+
 //
 // High-level façade for ccTalk devices.
 // This class hides all protocol details and exposes a clean API
@@ -236,6 +238,7 @@ public:
 
         if (err == CctalkError::OK)
         {
+            ESP_LOGI(TAG, "Returning events");
             out = rsp.events;
         }
         return err;

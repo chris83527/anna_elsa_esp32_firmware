@@ -5,8 +5,12 @@
 #include "coin_acceptor_types.hpp"
 
 
+
 namespace cctalk::coin_validator
 {
+
+    constexpr const char* TAG = "coin_validator";
+
     // Channel values (header 184)
     struct ReqGetChannelValues {};
     struct RspGetChannelValues {
@@ -83,15 +87,25 @@ namespace cctalk::coin_validator
 
         CctalkFrame resp;
         auto err = bus.sendAndReceive(req, resp, timeout);
-        if (err != CctalkError::OK) return err;
+        if (err != CctalkError::OK)
+        {
+            ESP_LOGE(TAG, "Got an error sending request");
+            return err;
+        }
 
-        if (resp.data.size() % 2 != 0) return CctalkError::MalformedFrame;
+        if (resp.data.size() % 2 != 0)
+        {
+            ESP_LOGE(TAG, "Got a malformed frame");
+            return CctalkError::MalformedFrame;
+        }
 
         out.events.clear();
         for (std::size_t i = 0; i < resp.data.size(); i += 2) {
             CoinEvent ev{};
             ev.event_counter = resp.data[i];
             ev.channel       = resp.data[i+1];
+
+            ESP_LOGI(TAG, "Event counter: %d. Channel: %d", ev.event_counter, ev.channel);
 
             auto it = std::ranges::find_if(channel_table.begin(), channel_table.end(),
                                    [&](const CoinChannelInfo& c){ return c.channel == ev.channel; });
