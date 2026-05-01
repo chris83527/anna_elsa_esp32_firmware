@@ -21,6 +21,7 @@
 #include "cctalk_general_commands.hpp"
 
 
+
 //
 // High-level façade for ccTalk devices.
 // This class hides all protocol details and exposes a clean API
