@@ -95,7 +95,8 @@ namespace cctalk::coin_validator
 
         if (resp.data.size() % 2 != 0)
         {
-            ESP_LOGE(TAG, "Got a malformed frame");
+
+            ESP_LOGE(TAG, "Got a malformed frame. Received %d data bytes", resp.data.size());
             return CctalkError::MalformedFrame;
         }
 

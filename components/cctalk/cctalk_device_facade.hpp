@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include "esp_log.h"
+
 #include "cctalk.hpp"
 #include "cctalk_error.hpp"
 #include "cctalk_headers.hpp"
@@ -18,7 +20,7 @@
 #include "hopper_commands.hpp"
 #include "cctalk_general_commands.hpp"
 
-constexpr const char* TAG = "cctalk_device_facade";
+
 
 //
 // High-level façade for ccTalk devices.
@@ -42,6 +44,8 @@ public:
     //
     // --- Generic Device Info ---
     //
+
+
 
     CctalkError resetDevice(std::uint8_t destination,
                             std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
@@ -304,6 +308,8 @@ private:
     std::uint8_t host_;
     std::uint8_t coin_;
     std::uint8_t hopper_;
+
+    const char* TAG = "cctalk_device_facade";
 
     void toHex(const std::vector<uint8_t>& v, std::string& out) {
         static constexpr char hex[] = "0123456789ABCDEF";
