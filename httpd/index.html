@@ -90,6 +90,20 @@
 
     connectWS();
 
+    document.getElementById('volume').addEventListener('input', async e => {
+        try {
+            const res = await fetch('/api/status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: "{\"volume\": \"" + e.target.value + "\"}",
+            });
+            const text = await res.text();
+            statusEl.textContent = text;
+        } catch (err) {
+            statusEl.textContent = 'Update failed: ' + err;
+        }
+    });
+
     // OTA upload
     document.getElementById('ota-form').addEventListener('submit', async (e) => {
         e.preventDefault();

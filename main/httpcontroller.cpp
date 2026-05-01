@@ -54,6 +54,13 @@ esp_err_t HttpController::start()
         .user_ctx = this
     };
 
+    httpd_uri_t api_status_update = {
+        .uri = "/api/status",
+        .method = HTTP_POST,
+        .handler = api_status_update_handler,
+        .user_ctx = this
+    };
+
     httpd_uri_t ws = {
         .uri = "/ws",
         .method = HTTP_GET,
@@ -102,6 +109,7 @@ esp_err_t HttpController::start()
     httpd_register_uri_handler(server, &root);
     httpd_register_uri_handler(server, &assets);
     httpd_register_uri_handler(server, &api_status);
+    httpd_register_uri_handler(server, &api_status_update);
     httpd_register_uri_handler(server, &ws);
     httpd_register_uri_handler(server, &ota);
     httpd_register_uri_handler(server, &prov_uri);
@@ -110,6 +118,10 @@ esp_err_t HttpController::start()
     httpd_register_uri_handler(server, &captive);
 
     ESP_LOGI(TAG, "HTTP server started");
+
+    // broadcast data via websocket
+    broadcast_status();
+
     return ESP_OK;
 }
 
@@ -261,6 +273,29 @@ esp_err_t HttpController::wifi_scan_handler(httpd_req_t* req)
 
     httpd_resp_set_type(req, "application/json");
     return httpd_resp_send(req, json.c_str(), json.size());
+}
+
+esp_err_t HttpController::api_status_update_handler(httpd_req_t* req)
+{
+    esp_err_t ret;
+    auto* self = static_cast<HttpController*>(req->user_ctx);
+
+    char buf[256];
+    int len = httpd_req_recv(req, buf, sizeof(buf) - 1);
+    if (len <= 0)
+    {
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "No body");
+    }
+    buf[len] = '\0';
+
+    // Very simple JSON parsing (for brevity); in production use a JSON lib
+    char volume[4] = {0};
+    sscanf(buf, R"({"volume":"%3[^"]"})", volume);
+
+    self->mainController.getAudioController().setVolume(atoi(volume));
+
+    ret = httpd_resp_set_status(req, HTTPD_200);
+    return httpd_resp_send(req, nullptr, 0);
 }
 
 // ---------- WebSocket (ESP-IDF 5.5) ----------
@@ -484,3 +519,4 @@ esp_err_t HttpController::wifi_ws_handler(httpd_req_t* req)
 
     return ESP_OK;
 }
+

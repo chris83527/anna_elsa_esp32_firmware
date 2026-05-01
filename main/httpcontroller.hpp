@@ -26,6 +26,7 @@ private:
     static esp_err_t asset_handler(httpd_req_t *req);
     static esp_err_t provision_handler(httpd_req_t *req);
     static esp_err_t api_status_handler(httpd_req_t *req);
+    static esp_err_t api_status_update_handler(httpd_req_t *req);
     static esp_err_t ws_handler(httpd_req_t *req);
     static esp_err_t ota_upload_handler(httpd_req_t *req);
     static esp_err_t captive_redirect_handler(httpd_req_t *req);
