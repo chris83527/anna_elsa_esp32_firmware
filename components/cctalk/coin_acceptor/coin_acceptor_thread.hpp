@@ -37,7 +37,7 @@ private:
             facade_.readBufferedCreditEvents(channels, events);
 
             for (auto& ev : events) {
-                ESP_LOGI(TAG, "Coin value: %d", ev.coin_value);
+                ESP_LOGI(TAG, "Coin value: %d", ev.coin_id);
                 queue_.push(CctalkEvent::makeCoin(ev));
             }
 

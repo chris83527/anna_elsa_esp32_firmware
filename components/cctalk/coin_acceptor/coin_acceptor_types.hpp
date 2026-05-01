@@ -31,9 +31,9 @@ ccCoinRejectionTypeGetDisplayableName(CoinRouting type)
 }
 
 struct CoinEvent {
-    uint8_t event_counter;
     uint8_t channel;
-    uint16_t coin_value;     // parsed from channel table
+    uint8_t coin_id;
+    uint16_t coin_value;
     CoinRouting routing;
 };
 

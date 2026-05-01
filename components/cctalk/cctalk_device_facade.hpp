@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include "esp_log.h"
+
 #include "cctalk.hpp"
 #include "cctalk_error.hpp"
 #include "cctalk_headers.hpp"
@@ -18,7 +20,6 @@
 #include "hopper_commands.hpp"
 #include "cctalk_general_commands.hpp"
 
-constexpr const char* TAG = "cctalk_device_facade";
 
 //
 // High-level façade for ccTalk devices.
@@ -113,7 +114,7 @@ public:
     }
 
     CctalkError getManufacturer(uint8_t destination, std::string& out,
-                            std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
+                                std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
     {
         CctalkFrame req;
         req.destination = destination;
@@ -129,7 +130,8 @@ public:
         return err;
     }
 
-    CctalkError requestCommsRevision(uint8_t destination, std::string& out, std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
+    CctalkError requestCommsRevision(uint8_t destination, std::string& out,
+                                     std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
     {
         CctalkFrame req;
         req.destination = destination;
@@ -238,9 +240,59 @@ public:
 
         if (err == CctalkError::OK)
         {
-            ESP_LOGI(TAG, "Returning events");
+            ESP_LOGI(TAG, "Processing events");
+
+            // When the device is first booted, the event log contains all zeroes.
+            if (rsp.currentEventNumber == 0 && rsp.currentEventNumber == 0)
+            {
+                return CctalkError::OK;
+            }
+
+            // If the event counter suddenly drops to 0, this means that the device was
+            // probably reset. Probable loss of credits.
+            if (lastEventNumber != 0 && rsp.currentEventNumber == 0)
+            {
+                ESP_LOGE(TAG, "The device appears to have been reset, possible loss of credit.");
+                lastEventNumber = 0;
+                return CctalkError::OK;
+            }
+
+            // If the event counters are equal, there are no new events.
+            if (this->lastEventNumber == rsp.currentEventNumber)
+            {
+                // nothing
+                return CctalkError::OK;
+            }
+
+            // If true, it means that we're processing the events that are in the device.
+            // We should not give credit in this case, since that was probably processed
+            // during previous application run.
+            const bool processing_app_startup_events = (this->lastEventNumber == 0);
+            if (processing_app_startup_events && rsp.currentEventNumber != 0)
+            {
+                ESP_LOGD(TAG, "last event number: %d, current event number: %d", this->lastEventNumber, rsp.currentEventNumber);
+                ESP_LOGE(TAG, "Detected device that was up (and generating events) before the host startup; ignoring \"credit accepted\" events.");
+                // just set lastEventNumber to current EventNumber
+                this->lastEventNumber = rsp.currentEventNumber;
+                return CctalkError::OK;
+            }
+
+            int newEventCount = int(rsp.currentEventNumber) - int(this->lastEventNumber);
+            if (newEventCount < 0)
+            {
+                newEventCount += 255;
+            }
+            this->lastEventNumber = rsp.currentEventNumber;
+
+            // Any more than 5 events means that events have been lost
+            if (newEventCount > 5)
+            {
+                ESP_LOGE(TAG, "Event counter difference %d is greater than 5. Credits probably lost.", newEventCount);
+            }
+
             out = rsp.events;
         }
+
         return err;
     }
 
@@ -305,17 +357,25 @@ private:
     std::uint8_t coin_;
     std::uint8_t hopper_;
 
-    void toHex(const std::vector<uint8_t>& v, std::string& out) {
+    const char* TAG = "cctalk_device_facade";
+
+    uint8_t lastEventNumber = 0;
+
+    void toHex(const std::vector<uint8_t>& v, std::string& out)
+    {
         static constexpr char hex[] = "0123456789ABCDEF";
         out.reserve(v.size() * 2);
-        for (uint8_t b : v) {
+        for (uint8_t b : v)
+        {
             out.push_back(hex[b >> 4]);
             out.push_back(hex[b & 0x0F]);
         }
     }
 
-    void decodeSerialNumber(const std::vector<uint8_t>& responseData, std::string& out) {
-        if (responseData.size() == 3) {
+    void decodeSerialNumber(const std::vector<uint8_t>& responseData, std::string& out)
+    {
+        if (responseData.size() == 3)
+        {
             uint32_t serialNumber = 0;
             serialNumber = responseData.at(0) << 16 | responseData.at(1) << 8 | responseData.at(2);
             out = std::to_string(serialNumber);
