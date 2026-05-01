@@ -367,6 +367,7 @@ void PaymentController::onEvent(const CctalkEvent& evt)
     switch (evt.type)
     {
     case CctalkEventType::CoinAccepted:
+        ESP_LOGI(TAG, "Coin accepted. Coin Id: %d, Coin value: %d", evt.coin.coin_id, evt.coin.coin_value);
         this->addToCredit(evt.coin.coin_value);
         this->mainController->getHttpController().broadcast_status();
         break;

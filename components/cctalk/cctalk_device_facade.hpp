@@ -239,22 +239,23 @@ public:
 
         if (err == CctalkError::OK)
         {
-            ESP_LOGI(TAG, "Processing events");
+            ESP_LOGI(TAG, "Processing event number %d. Last processed event: %d", rsp.currentEventNumber, lastEventNumber);
 
             // When the device is first booted, the event log contains all zeroes.
-            if (rsp.currentEventNumber == 0 && rsp.currentEventNumber == 0)
+            if (lastEventNumber == 0 && rsp.currentEventNumber == 0)
             {
                 return CctalkError::OK;
             }
 
-            // If the event counter suddenly drops to 0, this means that the device was
+            // If the event counter suddenly drops to 0, this means that the device was--
             // probably reset. Probable loss of credits.
             if (lastEventNumber != 0 && rsp.currentEventNumber == 0)
             {
-                ESP_LOGE(TAG, "The device appears to have been reset, possible loss of credit.");
+                ESP_LOGW(TAG, "The device appears to have been reset, possible loss of credit.");
                 lastEventNumber = 0;
                 return CctalkError::OK;
             }
+
 
             // If the event counters are equal, there are no new events.
             if (this->lastEventNumber == rsp.currentEventNumber)
@@ -266,6 +267,7 @@ public:
             // If true, it means that we're processing the events that are in the device.
             // We should not give credit in this case, since that was probably processed
             // during previous application run.
+
             const bool processing_app_startup_events = (this->lastEventNumber == 0);
             if (processing_app_startup_events && rsp.currentEventNumber != 0)
             {
@@ -273,14 +275,16 @@ public:
                 ESP_LOGE(TAG, "Detected device that was up (and generating events) before the host startup; ignoring \"credit accepted\" events.");
                 // just set lastEventNumber to current EventNumber
                 this->lastEventNumber = rsp.currentEventNumber;
-                return CctalkError::OK;
             }
+
 
             int newEventCount = int(rsp.currentEventNumber) - int(this->lastEventNumber);
             if (newEventCount < 0)
             {
                 newEventCount += 255;
             }
+
+            //
             this->lastEventNumber = rsp.currentEventNumber;
 
             // Any more than 5 events means that events have been lost

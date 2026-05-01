@@ -39,7 +39,7 @@ namespace cctalk::coin_validator
         // Example interpretation: [channel, value_byte] pairs
         for (std::size_t i = 0; i + 1 < resp.data.size(); i += 2)
         {
-            CoinChannelInfo info;
+            CoinChannelInfo info{};
             info.channel = resp.data[i];
             info.value = static_cast<std::uint16_t>(resp.data[i + 1]) * 5; // device-specific scaling
             out.channels.push_back(info);
@@ -145,7 +145,7 @@ namespace cctalk::coin_validator
             ev.coin_id = resp.data[i];
             ev.channel = resp.data[i + 1];
 
-            ESP_LOGI(TAG, "Credit: %d. Error/Channel: %d", ev.coin_id, ev.channel);
+            ESP_LOGI(TAG, "Coin ID: %d. Error/Channel: %d", ev.coin_id, ev.channel);
 
             auto it = std::ranges::find_if(channel_table.begin(), channel_table.end(),
                                            [&](const CoinChannelInfo& c) { return c.channel == ev.channel; });

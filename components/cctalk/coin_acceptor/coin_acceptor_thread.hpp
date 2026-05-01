@@ -37,8 +37,11 @@ private:
             facade_.readBufferedCreditEvents(channels, events);
 
             for (auto& ev : events) {
-                ESP_LOGI(TAG, "Coin value: %d", ev.coin_id);
-                queue_.push(CctalkEvent::makeCoin(ev));
+                ESP_LOGI(TAG, "Coin id: %d", ev.coin_id);
+                if (ev.routing != CoinRouting::Accepted)
+                {
+                    queue_.push(CctalkEvent::makeCoin(ev));
+                }
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(200));
