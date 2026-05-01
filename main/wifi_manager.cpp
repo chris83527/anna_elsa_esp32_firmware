@@ -23,6 +23,8 @@ esp_err_t WifiManager::init()
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
+    esp_netif_create_default_wifi_ap();
+
     return load_credentials();
 }
 
@@ -185,7 +187,7 @@ void WifiManager::wifi_thread()
 esp_err_t WifiManager::start_ap() {
     ESP_LOGI(TAG, "Starting AP interface (dual-mode)");
 
-    esp_netif_create_default_wifi_ap();
+    //esp_netif_create_default_wifi_ap();
 
     wifi_config_t ap_config = {};
     strcpy(reinterpret_cast<char*>(ap_config.ap.ssid), "Frozen-Setup");

@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en_US">
 <head>
     <meta charset="utf-8">
     <title>Frozen Wi-Fi Setup</title>
@@ -154,7 +154,8 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ssid, pass})
             });
-            const text = await res.text();
+            let text;
+            text = await res.text();
             statusEl.textContent = text;
         } catch (err) {
             statusEl.textContent = 'Error: ' + err;
