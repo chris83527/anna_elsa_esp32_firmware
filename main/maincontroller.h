@@ -23,11 +23,12 @@
 #include "displaycontroller.h"
 #include "ds3231.h"
 #include "game.h"
-#include "paymentcontroller.h"
 #include "reelcontroller.h"
 #include "wifi_manager.hpp"
 #include "httpcontroller.hpp"
 #include "dns_server.hpp"
+#include "paymentcontroller.h"
+#include "httpcontroller.hpp"
 
 class MainController
 {
@@ -46,13 +47,12 @@ public:
 
     AudioController& getAudioController();
     ReelController& getReelController();
-    //CctalkController& getCCTalkController();
     DisplayController& getDisplayController();
     PaymentController& getPaymentController();
+    HttpController& getHttpController();
     Game& getGame();
     DS3231& getDs3231();
-
-    // std::shared_ptr<WIFI::Wifi> getWifiController();
+    NvsController& getNvsController();
 
 private:
     // EEProm_Data eeprom_data;

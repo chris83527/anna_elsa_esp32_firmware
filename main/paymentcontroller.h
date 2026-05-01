@@ -48,7 +48,7 @@
 #include "hopper_thread.hpp"
 #include "cctalk_event_dispatcher_thread.hpp"
 
-#include "NvsController.h"
+class MainController;
 
 class Payment
 {
@@ -80,7 +80,7 @@ class PaymentController
 public:
     using EventHandler = EventDispatcherThread::Handler;
 
-    PaymentController(NvsController& nvsController, std::unique_ptr<ICctalkUart> uart);
+    PaymentController(MainController* mainController, std::unique_ptr<ICctalkUart> uart);
     ~PaymentController();
 
     void start();
@@ -128,7 +128,7 @@ private:
     uint16_t oneEuroIn;
     uint16_t twoEuroIn;
 
-    NvsController& nvsController;
+    MainController* mainController;
 
     static constexpr std::string NVS_KEY_CREDIT = "credit";
     static constexpr std::string NVS_KEY_BANK = "bank";

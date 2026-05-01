@@ -15,12 +15,9 @@
 #include <string>
 
 #include "wifi_manager.hpp"
+#include "maincontroller.h"
 
 static const char* TAG = "HttpController";
-
-HttpController::HttpController(WifiManager& wifi) : wifi(wifi), server(nullptr)
-{
-}
 
 HttpController::~HttpController() { stop(); }
 
@@ -216,10 +213,30 @@ esp_err_t HttpController::provision_handler(httpd_req_t* req)
 
 esp_err_t HttpController::api_status_handler(httpd_req_t* req)
 {
-    // TODO: credits, number of games, payout stats etc.
-    const char* json = R"({"status":"ok","uptime":1234,"heap_free":45678})";
+    auto* self = static_cast<HttpController*>(req->user_ctx);
+
+    uint16_t bank = self->mainController.getPaymentController().getBank();
+    uint16_t credit = self->mainController.getPaymentController().getCredit();
+    uint16_t gameCount = self->mainController.getPaymentController().getGameCount();
+    uint16_t incomeTotal = self->mainController.getPaymentController().getIncomeTotal();
+    uint16_t payoutTotal = self->mainController.getPaymentController().getPayoutTotal();
+    uint16_t transfer = self->mainController.getPaymentController().getTransfer();
+    int volume = self->mainController.getAudioController().getVolume();
+
+    // credits, number of games, payout stats etc.
+    std::string json = "{";
+    json += ",\"bank\":\"" + std::to_string(bank)+ "\"";
+    json += ",\"credit\":\"" + std::to_string(credit)+ "\"";
+    json += ",\"gameCount\":\"" + std::to_string(gameCount)+ "\"";
+    json += ",\"transfer\":\"" + std::to_string(transfer)+ "\"";
+    json += ",\"incomeTotal\":\"" + std::to_string(incomeTotal)+ "\"";
+    json += ",\"payoutTotal\":\"" + std::to_string(payoutTotal)+ "\"";
+    json += ",\"volume\":\"" + std::to_string(volume) + "\"";
+    json += "}";
+
+
     httpd_resp_set_type(req, "application/json");
-    return httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);
+    return httpd_resp_send(req, json.c_str(), HTTPD_RESP_USE_STRLEN);
 }
 
 esp_err_t HttpController::wifi_scan_handler(httpd_req_t* req)
@@ -278,20 +295,34 @@ esp_err_t HttpController::ws_handler(httpd_req_t* req)
     return ESP_OK;
 }
 
-void HttpController::ws_broadcast(httpd_handle_t server, int uptime_sec, int heap_free, int rssi)
+void HttpController::ws_broadcast(HttpController* httpController, httpd_handle_t server, int rssi)
 {
     if (!server) return;
 
-    char msg[128];
-    snprintf(msg, sizeof(msg),
-             R"({"uptime":%d,"heap_free":%d,"rssi":%d"})",
-             uptime_sec, heap_free, rssi);
+    uint16_t bank = httpController->mainController.getPaymentController().getBank();
+    uint16_t credit = httpController->mainController.getPaymentController().getCredit();
+    uint16_t gameCount = httpController->mainController.getPaymentController().getGameCount();
+    uint16_t incomeTotal = httpController->mainController.getPaymentController().getIncomeTotal();
+    uint16_t payoutTotal = httpController->mainController.getPaymentController().getPayoutTotal();
+    int volume = httpController->mainController.getAudioController().getVolume();
+
+    // credits, number of games, payout stats etc.
+    std::string json = "{";
+    json += ",\"bank\":\"" + std::to_string(bank)+ "\"";
+    json += ",\"credit\":\"" + std::to_string(credit)+ "\"";
+    json += ",\"gameCount\":\"" + std::to_string(gameCount)+ "\"";
+    json += ",\"incomeTotal\":\"" + std::to_string(incomeTotal)+ "\"";
+    json += ",\"payoutTotal\":\"" + std::to_string(payoutTotal)+ "\"";
+    json += ",\"volume\":\"" + std::to_string(volume) + "\"";
+    json += "}";
 
     httpd_ws_frame_t frame;
     memset(&frame, 0, sizeof(frame));
     frame.type = HTTPD_WS_TYPE_TEXT;
-    frame.payload = reinterpret_cast<uint8_t*>(msg);
-    frame.len = strlen(msg);
+    std::vector<uint8_t> tmp;
+    tmp.assign(json.begin(), json.end());
+    frame.payload = tmp.data();
+    frame.len = tmp.size();
 
     // In ESP-IDF 5.x, we can iterate sockets and check WS state
     size_t max_fds = CONFIG_LWIP_MAX_SOCKETS;
@@ -304,9 +335,9 @@ void HttpController::ws_broadcast(httpd_handle_t server, int uptime_sec, int hea
     }
 }
 
-void HttpController::broadcast_status(int uptime_sec, int heap_free)
+void HttpController::broadcast_status()
 {
-    ws_broadcast(server, uptime_sec, heap_free, wifi.get_rssi());
+    ws_broadcast(this, server, wifi.get_rssi());
 }
 
 // ---------- OTA upload (ESP-IDF 5.5) ----------

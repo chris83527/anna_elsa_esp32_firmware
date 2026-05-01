@@ -41,6 +41,8 @@
 #include "typed_i2c_device.hpp"
 #include "driver/i2s_std.h"
 
+class MainController;
+
 class Sounds
 {
 public:
@@ -74,14 +76,18 @@ public:
 class AudioController : public TypedI2CDevice
 {
 public:
-    explicit AudioController(I2CBus& bus) : TypedI2CDevice(bus, TAS5731M_I2C_ADDRESS) {}
+    explicit AudioController(I2CBus& bus, MainController* mainController) : TypedI2CDevice(bus, TAS5731M_I2C_ADDRESS),
+                                                                            mainController(mainController)
+    {
+    }
+
     ~AudioController() = default;
 
     void initialise();
     void playAudioFile(const char* filepath);
     void playAudioFileAsync(const char* filepath);
     void stopPlaying();
-    void getVolume(int& volume);
+    int getVolume();
     void setVolume(int volume);
     bool isMute();
     void setMute();
@@ -116,6 +122,8 @@ private:
 
     bool playing{};
     int vol{};
+
+    MainController* mainController;
 };
 
 #endif /* __AUDIOCONTROLLER_H__ */

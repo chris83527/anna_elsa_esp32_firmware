@@ -36,13 +36,13 @@ static int blinkDelay = 250000; // µs, not ms
 
 MainController::MainController(std::unique_ptr<ICctalkUart> uart) :
     i2c_bus(I2C_NUM_0, GPIO_I2C_SDA, GPIO_I2C_SCL, I2C_CLK_SRC_APB, false),
-    paymentController(nvsController,
+    paymentController(this,
                       std::move(uart)),
     displayController(paymentController, i2c_bus),
-    audioController(i2c_bus),
+    audioController( i2c_bus, this),
     reelController(audioController, displayController, i2c_bus),
     game(displayController, audioController, paymentController, reelController),
-    ds3231(i2c_bus, DS3231_ADDR), httpController(wifi)
+    ds3231(i2c_bus, DS3231_ADDR), httpController(wifi, this)
 
 {
     ESP_LOGD(TAG, "Entering constructor");
@@ -295,6 +295,11 @@ PaymentController& MainController::getPaymentController()
     return paymentController;
 }
 
+NvsController& MainController::getNvsController()
+{
+    return nvsController;
+}
+
 Game& MainController::getGame() { return game; }
 
 DS3231& MainController::getDs3231() { return this->ds3231; }
@@ -362,4 +367,9 @@ void MainController::updateStatisticsDisplayCallback(void* param)
     {
         ESP_LOGW(TAG, "Couldn't read time from RTC!");
     }
+}
+
+HttpController& MainController::getHttpController()
+{
+    return httpController;
 }

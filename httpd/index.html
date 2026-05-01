@@ -20,8 +20,15 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Live Status</h5>
-                    <p>Uptime: <span id="uptime">-</span> s</p>
-                    <p>Free heap: <span id="heap">-</span> bytes</p>
+                    <p>Credit: €<span id="credit">-</span></p>
+                    <p>Bank: €<span id="bank">-</span></p>
+                    <p>Transfer: €<span id="transfer">-</span></p>
+                    <p>Game count: <span id="gameCount">-</span></p>
+                    <p>Total in: €<span id="incomeTotal">-</span></p>
+                    <p>Total out: €<span id="payoutTotal">-</span></p>
+                    <div class="slidecontainer">
+                        <input type="range" min="5" max="100" value="50" class="slider" id="volume">
+                    </div>
                     <p>WebSocket: <span id="ws-status" class="badge bg-secondary">Connecting...</span></p>
                 </div>
             </div>
@@ -68,8 +75,13 @@
         ws.onmessage = (ev) => {
             try {
                 const data = JSON.parse(ev.data);
-                if ('uptime' in data) document.getElementById('uptime').textContent = data.uptime;
-                if ('heap_free' in data) document.getElementById('heap').textContent = data.heap_free;
+                if ('credit' in data) document.getElementById('credit').textContent = data.credit;
+                if ('bank' in data) document.getElementById('bank').textContent = data.bank;
+                if ('gameCount' in data) document.getElementById('gameCount').textContent = data.gameCount;
+                if ('transfer' in data) document.getElementById('transfer').textContent = data.transfer;
+                if ('incomeTotal' in data) document.getElementById('incomeTotal').textContent = data.incomeTotal;
+                if ('payoutTotal' in data) document.getElementById('payoutTotal').textContent = data.payoutTotal;
+                if ('volume' in data) document.getElementById('volume').textContent = data.volume;
             } catch (e) {
                 console.error('WS parse error', e);
             }

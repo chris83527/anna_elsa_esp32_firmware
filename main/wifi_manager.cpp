@@ -55,7 +55,7 @@ std::string WifiManager::generate_hostname()
 
     char buf[32];
     snprintf(buf, sizeof(buf),
-             "esp32-%02x%02x%02x",
+             "frozen-%02x%02x%02x",
              mac[3], mac[4], mac[5]);
 
     return std::string(buf);

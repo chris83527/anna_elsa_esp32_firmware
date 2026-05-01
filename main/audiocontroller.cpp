@@ -53,11 +53,13 @@
 #include "esp_log.h"
 #include "hal/i2s_types.h"
 
-#include "audiocontroller.h"
 #include "config.h"
 #include "esp_pthread.h"
 #include "spiffs.h"
 #include "soc/io_mux_reg.h"
+
+#include "audiocontroller.h"
+#include "maincontroller.h"
 
 static const char* TAG = "AudioController";
 
@@ -332,6 +334,9 @@ void AudioController::setVolume(int volume)
     ESP_LOGI(TAG, "volume = 0x%x",
              data[1]); // the value is at index 1, because writeRegister places
     // the register address at index 0
+
+    // publish the change via Websocket
+    mainController->getHttpController().broadcast_status();
 }
 
 bool AudioController::isMute()
@@ -344,8 +349,9 @@ void AudioController::setMute()
     // do something here
 }
 
-void AudioController::getVolume(int& volume)
+int AudioController::getVolume()
 {
+    int volume = 0;
     /// FIXME: Got the digit volume is not right.
     std::vector<uint8_t> data;
     data.resize(1);
@@ -359,6 +365,8 @@ void AudioController::getVolume(int& volume)
     }
     ESP_LOGI(TAG, "Volume is %d", i * 5);
     volume = 5 * i;
+
+    return volume;
 }
 
 void AudioController::stopPlaying() { this->playing = false; }
