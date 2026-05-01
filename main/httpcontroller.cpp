@@ -351,13 +351,10 @@ void HttpController::ws_broadcast(HttpController* httpController, httpd_handle_t
     json += ",\"volume\":\"" + std::to_string(volume) + "\"";
     json += "}";
 
-    httpd_ws_frame_t frame;
-    memset(&frame, 0, sizeof(frame));
+    httpd_ws_frame_t frame{};
     frame.type = HTTPD_WS_TYPE_TEXT;
-    std::vector<uint8_t> tmp;
-    tmp.assign(json.begin(), json.end());
-    frame.payload = tmp.data();
-    frame.len = tmp.size();
+    frame.payload = reinterpret_cast<uint8_t*>(json.data());
+    frame.len = json.size();
 
     // In ESP-IDF 5.x, we can iterate sockets and check WS state
     size_t max_fds = CONFIG_LWIP_MAX_SOCKETS;
