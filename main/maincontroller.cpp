@@ -42,7 +42,7 @@ MainController::MainController(std::unique_ptr<ICctalkUart> uart) :
     audioController(i2c_bus),
     reelController(audioController, displayController, i2c_bus),
     game(displayController, audioController, paymentController, reelController),
-    ds3231(i2c_bus, DS3231_ADDR), wifi(nvsController), httpController(wifi)
+    ds3231(i2c_bus, DS3231_ADDR), httpController(wifi)
 
 {
     ESP_LOGD(TAG, "Entering constructor");

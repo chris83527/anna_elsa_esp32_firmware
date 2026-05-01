@@ -1,5 +1,6 @@
 #include "ws2812b.hpp"
 
+#include <portmacro.h>
 #include <bits/this_thread_sleep.h>
 
 #include "esp_err.h"

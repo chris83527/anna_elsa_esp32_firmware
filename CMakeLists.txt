@@ -15,11 +15,10 @@ set(EXTRA_COMPONENT_DIRS
 "/home/chris/esp/esp-idf/components/esp_hw_support"
 "/home/chris/esp/esp-idf/components/nvs_flash"
 "/home/chris/esp/esp-idf/components/esp_common"
-"/home/chris/esp/esp-idf/components/esp_http_server"
 "/home/chris/esp/esp-idf/components/spiffs"
 "/home/chris/esp/esp-idf-lib/components/esp_idf_lib_helpers"
 )
-
+#"/home/chris/esp/esp-idf/components/esp_http_server"
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
 

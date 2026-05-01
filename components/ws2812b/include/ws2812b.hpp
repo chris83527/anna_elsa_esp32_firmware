@@ -3,8 +3,6 @@
 #ifndef __WS2812B_H__
 #define __WS2812B_H__
 
-#include "led_strip.h"
-//#include "driver/rmt_tx.h"
 #include "driver/i2s_common.h"
 #include "driver/i2s_std.h"
 #include "esp_err.h"

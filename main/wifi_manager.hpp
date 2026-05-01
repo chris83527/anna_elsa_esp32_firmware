@@ -7,7 +7,6 @@
 
 #include "esp_event.h"
 #include "esp_wifi.h"
-#include "esp_netif.h"
 #include "esp_err.h"
 
 #include "NvsController.h"
@@ -21,14 +20,13 @@ struct WifiNetwork {
 
 class WifiManager {
 public:
-    WifiManager(NvsController& controller);
+    WifiManager();
 
     esp_err_t init();          // call once after NVS init
     esp_err_t start_async();   // non-blocking Wi-Fi start
 
     [[nodiscard]] bool is_connected() const { return connected.load(); }
     [[nodiscard]] bool is_ap_mode()   const { return ap_mode.load(); }
-    [[nodiscard]] bool has_credentials() const { return creds_loaded; }
 
     // Provisioning API
     esp_err_t save_credentials(const char* ssid, const char* pass);
@@ -50,15 +48,10 @@ private:
     esp_err_t start_ap_provisioning();
     esp_err_t init_mdns();
     std::string generate_hostname();
+    [[nodiscard]] bool has_credentials() const;
 
     static void event_handler(void* arg, esp_event_base_t base, int32_t id, void* data);
 
-    struct Credentials {
-        char ssid[32];
-        char pass[64];
-    } creds{};
-
-    bool creds_loaded = false;
     std::atomic<bool> ap_mode{false};
     std::atomic<bool> connected{false};
 
@@ -78,6 +71,4 @@ private:
     static constexpr int MAX_RETRY = 10;
 
     std::string hostname;
-
-    NvsController& nvsController;
 };

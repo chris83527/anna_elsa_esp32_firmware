@@ -1,4 +1,4 @@
 ## IDF Component Manager Manifest File
 dependencies:
   esp-idf-cxx: '>=1.0.0-beta'
-  espressif/mdns: '>=1.2.5'
+  espressif/mdns: '>=1.11.1'
