@@ -245,7 +245,7 @@ public:
 
         if (err == CctalkError::OK)
         {
-            ESP_LOGI(TAG, "Processing event number %d. Last processed event: %d", rsp.currentEventNumber, lastEventNumber);
+            ESP_LOGD(TAG, "Processing event number %d. Last processed event: %d", rsp.currentEventNumber, lastEventNumber);
 
             // When the device is first booted, the event log contains all zeroes.
             if (lastEventNumber == 0 && rsp.currentEventNumber == 0)
@@ -297,7 +297,7 @@ public:
             // Any more than 5 events means that events have been lost
             if (newEventCount > 5)
             {
-                ESP_LOGE(TAG, "Event counter difference %d is greater than 5. Credits probably lost.", newEventCount);
+                ESP_LOGW(TAG, "Event counter difference %d is greater than 5. Credits probably lost.", newEventCount);
             }
 
             out = rsp.events;

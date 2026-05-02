@@ -35,7 +35,7 @@ private:
             facade_.getHopperStatus(st);
 
             if (st.raw_status != last.raw_status) {
-                ESP_LOGI(TAG, "Hopper status changed from %d to %d", last.raw_status, st.raw_status);
+                ESP_LOGD(TAG, "Hopper status changed from %d to %d", last.raw_status, st.raw_status);
                 queue_.push(CctalkEvent::makeHopper(st));
                 last = st;
             }

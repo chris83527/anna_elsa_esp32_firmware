@@ -54,7 +54,7 @@ namespace cctalk::coin_validator
             {
                 CcIdentifier identifier(decodedData);
                 identifier.setCountryScalingData(countryScalingData);
-                ESP_LOGI(TAG, "Adding coin identifier %s to position %d in shared_identifiers", identifier.id_string.c_str(), pos);
+                ESP_LOGD(TAG, "Adding coin identifier %s to position %d in shared_identifiers", identifier.id_string.c_str(), pos);
                 uint64_t divisor = 1;
                 CoinChannelInfo coinChannelInfo{};
                 coinChannelInfo.channel = pos;
@@ -104,21 +104,21 @@ namespace cctalk::coin_validator
      * @brief Read Buffered Credit Events
      *
      * Coin acceptors use ReadBufferedCredit command.
-    * Bill validators use ReadBufferedBillEvents command.
-    * Both commands return data in approximately the same format.
-
-    * The response format is: [event_counter] [result 1A] [result 1B] [result 2A] [result 2B] ... [result 5B].
-    * There are usually 5 events. 1A/1B is the newest one.
-    * diff (event_counter, last_event_counter) indicates the number of results that are new. If > 5, it means data was lost.
-    * [event_counter] == 0 means power-up or reset condition.
-    * Note that [event_counter] wraps from 255 to 1, not 0.
-    * [result A]: If in 1-255 range, it's credit (coin/bill position). If 0, see error code in [result B].
-    * [result B]: If A is 0, B is error code, see CcCoinAcceptorEventCode / CcBillValidatorErrorCode.
-    * If A is credit, B is sorter path (0 unsupported, 1-8 path number).
+     * Bill validators use ReadBufferedBillEvents command.
+     * Both commands return data in approximately the same format.
+     *
+     * The response format is: [event_counter] [result 1A] [result 1B] [result 2A] [result 2B] ... [result 5B].
+     * There are usually 5 events. 1A/1B is the newest one.
+     * diff (event_counter, last_event_counter) indicates the number of results that are new. If > 5, it means data was lost.
+     * [event_counter] == 0 means power-up or reset condition.
+     * Note that [event_counter] wraps from 255 to 1, not 0.
+     * [result A]: If in 1-255 range, it's credit (coin/bill position). If 0, see error code in [result B].
+     * [result B]: If A is 0, B is error code, see CcCoinAcceptorEventCode / CcBillValidatorErrorCode.
+     * If A is credit, B is sorter path (0 unsupported, 1-8 path number).
      *
      * @param bus
-     * @param host
-     * @param device
+     * @param host The ID of the host device (usually 1)
+     * @param device The ID of the slave device (2 for coin validator, 3 for hopper)
      * @param channel_table
      * @param out
      * @param timeout
@@ -164,7 +164,7 @@ namespace cctalk::coin_validator
             ev.coin_id = resp.data[i];
             ev.channel = resp.data[i + 1];
 
-            ESP_LOGI(TAG, "Coin ID: %d. Error/Channel: %d", ev.coin_id, ev.channel);
+            ESP_LOGD(TAG, "Coin ID: %d. Error/Channel: %d", ev.coin_id, ev.channel);
 
             auto it = std::ranges::find_if(channel_table.begin(), channel_table.end(),
                                            [&](const CoinChannelInfo& c) { return c.channel == ev.channel; });

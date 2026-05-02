@@ -555,7 +555,7 @@ void DisplayController::blinkLampsCallback(void* param)
     }
 
     // if we have completed all four states (0-3).. reset state to zero and start again
-    if (state == 4)
+    if (state++ == 4)
     {
         state = 0;
     }
