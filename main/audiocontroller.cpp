@@ -331,8 +331,7 @@ void AudioController::setVolume(int volume)
 
     data.push_back(tas5731m_volume[vol_idx]);
     writeReg(MASTER_VOL_REG_ADDR, data);
-    ESP_LOGI(TAG, "volume = 0x%x",
-             data[1]); // the value is at index 1, because writeRegister places
+    ESP_LOGI(TAG, "Setting volume to %d", data[0]);
     // the register address at index 0
 
     // publish the change via Websocket

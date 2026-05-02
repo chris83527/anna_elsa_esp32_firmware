@@ -76,12 +76,13 @@ void Game::start()
 
     this->isInProgress = true;
 
-    this->displayController.resetLampData();
     this->displayController.stopAttractMode();
+    this->displayController.resetLampData();
     this->audioController.stopPlaying();
 
     playNormalSpin();
 
+    /* - should already be done by resetLampData
     this->displayController.getLampData()
         .at(DisplayController::LMP_START)
         .lampState = LampState::off;
@@ -100,6 +101,7 @@ void Game::start()
     this->displayController.getLampData()
         .at(DisplayController::LMP_TRANSFER)
         .lampState = LampState::off;
+        */
 
     // payout
     if ((this->paymentController.getBank() > 0) &&
