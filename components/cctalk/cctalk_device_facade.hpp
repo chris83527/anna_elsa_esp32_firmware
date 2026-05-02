@@ -273,7 +273,7 @@ public:
             // If true, it means that we're processing the events that are in the device.
             // We should not give credit in this case, since that was probably processed
             // during previous application run.
-
+            /*
             const bool processing_app_startup_events = (this->lastEventNumber == 0);
             if (processing_app_startup_events && rsp.currentEventNumber != 0)
             {
@@ -282,6 +282,7 @@ public:
                 // just set lastEventNumber to current EventNumber
                 this->lastEventNumber = rsp.currentEventNumber;
             }
+            */
 
 
             int newEventCount = int(rsp.currentEventNumber) - int(this->lastEventNumber);

@@ -38,7 +38,7 @@ namespace cctalk::coin_validator
 
         out.channels.clear();
 
-        int maxPositions = 6; // Coin validator has up to 6 channels
+        uint8_t maxPositions = 6; // Coin validator has up to 6 channels
 
         for (uint8_t pos = 1 ; pos <= maxPositions ; ++pos)
         {
@@ -56,7 +56,7 @@ namespace cctalk::coin_validator
                 identifier.setCountryScalingData(countryScalingData);
                 ESP_LOGI(TAG, "Adding coin identifier %s to position %d in shared_identifiers", identifier.id_string.c_str(), pos);
                 uint64_t divisor = 1;
-                CoinChannelInfo coinChannelInfo;
+                CoinChannelInfo coinChannelInfo{};
                 coinChannelInfo.channel = pos;
                 coinChannelInfo.value = identifier.getValue(divisor);
                 out.channels.push_back(coinChannelInfo);

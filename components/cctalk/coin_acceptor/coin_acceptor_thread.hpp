@@ -38,7 +38,7 @@ private:
 
             for (auto& ev : events) {
                 ESP_LOGI(TAG, "Coin id: %d", ev.coin_id);
-                if (ev.routing != CoinRouting::Accepted)
+                if (ev.routing == CoinRouting::Accepted)
                 {
                     queue_.push(CctalkEvent::makeCoin(ev));
                 }
