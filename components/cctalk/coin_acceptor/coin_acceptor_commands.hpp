@@ -22,6 +22,7 @@ namespace cctalk::coin_validator
     inline CctalkError cctalk_get_channel_values(CctalkBus& bus,
                                                  std::uint8_t host,
                                                  std::uint8_t device,
+                                                 CcCountryScalingData& countryScalingData,
                                                  RspGetChannelValues& out,
                                                  std::chrono::milliseconds timeout)
     {
@@ -36,14 +37,32 @@ namespace cctalk::coin_validator
         if (err != CctalkError::OK) return err;
 
         out.channels.clear();
-        // Example interpretation: [channel, value_byte] pairs
-        for (std::size_t i = 0; i + 1 < resp.data.size(); i += 2)
+
+        int maxPositions = 6; // Coin validator has up to 6 channels
+
+        for (uint8_t pos = 1 ; pos <= maxPositions ; ++pos)
         {
-            CoinChannelInfo info{};
-            info.channel = resp.data[i];
-            info.value = static_cast<std::uint16_t>(resp.data[i + 1]) * 5; // device-specific scaling
-            out.channels.push_back(info);
+            // Fetch coin / bill ID at position pos.
+            req.data.push_back(pos);
+            auto err = bus.sendAndReceive(req, resp, timeout);
+            if (err != CctalkError::OK) return err;
+
+            // Decode the data.
+            // 6 dots mean empty by convention, but we've seen all-null too.
+            std::string decodedData(resp.data.begin(), resp.data.end());
+            if (decodedData.size() != 0 && decodedData != "......" && decodedData.at(0) != 0)
+            {
+                CcIdentifier identifier(decodedData);
+                identifier.setCountryScalingData(countryScalingData);
+                ESP_LOGI(TAG, "Adding coin identifier %s to position %d in shared_identifiers", identifier.id_string.c_str(), pos);
+                uint64_t divisor = 1;
+                CoinChannelInfo coinChannelInfo;
+                coinChannelInfo.channel = pos;
+                coinChannelInfo.value = identifier.getValue(divisor);
+                out.channels.push_back(coinChannelInfo);
+            }
         }
+
         return CctalkError::OK;
     }
 

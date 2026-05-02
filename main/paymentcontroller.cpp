@@ -368,7 +368,7 @@ void PaymentController::onEvent(const CctalkEvent& evt)
     {
     case CctalkEventType::CoinAccepted:
         ESP_LOGI(TAG, "Coin accepted. Coin Id: %d, Coin value: %d", evt.coin.coin_id, evt.coin.coin_value);
-        this->addToCredit(evt.coin.coin_value);
+        this->addToCredit(COIN_VALUES[evt.coin.coin_id]); // easy way - just look up in our table instead of from the validator
         this->mainController->getHttpController().broadcast_status();
         break;
 

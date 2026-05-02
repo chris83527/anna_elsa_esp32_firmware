@@ -220,7 +220,8 @@ public:
                                  std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
     {
         cctalk::coin_validator::RspGetChannelValues rsp;
-        auto err = cctalk::coin_validator::cctalk_get_channel_values(bus_, host_, coin_, rsp, timeout);
+        CcCountryScalingData countryScalingData{};
+        auto err = cctalk::coin_validator::cctalk_get_channel_values(bus_, host_, coin_, countryScalingData, rsp, timeout);
         if (err == CctalkError::OK)
         {
             out = rsp.channels;
@@ -233,6 +234,11 @@ public:
         std::vector<CoinEvent>& out,
         std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
     {
+        // TODO: implement country scaling data. At the moment,
+        //CcCountryScalingData scalingData;
+        //cctalk::coin_validator:: req{channelTable};
+
+
         cctalk::coin_validator::RspReadBufferedCreditEvents rsp;
         auto err = cctalk_read_buffered_credit_events(
             bus_, host_, coin_, channelTable, rsp, timeout);
