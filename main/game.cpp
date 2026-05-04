@@ -82,27 +82,6 @@ void Game::start()
 
     playNormalSpin();
 
-    /* - should already be done by resetLampData
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_START)
-        .lampState = LampState::off;
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_COLLECT)
-        .lampState = LampState::off;
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_HOLD_HI)
-        .lampState = LampState::off;
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_HOLD)
-        .lampState = LampState::off;
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_HOLD_LO)
-        .lampState = LampState::off;
-    this->displayController.getLampData()
-        .at(DisplayController::LMP_TRANSFER)
-        .lampState = LampState::off;
-        */
-
     // payout
     if ((this->paymentController.getBank() > 0) &&
         (this->paymentController.getCredit() < 20))
@@ -110,7 +89,7 @@ void Game::start()
         collectOrContinue();
     }
 
-    Game::isInProgress = false;
+    isInProgress = false;
 
     ESP_LOGI(TAG, "Exiting game");
 }
@@ -323,10 +302,16 @@ void Game::playNudges(int nudges)
             {
                 this->displayController.getLampData()
                     .at(DisplayController::NUDGE_LAMPS.at(i))
+                    .rgb = CRGB(255, 255, 255);
+                this->displayController.getLampData()
+                    .at(DisplayController::NUDGE_LAMPS.at(i))
                     .lampState = LampState::on;
                 this->displayController.getLampData()
                     .at(DisplayController::NUDGE_LAMPS.at(nudges - 1))
                     .rgb = CRGB(0, 0, 255);
+                this->displayController.getLampData()
+                    .at(DisplayController::NUDGE_LAMPS.at(nudges - 1))
+                    .lampState = LampState::blinkfast;
             }
         }
 
@@ -451,12 +436,12 @@ void Game::transferOrGamble()
         .at(DisplayController::LMP_HOLD_HI)
         .lampState = LampState::off;
 
-    if ((btnStatus & BTN_TRANSFER) == BTN_TRANSFER)
+    if ((btnStatus & BTN_TRANSFER_MASK_BIT) == BTN_TRANSFER_MASK_BIT)
     {
         this->paymentController.moveTransferToBank();
         this->audioController.playAudioFile(Sounds::SND_KERCHING);
     }
-    else if ((btnStatus & BTN_START) == BTN_START)
+    else if ((btnStatus & BTN_START_MASK_BIT) == BTN_START_MASK_BIT)
     {
         playFeatureMatrix();
     }
@@ -491,7 +476,7 @@ void Game::collectOrContinue() const
 
         this->paymentController.payoutBank();
     }
-    else if ((btnStatus & BTN_START) == BTN_START)
+    else if ((btnStatus & BTN_START_MASK_BIT) == BTN_START_MASK_BIT)
     {
         this->paymentController.moveBankToCredit();
     }
