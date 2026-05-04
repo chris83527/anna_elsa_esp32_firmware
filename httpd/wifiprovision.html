@@ -14,29 +14,68 @@
     </div>
 </nav>
 
-<div class="container">
-    <div class="row g-3">
+<div class="container-fluid">
+    <div class="row flex-nowrap">
+        <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark">
+            <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
+                <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link align-middle px-0">
+                            <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">Home</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="diag.html" class="nav-link align-middle px-0">
+                            <i class="fs-4 bi-search"></i> <span class="ms-1 d-none d-sm-inline">Diagnostics</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="wifiprovision.html" class="nav-link align-middle px-0">
+                            <i class="fs-4 bi-search"></i> <span class="ms-1 d-none d-sm-inline">WiFi Connection</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
         <div class="col-md-6">
 
-            <div class="mb-3">
-                <button id="scan-btn" class="btn btn-secondary btn-sm">Scan Networks</button>
-                <span id="scan-status" class="ms-2 text-muted"></span>
+
+            <div class="card shadow-sm mb-3" id="network-list">
+                <div class="card-header">
+                    <h5 class="card-title">Network List</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group mb-3" id="net-list"></ul>
+                </div>
+                <div class="card-footer">
+                    <button id="scan-btn" class="btn btn-secondary btn-sm">Scan Networks</button>
+                    <span id="scan-status" class="ms-2 text-muted"></span>
+                </div>
             </div>
 
-            <ul class="list-group mb-3" id="net-list"></ul>
 
-            <form id="prov-form">
-                <div class="mb-3">
-                    <label class="form-label">SSID</label>
-                    <input type="text" class="form-control" id="ssid" required>
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="card-title">WiFi Credentials</h5>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-control" id="pass" required>
-                </div>
-                <button class="btn btn-primary" type="submit">Save & Reboot</button>
-            </form>
-            <div class="mt-2" id="prov-status"></div>
+                <form id="prov-form">
+                    <div class="card-body">
+
+                        <div class="mb-3">
+                            <label class="form-label">SSID</label>
+                            <input type="text" class="form-control" id="ssid" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" id="pass" required>
+                        </div>
+                    </div>
+                    <div class="card-footer" id="prov-status">
+                        <button class="btn btn-primary btn-sm " type="submit">Save & Reboot</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

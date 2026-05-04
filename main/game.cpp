@@ -408,6 +408,8 @@ void Game::transferOrGamble()
 {
     ESP_LOGD(TAG, "Entering transferOrGamble()");
 
+    displayController.displayVFDText(" TRANSFER OR GAMBLE ");
+
     this->displayController.getLampData()
         .at(DisplayController::LMP_TRANSFER)
         .lampState = LampState::blinkfast;
@@ -415,7 +417,7 @@ void Game::transferOrGamble()
         .at(DisplayController::LMP_START)
         .lampState = LampState::blinkslow;
 
-    uint8_t btnStatus = displayController.waitForButton(BTN_TRANSFER | BTN_START);
+    uint8_t btnStatus = displayController.waitForButton(BTN_TRANSFER_MASK_BIT | BTN_START_MASK_BIT);
 
     this->displayController.getLampData()
         .at(DisplayController::LMP_START)
@@ -452,6 +454,7 @@ void Game::transferOrGamble()
 void Game::collectOrContinue() const
 {
     ESP_LOGD(TAG, "Entering collectOrContinue()");
+    displayController.displayVFDText("COLLECT OR CONTINUE");
 
     this->displayController.getLampData()
         .at(DisplayController::LMP_START)
@@ -461,7 +464,7 @@ void Game::collectOrContinue() const
         .lampState = LampState::blinkslow;
 
     // loop waiting for button press.
-    uint8_t btnStatus = displayController.waitForButton(BTN_COLLECT | BTN_START);
+    uint8_t btnStatus = displayController.waitForButton(BTN_COLLECT_MASK_BIT | BTN_START_MASK_BIT);
 
     this->displayController.getLampData()
         .at(DisplayController::LMP_START)
@@ -470,7 +473,7 @@ void Game::collectOrContinue() const
         .at(DisplayController::LMP_COLLECT)
         .lampState = LampState::off;
 
-    if ((btnStatus & BTN_COLLECT) == BTN_COLLECT)
+    if ((btnStatus & BTN_COLLECT_MASK_BIT) == BTN_COLLECT_MASK_BIT)
     {
         ESP_LOGI(TAG, "Calling payout...");
 
@@ -737,7 +740,7 @@ void Game::playFreeSpin()
     displayController.displayVFDText("     FREE SPIN!     ");
 
     // loop waiting for button press.
-    displayController.waitForButton(BTN_START);
+    displayController.waitForButton(BTN_START_MASK_BIT);
 
     this->audioController.playAudioFile(Sounds::SND_NOW_THATS_ICE);
 

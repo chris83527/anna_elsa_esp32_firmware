@@ -237,13 +237,17 @@ esp_err_t HttpController::api_status_handler(httpd_req_t* req)
 
     // credits, number of games, payout stats etc.
     std::string json = "{";
-    json += ",\"bank\":\"" + std::to_string(bank)+ "\"";
-    json += ",\"credit\":\"" + std::to_string(credit)+ "\"";
-    json += ",\"gameCount\":\"" + std::to_string(gameCount)+ "\"";
-    json += ",\"transfer\":\"" + std::to_string(transfer)+ "\"";
-    json += ",\"incomeTotal\":\"" + std::to_string(incomeTotal)+ "\"";
-    json += ",\"payoutTotal\":\"" + std::to_string(payoutTotal)+ "\"";
-    json += ",\"volume\":\"" + std::to_string(volume) + "\"";
+    json += ",\"bank\":" + std::to_string(bank);
+    json += ",\"credit\":" + std::to_string(credit);
+    json += ",\"gameCount\":" + std::to_string(gameCount);
+    json += ",\"transfer\":" + std::to_string(transfer);
+    json += ",\"incomeTotal\":" + std::to_string(incomeTotal);
+    json += ",\"payoutTotal\":" + std::to_string(payoutTotal);
+    json += ",\"volume\":" + std::to_string(volume);
+    json += ",\"buttons\":" + std::to_string(self->mainController.getDisplayController().getButtonStatus());
+    json += ",\"leftReel\":" + std::to_string(self->mainController.getReelController().getReelStopInfo().leftStop);
+    json += ",\"centreReel\":" + std::to_string(self->mainController.getReelController().getReelStopInfo().leftStop);
+    json += ",\"rightReel\":" + std::to_string(self->mainController.getReelController().getReelStopInfo().leftStop);
     json += "}";
 
 
