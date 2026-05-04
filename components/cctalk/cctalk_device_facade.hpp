@@ -285,14 +285,11 @@ public:
             */
 
 
-            int newEventCount = int(rsp.currentEventNumber) - int(this->lastEventNumber);
+            int newEventCount = static_cast<int>(rsp.currentEventNumber) - static_cast<int>(this->lastEventNumber);
             if (newEventCount < 0)
             {
                 newEventCount += 255;
             }
-
-            //
-            this->lastEventNumber = rsp.currentEventNumber;
 
             // Any more than 5 events means that events have been lost
             if (newEventCount > 5)
@@ -300,7 +297,11 @@ public:
                 ESP_LOGW(TAG, "Event counter difference %d is greater than 5. Credits probably lost.", newEventCount);
             }
 
-            out = rsp.events;
+            if (rsp.currentEventNumber > lastEventNumber) {
+                out = rsp.events;
+            }
+
+            this->lastEventNumber = rsp.currentEventNumber;
         }
 
         return err;

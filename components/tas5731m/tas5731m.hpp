@@ -32,6 +32,8 @@
 #define TAS5731M_H
 
 
+#include <tgmath.h>
+
 #include "driver/i2s_common.h"
 #include "driver/i2s_std.h"
 #include "esp_err.h"
@@ -39,20 +41,74 @@
 
 #include "typed_i2c_device.hpp"
 
+enum TAS5731_AUDIO_FORMATS
+{
+    TAS5731_FMT_I2S,     /* I2S mode */
+    TAS5731_FMT_RIGHT_J, /* Right Justified mode */
+    TAS5731_FMT_LEFT_J,  /* Left Justified mode */
+};
+
+enum TAS5731_DAI_FORMATS
+{
+    TAS5731_DAI_RATE_8000 = 8000,
+    TAS5731_DAI_RATE_11025 = 11025,
+    TAS5731_DAI_RATE_12000 = 12000,
+    TAS5731_DAI_RATE_16000 = 16000,
+    TAS5731_DAI_RATE_22050 = 22050,
+    TAS5731_DAI_RATE_24000 = 24000,
+    TAS5731_DAI_RATE_32000 = 32000,
+    TAS5731_DAI_RATE_44100 = 44100,
+    TAS5731_DAI_RATE_48000 = 48000,
+};
+
+enum TAS5731_MODE
+{
+    TAS5731_MODE_20,
+    TAS5731_MODE_21,
+    TAS5731_MODE_PBTL,
+};
+
+enum TAS5731_INPUT_MUX
+{
+    TAS5731_INPUT_MUX_SDIN_L,
+    TAS5731_INPUT_MUX_SDIN_R,
+    TAS5731_INPUT_MUX_GROUND,
+    TAS5731_INPUT_MUX_LR_HALF,
+    TAS5731_INPUT_MUX_LEFT_BQ
+};
+
+enum TAS5731_CHANNELS
+{
+    TAS5731_CHANNEL_1,
+    TAS5731_CHANNEL_2,
+    TAS5731_CHANNEL_4 = 0x03,
+};
 
 class TAS5731M : public TypedI2CDevice
 {
 public:
     TAS5731M(I2CBus& i2c_bus, uint8_t address, gpio_num_t resetPin, gpio_num_t powerDownPin, gpio_num_t mclkPin, gpio_num_t sclkPin, gpio_num_t lrckPin, gpio_num_t dataPin) :
-        TypedI2CDevice(i2c_bus, address), resetPin(resetPin), powerDownPin(powerDownPin), mclkPin(mclkPin), sclkPin(sclkPin), lrckPin(lrckPin), dataPin(dataPin)
+        TypedI2CDevice(i2c_bus, address = TAS5731M_I2C_ADDRESS), resetPin(resetPin), powerDownPin(powerDownPin), mclkPin(mclkPin), sclkPin(sclkPin), lrckPin(lrckPin), dataPin(dataPin), isInitialised(false)
     {
     }
 
     ~TAS5731M() = default;
 
+    esp_err_t reset();
     esp_err_t initialise();
-    void setVolume(int volume);
-    int getVolume();
+    int16_t getMasterVolumeDB()
+    {
+        // 0.5 steps 0x00 is +24dB
+        return floor(((-0.5f * masterVolume) + 24.0f) * 100);
+    }
+
+    void setMasterVolumeDB(int16_t db)
+    {
+        return setMasterVolume(_mapDb(db, -10350, 2400, 0xFE, 0x00));
+    }
+
+    void setMasterVolume(uint8_t volume);
+    int getMasterVolume();
     esp_err_t enableChannel();
     esp_err_t disableChannel();
     esp_err_t setMute(bool mute);
@@ -61,8 +117,6 @@ public:
 
 private:
     const char* TAG = "TAS5731M";
-
-
 
     esp_err_t i2sInit();
     esp_err_t i2cInit();
@@ -76,6 +130,8 @@ private:
     static constexpr int TAS5731M_VOLUME_MAX = 100;
     static constexpr int TAS5731M_VOLUME_MIN = 5;
 
+    static constexpr int TAS5731_DEFAULT_I2CADDR = 0x1b;
+
     gpio_num_t resetPin;
     gpio_num_t powerDownPin;
     gpio_num_t mclkPin;
@@ -88,7 +144,14 @@ private:
         0x4c, 0x4a, 0x48, 0x44, 0x40, 0x3d, 0x3b, 0x39, 0x37, 0x35
     };
 
-    uint8_t currentVolume;
+    uint8_t _mapDb(int16_t x, int16_t min, uint16_t max, uint8_t minOff, uint8_t maxOff)
+    {
+        return (x - min) * (maxOff - minOff) / (max - min) + minOff;
+    }
+
+    uint8_t masterVolume;
+
+    bool isInitialised;
 };
 
 #endif //TAS5731M_H
