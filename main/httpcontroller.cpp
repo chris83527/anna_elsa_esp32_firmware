@@ -289,12 +289,12 @@ esp_err_t HttpController::api_status_update_handler(httpd_req_t* req)
     buf[len] = '\0';
 
     // Very simple JSON parsing (for brevity); in production use a JSON lib
-    char volume[4] = {0};
-    sscanf(buf, R"({"volume":"%3[^"]"})", volume);
+    int volume = {0};
+    sscanf(buf, R"({"volume":%d})", &volume);
 
-    self->mainController.getAudioController().setVolume(atoi(volume));
+    self->mainController.getAudioController().setVolume(static_cast<uint8_t>(volume));
 
-    ret = httpd_resp_set_status(req, HTTPD_200);
+    httpd_resp_set_status(req, HTTPD_200);
     return httpd_resp_send(req, nullptr, 0);
 }
 

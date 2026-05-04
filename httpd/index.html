@@ -99,7 +99,7 @@
             const res = await fetch('/api/status', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: "{\"volume\": \"" + e.target.value + "\"}",
+                body: "{\"volume\": " + e.target.value + "}",
             });
             const text = await res.text();
             statusEl.textContent = text;

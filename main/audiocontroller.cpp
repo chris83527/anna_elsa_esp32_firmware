@@ -130,7 +130,7 @@ void AudioController::setVolume(int volume)
 {
     tas5731m.setMasterVolume(volume);
 
-    // publish the change via Websocket
+    // write the new volume to NVS
     mainController->getNvsController().writeValueToNVS("volume", volume);
     //mainController->getHttpController().broadcast_status();
 }
