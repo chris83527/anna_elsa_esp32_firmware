@@ -39,17 +39,60 @@
 
 #include "typed_i2c_device.hpp"
 
+enum TAS5731_AUDIO_FORMATS
+{
+    TAS5731_FMT_I2S,     /* I2S mode */
+    TAS5731_FMT_RIGHT_J, /* Right Justified mode */
+    TAS5731_FMT_LEFT_J,  /* Left Justified mode */
+};
+
+enum TAS5731_DAI_FORMATS
+{
+    TAS5731_DAI_RATE_8000 = 8000,
+    TAS5731_DAI_RATE_11025 = 11025,
+    TAS5731_DAI_RATE_12000 = 12000,
+    TAS5731_DAI_RATE_16000 = 16000,
+    TAS5731_DAI_RATE_22050 = 22050,
+    TAS5731_DAI_RATE_24000 = 24000,
+    TAS5731_DAI_RATE_32000 = 32000,
+    TAS5731_DAI_RATE_44100 = 44100,
+    TAS5731_DAI_RATE_48000 = 48000,
+};
+
+enum TAS5731_MODE
+{
+    TAS5731_MODE_20,
+    TAS5731_MODE_21,
+    TAS5731_MODE_PBTL,
+};
+
+enum TAS5731_INPUT_MUX
+{
+    TAS5731_INPUT_MUX_SDIN_L,
+    TAS5731_INPUT_MUX_SDIN_R,
+    TAS5731_INPUT_MUX_GROUND,
+    TAS5731_INPUT_MUX_LR_HALF,
+    TAS5731_INPUT_MUX_LEFT_BQ
+};
+
+enum TAS5731_CHANNELS
+{
+    TAS5731_CHANNEL_1,
+    TAS5731_CHANNEL_2,
+    TAS5731_CHANNEL_4 = 0x03,
+};
 
 class TAS5731M : public TypedI2CDevice
 {
 public:
     TAS5731M(I2CBus& i2c_bus, uint8_t address, gpio_num_t resetPin, gpio_num_t powerDownPin, gpio_num_t mclkPin, gpio_num_t sclkPin, gpio_num_t lrckPin, gpio_num_t dataPin) :
-        TypedI2CDevice(i2c_bus, address), resetPin(resetPin), powerDownPin(powerDownPin), mclkPin(mclkPin), sclkPin(sclkPin), lrckPin(lrckPin), dataPin(dataPin)
+        TypedI2CDevice(i2c_bus, address = TAS5731M_I2C_ADDRESS), resetPin(resetPin), powerDownPin(powerDownPin), mclkPin(mclkPin), sclkPin(sclkPin), lrckPin(lrckPin), dataPin(dataPin), isInitialised(false)
     {
     }
 
     ~TAS5731M() = default;
 
+    esp_err_t reset();
     esp_err_t initialise();
     void setVolume(int volume);
     int getVolume();
@@ -62,8 +105,6 @@ public:
 private:
     const char* TAG = "TAS5731M";
 
-
-
     esp_err_t i2sInit();
     esp_err_t i2cInit();
 
@@ -75,6 +116,8 @@ private:
 
     static constexpr int TAS5731M_VOLUME_MAX = 100;
     static constexpr int TAS5731M_VOLUME_MIN = 5;
+
+    static constexpr int TAS5731_DEFAULT_I2CADDR = 0x1b;
 
     gpio_num_t resetPin;
     gpio_num_t powerDownPin;
@@ -89,6 +132,8 @@ private:
     };
 
     uint8_t currentVolume;
+
+    bool isInitialised;
 };
 
 #endif //TAS5731M_H
