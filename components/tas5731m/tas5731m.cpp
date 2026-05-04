@@ -137,12 +137,9 @@ void TAS5731M::setVolume(int volume)
     }
     vol_idx = volume / 5;
 
-    std::vector<uint8_t> data;
-
-    data.push_back(tas5731m_volume[vol_idx]);
-    writeReg(TAS5731M_REGISTERS::MASTER_VOLUME, data);
-    currentVolume = data[0];
-    ESP_LOGI(TAG, "Set volume to 0x%x", data[0]);
+    currentVolume = tas5731m_volume[vol_idx];
+    writeReg(TAS5731M_REGISTERS::MASTER_VOLUME, currentVolume);
+    ESP_LOGI(TAG, "Set volume to 0x%x", currentVolume);
 }
 
 int TAS5731M::getVolume()

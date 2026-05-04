@@ -74,9 +74,7 @@ public:
 class AudioController
 {
 public:
-    explicit AudioController(I2CBus& bus, MainController* mainController) : tas5731m(bus, TAS5731M_I2C_ADDRESS, TAS5731M_RST_GPIO, TAS5731M_PDWN_GPIO, AUDIO_MCLK, AUDIO_SCLK, AUDIO_LRCLK, AUDIO_DOUT), mainController(mainController)
-    {
-    }
+    explicit AudioController(I2CBus& bus, MainController* mainController);
 
     ~AudioController() = default;
 

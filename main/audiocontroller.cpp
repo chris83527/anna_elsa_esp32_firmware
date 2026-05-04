@@ -55,6 +55,11 @@
 
 static const char* TAG = "AudioController";
 
+AudioController::AudioController(I2CBus& bus, MainController* mainController) : tas5731m(bus, TAS5731M_I2C_ADDRESS, TAS5731M_RST_GPIO, TAS5731M_PDWN_GPIO, AUDIO_MCLK, AUDIO_SCLK, AUDIO_LRCLK, AUDIO_DOUT), mainController(mainController)
+{
+}
+
+
 void AudioController::initialise()
 {
     ESP_LOGI(TAG, "Enter initialise()");
@@ -62,6 +67,8 @@ void AudioController::initialise()
     ESP_LOGI(TAG, "Initialising board and codecs");
 
     init_spiffs();
+
+    tas5731m.initialise();
 
     setVolume(mainController->getNvsController().readValueFromNVS("volume")); // Get this volume from NVRAM
 

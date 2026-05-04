@@ -50,6 +50,7 @@ public:
 
     ~TAS5731M() = default;
 
+    esp_err_t initialise();
     void setVolume(int volume);
     int getVolume();
     esp_err_t enableChannel();
@@ -61,7 +62,7 @@ public:
 private:
     const char* TAG = "TAS5731M";
 
-    esp_err_t initialise();
+
 
     esp_err_t i2sInit();
     esp_err_t i2cInit();
