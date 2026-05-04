@@ -20,8 +20,6 @@
 
 esp_err_t TAS5731M::initialise()
 {
-
-
     ESP_LOGD(TAG, "Power ON CODEC with GPIO %d", powerDownPin);
 
     esp_rom_gpio_pad_select_gpio(resetPin);
@@ -45,6 +43,8 @@ esp_err_t TAS5731M::initialise()
     gpio_set_level(powerDownPin, 1);
     std::this_thread::sleep_for(std::chrono::microseconds(15));
 
+    isInitialised = true;
+
     i2cInit();
     i2sInit();
 
@@ -67,7 +67,7 @@ esp_err_t TAS5731M::i2cInit()
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     writeReg(TAS5731M_REGISTERS::SERIAL_DATA_INTERFACE_REGISTER, 0x03);
-    writeReg(TAS5731M_REGISTERS::SOFT_MUTE_REGISTER, 0x00);
+
 
     // Set chan 1, 2, 3 (4) volumes to 0dB
     writeReg(TAS5731M_REGISTERS::CHANNEL_1_VOL, 0x30);
@@ -100,6 +100,7 @@ esp_err_t TAS5731M::i2cInit()
     writeReg(TAS5731M_REGISTERS::PWM_MUX_REGISTER, data);
 
     writeReg(TAS5731M_REGISTERS::MASTER_VOLUME, 0xff); // Mute
+    writeReg(TAS5731M_REGISTERS::SOFT_MUTE_REGISTER, 0x00);
 
     // bring out of shutdown
     writeReg(TAS5731M_REGISTERS::SYSTEM_CONTROL_REGISTER_2, 0x00);
