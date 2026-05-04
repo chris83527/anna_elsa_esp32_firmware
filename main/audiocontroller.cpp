@@ -132,7 +132,7 @@ void AudioController::setVolume(int volume)
 
     // publish the change via Websocket
     mainController->getNvsController().writeValueToNVS("volume", volume);
-    mainController->getHttpController().broadcast_status();
+    //mainController->getHttpController().broadcast_status();
 }
 
 void AudioController::mute()

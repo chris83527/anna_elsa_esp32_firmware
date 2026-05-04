@@ -149,13 +149,18 @@ void MainController::start()
         }
     }
 
+    // initialise audio subsystem
     displayController.displayVFDText("INITIALISING 05");
+    displayController.scrollOledText("Init Audio");
+    this->audioController.initialise();
+
+    displayController.displayVFDText("INITIALISING 06");
     displayController.scrollOledText("Init WiFi");
     
     ESP_ERROR_CHECK(wifi.init());
     ESP_ERROR_CHECK(wifi.start_async());
 
-    displayController.displayVFDText("INITIALISING 06");
+    displayController.displayVFDText("INITIALISING 07");
     displayController.scrollOledText("Init Webserver");
 
     httpController.start(); // serve provisioning page + /provision
@@ -181,10 +186,7 @@ void MainController::start()
         }
     }
 
-    // initialise audio subsystem
-    displayController.displayVFDText("INITIALISING 07");
-    displayController.scrollOledText("Init Audio");
-    this->audioController.initialise();
+
 
     displayController.displayVFDText("INITIALISING 08");
     displayController.scrollOledText("Init Display");

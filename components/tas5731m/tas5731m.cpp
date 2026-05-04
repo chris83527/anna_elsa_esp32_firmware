@@ -91,6 +91,8 @@ esp_err_t TAS5731M::i2cInit()
 
     writeReg(TAS5731M_REGISTERS::SYSTEM_CONTROL_REGISTER_2, 0x00);
 
+    readErrorRegister();
+
     return ESP_OK;
 }
 
