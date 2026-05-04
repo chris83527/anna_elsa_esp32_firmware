@@ -128,7 +128,7 @@ void AudioController::playAudioFileAsync(const char* filepath)
 
 void AudioController::setVolume(int volume)
 {
-    tas5731m.setVolume(volume);
+    tas5731m.setMasterVolume(volume);
 
     // publish the change via Websocket
     mainController->getNvsController().writeValueToNVS("volume", volume);
@@ -147,7 +147,7 @@ void AudioController::unmute()
 
 int AudioController::getVolume()
 {
-    return tas5731m.getVolume();
+    return tas5731m.getMasterVolume();
 }
 
 void AudioController::stopPlaying() { this->playing = false; }
