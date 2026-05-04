@@ -37,9 +37,7 @@
  */
 #ifndef __AUDIOCONTROLLER_H__
 #define __AUDIOCONTROLLER_H__
-
-#include "typed_i2c_device.hpp"
-#include "driver/i2s_std.h"
+#include "tas5731m.hpp"
 
 class MainController;
 
@@ -73,11 +71,10 @@ public:
     static constexpr const char* SND_STARTUP = "startup.wav";
 };
 
-class AudioController : public TypedI2CDevice
+class AudioController
 {
 public:
-    explicit AudioController(I2CBus& bus, MainController* mainController) : TypedI2CDevice(bus, TAS5731M_I2C_ADDRESS),
-                                                                            mainController(mainController)
+    explicit AudioController(I2CBus& bus, MainController* mainController) : tas5731m(bus, TAS5731M_I2C_ADDRESS, TAS5731M_RST_GPIO, TAS5731M_PDWN_GPIO, AUDIO_MCLK, AUDIO_SCLK, AUDIO_LRCLK, AUDIO_DOUT), mainController(mainController)
     {
     }
 
@@ -89,39 +86,22 @@ public:
     void stopPlaying();
     int getVolume();
     void setVolume(int volume);
-    bool isMute();
-    void setMute();
+    void mute();
+    void unmute();
     [[nodiscard]] bool isPlaying() const;
-    uint8_t getErrors();
-
-public:
-private:
-    esp_err_t i2sInit();
-    esp_err_t i2cInit();
 
 private:
-    i2s_chan_handle_t channelHandle{};
-    i2s_chan_config_t channelConfig{};
-    i2s_std_config_t i2sConfig{};
-
-    static constexpr int AUDIO_BUFFER = 1024;
-    static constexpr int TAS5731M_I2C_ADDRESS = 0x1a;
-    static constexpr int MASTER_VOL_REG_ADDR = 0x07;
-    static constexpr int MUTE_TIME_REG_ADDR = 0x51;
-
-    static constexpr int TAS5731M_VOLUME_MAX = 100;
-    static constexpr int TAS5731M_VOLUME_MIN = 5;
+    bool playing{};
+    int vol{};
 
     static constexpr gpio_num_t TAS5731M_RST_GPIO = GPIO_NUM_14;
     static constexpr gpio_num_t TAS5731M_PDWN_GPIO = GPIO_NUM_2;
 
-    static constexpr uint8_t tas5731m_volume[] = {
-        0xff, 0x9f, 0x8f, 0x7f, 0x6f, 0x5f, 0x5c, 0x5a, 0x58, 0x54, 0x50,
-        0x4c, 0x4a, 0x48, 0x44, 0x40, 0x3d, 0x3b, 0x39, 0x37, 0x35
-    };
+    static constexpr int TAS5731M_I2C_ADDRESS = 0x1a;
 
-    bool playing{};
-    int vol{};
+    static constexpr int AUDIO_BUFFER = 1024;
+
+    TAS5731M tas5731m;
 
     MainController* mainController;
 };

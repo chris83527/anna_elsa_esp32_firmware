@@ -43,6 +43,11 @@ public:
         return m_dev.read(out.data(), len, timeout);
     }
 
+    esp_err_t writeReg(uint8_t reg, uint8_t data, std::chrono::milliseconds timeout = std::chrono::milliseconds(100))
+    {
+       return m_dev.writeRegister(reg, data, timeout);
+    }
+
     // -------- Vector Write --------
     esp_err_t writeReg(uint8_t reg,
                        const std::vector<uint8_t>& data,
