@@ -450,7 +450,7 @@ void DisplayController::chaseEffect()
 
 void DisplayController::blinkLampsCallback(void* param)
 {
-    DisplayController* displayController = static_cast<DisplayController*>(param);
+    auto displayController = static_cast<DisplayController*>(param);
 
     static int state = 0;
     ESP_LOGD(TAG, "blink lamp timer called");
@@ -555,7 +555,7 @@ void DisplayController::blinkLampsCallback(void* param)
     }
 
     // if we have completed all four states (0-3).. reset state to zero and start again
-    if (state++ == 4)
+    if (++state == 4)
     {
         state = 0;
     }
@@ -565,7 +565,7 @@ void DisplayController::updateLampsCallback(void* param)
 {
     ESP_LOGD(TAG, "Update Lamps Callback called");
 
-    DisplayController* displayController = static_cast<DisplayController*>(param);
+    auto displayController = static_cast<DisplayController*>(param);
 
     static uint8_t lampVal = 0;
     static uint16_t bank = 0;
@@ -587,8 +587,8 @@ void DisplayController::updateLampsCallback(void* param)
             // with a positive value to light
             if ((displayController->lampData[i].activeRgb.r > 0 ||
                     displayController->lampData[i].activeRgb.g > 0 ||
-                    displayController->lampData[i].activeRgb.b > 0) &&
-                displayController->lampData[i].lampState == LampState::on)
+                    displayController->lampData[i].activeRgb.b > 0))
+             // &&   displayController->lampData[i].lampState == LampState::on)
             {
                 switch (i)
                 {
