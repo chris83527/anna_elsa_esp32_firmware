@@ -32,6 +32,8 @@
 #define TAS5731M_H
 
 
+#include <tgmath.h>
+
 #include "driver/i2s_common.h"
 #include "driver/i2s_std.h"
 #include "esp_err.h"
@@ -94,8 +96,19 @@ public:
 
     esp_err_t reset();
     esp_err_t initialise();
-    void setVolume(int volume);
-    int getVolume();
+    int16_t getMasterVolumeDB()
+    {
+        // 0.5 steps 0x00 is +24dB
+        return floor(((-0.5f * masterVolume) + 24.0f) * 100);
+    }
+
+    void setMasterVolumeDB(int16_t db)
+    {
+        return setMasterVolume(_mapDb(db, -10350, 2400, 0xFE, 0x00));
+    }
+
+    void setMasterVolume(uint8_t volume);
+    int getMasterVolume();
     esp_err_t enableChannel();
     esp_err_t disableChannel();
     esp_err_t setMute(bool mute);
@@ -131,7 +144,12 @@ private:
         0x4c, 0x4a, 0x48, 0x44, 0x40, 0x3d, 0x3b, 0x39, 0x37, 0x35
     };
 
-    uint8_t currentVolume;
+    uint8_t _mapDb(int16_t x, int16_t min, uint16_t max, uint8_t minOff, uint8_t maxOff)
+    {
+        return (x - min) * (maxOff - minOff) / (max - min) + minOff;
+    }
+
+    uint8_t masterVolume;
 
     bool isInitialised;
 };

@@ -139,40 +139,22 @@ esp_err_t TAS5731M::i2sInit()
     return i2s_channel_init_std_mode(channelHandle, &i2sConfig);
 }
 
-void TAS5731M::setVolume(int volume)
+void TAS5731M::setMasterVolume(uint8_t volume)
 {
-    int vol_idx = 0;
-
-    if (volume < TAS5731M_VOLUME_MIN)
-    {
-        volume = TAS5731M_VOLUME_MIN;
-    }
-    if (volume > TAS5731M_VOLUME_MAX)
-    {
-        volume = TAS5731M_VOLUME_MAX;
-    }
-    vol_idx = volume / 5;
-
-    currentVolume = tas5731m_volume[vol_idx];
-    writeReg(TAS5731M_REGISTERS::MASTER_VOLUME, currentVolume);
-    ESP_LOGI(TAG, "Set volume to 0x%x", currentVolume);
+    masterVolume = volume;
+    writeReg(TAS5731M_REGISTERS::MASTER_VOLUME, masterVolume);
+    ESP_LOGI(TAG, "Set volume to %d", masterVolume);
 }
 
-int TAS5731M::getVolume()
+int TAS5731M::getMasterVolume()
 {
     /// FIXME: Got the digit volume is not right.
     std::vector<uint8_t> data;
     data.resize(1);
     readReg(TAS5731M_REGISTERS::MASTER_VOLUME, data, 1);
-    // TAS5731M_ASSERT(ret, "Failed to get volume", ESP_FAIL);
-    int i;
-    for (i = 0; i < sizeof(tas5731m_volume); i++)
-    {
-        if (data[0] >= tas5731m_volume[i])
-            break;
-    }
-    ESP_LOGI(TAG, "Volume is %d", i * 5);
-    return 5 * i;
+
+    ESP_LOGI(TAG, "Volume is %d", data[0]);
+    return data[0];
 }
 
 esp_err_t TAS5731M::setMute(bool mute)
@@ -181,10 +163,9 @@ esp_err_t TAS5731M::setMute(bool mute)
     {
         return writeReg(TAS5731M_REGISTERS::MASTER_VOLUME, 0xff);
     }
-    else
-    {
-        return writeReg(TAS5731M_REGISTERS::MASTER_VOLUME, currentVolume);
-    }
+
+    return writeReg(TAS5731M_REGISTERS::MASTER_VOLUME, masterVolume);
+
 }
 
 esp_err_t TAS5731M::enableChannel()

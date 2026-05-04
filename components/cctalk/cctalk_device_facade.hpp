@@ -285,14 +285,11 @@ public:
             */
 
 
-            int newEventCount = int(rsp.currentEventNumber) - int(this->lastEventNumber);
+            int newEventCount = static_cast<int>(rsp.currentEventNumber) - static_cast<int>(this->lastEventNumber);
             if (newEventCount < 0)
             {
                 newEventCount += 255;
             }
-
-            //
-
 
             // Any more than 5 events means that events have been lost
             if (newEventCount > 5)
