@@ -14,6 +14,18 @@ WifiManager::WifiManager()
 {
 }
 
+WifiManager::~WifiManager()
+{
+    stop_rssi.store(true);
+    stop_watchdog.store(true);
+}
+
+void WifiManager::stop()
+{
+    stop_rssi.store(true);
+    stop_watchdog.store(true);
+}
+
 esp_err_t WifiManager::init()
 {
     if (!wifi_event_group)
@@ -37,15 +49,16 @@ bool WifiManager::has_credentials() const
 {
     wifi_config_t cfg{};
     esp_wifi_get_config(WIFI_IF_STA, &cfg);
-    return  cfg.sta.ssid[0] != '\0';
+    return cfg.sta.ssid[0] != '\0';
 }
 
-esp_err_t WifiManager::save_credentials(const char* ssid, const char* pass) {
+esp_err_t WifiManager::save_credentials(const char* ssid, const char* pass)
+{
     wifi_config_t cfg{};
     strncpy((char*)cfg.sta.ssid, ssid, sizeof(cfg.sta.ssid));
     strncpy((char*)cfg.sta.password, pass, sizeof(cfg.sta.password));
 
-    return esp_wifi_set_config(WIFI_IF_STA, &cfg);  // saved to NVS
+    return esp_wifi_set_config(WIFI_IF_STA, &cfg); // saved to NVS
 }
 
 std::string WifiManager::generate_hostname()
@@ -101,33 +114,57 @@ void WifiManager::wifi_thread()
     watchdog_worker = std::thread([this]()
     {
         ESP_LOGI(TAG, "Wi-Fi watchdog thread started");
+
         int disconnected_secs = 0;
+
         while (!stop_watchdog.load())
         {
-            if (!ap_mode.load())
+            if (!has_credentials())
             {
-                // only care in STA mode
-                if (!connected.load())
+                disconnected_secs = 0;
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                continue;
+            }
+            // only care in STA mode
+            if (!connected.load())
+            {
+                disconnected_secs++;
+                if (disconnected_secs >= 60)
                 {
-                    disconnected_secs++;
-                    if (disconnected_secs >= 60)
-                    {
-                        // 60s threshold
-                        ESP_LOGW(TAG, "Wi-Fi disconnected for 60s, restarting STA");
-                        disconnected_secs = 0;
-                        esp_wifi_disconnect();
-                        esp_wifi_connect();
-                    }
-                }
-                else
-                {
+                    // 60s threshold
+                    ESP_LOGW(TAG, "Wi-Fi disconnected for 60s, restarting STA");
                     disconnected_secs = 0;
+                    esp_wifi_disconnect();
+                    esp_wifi_connect();
                 }
             }
+            else
+            {
+                disconnected_secs = 0;
+            }
+
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     });
     watchdog_worker.detach();
+
+    //
+    // 3. Optional: background RSSI monitor
+    //
+    rssi_worker = std::thread([this]()
+    {
+        while (!stop_rssi.load())
+        {
+            if (connected.load())
+            {
+                int rssi = get_rssi();
+                last_rssi.store(rssi);
+            }
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+        }
+    });
+
+    rssi_worker.detach();
 
     while (true)
     {
@@ -219,7 +256,8 @@ esp_err_t WifiManager::start_sta()
     wifi_config_t wifi_config{};
     esp_wifi_get_config(WIFI_IF_STA, &wifi_config);
 
-    if (wifi_config.sta.ssid[0] == '\0') {
+    if (wifi_config.sta.ssid[0] == '\0')
+    {
         ESP_LOGW(TAG, "No STA credentials in NVS");
         return ESP_FAIL;
     }

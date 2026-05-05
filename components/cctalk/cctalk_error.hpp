@@ -11,6 +11,7 @@ enum class CctalkError
     MalformedFrame,
     DeviceError,
     InvalidHeader,
+    IncorrectCipherBytes,
     Unknown
 };
 

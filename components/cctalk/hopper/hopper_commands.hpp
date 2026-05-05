@@ -25,7 +25,6 @@ namespace cctalk::hopper
         std::vector<uint8_t> cipherKey;
         std::uint8_t coins;
     };
-
     inline CctalkError cctalk_hopper_payout(CctalkBus& bus,
                                             std::uint8_t host,
                                             std::uint8_t device,
@@ -100,7 +99,7 @@ namespace cctalk::hopper
         CctalkFrame req;
         req.destination = device;
         req.source = host;
-        req.header = CctalkHeaders::RequestHopperCoinValue;
+        req.header = CctalkHeaders::RequestPayoutHighLowStatus;
         req.data.clear();
 
         CctalkFrame resp;
@@ -116,7 +115,6 @@ namespace cctalk::hopper
     {
         std::vector<uint8_t> cipher;
     };
-
     inline CctalkError cctalk_hopper_request_cipher_key(CctalkBus& bus,
                                                         std::uint8_t host,
                                                         std::uint8_t device,

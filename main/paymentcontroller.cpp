@@ -375,6 +375,7 @@ void PaymentController::onEvent(const CctalkEvent& evt)
         break;
 
     case CctalkEventType::HopperStatusChanged:
+
         //updateHopperUI(evt.hopper);
         // TODO: Error
         break;

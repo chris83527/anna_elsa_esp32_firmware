@@ -23,7 +23,7 @@
 //
 // High-level façade for ccTalk devices.
 // This class hides all protocol details and exposes a clean API
-// for your application logic.
+// for the application logic.
 //
 class CctalkDeviceFacade
 {
@@ -42,7 +42,6 @@ public:
     //
     // --- Generic Device Info ---
     //
-
     CctalkError resetDevice(std::uint8_t destination,
                             std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
     {
@@ -339,7 +338,7 @@ public:
         cctalk::hopper::RspHopperCipherKey out{};
         CctalkError err = requestCipherKey(out);
 
-        if (err == CctalkError::OK)
+        if (err == CctalkError::OK && out.cipher.size() == 8)
         {
             cctalk::hopper::ReqHopperPayout req{
                 out.cipher,
@@ -348,7 +347,7 @@ public:
             return cctalk_hopper_payout(bus_, host_, hopper_, req, timeout);
         }
 
-        return err;
+        return CctalkError::IncorrectCipherBytes;
     }
 
     CctalkError getHopperStatus(HopperStatus& out,

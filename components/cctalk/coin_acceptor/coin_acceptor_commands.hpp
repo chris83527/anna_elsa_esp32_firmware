@@ -225,7 +225,6 @@ namespace cctalk::coin_validator
         std::uint8_t coin_id;
         std::uint8_t path;
     };
-
     inline CctalkError cctalk_modify_sorter_paths(CctalkBus& bus,
                                                   std::uint8_t host,
                                                   std::uint8_t device,

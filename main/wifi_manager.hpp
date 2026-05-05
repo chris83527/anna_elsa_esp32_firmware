@@ -21,6 +21,7 @@ struct WifiNetwork {
 class WifiManager {
 public:
     WifiManager();
+    ~WifiManager();
 
     esp_err_t init();          // call once after NVS init
     esp_err_t start_async();   // non-blocking Wi-Fi start
@@ -59,7 +60,10 @@ private:
     std::thread rssi_worker;
 
     std::thread watchdog_worker;
+    std::atomic<bool> stop_rssi{false};
     std::atomic<bool> stop_watchdog{false};
+
+    void stop();
 
     std::atomic<int> last_rssi{-100};   // default: very weak
 
