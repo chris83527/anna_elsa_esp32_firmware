@@ -269,7 +269,7 @@ void PaymentController::removeFromCredit(const uint16_t value)
 
 void PaymentController::payoutBank()
 {
-    CctalkError err = facade_->hopperPayout(getBank() / 20);
+    CctalkError err = facade_->hopperPayout(static_cast<uint8_t>(getBank() / 20));
 
     if (err == CctalkError::OK)
     {
