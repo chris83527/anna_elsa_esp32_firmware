@@ -317,7 +317,10 @@ public:
     CctalkError requestCipherKey(cctalk::hopper::RspHopperCipherKey& out,
                                  std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
     {
-        return cctalk::hopper::cctalk_hopper_request_cipher_key(bus_, host_, hopper_, out, timeout);
+        CctalkError ret =  cctalk::hopper::cctalk_hopper_request_cipher_key(bus_, host_, hopper_, out, timeout);
+        ESP_LOGD(TAG, "requestCipherKey called. Response: %3d %3d %3d %3d %3d %3d %3d %3d", out.cipher[0], out.cipher[1], out.cipher[2], out.cipher[3], out.cipher[4], out.cipher[5], out.cipher[6], out.cipher[7]);
+
+        return ret;
     }
 
     CctalkError hopperPayout(std::uint8_t coins, std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
