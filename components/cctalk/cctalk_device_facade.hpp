@@ -323,8 +323,14 @@ public:
                                  std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
     {
         CctalkError ret =  cctalk::hopper::cctalk_hopper_request_cipher_key(bus_, host_, hopper_, out, timeout);
-        ESP_LOGD(TAG, "requestCipherKey called. Response: %3d %3d %3d %3d %3d %3d %3d %3d", out.cipher[0], out.cipher[1], out.cipher[2], out.cipher[3], out.cipher[4], out.cipher[5], out.cipher[6], out.cipher[7]);
 
+        if (ret == CctalkError::OK)
+        {
+            ESP_LOGD(TAG, "requestCipherKey called. Response: %3d %3d %3d %3d %3d %3d %3d %3d", out.cipher[0], out.cipher[1], out.cipher[2], out.cipher[3], out.cipher[4], out.cipher[5], out.cipher[6], out.cipher[7]);
+        } else
+        {
+            ESP_LOGE(TAG, "Got non-ok return code: %d", ret);
+        }
         return ret;
     }
 

@@ -84,10 +84,10 @@ bool ReelController::initialise()
     ESP_LOGI(TAG, "ReelController::initialise() called");
 
     // MOTOR_EN is on a GPIO
-    esp_rom_gpio_pad_select_gpio(GPIO_MOTOR_EN);
+    //esp_rom_gpio_pad_select_gpio(GPIO_MOTOR_EN);
     // Set the GPIO as a push/pull output
     gpio_set_direction(GPIO_MOTOR_EN, GPIO_MODE_OUTPUT);
-/*
+
     // Prepare and then apply the LEDC PWM timer configuration
     ledc_timer_config_t ledc_timer = {
         .speed_mode = LEDC_MODE,
@@ -127,7 +127,7 @@ bool ReelController::initialise()
 
     ledc_bind_channel_timer(LEDC_MODE, LEDC_CHANNEL, LEDC_TIMER);
     ledc_fade_func_install(ESP_INTR_FLAG_IRAM);
-*/
+
     reelLeftInitOk = false;
     reelCentreInitOk = false;
     reelRightInitOk = false;

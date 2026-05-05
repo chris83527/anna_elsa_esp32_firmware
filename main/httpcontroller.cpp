@@ -168,7 +168,7 @@ esp_err_t HttpController::asset_handler(httpd_req_t* req)
 {
     const char* uri = req->uri; // e.g. "/httpd/bootstrap.min.css"
     char path[520];
-    snprintf(path, sizeof(path), "%s", uri);
+    snprintf(path, sizeof(path), "/httpd/%s", uri);
 
     if (strstr(uri, ".css"))
         httpd_resp_set_type(req, "text/css");

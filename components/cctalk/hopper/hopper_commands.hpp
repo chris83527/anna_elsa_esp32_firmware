@@ -121,6 +121,9 @@ namespace cctalk::hopper
                                                         RspHopperCipherKey& out,
                                                         std::chrono::milliseconds timeout)
     {
+
+        const char* TAG = "hopper_commands";
+
         CctalkFrame req;
         req.destination = device;
         req.source = host;
@@ -129,9 +132,21 @@ namespace cctalk::hopper
 
         CctalkFrame resp;
         auto err = bus.sendAndReceive(req, resp, timeout);
-        if (err != CctalkError::OK) return err;
-        if (resp.data.empty()) return CctalkError::MalformedFrame;
-        if (resp.data.size() != 8) return CctalkError::MalformedFrame;
+        if (err != CctalkError::OK)
+        {
+            ESP_LOGE(TAG, "Received error from bus.sendAndReceive: %d", err);
+            return err;
+        }
+        if (resp.data.empty())
+        {
+            ESP_LOGE(TAG, "Received MalformedFrame error");
+            return CctalkError::MalformedFrame;
+        }
+        if (resp.data.size() != 8)
+        {
+            ESP_LOGE(TAG, "Did not receive 8 cipher bytes");
+            return CctalkError::MalformedFrame;
+        }
 
         out.cipher = resp.data;
 
