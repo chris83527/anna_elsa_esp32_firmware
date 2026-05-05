@@ -146,7 +146,7 @@ namespace pca9629a
          *  @param register_name the register name: data writing into
          *  @param value 8 bits writing data
          */
-        esp_err_t write8(pca9629a::RegisterName register_name, uint8_t value);
+        esp_err_t write8(uint8_t reg, uint8_t value);
 
         /** Write 2 bytes data into a register
          *
@@ -157,7 +157,7 @@ namespace pca9629a
          * "CCWRCOUNT_" )
          *  @param value 16 bits writing data
          */
-        esp_err_t write16(pca9629a::RegisterName register_name, uint16_t value);
+        esp_err_t write16(uint8_t reg, uint16_t value);
 
         /** Read 1 byte data from a register
          *
@@ -166,7 +166,7 @@ namespace pca9629a
          *  @param register_name the register name: data reading from
          *  @return read 8 bits data from the register
          */
-        esp_err_t read8(pca9629a::RegisterName register_name, uint8_t& result);
+        esp_err_t read8(uint8_t reg, uint8_t& result);
 
         /** Read 2 byte data from registers
          *
@@ -177,7 +177,7 @@ namespace pca9629a
          * "CCWRCOUNT_" )
          *  @return read 16 bits data from the registers
          */
-        esp_err_t read16(pca9629a::RegisterName register_name, uint16_t& result);
+        esp_err_t read16(uint8_t reg, uint16_t& result);
 
         /* prescaler range setting */
         typedef enum

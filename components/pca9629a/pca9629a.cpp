@@ -45,11 +45,9 @@ namespace pca9629a
     esp_err_t Driver::softwareReset()
     {
         ESP_LOGI(TAG, "pca9629a software_reset");
-
-        std::vector<uint8_t> data;
-        data.push_back(0x06);
-
-        esp_err_t ret = writeReg(static_cast<uint8_t>(RegisterName::REG_MODE), data);
+        
+        esp_err_t ret = writeReg(REG_MODE, 0x06);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         if (ret != ESP_OK)
         {
@@ -112,13 +110,13 @@ namespace pca9629a
                        uint8_t repeats)
     {
         performingAction = true;
-        write8(RegisterName::REG_MSK, 0x1F); // Disable all interrupts
-        write8(RegisterName::REG_INT_MTR_ACT, 0x00);
-        write16((direction == Direction::CW) ? RegisterName::REG_CWSCOUNTL : RegisterName::REG_CCWSCOUNTL,
+        write8(REG_MSK, 0x1F); // Disable all interrupts
+        write8(REG_INT_MTR_ACT, 0x00);
+        write16((direction == Direction::CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL,
                 step_count);
-        write8(RegisterName::REG_PMA, repeats);
-        write8(RegisterName::REG_INTSTAT, 0x00); // reset interrupt status register
-        write8(RegisterName::REG_MCNTL, 0x80 | static_cast<uint8_t>(direction));
+        write8(REG_PMA, repeats);
+        write8(REG_INTSTAT, 0x00); // reset interrupt status register
+        write8(REG_MCNTL, 0x80 | static_cast<uint8_t>(direction));
         performingAction = false;
     }
 
@@ -127,29 +125,29 @@ namespace pca9629a
     {
         performingAction = true;
 
-        write8(RegisterName::REG_MSK, 0x1E); // Enable interrupt on P0
-        write8(RegisterName::REG_PMA, 1);
-        write8(RegisterName::REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and stop motor on
+        write8(REG_MSK, 0x1E); // Enable interrupt on P0
+        write8(REG_PMA, 1);
+        write8(REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and stop motor on
         // interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register
-        write8(RegisterName::REG_INTSTAT, 0x00); // reset interrupt status register
-        write16((direction == Direction::CW) ? RegisterName::REG_CWSCOUNTL : RegisterName::REG_CCWSCOUNTL, 255);
-        write8(RegisterName::REG_MCNTL, 0x90 | static_cast<uint8_t>(direction));
+        write8(REG_INTSTAT, 0x00); // reset interrupt status register
+        write16((direction == Direction::CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 255);
+        write8(REG_MCNTL, 0x90 | static_cast<uint8_t>(direction));
 
         uint8_t data;
-        read8(RegisterName::REG_MCNTL, data);
+        read8(REG_MCNTL, data);
         while ((data & bit::MCNTL_BUSY) != 0)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
-            read8(RegisterName::REG_MCNTL, data);
+            read8(REG_MCNTL, data);
         }
 
         // Now move the number of steps
-        write8(RegisterName::REG_MSK, 0x1F); // Disable all interrupts
-        write8(RegisterName::REG_INT_MTR_ACT, 0x00);
-        write16((direction == Direction::CW) ? RegisterName::REG_CWSCOUNTL : RegisterName::REG_CCWSCOUNTL, step_count);
-        write8(RegisterName::REG_PMA, repeats);
-        write8(RegisterName::REG_INTSTAT, 0x00); // reset interrupt status register
-        write8(RegisterName::REG_MCNTL, 0x80 | static_cast<uint8_t>(direction));
+        write8(REG_MSK, 0x1F); // Disable all interrupts
+        write8(REG_INT_MTR_ACT, 0x00);
+        write16((direction == Direction::CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
+        write8(REG_PMA, repeats);
+        write8(REG_INTSTAT, 0x00); // reset interrupt status register
+        write8(REG_MCNTL, 0x80 | static_cast<uint8_t>(direction));
 
         performingAction = false;
     }
@@ -158,20 +156,20 @@ namespace pca9629a
     {
         performingAction = true;
 
-        write8(RegisterName::REG_MSK, 0x1E); // Enable interrupt on P0
-        write8(RegisterName::REG_PMA, 0x01);
-        write8(RegisterName::REG_INT_MTR_ACT,
+        write8(REG_MSK, 0x1E); // Enable interrupt on P0
+        write8(REG_PMA, 0x01);
+        write8(REG_INT_MTR_ACT,
                0x01); // Set enable interrupt based control of motor and stop motor on
         // interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register
-        write8(RegisterName::REG_INTSTAT, 0x00); // reset interrupt status register
-        write16((dir == Direction::CW) ? RegisterName::REG_CWSCOUNTL : RegisterName::REG_CCWSCOUNTL, 255);
-        write8(RegisterName::REG_MCNTL, 0x90 | static_cast<uint8_t>(dir));
+        write8(REG_INTSTAT, 0x00); // reset interrupt status register
+        write16((dir == Direction::CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 255);
+        write8(REG_MCNTL, 0x90 | static_cast<uint8_t>(dir));
         performingAction = false;
     }
 
     void Driver::stop()
     {
-        write8(RegisterName::REG_MCNTL, 0x00);
+        write8(REG_MCNTL, 0x00);
     }
 
     bool Driver::isStopped()
@@ -179,7 +177,7 @@ namespace pca9629a
         if (!performingAction)
         {
             uint8_t data;
-            read8(RegisterName::REG_MCNTL, data);
+            read8(REG_MCNTL, data);
 
             return (data & 0x80) == 0;
         }
@@ -223,12 +221,9 @@ namespace pca9629a
     }
 
     // I2C Helper methods
-    esp_err_t Driver::write8(RegisterName register_name, const uint8_t value)
+    esp_err_t Driver::write8(const uint8_t reg, const uint8_t value)
     {
-        std::vector<uint8_t> data;
-        data.push_back(value);
-
-        esp_err_t ret = writeReg(static_cast<uint8_t>(register_name), data);
+        esp_err_t ret = writeReg(reg, value);
 
         if (ret != ESP_OK)
         {
@@ -238,7 +233,7 @@ namespace pca9629a
         return ret;
     }
 
-    esp_err_t Driver::write16(RegisterName register_name, const uint16_t value)
+    esp_err_t Driver::write16(const uint8_t reg, const uint16_t value)
     {
         std::vector<uint8_t> data;
 
@@ -246,7 +241,7 @@ namespace pca9629a
         data.push_back(value >> 8);
 
         // TODO:
-        esp_err_t ret = writeReg(static_cast<uint8_t>(register_name) + 0x80, data); // + 0x80 for autoincrement
+        esp_err_t ret = writeReg(reg, data);
 
         if (ret != ESP_OK)
         {
@@ -256,11 +251,11 @@ namespace pca9629a
         return ret;
     }
 
-    esp_err_t Driver::read8(RegisterName register_name, uint8_t& result)
+    esp_err_t Driver::read8(const uint8_t reg, uint8_t& result)
     {
         std::vector<uint8_t> data;
 
-        esp_err_t ret = readReg(static_cast<uint8_t>(register_name), data, 1);
+        esp_err_t ret = readReg(reg, data, 1);
 
         if (ret != ESP_OK)
         {
@@ -275,11 +270,11 @@ namespace pca9629a
         return ret;
     }
 
-    esp_err_t Driver::read16(RegisterName register_name, uint16_t& result)
+    esp_err_t Driver::read16(const uint8_t reg, uint16_t& result)
     {
         std::vector<uint8_t> data;
 
-        esp_err_t ret = readReg(static_cast<uint8_t>(register_name), data, 2);
+        esp_err_t ret = readReg(reg, data, 2);
 
         if (ret != ESP_OK)
         {

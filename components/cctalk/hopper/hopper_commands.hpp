@@ -119,6 +119,7 @@ namespace cctalk::hopper
         auto err = bus.sendAndReceive(req, resp, timeout);
         if (err != CctalkError::OK) return err;
         if (resp.data.empty()) return CctalkError::MalformedFrame;
+        if (resp.data.size() != 8) return CctalkError::MalformedFrame;
 
         out.cipher = resp.data;
 
