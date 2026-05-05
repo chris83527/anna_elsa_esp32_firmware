@@ -20,7 +20,7 @@ namespace cctalk::general {
         CctalkFrame req;
         req.destination = device;
         req.source      = host;
-        req.header      = static_cast<std::uint8_t>(CctalkHeader::ResetDevice);
+        req.header      = static_cast<std::uint8_t>(CctalkHeaders::ResetDevice);
         req.data = {};
 
         return bus.send(req, timeout);
@@ -41,7 +41,7 @@ namespace cctalk::general {
         CctalkFrame req;
         req.destination = device;
         req.source      = host;
-        req.header      = static_cast<std::uint8_t>(CctalkHeader::RequestEquipmentCategoryId);
+        req.header      = static_cast<std::uint8_t>(CctalkHeaders::RequestEquipmentCategoryId);
         req.data.clear();
 
         CctalkFrame resp;

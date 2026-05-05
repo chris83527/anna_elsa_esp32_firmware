@@ -5,6 +5,18 @@
 
 namespace cctalk::hopper
 {
+
+    inline CctalkError cctalk_enable_hopper(CctalkBus& bus, std::uint8_t host, std::uint8_t device, std::chrono::milliseconds timeout)
+    {
+        CctalkFrame req;
+        req.destination = device;
+        req.source = host;
+        req.header = CctalkHeaders::EnableHopper;
+        req.data.clear();
+
+        return bus.send(req, timeout);
+    }
+
     // Pay money out (header 164)
     struct ReqHopperPayout
     {
@@ -21,7 +33,7 @@ namespace cctalk::hopper
         CctalkFrame req;
         req.destination = device;
         req.source = host;
-        req.header = static_cast<std::uint8_t>(CctalkHeader::PayMoneyOut);
+        req.header = CctalkHeaders::PayMoneyOut;
         req.data.assign(std::begin(reqPay.cipherKey), std::end(reqPay.cipherKey));
         req.data.push_back(reqPay.coins);
 
@@ -48,7 +60,7 @@ namespace cctalk::hopper
         CctalkFrame req;
         req.destination = device;
         req.source = host;
-        req.header = static_cast<std::uint8_t>(CctalkHeader::RequestHopperStatus);
+        req.header = CctalkHeaders::RequestHopperStatus;
         req.data.clear();
 
         CctalkFrame resp;
@@ -86,7 +98,7 @@ namespace cctalk::hopper
         CctalkFrame req;
         req.destination = device;
         req.source = host;
-        req.header = static_cast<std::uint8_t>(CctalkHeader::RequestHopperCoinValue);
+        req.header = CctalkHeaders::RequestHopperCoinValue;
         req.data.clear();
 
         CctalkFrame resp;
@@ -112,7 +124,7 @@ namespace cctalk::hopper
         CctalkFrame req;
         req.destination = device;
         req.source = host;
-        req.header = static_cast<std::uint8_t>(CctalkHeader::RequestCipherKey);
+        req.header = CctalkHeaders::RequestCipherKey;
         req.data.clear();
 
         CctalkFrame resp;

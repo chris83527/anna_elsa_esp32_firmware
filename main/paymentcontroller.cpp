@@ -141,6 +141,8 @@ void PaymentController::start()
     // Allow all coins except 5ct
     facade_->setInhibitMask(254, 0);
 
+    facade_->enableHopper();
+
     acceptorThread_->start();
     hopperThread_->start();
 

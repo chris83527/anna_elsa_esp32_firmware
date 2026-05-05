@@ -3,348 +3,348 @@
 #include <map>
 
 // Full numeric coverage: 0–255
-enum class CctalkHeader : uint8_t
+namespace CctalkHeaders
 {
-    Ack = 0,
-    ResetDevice = 1,
-    RequestCommsStatusVariables = 2,
-    ClearCommsStatusVariables = 3,
-    RequestCommsRevision = 4,
-    Busy = 6,
-    RequestServiceStatus = 104,
-    DataStream = 105,
-    RequestEscrowStatus = 106,
-    OperateEscrow = 107,
-    RequestEncryptedMonetaryId = 108,
-    RequestEncryptedHopperStatus = 109,
-    SwitchEncryptionKey = 110,
-    RequestEncryptionSupport = 111,
-    ReadEncryptedEvents = 112,
-    SwitchBaudRate = 113,
-    RequestUsbId = 114,
-    RequestRealTimeClock = 115,
-    ModifyRealTimeClock = 116,
-    RequestCashboxValue = 117,
-    ModifyCashboxValue = 118,
-    RequestHopperBalance = 119,
-    ModifyHopperBalance = 120,
-    PurgeHopper = 121,
-    RequestErrorStatus = 122,
-    RequestActivityRegister = 123,
-    VerifyMoneyOut = 124,
-    PayMoneyOut = 125,
-    ClearMoneyCounter = 126,
-    RequestMoneyOut = 127,
-    RequestMoneyIn = 128,
-    ReadBarcodeData = 129,
-    RequestIndexedHopperDispenseCount = 130,
-    RequestHopperCoinValue = 131,
-    EmergencyStopValue = 132,
-    RequestHopperPollingValue = 133,
-    DispenseHopperValue = 134,
-    SetAcceptLimit = 135,
-    StoreEncryptionCode = 136,
-    SwitchEncryptionCode = 137,
-    FinishFirmwareUpgrade = 138,
-    BeginFirmwareUpgrade = 139,
-    UploadFirmware = 140,
-    RequestFirmwareUpgradeCapability = 141,
-    FinishBillTableUpgrade = 142,
-    BeginBillTableUpgrade = 143,
-    UploadBillTables = 144,
-    RequestCurrencyRevision = 145,
-    OperateBidirectionalMotors = 146,
-    PerformStackerCycle = 147,
-    ReadOptoVoltages = 148,
-    RequestIndividualErrorCounter = 149,
-    RequestIndividualAcceptCounter = 150,
-    TestLamps = 151,
-    RequestBillOperatingMode = 152,
-    ModifyBillOperatingMode = 153,
-    RouteBill = 154,
-    RequestBillPosition = 155,
-    RequestCountryScalingFactor = 156,
-    RequestBillId = 157,
-    ModifyBillId = 158,
-    ReadBufferedBillEvents = 159,
-    RequestCipherKey = 160,
-    PumpRng = 161,
-    ModifiyInhibitAndOverrideRegisters = 162,
-    TestHopper = 163,
-    EnableHopper = 164,
-    ModifyVariableSet = 165,
-    RequestHopperStatus = 166,
-    DispenseHopperCoins = 167,
-    RequestHopperDispenseCount = 168,
-    RequestAddressMode = 169,
-    RequestBaseYear = 170,
-    RequestHopperCoin = 171,
-    EmergencyStop = 172,
-    RequestThermistorReading = 173,
-    RequestPayoutFloat = 174,
-    ModifyPayoutFloat = 175,
-    RequestAlarmCounter = 176,
-    HandheldFunction = 177,
-    RequestBankSelect = 178,
-    ModifyBankSelect = 179,
-    RequestSecuritySetting = 180,
-    ModifySecuritySetting = 181,
-    DownloadCalibrationInfo = 182,
-    UploadWindowData = 183,
-    RequestCoinId = 184,
-    ModifyCoinId = 185,
-    RequestPayoutCapacity = 186,
-    ModifyPayoutCapacity = 187,
-    RequestDefaultSorterPath = 188,
-    ModifyDefaultSorterPath = 189,
-    KeypadControl = 191,
-    RequestBuildCode = 192,
-    RequestFraudCounter = 193,
-    RequestRejectCounter = 194,
-    RequestLastModificationDate = 195,
-    RequestCreationDate = 196,
-    CalculateRomChecksum = 197,
-    CountersToEeprom = 198,
-    ConfigurationToEeprom = 199,
-    AcmiUnencryptedProductId = 200,
-    RequestTeachStatus = 201,
-    TeachModeControl = 202,
-    DisplayControl = 203,
-    MeterControl = 204,
-    RequestPayoutAbsoluteCount = 207,
-    ModifyPayoutAbsoluteCount = 208,
-    RequestSorterPaths = 209,
-    ModifySorterPaths = 210,
-    PowerManagementControl = 211,
-    RequestCoinPosition = 212,
-    RequestOptionFlags = 213,
-    WriteDataBlock = 214,
-    ReadDataBlock = 215,
-    RequestDataStorageAvailability = 216,
-    RequestPayoutHighLowStatus = 217,
-    EnterPinNumber = 218,
-    EnterNewPinNumber = 219,
-    AcmiEncryptedData = 220,
-    RequestSorterOverrideStatus = 221,
-    ModifySorterOverrideStatus = 222,
-    ModifyEncryptedInhibitAndOverrideRegisters = 223,
-    RequestEncryptedProductId = 224,
-    RequestAcceptCounter = 225,
-    RequestInsertionCounter = 226,
-    RequestMasterInhibitStatus = 227,
-    ModifyMasterInhibitStatus = 228,
-    ReadBufferedCreditOrErrorCodes = 229,
-    RequestInhibitStatus = 230,
-    ModifyInhibitStatus = 231,
-    PerformSelfCheck = 232,
-    LatchOutputLines = 233,
-    SendDhPublicKey = 234,
-    ReadDhPublicKey = 235,
-    ReadOptoStates = 236,
-    ReadInputLines = 237,
-    TestOutputLines = 238,
-    OperateMotors = 239,
-    TestSolenoids = 240,
-    RequestSoftwareRevision = 241,
-    RequestSerialNumber = 242,
-    RequestDatabaseVersion = 243,
-    RequestProductCode = 244,
-    RequestEquipmentCategoryId = 245,
-    RequestManufacturerId = 246,
-    RequestVariableSet = 247,
-    RequestStatus = 248,
-    RequestPollingPriority = 249,
-    AddressRandom = 250,
-    AddressChange = 251,
-    AddressClash = 252,
-    AddressPoll = 253,
-    SimplePoll = 254,
-    FactorySetupAndTest = 255
-};
+    constexpr uint8_t Ack = 0;
+    constexpr uint8_t ResetDevice = 1;
+    constexpr uint8_t RequestCommsStatusVariables = 2;
+    constexpr uint8_t ClearCommsStatusVariables = 3;
+    constexpr uint8_t RequestCommsRevision = 4;
+    constexpr uint8_t Busy = 6;
+    constexpr uint8_t RequestServiceStatus = 104;
+    constexpr uint8_t DataStream = 105;
+    constexpr uint8_t RequestEscrowStatus = 106;
+    constexpr uint8_t OperateEscrow = 107;
+    constexpr uint8_t RequestEncryptedMonetaryId = 108;
+    constexpr uint8_t RequestEncryptedHopperStatus = 109;
+    constexpr uint8_t SwitchEncryptionKey = 110;
+    constexpr uint8_t RequestEncryptionSupport = 111;
+    constexpr uint8_t ReadEncryptedEvents = 112;
+    constexpr uint8_t SwitchBaudRate = 113;
+    constexpr uint8_t RequestUsbId = 114;
+    constexpr uint8_t RequestRealTimeClock = 115;
+    constexpr uint8_t ModifyRealTimeClock = 116;
+    constexpr uint8_t RequestCashboxValue = 117;
+    constexpr uint8_t ModifyCashboxValue = 118;
+    constexpr uint8_t RequestHopperBalance = 119;
+    constexpr uint8_t ModifyHopperBalance = 120;
+    constexpr uint8_t PurgeHopper = 121;
+    constexpr uint8_t RequestErrorStatus = 122;
+    constexpr uint8_t RequestActivityRegister = 123;
+    constexpr uint8_t VerifyMoneyOut = 124;
+    constexpr uint8_t PayMoneyOut = 125;
+    constexpr uint8_t ClearMoneyCounter = 126;
+    constexpr uint8_t RequestMoneyOut = 127;
+    constexpr uint8_t RequestMoneyIn = 128;
+    constexpr uint8_t ReadBarcodeData = 129;
+    constexpr uint8_t RequestIndexedHopperDispenseCount = 130;
+    constexpr uint8_t RequestHopperCoinValue = 131;
+    constexpr uint8_t EmergencyStopValue = 132;
+    constexpr uint8_t RequestHopperPollingValue = 133;
+    constexpr uint8_t DispenseHopperValue = 134;
+    constexpr uint8_t SetAcceptLimit = 135;
+    constexpr uint8_t StoreEncryptionCode = 136;
+    constexpr uint8_t SwitchEncryptionCode = 137;
+    constexpr uint8_t FinishFirmwareUpgrade = 138;
+    constexpr uint8_t BeginFirmwareUpgrade = 139;
+    constexpr uint8_t UploadFirmware = 140;
+    constexpr uint8_t RequestFirmwareUpgradeCapability = 141;
+    constexpr uint8_t FinishBillTableUpgrade = 142;
+    constexpr uint8_t BeginBillTableUpgrade = 143;
+    constexpr uint8_t UploadBillTables = 144;
+    constexpr uint8_t RequestCurrencyRevision = 145;
+    constexpr uint8_t OperateBidirectionalMotors = 146;
+    constexpr uint8_t PerformStackerCycle = 147;
+    constexpr uint8_t ReadOptoVoltages = 148;
+    constexpr uint8_t RequestIndividualErrorCounter = 149;
+    constexpr uint8_t RequestIndividualAcceptCounter = 150;
+    constexpr uint8_t TestLamps = 151;
+    constexpr uint8_t RequestBillOperatingMode = 152;
+    constexpr uint8_t ModifyBillOperatingMode = 153;
+    constexpr uint8_t RouteBill = 154;
+    constexpr uint8_t RequestBillPosition = 155;
+    constexpr uint8_t RequestCountryScalingFactor = 156;
+    constexpr uint8_t RequestBillId = 157;
+    constexpr uint8_t ModifyBillId = 158;
+    constexpr uint8_t ReadBufferedBillEvents = 159;
+    constexpr uint8_t RequestCipherKey = 160;
+    constexpr uint8_t PumpRng = 161;
+    constexpr uint8_t ModifiyInhibitAndOverrideRegisters = 162;
+    constexpr uint8_t TestHopper = 163;
+    constexpr uint8_t EnableHopper = 164;
+    constexpr uint8_t ModifyVariableSet = 165;
+    constexpr uint8_t RequestHopperStatus = 166;
+    constexpr uint8_t DispenseHopperCoins = 167;
+    constexpr uint8_t RequestHopperDispenseCount = 168;
+    constexpr uint8_t RequestAddressMode = 169;
+    constexpr uint8_t RequestBaseYear = 170;
+    constexpr uint8_t RequestHopperCoin = 171;
+    constexpr uint8_t EmergencyStop = 172;
+    constexpr uint8_t RequestThermistorReading = 173;
+    constexpr uint8_t RequestPayoutFloat = 174;
+    constexpr uint8_t ModifyPayoutFloat = 175;
+    constexpr uint8_t RequestAlarmCounter = 176;
+    constexpr uint8_t HandheldFunction = 177;
+    constexpr uint8_t RequestBankSelect = 178;
+    constexpr uint8_t ModifyBankSelect = 179;
+    constexpr uint8_t RequestSecuritySetting = 180;
+    constexpr uint8_t ModifySecuritySetting = 181;
+    constexpr uint8_t DownloadCalibrationInfo = 182;
+    constexpr uint8_t UploadWindowData = 183;
+    constexpr uint8_t RequestCoinId = 184;
+    constexpr uint8_t ModifyCoinId = 185;
+    constexpr uint8_t RequestPayoutCapacity = 186;
+    constexpr uint8_t ModifyPayoutCapacity = 187;
+    constexpr uint8_t RequestDefaultSorterPath = 188;
+    constexpr uint8_t ModifyDefaultSorterPath = 189;
+    constexpr uint8_t KeypadControl = 191;
+    constexpr uint8_t RequestBuildCode = 192;
+    constexpr uint8_t RequestFraudCounter = 193;
+    constexpr uint8_t RequestRejectCounter = 194;
+    constexpr uint8_t RequestLastModificationDate = 195;
+    constexpr uint8_t RequestCreationDate = 196;
+    constexpr uint8_t CalculateRomChecksum = 197;
+    constexpr uint8_t CountersToEeprom = 198;
+    constexpr uint8_t ConfigurationToEeprom = 199;
+    constexpr uint8_t AcmiUnencryptedProductId = 200;
+    constexpr uint8_t RequestTeachStatus = 201;
+    constexpr uint8_t TeachModeControl = 202;
+    constexpr uint8_t DisplayControl = 203;
+    constexpr uint8_t MeterControl = 204;
+    constexpr uint8_t RequestPayoutAbsoluteCount = 207;
+    constexpr uint8_t ModifyPayoutAbsoluteCount = 208;
+    constexpr uint8_t RequestSorterPaths = 209;
+    constexpr uint8_t ModifySorterPaths = 210;
+    constexpr uint8_t PowerManagementControl = 211;
+    constexpr uint8_t RequestCoinPosition = 212;
+    constexpr uint8_t RequestOptionFlags = 213;
+    constexpr uint8_t WriteDataBlock = 214;
+    constexpr uint8_t ReadDataBlock = 215;
+    constexpr uint8_t RequestDataStorageAvailability = 216;
+    constexpr uint8_t RequestPayoutHighLowStatus = 217;
+    constexpr uint8_t EnterPinNumber = 218;
+    constexpr uint8_t EnterNewPinNumber = 219;
+    constexpr uint8_t AcmiEncryptedData = 220;
+    constexpr uint8_t RequestSorterOverrideStatus = 221;
+    constexpr uint8_t ModifySorterOverrideStatus = 222;
+    constexpr uint8_t ModifyEncryptedInhibitAndOverrideRegisters = 223;
+    constexpr uint8_t RequestEncryptedProductId = 224;
+    constexpr uint8_t RequestAcceptCounter = 225;
+    constexpr uint8_t RequestInsertionCounter = 226;
+    constexpr uint8_t RequestMasterInhibitStatus = 227;
+    constexpr uint8_t ModifyMasterInhibitStatus = 228;
+    constexpr uint8_t ReadBufferedCreditOrErrorCodes = 229;
+    constexpr uint8_t RequestInhibitStatus = 230;
+    constexpr uint8_t ModifyInhibitStatus = 231;
+    constexpr uint8_t PerformSelfCheck = 232;
+    constexpr uint8_t LatchOutputLines = 233;
+    constexpr uint8_t SendDhPublicKey = 234;
+    constexpr uint8_t ReadDhPublicKey = 235;
+    constexpr uint8_t ReadOptoStates = 236;
+    constexpr uint8_t ReadInputLines = 237;
+    constexpr uint8_t TestOutputLines = 238;
+    constexpr uint8_t OperateMotors = 239;
+    constexpr uint8_t TestSolenoids = 240;
+    constexpr uint8_t RequestSoftwareRevision = 241;
+    constexpr uint8_t RequestSerialNumber = 242;
+    constexpr uint8_t RequestDatabaseVersion = 243;
+    constexpr uint8_t RequestProductCode = 244;
+    constexpr uint8_t RequestEquipmentCategoryId = 245;
+    constexpr uint8_t RequestManufacturerId = 246;
+    constexpr uint8_t RequestVariableSet = 247;
+    constexpr uint8_t RequestStatus = 248;
+    constexpr uint8_t RequestPollingPriority = 249;
+    constexpr uint8_t AddressRandom = 250;
+    constexpr uint8_t AddressChange = 251;
+    constexpr uint8_t AddressClash = 252;
+    constexpr uint8_t AddressPoll = 253;
+    constexpr uint8_t SimplePoll = 254;
+    constexpr uint8_t FactorySetupAndTest = 255;
+}
 
 // Named aliases for headers you actually use
-inline std::string CctalkHeaderGetDisplayableName(CctalkHeader header)
+inline std::string CctalkHeadersGetDisplayableName(uint8_t header)
 {
-    static std::map<CctalkHeader, std::string> name_map = {
-        {CctalkHeader::Ack, "Ready"},
-        {CctalkHeader::ResetDevice, "ResetDevice"},
-        {CctalkHeader::RequestCommsStatusVariables, "RequestCommsStatusVariables"},
-        {CctalkHeader::ClearCommsStatusVariables, "ClearCommsStatusVariables"},
-        {CctalkHeader::RequestCommsRevision, "RequestCommsRevision"},
-        {CctalkHeader::Busy, "Busy"},
-        {CctalkHeader::RequestServiceStatus, "RequestServiceStatus"},
-        {CctalkHeader::DataStream, "DataStream"},
-        {CctalkHeader::RequestEscrowStatus, "RequestEscrowStatus"},
-        {CctalkHeader::OperateEscrow, "OperateEscrow"},
-        {CctalkHeader::RequestEncryptedMonetaryId, "RequestEncryptedMonetaryId"},
-        {CctalkHeader::RequestEncryptedHopperStatus, "RequestEncryptedHopperStatus"},
-        {CctalkHeader::SwitchEncryptionKey, "SwitchEncryptionKey"},
-        {CctalkHeader::RequestEncryptionSupport, "RequestEncryptionSupport"},
-        {CctalkHeader::ReadEncryptedEvents, "eadEncryptedEvents"},
-        {CctalkHeader::SwitchBaudRate, "SwitchBaudRate"},
-        {CctalkHeader::RequestUsbId, "RequestUsbId"},
-        {CctalkHeader::RequestRealTimeClock, "RequestRealTimeClock"},
-        {CctalkHeader::ModifyRealTimeClock, "ModifyRealTimeClock"},
-        {CctalkHeader::RequestCashboxValue, "RequestCashboxValue"},
-        {CctalkHeader::ModifyCashboxValue, "ModifyCashboxValue"},
-        {CctalkHeader::RequestHopperBalance, "RequestHopperBalance"},
-        {CctalkHeader::ModifyHopperBalance, "ModifyHopperBalance"},
-        {CctalkHeader::PurgeHopper, "PurgeHopper"},
-        {CctalkHeader::RequestErrorStatus, "RequestErrorStatus"},
-        {CctalkHeader::RequestActivityRegister, "RequestActivityRegister"},
-        {CctalkHeader::VerifyMoneyOut, "VerifyMoneyOut"},
-        {CctalkHeader::PayMoneyOut, "PayMoneyOut"},
-        {CctalkHeader::ClearMoneyCounter, "ClearMoneyCounter"},
-        {CctalkHeader::RequestMoneyOut, "RequestMoneyOut"},
-        {CctalkHeader::RequestMoneyIn, "RequestMoneyIn"},
-        {CctalkHeader::ReadBarcodeData, "ReadBarcodeData"},
+    static std::map<uint8_t, std::string> name_map = {
+        {CctalkHeaders::Ack, "Ready"},
+        {CctalkHeaders::ResetDevice, "ResetDevice"},
+        {CctalkHeaders::RequestCommsStatusVariables, "RequestCommsStatusVariables"},
+        {CctalkHeaders::ClearCommsStatusVariables, "ClearCommsStatusVariables"},
+        {CctalkHeaders::RequestCommsRevision, "RequestCommsRevision"},
+        {CctalkHeaders::Busy, "Busy"},
+        {CctalkHeaders::RequestServiceStatus, "RequestServiceStatus"},
+        {CctalkHeaders::DataStream, "DataStream"},
+        {CctalkHeaders::RequestEscrowStatus, "RequestEscrowStatus"},
+        {CctalkHeaders::OperateEscrow, "OperateEscrow"},
+        {CctalkHeaders::RequestEncryptedMonetaryId, "RequestEncryptedMonetaryId"},
+        {CctalkHeaders::RequestEncryptedHopperStatus, "RequestEncryptedHopperStatus"},
+        {CctalkHeaders::SwitchEncryptionKey, "SwitchEncryptionKey"},
+        {CctalkHeaders::RequestEncryptionSupport, "RequestEncryptionSupport"},
+        {CctalkHeaders::ReadEncryptedEvents, "eadEncryptedEvents"},
+        {CctalkHeaders::SwitchBaudRate, "SwitchBaudRate"},
+        {CctalkHeaders::RequestUsbId, "RequestUsbId"},
+        {CctalkHeaders::RequestRealTimeClock, "RequestRealTimeClock"},
+        {CctalkHeaders::ModifyRealTimeClock, "ModifyRealTimeClock"},
+        {CctalkHeaders::RequestCashboxValue, "RequestCashboxValue"},
+        {CctalkHeaders::ModifyCashboxValue, "ModifyCashboxValue"},
+        {CctalkHeaders::RequestHopperBalance, "RequestHopperBalance"},
+        {CctalkHeaders::ModifyHopperBalance, "ModifyHopperBalance"},
+        {CctalkHeaders::PurgeHopper, "PurgeHopper"},
+        {CctalkHeaders::RequestErrorStatus, "RequestErrorStatus"},
+        {CctalkHeaders::RequestActivityRegister, "RequestActivityRegister"},
+        {CctalkHeaders::VerifyMoneyOut, "VerifyMoneyOut"},
+        {CctalkHeaders::PayMoneyOut, "PayMoneyOut"},
+        {CctalkHeaders::ClearMoneyCounter, "ClearMoneyCounter"},
+        {CctalkHeaders::RequestMoneyOut, "RequestMoneyOut"},
+        {CctalkHeaders::RequestMoneyIn, "RequestMoneyIn"},
+        {CctalkHeaders::ReadBarcodeData, "ReadBarcodeData"},
         {
-            CctalkHeader::RequestIndexedHopperDispenseCount,
+            CctalkHeaders::RequestIndexedHopperDispenseCount,
             "RequestIndexedHopperDispenseCount"
         },
-        {CctalkHeader::RequestHopperCoinValue, "RequestHopperCoinValue"},
-        {CctalkHeader::EmergencyStopValue, "EmergencyStopValue"},
-        {CctalkHeader::RequestHopperPollingValue, "RequestHopperPollingValue"},
-        {CctalkHeader::DispenseHopperValue, "DispenseHopperValue"},
-        {CctalkHeader::SetAcceptLimit, "SetAcceptLimit"},
-        {CctalkHeader::StoreEncryptionCode, "StoreEncryptionCode"},
-        {CctalkHeader::SwitchEncryptionCode, "SwitchEncryptionCode"},
-        {CctalkHeader::FinishFirmwareUpgrade, "FinishFirmwareUpgrade"},
-        {CctalkHeader::BeginFirmwareUpgrade, "BeginFirmwareUpgrade"},
-        {CctalkHeader::UploadFirmware, "UploadFirmware"},
+        {CctalkHeaders::RequestHopperCoinValue, "RequestHopperCoinValue"},
+        {CctalkHeaders::EmergencyStopValue, "EmergencyStopValue"},
+        {CctalkHeaders::RequestHopperPollingValue, "RequestHopperPollingValue"},
+        {CctalkHeaders::DispenseHopperValue, "DispenseHopperValue"},
+        {CctalkHeaders::SetAcceptLimit, "SetAcceptLimit"},
+        {CctalkHeaders::StoreEncryptionCode, "StoreEncryptionCode"},
+        {CctalkHeaders::SwitchEncryptionCode, "SwitchEncryptionCode"},
+        {CctalkHeaders::FinishFirmwareUpgrade, "FinishFirmwareUpgrade"},
+        {CctalkHeaders::BeginFirmwareUpgrade, "BeginFirmwareUpgrade"},
+        {CctalkHeaders::UploadFirmware, "UploadFirmware"},
         {
-            CctalkHeader::RequestFirmwareUpgradeCapability,
+            CctalkHeaders::RequestFirmwareUpgradeCapability,
             "RequestFirmwareUpgradeCapability"
         },
-        {CctalkHeader::FinishBillTableUpgrade, "FinishBillTableUpgrade"},
-        {CctalkHeader::BeginBillTableUpgrade, "BeginBillTableUpgrade"},
-        {CctalkHeader::UploadBillTables, "UploadBillTables"},
-        {CctalkHeader::RequestCurrencyRevision, "RequestCurrencyRevision"},
-        {CctalkHeader::OperateBidirectionalMotors, "OperateBidirectionalMotors"},
-        {CctalkHeader::PerformStackerCycle, "PerformStackerCycle"},
-        {CctalkHeader::ReadOptoVoltages, "ReadOptoVoltages"},
+        {CctalkHeaders::FinishBillTableUpgrade, "FinishBillTableUpgrade"},
+        {CctalkHeaders::BeginBillTableUpgrade, "BeginBillTableUpgrade"},
+        {CctalkHeaders::UploadBillTables, "UploadBillTables"},
+        {CctalkHeaders::RequestCurrencyRevision, "RequestCurrencyRevision"},
+        {CctalkHeaders::OperateBidirectionalMotors, "OperateBidirectionalMotors"},
+        {CctalkHeaders::PerformStackerCycle, "PerformStackerCycle"},
+        {CctalkHeaders::ReadOptoVoltages, "ReadOptoVoltages"},
         {
-            CctalkHeader::RequestIndividualErrorCounter,
+            CctalkHeaders::RequestIndividualErrorCounter,
             "RequestIndividualErrorCounter"
         },
         {
-            CctalkHeader::RequestIndividualAcceptCounter,
+            CctalkHeaders::RequestIndividualAcceptCounter,
             "RequestIndividualAcceptCounter"
         },
-        {CctalkHeader::TestLamps, "TestLamps"},
-        {CctalkHeader::RequestBillOperatingMode, "RequestBillOperatingMode"},
-        {CctalkHeader::ModifyBillOperatingMode, "ModifyBillOperatingMode"},
-        {CctalkHeader::RouteBill, "RouteBill"},
-        {CctalkHeader::RequestBillPosition, "RequestBillPosition"},
-        {CctalkHeader::RequestCountryScalingFactor, "RequestCountryScalingFactor"},
-        {CctalkHeader::RequestBillId, "RequestBillId"},
-        {CctalkHeader::ModifyBillId, "ModifyBillId"},
-        {CctalkHeader::ReadBufferedBillEvents, "ReadBufferedBillEvents"},
-        {CctalkHeader::RequestCipherKey, "RequestCipherKey"},
-        {CctalkHeader::PumpRng, "PumpRng"},
+        {CctalkHeaders::TestLamps, "TestLamps"},
+        {CctalkHeaders::RequestBillOperatingMode, "RequestBillOperatingMode"},
+        {CctalkHeaders::ModifyBillOperatingMode, "ModifyBillOperatingMode"},
+        {CctalkHeaders::RouteBill, "RouteBill"},
+        {CctalkHeaders::RequestBillPosition, "RequestBillPosition"},
+        {CctalkHeaders::RequestCountryScalingFactor, "RequestCountryScalingFactor"},
+        {CctalkHeaders::RequestBillId, "RequestBillId"},
+        {CctalkHeaders::ModifyBillId, "ModifyBillId"},
+        {CctalkHeaders::ReadBufferedBillEvents, "ReadBufferedBillEvents"},
+        {CctalkHeaders::RequestCipherKey, "RequestCipherKey"},
+        {CctalkHeaders::PumpRng, "PumpRng"},
         {
-            CctalkHeader::ModifiyInhibitAndOverrideRegisters,
+            CctalkHeaders::ModifiyInhibitAndOverrideRegisters,
             "ModifiyInhibitAndOverrideRegisters"
         },
-        {CctalkHeader::TestHopper, "TestHopper"},
-        {CctalkHeader::EnableHopper, "EnableHopper"},
-        {CctalkHeader::ModifyVariableSet, "ModifyVariableSet"},
-        {CctalkHeader::RequestHopperStatus, "RequestHopperStatus"},
-        {CctalkHeader::DispenseHopperCoins, "DispenseHopperCoins"},
-        {CctalkHeader::RequestHopperDispenseCount, "RequestHopperDispenseCount"},
-        {CctalkHeader::RequestAddressMode, "RequestAddressMode"},
-        {CctalkHeader::RequestBaseYear, "RequestBaseYear"},
-        {CctalkHeader::RequestHopperCoin, "RequestHopperCoin"},
-        {CctalkHeader::EmergencyStop, "EmergencyStop"},
-        {CctalkHeader::RequestThermistorReading, "RequestThermistorReading"},
-        {CctalkHeader::RequestPayoutFloat, "RequestPayoutFloat"},
-        {CctalkHeader::ModifyPayoutFloat, "ModifyPayoutFloat"},
-        {CctalkHeader::RequestAlarmCounter, "RequestAlarmCounter"},
-        {CctalkHeader::HandheldFunction, "HandheldFunction"},
-        {CctalkHeader::RequestBankSelect, "RequestBankSelect"},
-        {CctalkHeader::ModifyBankSelect, "ModifyBankSelect"},
-        {CctalkHeader::RequestSecuritySetting, "RequestSecuritySetting"},
-        {CctalkHeader::ModifySecuritySetting, "ModifySecuritySetting"},
-        {CctalkHeader::DownloadCalibrationInfo, "DownloadCalibrationInfo"},
-        {CctalkHeader::UploadWindowData, "UploadWindowData"},
-        {CctalkHeader::RequestCoinId, "RequestCoinId"},
-        {CctalkHeader::ModifyCoinId, "ModifyCoinId"},
-        {CctalkHeader::RequestPayoutCapacity, "RequestPayoutCapacity"},
-        {CctalkHeader::ModifyPayoutCapacity, "ModifyPayoutCapacity"},
-        {CctalkHeader::RequestDefaultSorterPath, "RequestDefaultSorterPath"},
-        {CctalkHeader::ModifyDefaultSorterPath, "ModifyDefaultSorterPath"},
-        {CctalkHeader::KeypadControl, "KeypadControl"},
-        {CctalkHeader::RequestBuildCode, "RequestBuildCode"},
-        {CctalkHeader::RequestFraudCounter, "RequestFraudCounter"},
-        {CctalkHeader::RequestRejectCounter, "RequestRejectCounter"},
-        {CctalkHeader::RequestLastModificationDate, "RequestLastModificationDate"},
-        {CctalkHeader::RequestCreationDate, "RequestCreationDate"},
-        {CctalkHeader::CalculateRomChecksum, "CalculateRomChecksum"},
-        {CctalkHeader::CountersToEeprom, "CountersToEeprom"},
-        {CctalkHeader::ConfigurationToEeprom, "ConfigurationToEeprom"},
-        {CctalkHeader::AcmiUnencryptedProductId, "AcmiUnencryptedProductId"},
-        {CctalkHeader::RequestTeachStatus, "RequestTeachStatus"},
-        {CctalkHeader::TeachModeControl, "TeachModeControl"},
-        {CctalkHeader::DisplayControl, "DisplayControl"},
-        {CctalkHeader::MeterControl, "MeterControl"},
-        {CctalkHeader::RequestPayoutAbsoluteCount, "RequestPayoutAbsoluteCount"},
-        {CctalkHeader::ModifyPayoutAbsoluteCount, "ModifyPayoutAbsoluteCount"},
-        {CctalkHeader::RequestSorterPaths, "RequestSorterPaths"},
-        {CctalkHeader::ModifySorterPaths, "ModifySorterPaths"},
-        {CctalkHeader::PowerManagementControl, "PowerManagementControl"},
-        {CctalkHeader::RequestCoinPosition, "RequestCoinPosition"},
-        {CctalkHeader::RequestOptionFlags, "RequestOptionFlags"},
-        {CctalkHeader::WriteDataBlock, "WriteDataBlock"},
-        {CctalkHeader::ReadDataBlock, "ReadDataBlock"},
+        {CctalkHeaders::TestHopper, "TestHopper"},
+        {CctalkHeaders::EnableHopper, "EnableHopper"},
+        {CctalkHeaders::ModifyVariableSet, "ModifyVariableSet"},
+        {CctalkHeaders::RequestHopperStatus, "RequestHopperStatus"},
+        {CctalkHeaders::DispenseHopperCoins, "DispenseHopperCoins"},
+        {CctalkHeaders::RequestHopperDispenseCount, "RequestHopperDispenseCount"},
+        {CctalkHeaders::RequestAddressMode, "RequestAddressMode"},
+        {CctalkHeaders::RequestBaseYear, "RequestBaseYear"},
+        {CctalkHeaders::RequestHopperCoin, "RequestHopperCoin"},
+        {CctalkHeaders::EmergencyStop, "EmergencyStop"},
+        {CctalkHeaders::RequestThermistorReading, "RequestThermistorReading"},
+        {CctalkHeaders::RequestPayoutFloat, "RequestPayoutFloat"},
+        {CctalkHeaders::ModifyPayoutFloat, "ModifyPayoutFloat"},
+        {CctalkHeaders::RequestAlarmCounter, "RequestAlarmCounter"},
+        {CctalkHeaders::HandheldFunction, "HandheldFunction"},
+        {CctalkHeaders::RequestBankSelect, "RequestBankSelect"},
+        {CctalkHeaders::ModifyBankSelect, "ModifyBankSelect"},
+        {CctalkHeaders::RequestSecuritySetting, "RequestSecuritySetting"},
+        {CctalkHeaders::ModifySecuritySetting, "ModifySecuritySetting"},
+        {CctalkHeaders::DownloadCalibrationInfo, "DownloadCalibrationInfo"},
+        {CctalkHeaders::UploadWindowData, "UploadWindowData"},
+        {CctalkHeaders::RequestCoinId, "RequestCoinId"},
+        {CctalkHeaders::ModifyCoinId, "ModifyCoinId"},
+        {CctalkHeaders::RequestPayoutCapacity, "RequestPayoutCapacity"},
+        {CctalkHeaders::ModifyPayoutCapacity, "ModifyPayoutCapacity"},
+        {CctalkHeaders::RequestDefaultSorterPath, "RequestDefaultSorterPath"},
+        {CctalkHeaders::ModifyDefaultSorterPath, "ModifyDefaultSorterPath"},
+        {CctalkHeaders::KeypadControl, "KeypadControl"},
+        {CctalkHeaders::RequestBuildCode, "RequestBuildCode"},
+        {CctalkHeaders::RequestFraudCounter, "RequestFraudCounter"},
+        {CctalkHeaders::RequestRejectCounter, "RequestRejectCounter"},
+        {CctalkHeaders::RequestLastModificationDate, "RequestLastModificationDate"},
+        {CctalkHeaders::RequestCreationDate, "RequestCreationDate"},
+        {CctalkHeaders::CalculateRomChecksum, "CalculateRomChecksum"},
+        {CctalkHeaders::CountersToEeprom, "CountersToEeprom"},
+        {CctalkHeaders::ConfigurationToEeprom, "ConfigurationToEeprom"},
+        {CctalkHeaders::AcmiUnencryptedProductId, "AcmiUnencryptedProductId"},
+        {CctalkHeaders::RequestTeachStatus, "RequestTeachStatus"},
+        {CctalkHeaders::TeachModeControl, "TeachModeControl"},
+        {CctalkHeaders::DisplayControl, "DisplayControl"},
+        {CctalkHeaders::MeterControl, "MeterControl"},
+        {CctalkHeaders::RequestPayoutAbsoluteCount, "RequestPayoutAbsoluteCount"},
+        {CctalkHeaders::ModifyPayoutAbsoluteCount, "ModifyPayoutAbsoluteCount"},
+        {CctalkHeaders::RequestSorterPaths, "RequestSorterPaths"},
+        {CctalkHeaders::ModifySorterPaths, "ModifySorterPaths"},
+        {CctalkHeaders::PowerManagementControl, "PowerManagementControl"},
+        {CctalkHeaders::RequestCoinPosition, "RequestCoinPosition"},
+        {CctalkHeaders::RequestOptionFlags, "RequestOptionFlags"},
+        {CctalkHeaders::WriteDataBlock, "WriteDataBlock"},
+        {CctalkHeaders::ReadDataBlock, "ReadDataBlock"},
         {
-            CctalkHeader::RequestDataStorageAvailability,
+            CctalkHeaders::RequestDataStorageAvailability,
             "RequestDataStorageAvailability"
         },
-        {CctalkHeader::RequestPayoutHighLowStatus, "RequestPayoutHighLowStatus"},
-        {CctalkHeader::EnterPinNumber, "EnterPinNumber"},
-        {CctalkHeader::EnterNewPinNumber, "EnterNewPinNumber"},
-        {CctalkHeader::AcmiEncryptedData, "AcmiEncryptedData"},
-        {CctalkHeader::RequestSorterOverrideStatus, "RequestSorterOverrideStatus"},
-        {CctalkHeader::ModifySorterOverrideStatus, "ModifySorterOverrideStatus"},
+        {CctalkHeaders::RequestPayoutHighLowStatus, "RequestPayoutHighLowStatus"},
+        {CctalkHeaders::EnterPinNumber, "EnterPinNumber"},
+        {CctalkHeaders::EnterNewPinNumber, "EnterNewPinNumber"},
+        {CctalkHeaders::AcmiEncryptedData, "AcmiEncryptedData"},
+        {CctalkHeaders::RequestSorterOverrideStatus, "RequestSorterOverrideStatus"},
+        {CctalkHeaders::ModifySorterOverrideStatus, "ModifySorterOverrideStatus"},
         {
-            CctalkHeader::ModifyEncryptedInhibitAndOverrideRegisters,
+            CctalkHeaders::ModifyEncryptedInhibitAndOverrideRegisters,
             "ModifyEncryptedInhibitAndOverrideRegisters"
         },
-        {CctalkHeader::RequestEncryptedProductId, "RequestEncryptedProductId"},
-        {CctalkHeader::RequestAcceptCounter, "RequestAcceptCounter"},
-        {CctalkHeader::RequestInsertionCounter, "RequestInsertionCounter"},
-        {CctalkHeader::RequestMasterInhibitStatus, "RequestMasterInhibitStatus"},
-        {CctalkHeader::ModifyMasterInhibitStatus, "ModifyMasterInhibitStatus"},
+        {CctalkHeaders::RequestEncryptedProductId, "RequestEncryptedProductId"},
+        {CctalkHeaders::RequestAcceptCounter, "RequestAcceptCounter"},
+        {CctalkHeaders::RequestInsertionCounter, "RequestInsertionCounter"},
+        {CctalkHeaders::RequestMasterInhibitStatus, "RequestMasterInhibitStatus"},
+        {CctalkHeaders::ModifyMasterInhibitStatus, "ModifyMasterInhibitStatus"},
         {
-            CctalkHeader::ReadBufferedCreditOrErrorCodes,
+            CctalkHeaders::ReadBufferedCreditOrErrorCodes,
             "ReadBufferedCreditOrErrorCodes"
         },
-        {CctalkHeader::RequestInhibitStatus, "RequestInhibitStatus"},
-        {CctalkHeader::ModifyInhibitStatus, "ModifyInhibitStatus"},
-        {CctalkHeader::PerformSelfCheck, "PerformSelfCheck"},
-        {CctalkHeader::LatchOutputLines, "LatchOutputLines"},
-        {CctalkHeader::SendDhPublicKey, "SendDhPublicKey"},
-        {CctalkHeader::ReadDhPublicKey, "ReadDhPublicKey"},
-        {CctalkHeader::ReadOptoStates, "ReadOptoStates"},
-        {CctalkHeader::ReadInputLines, "ReadInputLines"},
-        {CctalkHeader::TestOutputLines, "TestOutputLines"},
-        {CctalkHeader::OperateMotors, "OperateMotors"},
-        {CctalkHeader::TestSolenoids, "TestSolenoids"},
-        {CctalkHeader::RequestSoftwareRevision, "RequestSoftwareRevision"},
-        {CctalkHeader::RequestSerialNumber, "RequestSerialNumber"},
-        {CctalkHeader::RequestDatabaseVersion, "RequestDatabaseVersion"},
-        {CctalkHeader::RequestProductCode, "RequestProductCode"},
-        {CctalkHeader::RequestEquipmentCategoryId, "RequestEquipmentCategoryId"},
-        {CctalkHeader::RequestManufacturerId, "RequestManufacturerId"},
-        {CctalkHeader::RequestVariableSet, "RequestVariableSet"},
-        {CctalkHeader::RequestStatus, "RequestStatus"},
-        {CctalkHeader::RequestPollingPriority, "RequestPollingPriority"},
-        {CctalkHeader::AddressRandom, "AddressRandom"},
-        {CctalkHeader::AddressChange, "AddressChange"},
-        {CctalkHeader::AddressClash, "AddressClash"},
-        {CctalkHeader::AddressPoll, "AddressPoll"},
-        {CctalkHeader::SimplePoll, "SimplePoll"},
-        {CctalkHeader::FactorySetupAndTest, "FactorySetupAndTest"},
+        {CctalkHeaders::RequestInhibitStatus, "RequestInhibitStatus"},
+        {CctalkHeaders::ModifyInhibitStatus, "ModifyInhibitStatus"},
+        {CctalkHeaders::PerformSelfCheck, "PerformSelfCheck"},
+        {CctalkHeaders::LatchOutputLines, "LatchOutputLines"},
+        {CctalkHeaders::SendDhPublicKey, "SendDhPublicKey"},
+        {CctalkHeaders::ReadDhPublicKey, "ReadDhPublicKey"},
+        {CctalkHeaders::ReadOptoStates, "ReadOptoStates"},
+        {CctalkHeaders::ReadInputLines, "ReadInputLines"},
+        {CctalkHeaders::TestOutputLines, "TestOutputLines"},
+        {CctalkHeaders::OperateMotors, "OperateMotors"},
+        {CctalkHeaders::TestSolenoids, "TestSolenoids"},
+        {CctalkHeaders::RequestSoftwareRevision, "RequestSoftwareRevision"},
+        {CctalkHeaders::RequestSerialNumber, "RequestSerialNumber"},
+        {CctalkHeaders::RequestDatabaseVersion, "RequestDatabaseVersion"},
+        {CctalkHeaders::RequestProductCode, "RequestProductCode"},
+        {CctalkHeaders::RequestEquipmentCategoryId, "RequestEquipmentCategoryId"},
+        {CctalkHeaders::RequestManufacturerId, "RequestManufacturerId"},
+        {CctalkHeaders::RequestVariableSet, "RequestVariableSet"},
+        {CctalkHeaders::RequestStatus, "RequestStatus"},
+        {CctalkHeaders::RequestPollingPriority, "RequestPollingPriority"},
+        {CctalkHeaders::AddressRandom, "AddressRandom"},
+        {CctalkHeaders::AddressChange, "AddressChange"},
+        {CctalkHeaders::AddressClash, "AddressClash"},
+        {CctalkHeaders::AddressPoll, "AddressPoll"},
+        {CctalkHeaders::SimplePoll, "SimplePoll"},
+        {CctalkHeaders::FactorySetupAndTest, "FactorySetupAndTest"},
     };
 
     try

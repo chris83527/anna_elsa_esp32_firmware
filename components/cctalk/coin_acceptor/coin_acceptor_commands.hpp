@@ -29,7 +29,7 @@ namespace cctalk::coin_validator
         CctalkFrame req;
         req.destination = device;
         req.source = host;
-        req.header = static_cast<std::uint8_t>(CctalkHeader::RequestCoinId);
+        req.header = uint8_t(CctalkHeaders::RequestCoinId);
         req.data.clear();
 
         CctalkFrame resp;
@@ -82,7 +82,7 @@ namespace cctalk::coin_validator
         CctalkFrame req;
         req.destination = device;
         req.source = host;
-        req.header = static_cast<std::uint8_t>(CctalkHeader::ModifyInhibitStatus);
+        req.header = CctalkHeaders::ModifyInhibitStatus;
         req.data = {reqMask.low_mask, reqMask.high_mask};
 
         return bus.send(req, timeout);
@@ -135,7 +135,7 @@ namespace cctalk::coin_validator
         CctalkFrame req;
         req.destination = device;
         req.source = host;
-        req.header = static_cast<std::uint8_t>(CctalkHeader::ReadBufferedCreditOrErrorCodes);
+        req.header = CctalkHeaders::ReadBufferedCreditOrErrorCodes;
         req.data.clear();
 
         CctalkFrame resp;
@@ -192,7 +192,7 @@ namespace cctalk::coin_validator
         CctalkFrame req;
         req.destination = device;
         req.source = host;
-        req.header = static_cast<std::uint8_t>(CctalkHeader::ModifySorterOverrideStatus);
+        req.header = CctalkHeaders::ModifySorterOverrideStatus;
         req.data = {reqModifySorterOverrideStatus.overrideStatus};
 
         return bus.send(req, timeout);
@@ -213,13 +213,13 @@ namespace cctalk::coin_validator
         CctalkFrame req;
         req.destination = device;
         req.source = host;
-        req.header = static_cast<std::uint8_t>(CctalkHeader::ModifyDefaultSorterPath);
+        req.header = CctalkHeaders::ModifyDefaultSorterPath;
         req.data = {reqModifyDefaultSorterPath.path};
 
         return bus.send(req, timeout);
     }
 
-    // Modify modify sorter paths (header 210)
+    // Modify sorter paths (header 210)
     struct ReqModifySorterPaths
     {
         std::uint8_t coin_id;
@@ -235,7 +235,7 @@ namespace cctalk::coin_validator
         CctalkFrame req;
         req.destination = device;
         req.source = host;
-        req.header = static_cast<std::uint8_t>(CctalkHeader::ModifySorterPaths);
+        req.header = CctalkHeaders::ModifySorterPaths;
         req.data = {reqModifySorterPaths.coin_id, reqModifySorterPaths.path};
 
         return bus.send(req, timeout);

@@ -42,6 +42,7 @@
 #include "driver/gpio.h"
 #include "driver/ledc.h"
 #include "esp_log.h"
+#include "esp_err.h"
 #include "hal/ledc_types.h"
 #include "pca9629a.h"
 
@@ -86,7 +87,7 @@ bool ReelController::initialise()
     esp_rom_gpio_pad_select_gpio(GPIO_MOTOR_EN);
     // Set the GPIO as a push/pull output
     gpio_set_direction(GPIO_MOTOR_EN, GPIO_MODE_OUTPUT);
-
+/*
     // Prepare and then apply the LEDC PWM timer configuration
     ledc_timer_config_t ledc_timer = {
         .speed_mode = LEDC_MODE,
@@ -126,7 +127,7 @@ bool ReelController::initialise()
 
     ledc_bind_channel_timer(LEDC_MODE, LEDC_CHANNEL, LEDC_TIMER);
     ledc_fade_func_install(ESP_INTR_FLAG_IRAM);
-
+*/
     reelLeftInitOk = false;
     reelCentreInitOk = false;
     reelRightInitOk = false;
@@ -136,7 +137,12 @@ bool ReelController::initialise()
     this->rightReel.initialise();
 
     // Switch on
-    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
+    esp_err_t err = ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "ledc_set_duty_and_update failed: %s", esp_err_to_name(err));
+    }
+
     // return ESP_OK; // DEBUG
 
     this->leftReel.moveSteps(pca9629a::Driver::Direction::CW, 75, 1); // 3x complete turn
@@ -158,7 +164,7 @@ bool ReelController::initialise()
     this->rightReel.home(pca9629a::Driver::Direction::CW); // return to home
 
     // Wait for reels to stop (max 10 seconds)
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < 10; i++)
     {
         if (leftReel.isStopped() && centreReel.isStopped() &&
             rightReel.isStopped())
@@ -168,7 +174,11 @@ bool ReelController::initialise()
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
-    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER, 0);
+    err = ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER, 0);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "ledc_set_duty_and_update failed: %s", esp_err_to_name(err));
+    }
     // calibrate();
     // test();
 

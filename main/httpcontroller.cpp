@@ -250,7 +250,6 @@ esp_err_t HttpController::api_status_handler(httpd_req_t* req)
     json += ",\"rightReel\":" + std::to_string(self->mainController.getReelController().getReelStopInfo().leftStop);
     json += "}";
 
-
     httpd_resp_set_type(req, "application/json");
     return httpd_resp_send(req, json.c_str(), HTTPD_RESP_USE_STRLEN);
 }
@@ -359,6 +358,7 @@ void HttpController::ws_broadcast(HttpController* httpController, httpd_handle_t
     json += ",\"leftReel\":" + std::to_string(httpController->mainController.getReelController().getReelStopInfo().leftStop);
     json += ",\"centreReel\":" + std::to_string(httpController->mainController.getReelController().getReelStopInfo().leftStop);
     json += ",\"rightReel\":" + std::to_string(httpController->mainController.getReelController().getReelStopInfo().leftStop);
+    json += ",\"rssi\":" + std::to_string(rssi);
     json += "}";
 
     httpd_ws_frame_t frame{};

@@ -67,7 +67,7 @@ public:
         CctalkFrame req;
         req.destination = destination;
         req.source = host_;
-        req.header = static_cast<std::uint8_t>(CctalkHeader::RequestSerialNumber);
+        req.header = static_cast<std::uint8_t>(CctalkHeaders::RequestSerialNumber);
 
         CctalkFrame resp;
         auto err = bus_.sendAndReceive(req, resp, timeout);
@@ -84,7 +84,7 @@ public:
         CctalkFrame req;
         req.destination = destination;
         req.source = host_;
-        req.header = static_cast<std::uint8_t>(CctalkHeader::RequestSoftwareRevision);
+        req.header = static_cast<std::uint8_t>(CctalkHeaders::RequestSoftwareRevision);
 
         CctalkFrame resp;
         auto err = bus_.sendAndReceive(req, resp, timeout);
@@ -101,7 +101,7 @@ public:
         CctalkFrame req;
         req.destination = destination;
         req.source = host_;
-        req.header = static_cast<std::uint8_t>(CctalkHeader::RequestBuildCode);
+        req.header = static_cast<std::uint8_t>(CctalkHeaders::RequestBuildCode);
 
         CctalkFrame resp;
         auto err = bus_.sendAndReceive(req, resp, timeout);
@@ -118,7 +118,7 @@ public:
         CctalkFrame req;
         req.destination = destination;
         req.source = host_;
-        req.header = static_cast<std::uint8_t>(CctalkHeader::RequestManufacturerId);
+        req.header = static_cast<std::uint8_t>(CctalkHeaders::RequestManufacturerId);
 
         CctalkFrame resp;
         auto err = bus_.sendAndReceive(req, resp, timeout);
@@ -135,7 +135,7 @@ public:
         CctalkFrame req;
         req.destination = destination;
         req.source = host_;
-        req.header = static_cast<std::uint8_t>(CctalkHeader::RequestCommsRevision);
+        req.header = static_cast<std::uint8_t>(CctalkHeaders::RequestCommsRevision);
 
         CctalkFrame resp;
         auto err = bus_.sendAndReceive(req, resp, timeout);
@@ -313,6 +313,11 @@ public:
     //
     // --- Hopper ---
     //
+
+    CctalkError enableHopper(std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
+    {
+        return cctalk::hopper::cctalk_enable_hopper(bus_, host_, hopper_, timeout);
+    }
 
     CctalkError requestCipherKey(cctalk::hopper::RspHopperCipherKey& out,
                                  std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
