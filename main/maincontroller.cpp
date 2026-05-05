@@ -40,7 +40,7 @@ MainController::MainController(std::unique_ptr<ICctalkUart> uart) :
                       std::move(uart)),
     displayController(paymentController, i2c_bus),
     audioController( i2c_bus, this),
-    reelController(audioController, displayController, i2c_bus),
+    reelController(this, i2c_bus),
     game(displayController, audioController, paymentController, reelController),
     ds3231(i2c_bus, DS3231_ADDR), httpController(wifi, this)
 

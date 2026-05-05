@@ -76,11 +76,12 @@
 
 #define LEDC_FREQUENCY (200)   // Frequency in Hertz. Set frequency to 200Hz
 
+class MainController;
+
 class ReelController
 {
 public:
-    ReelController(AudioController& audioController,
-                   DisplayController& displayController, I2CBus& bus);
+    ReelController(MainController* mainContoller, I2CBus& bus);
     ~ReelController();
 
     struct reel_stop_info_t
@@ -118,8 +119,7 @@ private:
     uint8_t status{};
     bool commandInProgress{};
 
-    AudioController& audioController;
-    DisplayController& displayController;
+    MainController* mainController;
 
     pca9629a::Driver leftReel;
     pca9629a::Driver centreReel;

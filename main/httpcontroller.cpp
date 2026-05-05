@@ -337,22 +337,28 @@ esp_err_t HttpController::ws_handler(httpd_req_t* req)
 void HttpController::ws_broadcast(HttpController* httpController, httpd_handle_t server, int rssi)
 {
     if (!server) return;
-
+    
     uint16_t bank = httpController->mainController.getPaymentController().getBank();
     uint16_t credit = httpController->mainController.getPaymentController().getCredit();
     uint16_t gameCount = httpController->mainController.getPaymentController().getGameCount();
     uint16_t incomeTotal = httpController->mainController.getPaymentController().getIncomeTotal();
     uint16_t payoutTotal = httpController->mainController.getPaymentController().getPayoutTotal();
+    uint16_t transfer = httpController->mainController.getPaymentController().getTransfer();
     int volume = httpController->mainController.getAudioController().getVolume();
 
     // credits, number of games, payout stats etc.
     std::string json = "{";
-    json += "\"bank\":\"" + std::to_string(bank)+ "\"";
-    json += ",\"credit\":\"" + std::to_string(credit)+ "\"";
-    json += ",\"gameCount\":\"" + std::to_string(gameCount)+ "\"";
-    json += ",\"incomeTotal\":\"" + std::to_string(incomeTotal)+ "\"";
-    json += ",\"payoutTotal\":\"" + std::to_string(payoutTotal)+ "\"";
-    json += ",\"volume\":\"" + std::to_string(volume) + "\"";
+    json += ",\"bank\":" + std::to_string(bank);
+    json += ",\"credit\":" + std::to_string(credit);
+    json += ",\"gameCount\":" + std::to_string(gameCount);
+    json += ",\"transfer\":" + std::to_string(transfer);
+    json += ",\"incomeTotal\":" + std::to_string(incomeTotal);
+    json += ",\"payoutTotal\":" + std::to_string(payoutTotal);
+    json += ",\"volume\":" + std::to_string(volume);
+    json += ",\"buttons\":" + std::to_string(httpController->mainController.getDisplayController().getButtonStatus());
+    json += ",\"leftReel\":" + std::to_string(httpController->mainController.getReelController().getReelStopInfo().leftStop);
+    json += ",\"centreReel\":" + std::to_string(httpController->mainController.getReelController().getReelStopInfo().leftStop);
+    json += ",\"rightReel\":" + std::to_string(httpController->mainController.getReelController().getReelStopInfo().leftStop);
     json += "}";
 
     httpd_ws_frame_t frame{};

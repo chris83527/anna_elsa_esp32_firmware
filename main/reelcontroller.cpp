@@ -45,9 +45,8 @@
 #include "hal/ledc_types.h"
 #include "pca9629a.h"
 
-#include "audiocontroller.h"
 #include "config.h"
-#include "displaycontroller.h"
+#include "maincontroller.h"
 #include "game.h"
 #include "reelcontroller.h"
 
@@ -59,11 +58,8 @@ bool reelLeftInitOk;
 bool reelCentreInitOk;
 bool reelRightInitOk;
 
-ReelController::ReelController(AudioController& audioController,
-                               DisplayController& displayController,
-                               I2CBus& i2c_bus)
-    : audioController(audioController),
-      displayController(displayController),
+ReelController::ReelController(MainController* mainController, I2CBus& i2c_bus)
+    : mainController(mainController),
       leftReel(i2c_bus, REEL_LEFT_I2C_ADDRESS),
       centreReel(i2c_bus, REEL_CENTRE_I2C_ADDRESS),
       rightReel(i2c_bus, REEL_RIGHT_I2C_ADDRESS)
@@ -246,19 +242,19 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
     {
         if (leftFinished && leftPlayAudio)
         {
-            this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
             leftPlayAudio = false;
         }
 
         if (centreFinished && centrePlayAudio)
         {
-            this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
             centrePlayAudio = false;
         }
 
         if (rightFinished && rightPlayAudio)
         {
-            this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
             rightPlayAudio = false;
         }
 
@@ -268,17 +264,8 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
         }
 
         // Update the moves value - just a bit of decoration here really
-        if (count == 0)
-        {
-            this->displayController.setMoves(frand::random8(13));
-        }
-        else if (count == 10)
-        {
-            count = 0;
-        }
-        count++;
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        mainController->getDisplayController().setMoves(frand::random8(13));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         if (!leftFinished)
         {
@@ -294,7 +281,7 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
         }
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     // Switch off
     ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER, 0);
@@ -322,11 +309,12 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
         Game::symbolsCentreReel[this->reelStopInfo.centreStop - 1];
     uint8_t rightSymbolId =
         Game::symbolsRightReel[this->reelStopInfo.rightStop - 1];
-
     printf("Calculated reel positions: %s - %s - %s",
-           Game::symbolMap[leftSymbolId].c_str(),
-           Game::symbolMap[centreSymbolId].c_str(),
-           Game::symbolMap[rightSymbolId].c_str());
+               Game::symbolMap[leftSymbolId].c_str(),
+               Game::symbolMap[centreSymbolId].c_str(),
+               Game::symbolMap[rightSymbolId].c_str());
+
+    mainController->getHttpController().broadcast_status();
 
     int leftSteps = (((this->reelStopInfo.leftStop - 1) + 75) * STEPS_PER_STOP);
     int centreSteps =
@@ -368,19 +356,19 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
     {
         if (leftFinished && leftPlayAudio)
         {
-            this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
             leftPlayAudio = false;
         }
 
         if (centreFinished && centrePlayAudio)
         {
-            this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
             centrePlayAudio = false;
         }
 
         if (rightFinished && rightPlayAudio)
         {
-            this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
             rightPlayAudio = false;
         }
 
@@ -392,7 +380,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
         // Update the moves value - just a bit of decoration here really
         if (count == 0)
         {
-            this->displayController.setMoves(frand::random8(13));
+            mainController->getDisplayController().setMoves(frand::random8(13));
         }
         else if (count == 10)
         {
@@ -400,7 +388,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
         }
         count++;
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         if (!leftFinished)
         {
@@ -487,19 +475,19 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
     {
         if (leftFinished && leftPlayAudio)
         {
-            this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
             leftPlayAudio = false;
         }
 
         if (centreFinished && centrePlayAudio)
         {
-            this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
             centrePlayAudio = false;
         }
 
         if (rightFinished && rightPlayAudio)
         {
-            this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
             rightPlayAudio = false;
         }
 
@@ -509,15 +497,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
         }
 
         // Update the moves value - just a bit of decoration here really
-        if (count == 0)
-        {
-            this->displayController.setMoves(frand::random8(13));
-        }
-        else if (count == 10)
-        {
-            count = 0;
-        }
-        count++;
+        mainController->getDisplayController().setMoves(frand::random8(13));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -556,7 +536,7 @@ void ReelController::calibrate()
     // Switch on
     ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
 
-    displayController.displayVFDText("LEFT CW: 00");
+    mainController->getDisplayController().displayVFDText("LEFT CW: 00");
     this->leftReel.home(pca9629a::Driver::Direction::CW);
     std::bitset<8> btnStatus = 0;
     while (!btnStatus.test(BTN_START))
@@ -564,22 +544,22 @@ void ReelController::calibrate()
         if (btnStatus.test(BTN_HOLD_HI))
         {
             leftCwCorrection--;
-            displayController.displayVFDText(
+            mainController->getDisplayController().displayVFDText(
                 std::string("LEFT CW: ").append(std::to_string(leftCwCorrection)));
             leftReel.moveSteps(pca9629a::Driver::Direction::CCW, 1, 1);
         }
         else if (btnStatus.test(BTN_HOLD_LO))
         {
             leftCwCorrection++;
-            displayController.displayVFDText(
+            mainController->getDisplayController().displayVFDText(
                 std::string("LEFT CW: ").append(std::to_string(leftCwCorrection)));
             leftReel.moveSteps(pca9629a::Driver::Direction::CW, 1, 1);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(75));
-        btnStatus = this->displayController.getButtonStatus();
+        btnStatus = mainController->getDisplayController().getButtonStatus();
     }
 
-    displayController.displayVFDText("LEFT CCW: 00");
+    mainController->getDisplayController().displayVFDText("LEFT CCW: 00");
     this->leftReel.home(pca9629a::Driver::Direction::CCW);
     btnStatus = 0;
     while (!btnStatus.test(BTN_START))
@@ -587,22 +567,22 @@ void ReelController::calibrate()
         if (btnStatus.test(BTN_HOLD_HI))
         {
             leftCcwCorrection--;
-            displayController.displayVFDText(
+            mainController->getDisplayController().displayVFDText(
                 std::string("LEFT CCW: ").append(std::to_string(leftCcwCorrection)));
             leftReel.moveSteps(pca9629a::Driver::Direction::CW, 1, 1);
         }
         else if (btnStatus.test(BTN_HOLD_LO))
         {
             leftCcwCorrection++;
-            displayController.displayVFDText(
+            mainController->getDisplayController().displayVFDText(
                 std::string("LEFT CCW: ").append(std::to_string(leftCcwCorrection)));
             leftReel.moveSteps(pca9629a::Driver::Direction::CCW, 1, 1);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(75));
-        btnStatus = this->displayController.getButtonStatus();
+        btnStatus = mainController->getDisplayController().getButtonStatus();
     }
 
-    displayController.displayVFDText("CENTRE CW: 00");
+    mainController->getDisplayController().displayVFDText("CENTRE CW: 00");
     this->rightReel.home(pca9629a::Driver::Direction::CW);
     btnStatus = 0;
     while (!btnStatus.test(BTN_START))
@@ -610,7 +590,7 @@ void ReelController::calibrate()
         if (btnStatus.test(BTN_HOLD_HI))
         {
             centreCwCorrection--;
-            displayController.displayVFDText(
+            mainController->getDisplayController().displayVFDText(
                 std::string("CENTRE CW: ")
                 .append(std::to_string(centreCwCorrection)));
             centreReel.moveSteps(pca9629a::Driver::Direction::CCW, 1, 1);
@@ -618,16 +598,16 @@ void ReelController::calibrate()
         else if (btnStatus.test(BTN_HOLD_LO))
         {
             centreCwCorrection++;
-            displayController.displayVFDText(
+            mainController->getDisplayController().displayVFDText(
                 std::string("CENTRE CW: ")
                 .append(std::to_string(centreCwCorrection)));
             centreReel.moveSteps(pca9629a::Driver::Direction::CW, 1, 1);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(75));
-        btnStatus = this->displayController.getButtonStatus();
+        btnStatus = mainController->getDisplayController().getButtonStatus();
     }
 
-    displayController.displayVFDText("CENTRE CCW: 00");
+    mainController->getDisplayController().displayVFDText("CENTRE CCW: 00");
     this->rightReel.home(pca9629a::Driver::Direction::CCW);
     btnStatus = 0;
     while (!btnStatus.test(BTN_START))
@@ -635,7 +615,7 @@ void ReelController::calibrate()
         if (btnStatus.test(BTN_HOLD_HI))
         {
             centreCcwCorrection--;
-            displayController.displayVFDText(
+            mainController->getDisplayController().displayVFDText(
                 std::string("CENTRE CCW: ")
                 .append(std::to_string(rightCcwCorrection)));
             centreReel.moveSteps(pca9629a::Driver::Direction::CW, 1, 1);
@@ -643,16 +623,16 @@ void ReelController::calibrate()
         else if (btnStatus.test(BTN_HOLD_LO))
         {
             centreCcwCorrection++;
-            displayController.displayVFDText(
+            mainController->getDisplayController().displayVFDText(
                 std::string("CENTRE CCW: ")
                 .append(std::to_string(rightCcwCorrection)));
             centreReel.moveSteps(pca9629a::Driver::Direction::CCW, 1, 1);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(75));
-        btnStatus = this->displayController.getButtonStatus();
+        btnStatus = mainController->getDisplayController().getButtonStatus();
     }
 
-    displayController.displayVFDText("RIGHT CW: 00");
+    mainController->getDisplayController().displayVFDText("RIGHT CW: 00");
     this->rightReel.home(pca9629a::Driver::Direction::CW);
     btnStatus = 0;
     while (!btnStatus.test(BTN_START))
@@ -660,22 +640,22 @@ void ReelController::calibrate()
         if (btnStatus.test(BTN_HOLD_HI))
         {
             rightCwCorrection--;
-            displayController.displayVFDText(
+            mainController->getDisplayController().displayVFDText(
                 std::string("RIGHT CW: ").append(std::to_string(rightCwCorrection)));
             rightReel.moveSteps(pca9629a::Driver::Direction::CCW, 1, 1);
         }
         else if (btnStatus.test(BTN_HOLD_LO))
         {
             rightCwCorrection++;
-            displayController.displayVFDText(
+            mainController->getDisplayController().displayVFDText(
                 std::string("RIGHT CW: ").append(std::to_string(rightCwCorrection)));
             rightReel.moveSteps(pca9629a::Driver::Direction::CW, 1, 1);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(75));
-        btnStatus = this->displayController.getButtonStatus();
+        btnStatus = mainController->getDisplayController().getButtonStatus();
     }
 
-    displayController.displayVFDText("RIGHTCCW: 00");
+    mainController->getDisplayController().displayVFDText("RIGHTCCW: 00");
     this->rightReel.home(pca9629a::Driver::Direction::CCW);
     btnStatus = 0;
     while (!btnStatus.test(BTN_START))
@@ -683,7 +663,7 @@ void ReelController::calibrate()
         if (btnStatus.test(BTN_HOLD_HI))
         {
             rightCcwCorrection--;
-            displayController.displayVFDText(
+            mainController->getDisplayController().displayVFDText(
                 std::string("RIGHT CCW: ")
                 .append(std::to_string(rightCcwCorrection)));
             rightReel.moveSteps(pca9629a::Driver::Direction::CW, 1, 1);
@@ -691,13 +671,13 @@ void ReelController::calibrate()
         else if (btnStatus.test(BTN_HOLD_LO))
         {
             rightCcwCorrection++;
-            displayController.displayVFDText(
+            mainController->getDisplayController().displayVFDText(
                 std::string("RIGHT CCW: ")
                 .append(std::to_string(rightCcwCorrection)));
             rightReel.moveSteps(pca9629a::Driver::Direction::CCW, 1, 1);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(75));
-        btnStatus = this->displayController.getButtonStatus();
+        btnStatus = mainController->getDisplayController().getButtonStatus();
     }
 
     // Switch off
@@ -748,7 +728,7 @@ void ReelController::test()
             std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }
 
-        this->displayController.waitForButton(BTN_START_MASK_BIT);
+        mainController->getDisplayController().waitForButton(BTN_START_MASK_BIT);
 
         // Switch off
         ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER, 0);

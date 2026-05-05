@@ -45,7 +45,7 @@ namespace pca9629a
     esp_err_t Driver::softwareReset()
     {
         ESP_LOGI(TAG, "pca9629a software_reset");
-        
+
         esp_err_t ret = writeReg(REG_MODE, 0x06);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
@@ -107,8 +107,10 @@ namespace pca9629a
     }
 
     void Driver::moveSteps(Direction direction, uint16_t step_count,
-                       uint8_t repeats)
+                           uint8_t repeats)
     {
+        ESP_LOGI(TAG, "moveSteps called: Direction %d, Step count %d, Repeats %d", direction, step_count, repeats);
+
         performingAction = true;
         write8(REG_MSK, 0x1F); // Disable all interrupts
         write8(REG_INT_MTR_ACT, 0x00);
@@ -121,8 +123,10 @@ namespace pca9629a
     }
 
     void Driver::moveStepsAfterHome(Direction direction, uint16_t step_count,
-                                uint8_t repeats)
+                                    uint8_t repeats)
     {
+        ESP_LOGI(TAG, "moveStepsAfterHome called: Direction %d, Step count %d, Repeats %d", direction, step_count, repeats);
+
         performingAction = true;
 
         write8(REG_MSK, 0x1E); // Enable interrupt on P0
@@ -130,7 +134,7 @@ namespace pca9629a
         write8(REG_INT_MTR_ACT, 0x01); // Set enable interrupt based control of motor and stop motor on
         // interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register
         write8(REG_INTSTAT, 0x00); // reset interrupt status register
-        write16((direction == Direction::CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 255);
+        write16(direction == Direction::CW ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 255);
         write8(REG_MCNTL, 0x90 | static_cast<uint8_t>(direction));
 
         uint8_t data;
@@ -144,7 +148,7 @@ namespace pca9629a
         // Now move the number of steps
         write8(REG_MSK, 0x1F); // Disable all interrupts
         write8(REG_INT_MTR_ACT, 0x00);
-        write16((direction == Direction::CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
+        write16(direction == Direction::CW ? REG_CWSCOUNTL : REG_CCWSCOUNTL, step_count);
         write8(REG_PMA, repeats);
         write8(REG_INTSTAT, 0x00); // reset interrupt status register
         write8(REG_MCNTL, 0x80 | static_cast<uint8_t>(direction));
@@ -154,15 +158,17 @@ namespace pca9629a
 
     void Driver::home(Direction dir)
     {
+        ESP_LOGI(TAG, "home called. Direction %d", dir);
         performingAction = true;
 
-        write8(REG_MSK, 0x1E); // Enable interrupt on P0
+        // Enable interrupt on P0
+        write8(REG_MSK, 0x1E);
         write8(REG_PMA, 0x01);
-        write8(REG_INT_MTR_ACT,
-               0x01); // Set enable interrupt based control of motor and stop motor on
+        // Set enable interrupt based control of motor and stop motor on
+        write8(REG_INT_MTR_ACT, 0x01);
         // interrupt caused by P0 in INT_MTR_ACT (= 0x01h) register
         write8(REG_INTSTAT, 0x00); // reset interrupt status register
-        write16((dir == Direction::CW) ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 255);
+        write16(dir == Direction::CW ? REG_CWSCOUNTL : REG_CCWSCOUNTL, 255);
         write8(REG_MCNTL, 0x90 | static_cast<uint8_t>(dir));
         performingAction = false;
     }
@@ -288,5 +294,4 @@ namespace pca9629a
 
         return ret;
     }
-
 }
