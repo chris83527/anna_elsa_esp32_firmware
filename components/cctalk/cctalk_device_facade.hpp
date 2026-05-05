@@ -297,8 +297,11 @@ public:
                 ESP_LOGW(TAG, "Event counter difference %d is greater than 5. Credits probably lost.", newEventCount);
             }
 
+            // don't output the whole list of returned events, only the number of new events otherwise
+            // the credits will exponentially increase
             if (rsp.currentEventNumber > lastEventNumber) {
-                out = rsp.events;
+                out.assign(rsp.events.begin(), rsp.events.begin() + newEventCount);
+                ESP_LOGD(TAG, "Found %d new event(s); processing from oldest to newest.", out.size());
             }
 
             this->lastEventNumber = rsp.currentEventNumber;
@@ -325,11 +328,7 @@ public:
         if (err == CctalkError::OK)
         {
             cctalk::hopper::ReqHopperPayout req{
-                {
-                    out.cipher[0], out.cipher[1], out.cipher[2], out.cipher[3], out.cipher[4], out.cipher[5],
-                    out.cipher[6],
-                    out.cipher[7]
-                },
+                out.cipher,
                 coins
             };
             return cctalk_hopper_payout(bus_, host_, hopper_, req, timeout);

@@ -8,7 +8,7 @@ namespace cctalk::hopper
     // Pay money out (header 164)
     struct ReqHopperPayout
     {
-        uint8_t cipherKey[8];
+        std::vector<uint8_t> cipherKey;
         std::uint8_t coins;
     };
 
@@ -100,7 +100,7 @@ namespace cctalk::hopper
 
     struct RspHopperCipherKey
     {
-        std::uint8_t cipher[8];
+        std::vector<uint8_t> cipher;
     };
 
     inline CctalkError cctalk_hopper_request_cipher_key(CctalkBus& bus,
@@ -120,14 +120,7 @@ namespace cctalk::hopper
         if (err != CctalkError::OK) return err;
         if (resp.data.empty()) return CctalkError::MalformedFrame;
 
-        out.cipher[0] = resp.data[0];
-        out.cipher[1] = resp.data[1];
-        out.cipher[2] = resp.data[2];
-        out.cipher[3] = resp.data[3];
-        out.cipher[4] = resp.data[4];
-        out.cipher[5] = resp.data[5];
-        out.cipher[6] = resp.data[6];
-        out.cipher[7] = resp.data[7];
+        out.cipher = resp.data;
 
         return CctalkError::OK;
     }
