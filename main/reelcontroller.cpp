@@ -125,8 +125,8 @@ bool ReelController::initialise()
         return false;
     }
 
-    ledc_bind_channel_timer(LEDC_MODE, LEDC_CHANNEL, LEDC_TIMER);
-    ledc_fade_func_install(ESP_INTR_FLAG_IRAM);
+    ESP_ERROR_CHECK_WITHOUT_ABORT(ledc_bind_channel_timer(LEDC_MODE, LEDC_CHANNEL, LEDC_TIMER));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(ledc_fade_func_install(ESP_INTR_FLAG_IRAM));
 
     reelLeftInitOk = false;
     reelCentreInitOk = false;
