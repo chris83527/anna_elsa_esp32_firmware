@@ -14,6 +14,8 @@ namespace cctalk::hopper
         req.header = CctalkHeaders::EnableHopper;
         req.data.clear();
 
+        req.data.push_back(165); // always send this byte
+
         return bus.send(req, timeout);
     }
 
