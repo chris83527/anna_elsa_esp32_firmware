@@ -93,7 +93,7 @@ bool ReelController::initialise()
         .speed_mode = LEDC_MODE,
         .duty_resolution = LEDC_DUTY_RES,
         .timer_num = LEDC_TIMER,
-        .freq_hz = LEDC_FREQUENCY, // Set output frequency at 5000Hz
+        .freq_hz = LEDC_FREQUENCY, // Set output frequency at 60Hz (just holding)
         .clk_cfg = LEDC_USE_RC_FAST_CLK,
         .deconfigure = false,
     };
@@ -107,7 +107,7 @@ bool ReelController::initialise()
         .duty = 0,
         .hpoint = 0,
         .sleep_mode = LEDC_SLEEP_MODE_KEEP_ALIVE,
-        .flags = {},
+        .flags = {0},
     };
     // Prepare and then apply the LEDC PWM timer configuration
     if (ledc_timer_config(&ledc_timer) != ESP_OK)

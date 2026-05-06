@@ -27,7 +27,7 @@
  */
 
 /**
- * @file PaymentController.cpp
+ * @file paymentcontroller.cpp
  *
  * Routines for adding to bank, adding credit etc.
  *
@@ -206,9 +206,9 @@ void PaymentController::loadValuesFromStorage()
 /**
  * @brief Add the given amount to the credit
  *
- * @param value The amount to be added to the player's total credit
+ * @param payment The amount to be added to the player's total credit
  */
-void PaymentController::addToCredit(Payment& payment)
+void PaymentController::addToCredit(const Payment& payment)
 {
     addToCredit(payment.getTenCent() * 10);
     this->mainController->getNvsController().writeValueToNVS(NVS_KEY_TEN_CENT_IN.c_str(),

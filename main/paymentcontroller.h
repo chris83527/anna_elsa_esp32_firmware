@@ -89,7 +89,7 @@ public:
     void setEventHandler(EventHandler handler);
     CctalkDeviceFacade& devices() { return *facade_; }
 
-    void addToCredit(Payment& payment);
+    void addToCredit(const Payment& payment);
     void addToCredit(uint16_t value);
     void addToBank(uint16_t value);
     void setTransfer(uint16_t value);
