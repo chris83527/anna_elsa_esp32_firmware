@@ -84,9 +84,10 @@ bool ReelController::initialise()
     ESP_LOGI(TAG, "ReelController::initialise() called");
 
     // MOTOR_EN is on a GPIO
-    //esp_rom_gpio_pad_select_gpio(GPIO_MOTOR_EN);
-    // Set the GPIO as a push/pull output
+    esp_rom_gpio_pad_select_gpio(GPIO_MOTOR_EN);
+    // Set the GPIO as an output
     gpio_set_direction(GPIO_MOTOR_EN, GPIO_MODE_OUTPUT);
+    //gpio_set_level(GPIO_MOTOR_EN, 1);
 
     // Prepare and then apply the LEDC PWM timer configuration
     ledc_timer_config_t ledc_timer = {
@@ -107,7 +108,7 @@ bool ReelController::initialise()
         .duty = 0,
         .hpoint = 0,
         .sleep_mode = LEDC_SLEEP_MODE_KEEP_ALIVE,
-        .flags = {0},
+        .flags = {1},
     };
     // Prepare and then apply the LEDC PWM timer configuration
     if (ledc_timer_config(&ledc_timer) != ESP_OK)
@@ -125,8 +126,8 @@ bool ReelController::initialise()
         return false;
     }
 
-    ESP_ERROR_CHECK_WITHOUT_ABORT(ledc_bind_channel_timer(LEDC_MODE, LEDC_CHANNEL, LEDC_TIMER));
-    ESP_ERROR_CHECK_WITHOUT_ABORT(ledc_fade_func_install(ESP_INTR_FLAG_IRAM));
+    //ESP_ERROR_CHECK_WITHOUT_ABORT(ledc_bind_channel_timer(LEDC_MODE, LEDC_CHANNEL, LEDC_TIMER));
+    //ESP_ERROR_CHECK_WITHOUT_ABORT(ledc_fade_func_install(ESP_INTR_FLAG_IRAM));
 
     reelLeftInitOk = false;
     reelCentreInitOk = false;
@@ -137,10 +138,11 @@ bool ReelController::initialise()
     this->rightReel.initialise();
 
     // Switch on
-    esp_err_t err = ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
+    esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
+    err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "ledc_set_duty_and_update failed: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "ledc_update_duty failed: %s", esp_err_to_name(err));
     }
 
     // return ESP_OK; // DEBUG
@@ -156,7 +158,7 @@ bool ReelController::initialise()
         {
             break;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
     this->leftReel.home(pca9629a::Driver::Direction::CW); // return to home
@@ -164,7 +166,7 @@ bool ReelController::initialise()
     this->rightReel.home(pca9629a::Driver::Direction::CW); // return to home
 
     // Wait for reels to stop (max 10 seconds)
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 100; i++)
     {
         if (leftReel.isStopped() && centreReel.isStopped() &&
             rightReel.isStopped())
@@ -174,7 +176,8 @@ bool ReelController::initialise()
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
-    err = ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER, 0);
+    err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+    err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "ledc_set_duty_and_update failed: %s", esp_err_to_name(err));

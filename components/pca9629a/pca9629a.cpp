@@ -180,14 +180,14 @@ namespace pca9629a
 
     bool Driver::isStopped()
     {
-        if (!performingAction)
-        {
+        //if (!performingAction)
+        //{
             uint8_t data;
             read8(REG_MCNTL, data);
 
             return (data & 0x80) == 0;
-        }
-        return false; // we are still performing the action, so pretend we are not
+        //}
+        //return false; // we are still performing the action, so pretend we are not
     }
 
     esp_err_t Driver::registerDump()
