@@ -220,7 +220,12 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
     int rightSteps = (((this->reelStopInfo.rightStop - 1) + 25) * STEPS_PER_STOP);
 
     // Switch on
-    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
+    esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
+    err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "ledc_update_duty failed: %s", esp_err_to_name(err));
+    }
 
     if (leftSymbol > 0)
     {
@@ -278,7 +283,7 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
 
         // Update the moves value - just a bit of decoration here really
         mainController->getDisplayController().setMoves(frand::random8(13));
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
         if (!leftFinished)
         {
@@ -297,7 +302,12 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     // Switch off
-    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER, 0);
+    err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+    err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "ledc_set_duty_and_update failed: %s", esp_err_to_name(err));
+    }
 
     this->commandInProgress = false;
 }
@@ -335,7 +345,12 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
     int rightSteps = (((this->reelStopInfo.rightStop - 1) + 25) * STEPS_PER_STOP);
 
     // Switch on
-    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
+    esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
+    err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "ledc_update_duty failed: %s", esp_err_to_name(err));
+    }
 
     if (leftStop > 0)
     {
@@ -401,7 +416,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
         }
         count++;
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
         if (!leftFinished)
         {
@@ -420,7 +435,12 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
     // Switch off
-    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER, 0);
+    err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+    err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "ledc_set_duty_and_update failed: %s", esp_err_to_name(err));
+    }
 
     this->commandInProgress = false;
 }
@@ -454,7 +474,12 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
     int rightSteps = rightStops * STEPS_PER_STOP;
 
     // Switch on
-    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL, 0);
+    esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
+    err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "ledc_update_duty failed: %s", esp_err_to_name(err));
+    }
 
     if (leftStops > 0)
     {
@@ -531,7 +556,12 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     // Switch off
-    ledc_set_duty_and_update(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER, 0);
+    err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+    err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "ledc_set_duty_and_update failed: %s", esp_err_to_name(err));
+    }
 
     this->commandInProgress = false;
 }
