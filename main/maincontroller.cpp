@@ -61,8 +61,16 @@ void MainController::start()
     esp_rom_gpio_pad_select_gpio(CPU_LED_GPIO);
     /* Set the GPIO as a push/pull output */
     gpio_set_direction(CPU_LED_GPIO, GPIO_MODE_OUTPUT);
+
     /* Switch off to start */
     gpio_set_level(CPU_LED_GPIO, 0);
+
+    // Set the motor GPIO as an output
+    gpio_reset_pin(GPIO_MOTOR_EN);
+    esp_rom_gpio_pad_select_gpio(GPIO_MOTOR_EN);
+    gpio_set_direction(GPIO_MOTOR_EN, GPIO_MODE_OUTPUT);
+    gpio_set_pull_mode(GPIO_MOTOR_EN, GPIO_FLOATING);
+    gpio_set_level(GPIO_MOTOR_EN, 0);
 
     if (m20ly02z_init(MD_STROBE, MD_OE, MD_CLK, MD_DATA) != ESP_OK)
     {

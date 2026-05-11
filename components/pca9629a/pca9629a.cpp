@@ -47,7 +47,7 @@ namespace pca9629a
         ESP_LOGI(TAG, "pca9629a software_reset");
 
         esp_err_t ret = writeReg(REG_MODE, 0x06);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         if (ret != ESP_OK)
         {

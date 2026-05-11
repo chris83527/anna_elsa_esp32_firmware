@@ -262,7 +262,7 @@ uint8_t DisplayController::getButtonStatus()
     return buttonStatus;
 }
 
-uint8_t DisplayController::waitForButton(const uint8_t mask)
+uint8_t DisplayController::waitForButton(const uint8_t mask) const
 {
     // loop waiting for button press.
     while ((mask & buttonStatus) == 0)
@@ -666,7 +666,7 @@ void DisplayController::ChangePalettePeriodically()
         {
             displayVFDText("      PRESENTS      ");
             currentPalette = RainbowStripeColors_p;
-            currentBlending = NOBLEND;
+            currentBlending = LINEARBLEND;
         }
         if (secondHand == 15)
         {

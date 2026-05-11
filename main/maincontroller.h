@@ -17,6 +17,8 @@
 #include <chrono>
 #include <thread>
 
+#include "driver/gpio.h"
+
 #include "i2c_bus.hpp"
 #include "NvsController.h"
 #include "audiocontroller.h"

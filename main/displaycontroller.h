@@ -81,15 +81,15 @@ public:
 
     std::array<lamp_data_t, LED_COUNT + 6>& getLampData();
 
-    void clearText();
-    void displayVFDText(const std::string& text);
+    static void clearText();
+    static void displayVFDText(const std::string& text);
     void scrollOledText(const std::string& text);
     void clearOledDisplay();
     void displayOledText(const std::string& text, int lineNumber, bool invert);
     bool isAttractMode();
 
     uint8_t getButtonStatus();
-    uint8_t waitForButton(uint8_t mask);
+    uint8_t waitForButton(uint8_t mask) const;
 
     void beginAttractMode();
     void stopAttractMode();
