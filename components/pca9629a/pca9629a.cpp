@@ -47,7 +47,7 @@ namespace pca9629a
         ESP_LOGI(TAG, "pca9629a software_reset");
 
         esp_err_t ret = writeReg(REG_MODE, 0x06);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
         if (ret != ESP_OK)
         {
@@ -141,7 +141,7 @@ namespace pca9629a
         read8(REG_MCNTL, data);
         while ((data & bit::MCNTL_BUSY) != 0)
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
             read8(REG_MCNTL, data);
         }
 
@@ -242,12 +242,12 @@ namespace pca9629a
     esp_err_t Driver::write16(const uint8_t reg, const uint16_t value)
     {
         std::vector<uint8_t> data;
-
+        // auto increment register
         data.push_back(value & 0xFF);
         data.push_back(value >> 8);
 
-        // TODO:
-        esp_err_t ret = writeReg(reg, data);
+
+        esp_err_t ret = writeReg(reg | 0x80, data);
 
         if (ret != ESP_OK)
         {
@@ -280,7 +280,7 @@ namespace pca9629a
     {
         std::vector<uint8_t> data;
 
-        esp_err_t ret = readReg(reg, data, 2);
+        esp_err_t ret = readReg(reg | 0x80, data, 2);
 
         if (ret != ESP_OK)
         {

@@ -102,7 +102,7 @@ bool ReelController::initialise()
         .duty = 0,
         .hpoint = 0,
         .sleep_mode = LEDC_SLEEP_MODE_KEEP_ALIVE,
-        .flags = {1},
+        .flags = {0},
     };
     // Prepare and then apply the LEDC PWM timer configuration
     if (ledc_timer_config(&ledc_timer) != ESP_OK)
@@ -143,11 +143,11 @@ bool ReelController::initialise()
 
     std::this_thread::sleep_for(std::chrono::seconds(5));
 
-    this->leftReel.moveSteps(pca9629a::Driver::Direction::CW, 75, 1); // 3x complete turn
-    this->centreReel.moveSteps(pca9629a::Driver::Direction::CW, 50, 1); // 2x complete turn
-    this->rightReel.moveSteps(pca9629a::Driver::Direction::CW, 25, 1); // 1x complete turn
+    this->leftReel.moveSteps(pca9629a::Driver::Direction::CW, 75 * STEPS_PER_STOP, 1); // 3x complete turn
+    this->centreReel.moveSteps(pca9629a::Driver::Direction::CW, 50 * STEPS_PER_STOP, 1); // 2x complete turn
+    this->rightReel.moveSteps(pca9629a::Driver::Direction::CW, 25 * STEPS_PER_STOP, 1); // 1x complete turn
 
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 10000; i++)
     {
         if (leftReel.isStopped() && centreReel.isStopped() &&
             rightReel.isStopped())
@@ -162,14 +162,14 @@ bool ReelController::initialise()
     this->rightReel.home(pca9629a::Driver::Direction::CW); // return to home
 
     // Wait for reels to stop (max 10 seconds)
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 100000; i++)
     {
         if (leftReel.isStopped() && centreReel.isStopped() &&
             rightReel.isStopped())
         {
             break;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
 
