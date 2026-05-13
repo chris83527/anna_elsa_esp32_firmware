@@ -35,7 +35,8 @@ namespace cctalk::hopper
         req.destination = device;
         req.source = host;
         req.header = CctalkHeaders::PayMoneyOut;
-        req.data.assign(std::begin(reqPay.cipherKey), std::end(reqPay.cipherKey));
+        req.data.clear();
+        req.data.assign(reqPay.cipherKey.begin(), reqPay.cipherKey.end());
         req.data.push_back(reqPay.coins);
 
         return bus.send(req, timeout);
