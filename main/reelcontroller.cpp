@@ -132,16 +132,17 @@ bool ReelController::initialise()
     this->rightReel.initialise();
 
     // Switch on
+    /*
     esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
     err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "ledc_update_duty failed: %s", esp_err_to_name(err));
     }
+    */
 
-    //gpio_set_level(GPIO_MOTOR_EN, 1);
-
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    gpio_set_direction(GPIO_MOTOR_EN, GPIO_MODE_OUTPUT);
+    gpio_set_level(GPIO_MOTOR_EN, 1);
 
     this->leftReel.moveSteps(pca9629a::Driver::Direction::CW, 75 * STEPS_PER_STOP, 1); // 3x complete turn
     this->centreReel.moveSteps(pca9629a::Driver::Direction::CW, 50 * STEPS_PER_STOP, 1); // 2x complete turn
@@ -173,7 +174,7 @@ bool ReelController::initialise()
     }
 
 
-    err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+    esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
@@ -220,12 +221,16 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
     int rightSteps = (((this->reelStopInfo.rightStop - 1) + 25) * STEPS_PER_STOP);
 
     // Switch on
+    /*
     esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
     err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "ledc_update_duty failed: %s", esp_err_to_name(err));
     }
+    */
+
+    gpio_set_level(GPIO_MOTOR_EN, 1);
 
     if (leftSymbol > 0)
     {
@@ -282,7 +287,7 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
         }
 
         // Update the moves value - just a bit of decoration here really
-        mainController->getDisplayController().setMoves(frand::random8(13));
+       // mainController->getDisplayController().setMoves(frand::random8(13));
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
         if (!leftFinished)
@@ -302,7 +307,7 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     // Switch off
-    err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+    esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
@@ -345,12 +350,15 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
     int rightSteps = (((this->reelStopInfo.rightStop - 1) + 25) * STEPS_PER_STOP);
 
     // Switch on
+    /*
     esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
     err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "ledc_update_duty failed: %s", esp_err_to_name(err));
     }
+    */
+    gpio_set_level(GPIO_MOTOR_EN, 1);
 
     if (leftStop > 0)
     {
@@ -408,7 +416,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
         // Update the moves value - just a bit of decoration here really
         if (count == 0)
         {
-            mainController->getDisplayController().setMoves(frand::random8(13));
+          //  mainController->getDisplayController().setMoves(frand::random8(13));
         }
         else if (count == 10)
         {
@@ -435,7 +443,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
     // Switch off
-    err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+    esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
@@ -535,7 +543,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
         }
 
         // Update the moves value - just a bit of decoration here really
-        mainController->getDisplayController().setMoves(frand::random8(13));
+       // mainController->getDisplayController().setMoves(frand::random8(13));
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 

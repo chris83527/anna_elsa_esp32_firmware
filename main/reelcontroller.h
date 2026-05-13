@@ -125,8 +125,6 @@ private:
     pca9629a::Driver centreReel;
     pca9629a::Driver rightReel;
 
-
-
 };
 
 #endif /* __REELS_H__ */
