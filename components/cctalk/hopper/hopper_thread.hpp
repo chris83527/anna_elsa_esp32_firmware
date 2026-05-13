@@ -28,14 +28,18 @@ private:
     static constexpr const char* TAG = "HopperThread";
 
     void run() {
-        HopperStatus last{};
+        HopperPayoutStatus last{};
 
         while (running_) {
-            HopperStatus st{};
+            HopperPayoutStatus st{};
             facade_.getHopperStatus(st);
 
-            if (st.raw_status != last.raw_status) {
-                ESP_LOGD(TAG, "Hopper status changed from %d to %d", last.raw_status, st.raw_status);
+            if (st.eventCounter != last.eventCounter || st.coinsRemaining != last.coinsRemaining || st.coinsPaid != last.coinsPaid || st.coinsUnpaid != last.coinsUnpaid) {
+                ESP_LOGD(TAG, "Hopper eventCounter changed from %d to %d", last.eventCounter, st.eventCounter);
+                ESP_LOGD(TAG, "Hopper coinsRemaining changed from %d to %d", last.coinsRemaining, st.coinsRemaining);
+                ESP_LOGD(TAG, "Hopper coinsPaid changed from %d to %d", last.coinsPaid, st.coinsPaid);
+                ESP_LOGD(TAG, "Hopper coinsUnpaid changed from %d to%d", last.coinsUnpaid, st.coinsUnpaid);
+
                 queue_.push(CctalkEvent::makeHopper(st));
                 last = st;
             }

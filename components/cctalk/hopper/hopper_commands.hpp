@@ -5,8 +5,26 @@
 
 namespace cctalk::hopper
 {
-
-    inline CctalkError cctalk_enable_hopper(CctalkBus& bus, std::uint8_t host, std::uint8_t device, std::chrono::milliseconds timeout)
+    /**
+     * @brief Header 164 - Enable hopper
+     *
+     * Header 164 - Enable hopper
+    * Transmitted data : [ enable code ]
+    * Received data : ACK
+    * [ enable code ]
+    * 165 - enable hopper payout
+    * not 165 - disable hopper payout
+    * This command must be used to enable a hopper before paying out coins.
+    * The value 165 is ‘A5’ in hex and ‘10100101’ in binary.
+     *
+     * @param bus The cctalk bus object used to send commands to the UART
+     * @param host The ID of the host (usually 1)
+     * @param device The cctalk device (coin validator, hopper)
+     * @param timeout Operation timeout in milliseconds
+     * @return A CctalkError structure containing further information pertaining to problems
+     */
+    inline CctalkError cctalk_enable_hopper(CctalkBus& bus, std::uint8_t host, std::uint8_t device,
+                                            std::chrono::milliseconds timeout)
     {
         CctalkFrame req;
         req.destination = device;
@@ -25,6 +43,7 @@ namespace cctalk::hopper
         std::vector<uint8_t> cipherKey;
         std::uint8_t coins;
     };
+
     inline CctalkError cctalk_hopper_payout(CctalkBus& bus,
                                             std::uint8_t host,
                                             std::uint8_t device,
@@ -43,20 +62,20 @@ namespace cctalk::hopper
     }
 
     // Hopper status (header 166)
-    struct ReqHopperStatus
+    struct ReqPayoutHopperStatus
     {
     };
 
-    struct RspHopperStatus
+    struct RspPayoutHopperStatus
     {
-        HopperStatus status;
+        HopperPayoutStatus status;
     };
 
 
     inline CctalkError cctalk_hopper_get_status(CctalkBus& bus,
                                                 std::uint8_t host,
                                                 std::uint8_t device,
-                                                RspHopperStatus& out,
+                                                RspPayoutHopperStatus& out,
                                                 std::chrono::milliseconds timeout)
     {
         CctalkFrame req;
@@ -70,13 +89,10 @@ namespace cctalk::hopper
         if (err != CctalkError::OK) return err;
         if (resp.data.empty()) return CctalkError::MalformedFrame;
 
-        std::uint8_t s = resp.data[0];
-        out.status.raw_status = s;
-        out.status.empty = (s & 0x01) != 0;
-        out.status.jammed = (s & 0x02) != 0;
-        out.status.motor_running = (s & 0x04) != 0;
-        out.status.motor_timeout = (s & 0x08) != 0;
-        out.status.sensor_blocked = (s & 0x10) != 0;
+        out.status.eventCounter = resp.data[0];
+        out.status.coinsPaid = resp.data[1];
+        out.status.coinsRemaining = resp.data[2];
+        out.status.coinsUnpaid = resp.data[3];
 
         return CctalkError::OK;
     }
@@ -116,13 +132,13 @@ namespace cctalk::hopper
     {
         std::vector<uint8_t> cipher;
     };
+
     inline CctalkError cctalk_hopper_request_cipher_key(CctalkBus& bus,
                                                         std::uint8_t host,
                                                         std::uint8_t device,
                                                         RspHopperCipherKey& out,
                                                         std::chrono::milliseconds timeout)
     {
-
         const char* TAG = "hopper_commands";
 
         CctalkFrame req;
@@ -150,6 +166,62 @@ namespace cctalk::hopper
         }
 
         out.cipher = resp.data;
+
+        return CctalkError::OK;
+    }
+
+
+    struct ReqTestHopper
+    {
+    };
+    struct RspTestHopper
+    {
+        TestHopperStatus status;
+    };
+
+    /**
+     * @brief Header 163 - Test hopper
+     *
+     *
+     *
+     * @param bus
+     * @param host
+     * @param device
+     * @param out
+     * @param timeout
+     * @return
+     */
+    inline CctalkError cctalk_test_hopper(CctalkBus& bus,
+                                          std::uint8_t host,
+                                          std::uint8_t device,
+                                          RspTestHopper& out,
+                                          std::chrono::milliseconds timeout)
+    {
+        CctalkFrame req;
+        req.destination = device;
+        req.source = host;
+        req.header = CctalkHeaders::RequestPayoutHighLowStatus;
+        req.data.clear();
+
+        CctalkFrame resp;
+        auto err = bus.sendAndReceive(req, resp, timeout);
+        if (err != CctalkError::OK) return err;
+        if (resp.data.empty()) return CctalkError::MalformedFrame;
+
+        // SCH1
+        out.status.statusRegister1 = resp.data[0];
+
+        // SCH2
+        if (resp.data.size() == 2)
+        {
+            out.status.statusRegister2 = resp.data[1];
+        }
+
+        // SCH3
+        if (resp.data.size() == 3)
+        {
+            out.status.statusRegister3 = resp.data[2];
+        }
 
         return CctalkError::OK;
     }

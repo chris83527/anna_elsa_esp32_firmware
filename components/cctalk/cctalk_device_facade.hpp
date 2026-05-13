@@ -220,7 +220,8 @@ public:
     {
         cctalk::coin_validator::RspGetChannelValues rsp;
         CcCountryScalingData countryScalingData{};
-        auto err = cctalk::coin_validator::cctalk_get_channel_values(bus_, host_, coin_, countryScalingData, rsp, timeout);
+        auto err = cctalk::coin_validator::cctalk_get_channel_values(bus_, host_, coin_, countryScalingData, rsp,
+                                                                     timeout);
         if (err == CctalkError::OK)
         {
             out = rsp.channels;
@@ -244,7 +245,8 @@ public:
 
         if (err == CctalkError::OK)
         {
-            ESP_LOGD(TAG, "Processing event number %d. Last processed event: %d", rsp.currentEventNumber, lastEventNumber);
+            ESP_LOGD(TAG, "Processing event number %d. Last processed event: %d", rsp.currentEventNumber,
+                     lastEventNumber);
 
             // When the device is first booted, the event log contains all zeroes.
             if (lastEventNumber == 0 && rsp.currentEventNumber == 0)
@@ -298,7 +300,8 @@ public:
 
             // don't output the whole list of returned events, only the number of new events otherwise
             // the credits will exponentially increase
-            if (rsp.currentEventNumber > lastEventNumber) {
+            if (rsp.currentEventNumber > lastEventNumber)
+            {
                 out.assign(rsp.events.begin(), rsp.events.begin() + newEventCount);
                 ESP_LOGD(TAG, "Found %d new event(s); processing from oldest to newest.", out.size());
             }
@@ -321,12 +324,15 @@ public:
     CctalkError requestCipherKey(cctalk::hopper::RspHopperCipherKey& out,
                                  std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
     {
-        CctalkError ret =  cctalk::hopper::cctalk_hopper_request_cipher_key(bus_, host_, hopper_, out, timeout);
+        CctalkError ret = cctalk::hopper::cctalk_hopper_request_cipher_key(bus_, host_, hopper_, out, timeout);
 
         if (ret == CctalkError::OK)
         {
-            ESP_LOGI(TAG, "requestCipherKey called. Response: %3d %3d %3d %3d %3d %3d %3d %3d", out.cipher[0], out.cipher[1], out.cipher[2], out.cipher[3], out.cipher[4], out.cipher[5], out.cipher[6], out.cipher[7]);
-        } else
+            ESP_LOGI(TAG, "requestCipherKey called. Response: %3d %3d %3d %3d %3d %3d %3d %3d", out.cipher[0],
+                     out.cipher[1], out.cipher[2], out.cipher[3], out.cipher[4], out.cipher[5], out.cipher[6],
+                     out.cipher[7]);
+        }
+        else
         {
             ESP_LOGE(TAG, "Got non-ok return code: %d", ret);
         }
@@ -338,24 +344,36 @@ public:
         cctalk::hopper::RspHopperCipherKey out{};
         CctalkError err = requestCipherKey(out);
 
-        if (err == CctalkError::OK && out.cipher.size() == 8)
+        if (err != CctalkError::OK || out.cipher.size() != 8)
         {
-            ESP_LOGI(TAG, "Calling request hopper payout for %d coins", coins);
-            cctalk::hopper::ReqHopperPayout req{
-                out.cipher,
-                   coins
-            };
-            return cctalk_hopper_payout(bus_, host_, hopper_, req, timeout);
+            return CctalkError::IncorrectCipherBytes;
         }
 
-        return CctalkError::IncorrectCipherBytes;
+        ESP_LOGI(TAG, "Calling request hopper payout for %d coins", coins);
+        cctalk::hopper::ReqHopperPayout req{
+            out.cipher,
+            coins
+        };
+        return cctalk_hopper_payout(bus_, host_, hopper_, req, timeout);
+
     }
 
-    CctalkError getHopperStatus(HopperStatus& out,
+    CctalkError getHopperStatus(HopperPayoutStatus& out,
                                 std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
     {
-        cctalk::hopper::RspHopperStatus rsp;
+        cctalk::hopper::RspPayoutHopperStatus rsp;
         auto err = cctalk_hopper_get_status(bus_, host_, hopper_, rsp, timeout);
+        if (err == CctalkError::OK)
+        {
+            out = rsp.status;
+        }
+        return err;
+    }
+
+    CctalkError testHopper(TestHopperStatus& out, std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
+    {
+        cctalk::hopper::RspTestHopper rsp;
+        auto err = cctalk_test_hopper(bus_, host_, hopper_, rsp, timeout);
         if (err == CctalkError::OK)
         {
             out = rsp.status;
