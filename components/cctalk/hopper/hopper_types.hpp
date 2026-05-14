@@ -46,7 +46,7 @@ struct TestHopperStatus
 
 struct HopperPayoutStatus
 {
-    uint8_t eventCounter = 0;
+    uint8_t dispenseCount = 0;
     uint8_t coinsRemaining = 0;
     uint8_t coinsPaid = 0;
     uint8_t coinsUnpaid = 0;

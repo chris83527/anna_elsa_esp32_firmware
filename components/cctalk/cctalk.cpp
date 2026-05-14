@@ -27,7 +27,8 @@ CctalkError CctalkBus::writeFrameLocked(const CctalkFrame& frame,
     buf.insert(buf.end(), tmp.data.begin(), tmp.data.end());
     buf.push_back(tmp.checksum);
 
-    ESP_LOGD(TAG, "WRITE: dest: %d, data_length: %d, source: %d, header: %d", tmp.destination, tmp.data_length, tmp.source,
+    ESP_LOGD(TAG, "WRITE: dest: %d, data_length: %d, source: %d, header: %d", tmp.destination, tmp.data_length,
+             tmp.source,
              tmp.header);
 
 
@@ -56,7 +57,8 @@ CctalkError CctalkBus::writeFrameLocked(const CctalkFrame& frame,
     }
 
     // These should be equal because it is an echo of the data sent
-    ESP_LOGD(TAG, "Data sent (1st 4 bytes): %d, %d, %d, %d. Data received (1st 4 bytes) %d, %d, %d, %d", buf[0], buf[1], buf[2], buf[3], readBuf[0], readBuf[1], readBuf[2], readBuf[3]);
+    ESP_LOGD(TAG, "Data sent (1st 4 bytes): %d, %d, %d, %d. Data received (1st 4 bytes) %d, %d, %d, %d", buf[0], buf[1],
+             buf[2], buf[3], readBuf[0], readBuf[1], readBuf[2], readBuf[3]);
 
     return CctalkError::OK;
 }
@@ -99,6 +101,7 @@ CctalkError CctalkBus::send(const CctalkFrame& request,
                             std::chrono::milliseconds timeout)
 {
     std::lock_guard lock(mutex_);
+
     // Write request
     auto err = writeFrameLocked(request, timeout);
     if (err != CctalkError::OK)

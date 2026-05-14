@@ -34,11 +34,11 @@ private:
             HopperPayoutStatus st{};
             facade_.getHopperStatus(st);
 
-            if (st.eventCounter != last.eventCounter || st.coinsRemaining != last.coinsRemaining || st.coinsPaid != last.coinsPaid || st.coinsUnpaid != last.coinsUnpaid) {
-                ESP_LOGD(TAG, "Hopper eventCounter changed from %d to %d", last.eventCounter, st.eventCounter);
+            if (st.dispenseCount != last.dispenseCount || st.coinsRemaining != last.coinsRemaining || st.coinsPaid != last.coinsPaid || st.coinsUnpaid != last.coinsUnpaid) {
+                ESP_LOGD(TAG, "Hopper dispenseCount changed from %d to %d", last.dispenseCount, st.dispenseCount);
                 ESP_LOGD(TAG, "Hopper coinsRemaining changed from %d to %d", last.coinsRemaining, st.coinsRemaining);
                 ESP_LOGD(TAG, "Hopper coinsPaid changed from %d to %d", last.coinsPaid, st.coinsPaid);
-                ESP_LOGD(TAG, "Hopper coinsUnpaid changed from %d to%d", last.coinsUnpaid, st.coinsUnpaid);
+                ESP_LOGD(TAG, "Hopper coinsUnpaid changed from %d to %d", last.coinsUnpaid, st.coinsUnpaid);
 
                 queue_.push(CctalkEvent::makeHopper(st));
                 last = st;

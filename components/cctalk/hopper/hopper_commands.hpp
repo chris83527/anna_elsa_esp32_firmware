@@ -89,9 +89,9 @@ namespace cctalk::hopper
         if (err != CctalkError::OK) return err;
         if (resp.data.empty()) return CctalkError::MalformedFrame;
 
-        out.status.eventCounter = resp.data[0];
-        out.status.coinsPaid = resp.data[1];
-        out.status.coinsRemaining = resp.data[2];
+        out.status.dispenseCount = resp.data[0];
+        out.status.coinsRemaining = resp.data[1];
+        out.status.coinsPaid = resp.data[2];
         out.status.coinsUnpaid = resp.data[3];
 
         return CctalkError::OK;
