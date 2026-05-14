@@ -12,7 +12,7 @@ struct CctalkEvent {
     CctalkEventType type;
     union {
         CoinEvent coin;
-        HopperStatus hopper;
+        HopperPayoutStatus hopper;
     };
 
     static CctalkEvent makeCoin(const CoinEvent& ev) {
@@ -21,7 +21,7 @@ struct CctalkEvent {
         e.coin = ev;
         return e;
     }
-    static CctalkEvent makeHopper(const HopperStatus& st) {
+    static CctalkEvent makeHopper(const HopperPayoutStatus& st) {
         CctalkEvent e{};
         e.type = CctalkEventType::HopperStatusChanged;
         e.hopper = st;
