@@ -43,7 +43,8 @@
 
 static const char* TAG = "PaymentController";
 
-PaymentController::PaymentController(MainController* mainController, std::unique_ptr<ICctalkUart> uart) : credit(0), bank(0),
+PaymentController::PaymentController(MainController* mainController, std::unique_ptr<ICctalkUart> uart) :
+    credit(0), bank(0),
     transfer(0), gamecount(0),
     payoutTotal(0), incomeTotal(0), tenCentIn(0),
     twentyCentIn(0),
@@ -212,21 +213,21 @@ void PaymentController::addToCredit(const Payment& payment)
 {
     addToCredit(payment.getTenCent() * 10);
     this->mainController->getNvsController().writeValueToNVS(NVS_KEY_TEN_CENT_IN.c_str(),
-                                        this->tenCentIn + payment.getTenCent());
+                                                             this->tenCentIn + payment.getTenCent());
     addToCredit(payment.getTwentyCent() * 20);
     this->mainController->getNvsController().writeValueToNVS(NVS_KEY_TWENTY_CENT_IN.c_str(),
-                                        this->twentyCentIn +
-                                        payment.getTwentyCent());
+                                                             this->twentyCentIn +
+                                                             payment.getTwentyCent());
     addToCredit(payment.getFiftyCent() * 50);
     this->mainController->getNvsController().writeValueToNVS(NVS_KEY_FIFTY_CENT_IN.c_str(),
-                                        this->fiftyCentIn +
-                                        payment.getFiftyCent());
+                                                             this->fiftyCentIn +
+                                                             payment.getFiftyCent());
     addToCredit(payment.getOneEuro() * 100);
     this->mainController->getNvsController().writeValueToNVS(NVS_KEY_ONE_EURO_IN.c_str(),
-                                        this->oneEuroIn + payment.getOneEuro());
+                                                             this->oneEuroIn + payment.getOneEuro());
     addToCredit(payment.getTwoEuro() * 200);
     this->mainController->getNvsController().writeValueToNVS(NVS_KEY_TWO_EURO_IN.c_str(),
-                                        this->twoEuroIn + payment.getTwoEuro());
+                                                             this->twoEuroIn + payment.getTwoEuro());
 
     this->mainController->getNvsController().writeValueToNVS(NVS_KEY_CREDIT.c_str(), credit);
 }
@@ -237,7 +238,7 @@ void PaymentController::addToCredit(uint16_t value)
     this->incomeTotal += value;
     this->mainController->getNvsController().writeValueToNVS(NVS_KEY_CREDIT.c_str(), credit);
     this->mainController->getNvsController().writeValueToNVS(NVS_KEY_INCOME_TOTAL.c_str(),
-                                        this->incomeTotal);
+                                                             this->incomeTotal);
 }
 
 /**
@@ -270,13 +271,6 @@ void PaymentController::removeFromCredit(const uint16_t value)
 void PaymentController::payoutBank()
 {
     CctalkError err = facade_->hopperPayout(static_cast<uint8_t>(getBank() / 20));
-
-    if (err == CctalkError::OK)
-    {
-        this->payoutTotal += getBank();
-        this->removeFromBank(getBank());
-        this->mainController->getNvsController().writeValueToNVS(NVS_KEY_PAYOUT_TOTAL.c_str(), this->payoutTotal);
-    }
 }
 
 /**
@@ -370,15 +364,19 @@ void PaymentController::onEvent(const CctalkEvent& evt)
     {
     case CctalkEventType::CoinAccepted:
         ESP_LOGI(TAG, "Coin accepted. Coin Id: %d, Coin value: %d", evt.coin.coin_id, evt.coin.coin_value);
-        this->addToCredit(COIN_VALUES[evt.coin.coin_id]); // easy way - just look up in our table instead of from the validator
+        this->addToCredit(COIN_VALUES[evt.coin.coin_id]);
+        // easy way - just look up in our table instead of from the validator
         this->mainController->getHttpController().broadcast_status();
         break;
 
-    case CctalkEventType::HopperStatusChanged:
-
-        //updateHopperUI(evt.hopper);
-        // TODO: Error
+    case CctalkEventType::HopperPayoutStatusChanged:
+        ESP_LOGI(TAG, "Hopper payout status changed");
+        this->removeFromBank(evt.hopper.coinsPaid * 20);
+        this->payoutTotal += evt.hopper.coinsPaid * 20;
+        this->mainController->getNvsController().writeValueToNVS(NVS_KEY_PAYOUT_TOTAL.c_str(), this->payoutTotal);
+        this->mainController->getHttpController().broadcast_status();
         break;
+
     }
 }
 

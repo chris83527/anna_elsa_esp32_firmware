@@ -5,7 +5,7 @@
 
 enum class CctalkEventType {
     CoinAccepted,
-    HopperStatusChanged
+    HopperPayoutStatusChanged
 };
 
 struct CctalkEvent {
@@ -21,9 +21,10 @@ struct CctalkEvent {
         e.coin = ev;
         return e;
     }
+    
     static CctalkEvent makeHopper(const HopperPayoutStatus& st) {
         CctalkEvent e{};
-        e.type = CctalkEventType::HopperStatusChanged;
+        e.type = CctalkEventType::HopperPayoutStatusChanged;
         e.hopper = st;
         return e;
     }
