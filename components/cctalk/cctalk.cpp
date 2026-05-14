@@ -44,7 +44,6 @@ CctalkError CctalkBus::writeFrameLocked(const CctalkFrame& frame,
         return CctalkError::Timeout;
     }
 
-
     // Read back the echo and ignore it
     std::vector<uint8_t> readBuf;
     readBuf.reserve(buf.size());
@@ -96,11 +95,46 @@ CctalkError CctalkBus::readFrameLocked(CctalkFrame& frame,
     return CctalkError::OK;
 }
 
-CctalkError CctalkBus::send(const CctalkFrame& frame,
+CctalkError CctalkBus::send(const CctalkFrame& request,
                             std::chrono::milliseconds timeout)
 {
     std::lock_guard lock(mutex_);
-    return writeFrameLocked(frame, timeout);
+    // Write request
+    auto err = writeFrameLocked(request, timeout);
+    if (err != CctalkError::OK)
+    {
+        ESP_LOGE(TAG, "An error occurred calling writeFrameLocked.");
+        return err;
+    }
+
+    // Read response
+    CctalkFrame response;
+    err = readFrameLocked(response, timeout);
+    if (err != CctalkError::OK)
+    {
+        ESP_LOGE(TAG, "An error occurred calling readFrameLocked.");
+        return err;
+    }
+
+    if (response.source != request.destination)
+    {
+        ESP_LOGE(TAG, "Unexpected source: Expected %d, got %d", request.destination, response.source);
+        return CctalkError::UnexpectedSource;
+    }
+
+    if (response.destination != host_address_)
+    {
+        ESP_LOGE(TAG, "Unexpected destination: Expected %d, got %d", host_address_, response.destination);
+        return CctalkError::UnexpectedDestination;
+    }
+
+    if (response.header != 0)
+    {
+        ESP_LOGE(TAG, "Incorrect header: Expected 0 (ACK), got %d", response.header);
+        return CctalkError::InvalidHeader;
+    }
+
+    return CctalkError::OK;
 }
 
 CctalkError CctalkBus::readFrame(CctalkFrame& frame,
@@ -149,9 +183,6 @@ CctalkError CctalkBus::sendAndReceive(const CctalkFrame& request,
         ESP_LOGE(TAG, "Incorrect header: Expected 0 (ACK), got %d", response.header);
         return CctalkError::InvalidHeader;
     }
-
-    // Debug
-    //std::ranges::copy(response.data, std::ostream_iterator<char>(std::cout, ""));
 
     return CctalkError::OK;
 }

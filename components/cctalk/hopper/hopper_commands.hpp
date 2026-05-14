@@ -32,7 +32,7 @@ namespace cctalk::hopper
         req.header = CctalkHeaders::EnableHopper;
         req.data.clear();
 
-        req.data.push_back(165); // always send this byte
+        req.data.push_back(165); // always send this byte (enable). Any other value means disable
 
         return bus.send(req, timeout);
     }
