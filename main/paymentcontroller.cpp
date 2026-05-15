@@ -270,7 +270,66 @@ void PaymentController::removeFromCredit(const uint16_t value)
 
 void PaymentController::payoutBank()
 {
-    CctalkError err = facade_->hopperPayout(static_cast<uint8_t>(getBank() / 20));
+    payoutInProgress.store(true);
+
+    TestHopperStatus testHopperStatus{};
+    CctalkError err = facade_->testHopper(testHopperStatus);
+    if (err == CctalkError::OK && testHopperStatus.statusRegister1 == 0)
+    {
+        err = facade_->enableHopper();
+        if (err == CctalkError::OK)
+        {
+            cctalk::hopper::RspHopperCipherKey out{};
+            CctalkError err = facade_->requestCipherKey(out);
+
+            if (err == CctalkError::OK && out.cipher.size() == 8)
+            {
+                err = facade_->hopperPayout(out.cipher, static_cast<uint8_t>(getBank() / 20));
+                if (err == CctalkError::OK)
+                {
+                    HopperPayoutStatus payoutStatus{};
+                    do
+                    {
+                        err = facade_->getHopperStatus(payoutStatus);
+                        if (err == CctalkError::OK)
+                        {
+                            if (payoutStatus.dispenseCount > 0 && payoutStatus.dispenseCount > lastPayoutStatus.
+                                dispenseCount)
+                            {
+                                ESP_LOGD(TAG, "Hopper dispenseCount changed from %d to %d",
+                                         lastPayoutStatus.dispenseCount, payoutStatus.dispenseCount);
+                                ESP_LOGD(TAG, "Hopper coinsRemaining changed from %d to %d",
+                                         lastPayoutStatus.coinsRemaining, payoutStatus.coinsRemaining);
+                                ESP_LOGD(TAG, "Hopper coinsPaid changed from %d to %d", lastPayoutStatus.coinsPaid,
+                                         payoutStatus.coinsPaid);
+                                ESP_LOGD(TAG, "Hopper coinsUnpaid changed from %d to %d", lastPayoutStatus.coinsUnpaid,
+                                         payoutStatus.coinsUnpaid);
+
+                                removeFromBank(lastPayoutStatus.coinsPaid * 20);
+                            }
+                        }
+                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                    }
+                    // If the payout operation completes successfully or abnormally, the coinsRemaining counter will be set to 0.
+                    while (payoutStatus.coinsRemaining != 0);
+
+                    lastPayoutStatus = payoutStatus;
+
+                    // The Host software should always check the coinsRemaining counter if it has become 0. If it has become 0 and the
+                    // coins unpaid counter is non-zero, then the dispense procedure has been aborted before all coins were
+                    // dispensed. Check with the Hopper Test command if the hopper has timed-out (due to jams or empty).
+                    err = facade_->testHopper(testHopperStatus);
+                    if ((testHopperStatus.statusRegister1 | static_cast<uint8_t>(HopperStatusRegister1::OK)) !=
+                        static_cast<uint8_t>(HopperStatusRegister1::OK))
+                    {
+                        // TODO: Error handling.
+                    }
+                }
+            }
+        }
+    }
+
+    payoutInProgress.store(false);
 }
 
 /**
@@ -370,13 +429,7 @@ void PaymentController::onEvent(const CctalkEvent& evt)
         break;
 
     case CctalkEventType::HopperPayoutStatusChanged:
-        ESP_LOGI(TAG, "Hopper payout status changed");
-        this->removeFromBank(evt.hopper.coinsPaid * 20);
-        this->payoutTotal += evt.hopper.coinsPaid * 20;
-        this->mainController->getNvsController().writeValueToNVS(NVS_KEY_PAYOUT_TOTAL.c_str(), this->payoutTotal);
-        this->mainController->getHttpController().broadcast_status();
         break;
-
     }
 }
 

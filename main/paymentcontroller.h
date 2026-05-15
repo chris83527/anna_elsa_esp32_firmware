@@ -142,7 +142,7 @@ private:
     static constexpr std::string NVS_KEY_ONE_EURO_IN = "oneEuroIn";
     static constexpr std::string NVS_KEY_TWO_EURO_IN = "twoEuroIn";
 
-    bool payoutInProgress;
+    std::atomic<bool> payoutInProgress;
 
     std::unique_ptr<ICctalkUart> uart_;
     std::unique_ptr<CctalkBus> bus_;
@@ -153,6 +153,8 @@ private:
     std::unique_ptr<CoinAcceptorThread> acceptorThread_;
     std::unique_ptr<HopperThread> hopperThread_;
     std::unique_ptr<EventDispatcherThread> dispatcherThread_;
+
+    HopperPayoutStatus lastPayoutStatus{};
 
     EventHandler handler_;
     bool running_ = false;

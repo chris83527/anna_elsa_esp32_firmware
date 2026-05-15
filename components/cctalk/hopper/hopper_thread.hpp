@@ -28,13 +28,14 @@ private:
     static constexpr const char* TAG = "HopperThread";
 
     void run() {
+        /*
         HopperPayoutStatus last{};
 
         while (running_) {
             HopperPayoutStatus st{};
             facade_.getHopperStatus(st);
 
-            if (st.dispenseCount != last.dispenseCount || st.coinsRemaining != last.coinsRemaining || st.coinsPaid != last.coinsPaid || st.coinsUnpaid != last.coinsUnpaid) {
+            if (st.dispenseCount > 0 && (st.dispenseCount != last.dispenseCount || st.coinsRemaining != last.coinsRemaining || st.coinsPaid != last.coinsPaid || st.coinsUnpaid != last.coinsUnpaid)) {
                 ESP_LOGD(TAG, "Hopper dispenseCount changed from %d to %d", last.dispenseCount, st.dispenseCount);
                 ESP_LOGD(TAG, "Hopper coinsRemaining changed from %d to %d", last.coinsRemaining, st.coinsRemaining);
                 ESP_LOGD(TAG, "Hopper coinsPaid changed from %d to %d", last.coinsPaid, st.coinsPaid);
@@ -46,6 +47,7 @@ private:
 
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
+        */
     }
 
     std::atomic<bool> running_{false};

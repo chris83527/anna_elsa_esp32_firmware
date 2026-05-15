@@ -339,19 +339,12 @@ public:
         return ret;
     }
 
-    CctalkError hopperPayout(std::uint8_t coins, std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
+    CctalkError hopperPayout(std::vector<uint8_t>& cipherKey, std::uint8_t coins, std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
     {
-        cctalk::hopper::RspHopperCipherKey out{};
-        CctalkError err = requestCipherKey(out);
-
-        if (err != CctalkError::OK || out.cipher.size() != 8)
-        {
-            return CctalkError::IncorrectCipherBytes;
-        }
 
         ESP_LOGI(TAG, "Calling request hopper payout for %d coins", coins);
         cctalk::hopper::ReqHopperPayout req{
-            out.cipher,
+            cipherKey,
             coins
         };
         return cctalk_hopper_payout(bus_, host_, hopper_, req, timeout);
