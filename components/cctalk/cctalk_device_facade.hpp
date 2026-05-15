@@ -386,6 +386,25 @@ public:
         return err;
     }
 
+    /**
+     * @brief Return the address of the hopper (usually 3)
+     *
+     * @return The address of the hopper
+     */
+    uint8_t getHopperAddress()
+    {
+        return hopper_;
+    }
+
+    /**
+     * @brief Return the address of the coin validator (usually 2)
+     *
+     * @return The address of the coin validator
+     */
+    uint8_t getCoinValidatorAddress()
+    {
+        return coin_;
+    }
 private:
     CctalkBus& bus_;
     std::uint8_t host_;
@@ -416,4 +435,6 @@ private:
             out = std::to_string(serialNumber);
         }
     }
+
+
 };

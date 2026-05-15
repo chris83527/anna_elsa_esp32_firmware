@@ -276,70 +276,102 @@ void PaymentController::payoutBank()
     ESP_LOGI(TAG, "Testing hopper status");
     TestHopperStatus testHopperStatus{};
     CctalkError err = facade_->testHopper(testHopperStatus);
-    if (err == CctalkError::OK && testHopperStatus.statusRegister1 == 0)
+
+    if (err != CctalkError::OK || testHopperStatus.statusRegister1 != 0)
     {
-        ESP_LOGI(TAG, "Enabling hopper");
-        err = facade_->enableHopper();
-        if (err == CctalkError::OK)
+        ESP_LOGE(TAG, "Hopper status not ok: %d", testHopperStatus.statusRegister1);
+        if ((testHopperStatus.statusRegister1 | HopperStatusRegister1Bits::OK) != HopperStatusRegister1Bits::OK)
         {
-            cctalk::hopper::RspHopperCipherKey out{};
-            CctalkError err = facade_->requestCipherKey(out);
+            ESP_LOGI(TAG, "Hopper status register 1: %d", testHopperStatus.statusRegister1);
+            ESP_LOGI(TAG, "Resetting hopper");
+            err = facade_->resetDevice(facade_->getHopperAddress());
+            lastPayoutStatus = {}; // reset lastPayout status too
+        }
 
-            if (err == CctalkError::OK && out.cipher.size() == 8)
+        ESP_LOGI(TAG, "Re-testing hopper status");
+        TestHopperStatus testHopperStatus{};
+        CctalkError err = facade_->testHopper(testHopperStatus);
+        if ((testHopperStatus.statusRegister1 | HopperStatusRegister1Bits::OK) != HopperStatusRegister1Bits::OK)
+        {
+            ESP_LOGI(TAG, "Hopper status register 1: %d", testHopperStatus.statusRegister1);
+            ESP_LOGI(TAG, "Giving up. Please check hopper");
+            return;
+        }
+    }
+
+    ESP_LOGI(TAG, "Enabling hopper");
+    err = facade_->enableHopper();
+    if (err == CctalkError::OK)
+    {
+        cctalk::hopper::RspHopperCipherKey out{};
+        CctalkError err = facade_->requestCipherKey(out);
+
+        if (err == CctalkError::OK && out.cipher.size() == 8)
+        {
+            ESP_LOGI(TAG, "Got cipher key: %d %d %d %d %d %d %d %d", out.cipher[0], out.cipher[1], out.cipher[2],
+                     out.cipher[3], out.cipher[4], out.cipher[5], out.cipher[6], out.cipher[7]);
+            ESP_LOGI(TAG, "Calling hopperPayout with cipher and %d coins", static_cast<uint8_t>(getBank() / 20));
+            err = facade_->hopperPayout(out.cipher, static_cast<uint8_t>(getBank() / 20));
+            if (err == CctalkError::OK)
             {
-                ESP_LOGI(TAG, "Got cipher key: %d %d %d %d %d %d %d %d", out.cipher[0], out.cipher[1], out.cipher[2], out.cipher[3], out.cipher[4], out.cipher[5], out.cipher[6], out.cipher[7]);
-                ESP_LOGI(TAG, "Calling hopperPayout with cipher and %d coins", static_cast<uint8_t>(getBank() / 20));
-                err = facade_->hopperPayout(out.cipher, static_cast<uint8_t>(getBank() / 20));
-                if (err == CctalkError::OK)
+                HopperPayoutStatus payoutStatus{};
+                do
                 {
-                    HopperPayoutStatus payoutStatus{};
-                    do
+                    ESP_LOGI(TAG, "Polling hopper status");
+                    err = facade_->getHopperStatus(payoutStatus);
+                    if (err == CctalkError::OK)
                     {
-                        ESP_LOGI(TAG, "Polling hopper status");
-                        err = facade_->getHopperStatus(payoutStatus);
-                        if (err == CctalkError::OK)
+                        if (payoutStatus.dispenseCount > 0 && payoutStatus.dispenseCount > lastPayoutStatus.
+                            dispenseCount)
                         {
-                            if (payoutStatus.dispenseCount > 0 && payoutStatus.dispenseCount > lastPayoutStatus.
-                                dispenseCount)
-                            {
-                                ESP_LOGI(TAG, "Hopper dispenseCount changed from %d to %d",
-                                         lastPayoutStatus.dispenseCount, payoutStatus.dispenseCount);
-                                ESP_LOGI(TAG, "Hopper coinsRemaining changed from %d to %d",
-                                         lastPayoutStatus.coinsRemaining, payoutStatus.coinsRemaining);
-                                ESP_LOGI(TAG, "Hopper coinsPaid changed from %d to %d", lastPayoutStatus.coinsPaid,
-                                         payoutStatus.coinsPaid);
-                                ESP_LOGI(TAG, "Hopper coinsUnpaid changed from %d to %d", lastPayoutStatus.coinsUnpaid,
-                                         payoutStatus.coinsUnpaid);
+                            ESP_LOGI(TAG, "Hopper dispenseCount changed from %d to %d",
+                                     lastPayoutStatus.dispenseCount, payoutStatus.dispenseCount);
+                            ESP_LOGI(TAG, "Hopper coinsRemaining changed from %d to %d",
+                                     lastPayoutStatus.coinsRemaining, payoutStatus.coinsRemaining);
+                            ESP_LOGI(TAG, "Hopper coinsPaid changed from %d to %d", lastPayoutStatus.coinsPaid,
+                                     payoutStatus.coinsPaid);
+                            ESP_LOGI(TAG, "Hopper coinsUnpaid changed from %d to %d", lastPayoutStatus.coinsUnpaid,
+                                     payoutStatus.coinsUnpaid);
 
-                                removeFromBank(lastPayoutStatus.coinsPaid * 20);
-                            }
-                        } else
-                        {
-                            ESP_LOGE(TAG, "An error occurred getting hopper payout status: %d", err);
+                            removeFromBank(lastPayoutStatus.coinsPaid * 20);
                         }
-                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
                     }
-                    // If the payout operation completes successfully or abnormally, the coinsRemaining counter will be set to 0.
-                    while (payoutStatus.coinsRemaining != 0);
-
-                    lastPayoutStatus = payoutStatus;
-
-                    // The Host software should always check the coinsRemaining counter if it has become 0. If it has become 0 and the
-                    // coins unpaid counter is non-zero, then the dispense procedure has been aborted before all coins were
-                    // dispensed. Check with the Hopper Test command if the hopper has timed-out (due to jams or empty).
-                    err = facade_->testHopper(testHopperStatus);
-                    if ((testHopperStatus.statusRegister1 | static_cast<uint8_t>(HopperStatusRegister1::OK)) !=
-                        static_cast<uint8_t>(HopperStatusRegister1::OK))
+                    else
                     {
-                        ESP_LOGI(TAG, "Hopper status register 1: %d", testHopperStatus.statusRegister1);
-                        // TODO: Error handling.
+                        ESP_LOGE(TAG, "An error occurred getting hopper payout status: %d", err);
                     }
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
+                // If the payout operation completes successfully or abnormally, the coinsRemaining counter will be set to 0.
+                while (payoutStatus.coinsRemaining != 0);
+
+                lastPayoutStatus = payoutStatus;
+
+                // Give an error if we have unpaid coins
+                if (lastPayoutStatus.coinsUnpaid > 0)
+                {
+                    ESP_LOGE(TAG, "Hopper has unpaid coins!");
+                }
+
+                // The Host software should always check the coinsRemaining counter if it has become 0. If it has become 0 and the
+                // coins unpaid counter is non-zero, then the dispense procedure has been aborted before all coins were
+                // dispensed. Check with the Hopper Test command if the hopper has timed-out (due to jams or empty).
+                ESP_LOGI(TAG, "Rechecking hopper status after payout");
+                err = facade_->testHopper(testHopperStatus);
+                if ((testHopperStatus.statusRegister1 | static_cast<uint8_t>(HopperStatusRegister1Bits::OK)) !=
+                    static_cast<uint8_t>(HopperStatusRegister1Bits::OK))
+                {
+                    ESP_LOGI(TAG, "Hopper status register 1: %d", testHopperStatus.statusRegister1);
+                    ESP_LOGI(TAG, "Resetting hopper");
+                    err = facade_->resetDevice(facade_->getHopperAddress());
+                    lastPayoutStatus = {}; // reset lastPayout status too
+                }
+                else
+                {
+                    ESP_LOGI(TAG, "Hopper status ok. No unpaid coins");
                 }
             }
         }
-    } else
-    {
-        ESP_LOGE(TAG, "Hopper status not ok: %d", testHopperStatus.statusRegister1);
     }
 
     payoutInProgress.store(false);

@@ -4,16 +4,16 @@
 #pragma once
 #include <cstdint>
 
-enum class HopperStatusRegister1 : uint8_t
+namespace HopperStatusRegister1Bits
 {
-    OK = (1 << 0),
-    MAX_CURRENT_EXCEEDED = (1 << 1),
-    PAYOUT_TIMEOUT_OCCURED = (1 << 2),
-    MOTOR_REVERSED_DURING_LAST_PAYOUT = (1 << 3),
-    OPTO_FRAUD_ATTEMPT_PATH_BLOCKED_DURING_IDLE = (1 << 4),
-    OPTO_FRAUD_ATTEMPT_SHORT_CIRCUIT_DURING_IDLE = (1 << 5),
-    POWER_UP_DETECTED = (1 << 6),
-    PAYOUT_DISABLED = (1 << 7),
+    static constexpr uint8_t OK = (1 << 0);
+    static constexpr uint8_t MAX_CURRENT_EXCEEDED = (1 << 1);
+    static constexpr uint8_t PAYOUT_TIMEOUT_OCCURED = (1 << 2);
+    static constexpr uint8_t MOTOR_REVERSED_DURING_LAST_PAYOUT = (1 << 3);
+    static constexpr uint8_t OPTO_FRAUD_ATTEMPT_PATH_BLOCKED_DURING_IDLE = (1 << 4);
+    static constexpr uint8_t OPTO_FRAUD_ATTEMPT_SHORT_CIRCUIT_DURING_IDLE = (1 << 5);
+    static constexpr uint8_t POWER_UP_DETECTED = (1 << 6);
+    static constexpr uint8_t PAYOUT_DISABLED = (1 << 7);
 };
 
 enum class HopperStatusRegister2 : uint8_t
