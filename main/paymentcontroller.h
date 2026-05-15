@@ -27,7 +27,7 @@
  */
 
 /**
- * @file PaymentController.h
+ * @file paymentcontroller.h
  *
  * Routines for adding to bank, adding credit etc.
  *
@@ -35,8 +35,7 @@
  *
  * BSD Licensed as described in the file LICENSE
  */
-#ifndef __PaymentController_H__
-#define __PaymentController_H__
+#pragma once
 
 #include <string>
 
@@ -65,7 +64,6 @@ public:
     uint16_t getOneEuro() const;
     uint16_t getTwoEuro() const;
     void clear();
-    void payoutBank();
 
 private:
     uint16_t tenCentIn = 0;
@@ -100,19 +98,19 @@ public:
     void moveTransferToBank();
     void payoutBank();
     // void removeFromTransfer(const int value);
-    uint16_t getCredit() const;
+    [[nodiscard]] uint16_t getCredit() const;
     [[nodiscard]] uint16_t getBank() const;
-    uint16_t getTransfer() const;
+    [[nodiscard]] uint16_t getTransfer() const;
     [[nodiscard]] uint16_t getGameCount() const;
 
-    uint16_t getPayoutTotal() const;
+    [[nodiscard]] uint16_t getPayoutTotal() const;
     [[nodiscard]] uint16_t getIncomeTotal() const;
 
     void setPayoutInProgress(bool inProgress);
-    bool isPayoutInProgress() const;
+    [[nodiscard]] bool isPayoutInProgress() const;
     void resetCounters();
 
-    HopperPayoutStatus getLastPayoutStatus() const;
+    [[nodiscard]] HopperPayoutStatus getLastPayoutStatus() const;
 
 
 private:
@@ -165,5 +163,3 @@ private:
 
     static constexpr uint8_t COIN_VALUES[] = {0, 5, 10, 20, 50, 100, 200};
 };
-
-#endif

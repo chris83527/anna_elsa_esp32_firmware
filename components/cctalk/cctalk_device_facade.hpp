@@ -341,14 +341,17 @@ public:
 
     CctalkError hopperPayout(std::vector<uint8_t>& cipherKey, std::uint8_t coins, std::chrono::milliseconds timeout = std::chrono::milliseconds(200))
     {
-
         ESP_LOGI(TAG, "Calling request hopper payout for %d coins", coins);
         cctalk::hopper::ReqHopperPayout req{
             cipherKey,
             coins
         };
-        return cctalk_hopper_payout(bus_, host_, hopper_, req, timeout);
+        CctalkError err =  cctalk_hopper_payout(bus_, host_, hopper_, req, timeout);
+        if (err != CctalkError::OK) {
+            ESP_LOGE(TAG, "An error occurred in hopperPayout: %d", err);
+        }
 
+        return err;
     }
 
     CctalkError getHopperStatus(HopperPayoutStatus& out,
@@ -371,6 +374,7 @@ public:
         {
             out = rsp.status;
         }
+
         return err;
     }
 

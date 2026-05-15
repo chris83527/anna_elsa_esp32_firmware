@@ -50,15 +50,23 @@ namespace cctalk::hopper
                                             const ReqHopperPayout& reqPay,
                                             std::chrono::milliseconds timeout)
     {
+        const char* TAG = "hopper_commands";
+
         CctalkFrame req;
         req.destination = device;
         req.source = host;
-        req.header = CctalkHeaders::PayMoneyOut;
+        req.header = CctalkHeaders::DispenseHopperCoins;
         req.data.clear();
         req.data.assign(reqPay.cipherKey.begin(), reqPay.cipherKey.end());
         req.data.push_back(reqPay.coins);
 
-        return bus.send(req, timeout);
+        CctalkError err = bus.send(req, timeout);
+        if (err != CctalkError::OK)
+        {
+            ESP_LOGE(TAG, "cctalk_hopper_payout error: %d", err);
+        }
+
+        return err;
     }
 
     // Hopper status (header 166)
@@ -200,7 +208,7 @@ namespace cctalk::hopper
         CctalkFrame req;
         req.destination = device;
         req.source = host;
-        req.header = CctalkHeaders::RequestPayoutHighLowStatus;
+        req.header = CctalkHeaders::TestHopper;
         req.data.clear();
 
         CctalkFrame resp;

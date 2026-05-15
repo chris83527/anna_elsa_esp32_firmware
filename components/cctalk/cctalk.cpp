@@ -76,17 +76,21 @@ CctalkError CctalkBus::readFrameLocked(CctalkFrame& frame,
     frame.source = header_bytes[2];
     frame.header = header_bytes[3];
 
-    ESP_LOGD(TAG, "READ: dest: %d, data_length: %d, source: %d, header: %d", frame.destination, frame.data_length,
+    ESP_LOGI(TAG, "READ: dest: %d, data_length: %d, source: %d, header: %d", frame.destination, frame.data_length,
              frame.source, frame.header);
 
     uint8_t to_read = frame.data_length + 1; // The additional byte (+1) is for the checksum
     std::vector<uint8_t> tail(to_read);
     r = uart_.read(tail.data(), to_read, timeout);
-    ESP_LOGD(TAG, "%d bytes read", r);
+    ESP_LOGI(TAG, "%d bytes read", r);
     if (r < 0) return CctalkError::UartError;
     if (r != to_read) return CctalkError::Timeout;
+    frame.data.clear();
+    if (frame.data_length > 0)
+    {
+        frame.data.assign(tail.begin(), tail.begin() + frame.data_length);
+    }
 
-    frame.data.assign(tail.begin(), tail.begin() + frame.data_length);
     frame.checksum = tail.back();
 
     if (!frame.validateChecksum())
@@ -94,6 +98,7 @@ CctalkError CctalkBus::readFrameLocked(CctalkFrame& frame,
         ESP_LOGE(TAG, "Invalid checksum");
         return CctalkError::BadChecksum;
     }
+
     return CctalkError::OK;
 }
 
@@ -109,13 +114,13 @@ CctalkError CctalkBus::send(const CctalkFrame& request,
         ESP_LOGE(TAG, "An error occurred calling writeFrameLocked.");
         return err;
     }
-
+/*
     // Read response
-    CctalkFrame response;
+    CctalkFrame response{};
     err = readFrameLocked(response, timeout);
     if (err != CctalkError::OK)
     {
-        ESP_LOGE(TAG, "An error occurred calling readFrameLocked.");
+        ESP_LOGE(TAG, "An error occurred calling readFrameLocked: %d", err);
         return err;
     }
 
@@ -136,7 +141,7 @@ CctalkError CctalkBus::send(const CctalkFrame& request,
         ESP_LOGE(TAG, "Incorrect header: Expected 0 (ACK), got %d", response.header);
         return CctalkError::InvalidHeader;
     }
-
+*/
     return CctalkError::OK;
 }
 
@@ -160,6 +165,7 @@ CctalkError CctalkBus::sendAndReceive(const CctalkFrame& request,
         ESP_LOGE(TAG, "An error occurred calling writeFrameLocked.");
         return err;
     }
+
 
     // Read response
     err = readFrameLocked(response, timeout);

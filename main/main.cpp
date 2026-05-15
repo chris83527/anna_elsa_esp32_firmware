@@ -69,6 +69,7 @@ extern "C" void app_main()
     esp_log_level_set("i2c.master", ESP_LOG_DEBUG);
     esp_log_level_set("ssd1306", ESP_LOG_INFO);
     esp_log_level_set("ctalk_uart", ESP_LOG_WARN);
+    esp_log_level_set("wifi", ESP_LOG_WARN);
     esp_log_level_set("CctalkBus", ESP_LOG_INFO);
     esp_log_level_set("serial_worker", ESP_LOG_INFO);
     esp_log_level_set("AudioController", ESP_LOG_INFO);
@@ -76,7 +77,7 @@ extern "C" void app_main()
     esp_log_level_set("PaymentController", ESP_LOG_INFO);
     esp_log_level_set("MainController", ESP_LOG_INFO);
     esp_log_level_set("Game", ESP_LOG_INFO);
-    esp_log_level_set("HopperThread", ESP_LOG_DEBUG);
+    esp_log_level_set("HopperThread", ESP_LOG_INFO);
 
     auto uart = std::make_unique<EspIdfCctalkUart>(CCTALK_UART, CCTALK_GPIO_TX, CCTALK_GPIO_RX);
 

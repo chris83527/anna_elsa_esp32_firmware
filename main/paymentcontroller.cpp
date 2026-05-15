@@ -291,7 +291,7 @@ void PaymentController::payoutBank()
         }
 
         ESP_LOGI(TAG, "Re-testing hopper status");
-        TestHopperStatus testHopperStatus{};
+        //TestHopperStatus testHopperStatus{};
         CctalkError err = facade_->testHopper(testHopperStatus);
         if (testHopperStatus.statusRegister1 != 0)
         {
@@ -306,7 +306,7 @@ void PaymentController::payoutBank()
     if (err == CctalkError::OK)
     {
         cctalk::hopper::RspHopperCipherKey out{};
-        CctalkError err = facade_->requestCipherKey(out);
+        err = facade_->requestCipherKey(out);
 
         if (err == CctalkError::OK && out.cipher.size() == 8)
         {
@@ -335,7 +335,6 @@ void PaymentController::payoutBank()
                             ESP_LOGI(TAG, "Hopper coinsUnpaid changed from %d to %d", lastPayoutStatus.coinsUnpaid,
                                      payoutStatus.coinsUnpaid);
 
-                            removeFromBank(lastPayoutStatus.coinsPaid * 20);
                         }
                     }
                     else
@@ -348,6 +347,8 @@ void PaymentController::payoutBank()
                 while (payoutStatus.coinsRemaining != 0);
 
                 lastPayoutStatus = payoutStatus;
+
+                removeFromBank(lastPayoutStatus.coinsPaid * 20);
 
                 // Give an error if we have unpaid coins
                 if (lastPayoutStatus.coinsUnpaid > 0)
@@ -433,7 +434,7 @@ bool PaymentController::isPayoutInProgress() const { return this->payoutInProgre
 
 void PaymentController::setPayoutInProgress(bool payoutInProgress)
 {
-    this->payoutInProgress = payoutInProgress;
+    this->payoutInProgress.store(payoutInProgress);
 }
 
 void PaymentController::moveBankToCredit()
