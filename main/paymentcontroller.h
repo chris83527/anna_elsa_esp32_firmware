@@ -112,6 +112,8 @@ public:
     bool isPayoutInProgress() const;
     void resetCounters();
 
+    HopperPayoutStatus getLastPayoutStatus() const;
+
 
 private:
     void loadValuesFromStorage();

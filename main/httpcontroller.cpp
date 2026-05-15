@@ -336,13 +336,19 @@ esp_err_t HttpController::ws_handler(httpd_req_t* req)
 void HttpController::ws_broadcast(HttpController* httpController, httpd_handle_t server, int rssi)
 {
     if (!server) return;
-    
+
     uint16_t bank = httpController->mainController.getPaymentController().getBank();
     uint16_t credit = httpController->mainController.getPaymentController().getCredit();
     uint16_t gameCount = httpController->mainController.getPaymentController().getGameCount();
     uint16_t incomeTotal = httpController->mainController.getPaymentController().getIncomeTotal();
     uint16_t payoutTotal = httpController->mainController.getPaymentController().getPayoutTotal();
     uint16_t transfer = httpController->mainController.getPaymentController().getTransfer();
+
+    uint8_t coinsPaid = httpController->mainController.getPaymentController().getLastPayoutStatus().coinsPaid;
+    uint8_t coinsUnpaid = httpController->mainController.getPaymentController().getLastPayoutStatus().coinsUnpaid;
+    uint8_t coinsRemaining = httpController->mainController.getPaymentController().getLastPayoutStatus().coinsRemaining;
+    uint8_t eventCounter = httpController->mainController.getPaymentController().getLastPayoutStatus().dispenseCount;
+
     int volume = httpController->mainController.getAudioController().getVolume();
 
     // credits, number of games, payout stats etc.
@@ -353,11 +359,18 @@ void HttpController::ws_broadcast(HttpController* httpController, httpd_handle_t
     json += ",\"transfer\":" + std::to_string(transfer);
     json += ",\"incomeTotal\":" + std::to_string(incomeTotal);
     json += ",\"payoutTotal\":" + std::to_string(payoutTotal);
+    json += ",\"coinsPaid\":" + std::to_string(coinsPaid);
+    json += ",\"coinsUnpaid\":" + std::to_string(coinsUnpaid);
+    json += ",\"coinsRemaining\":" + std::to_string(coinsRemaining);
+    json += ",\"eventCounter\":" + std::to_string(eventCounter);
     json += ",\"volume\":" + std::to_string(volume);
     json += ",\"buttons\":" + std::to_string(httpController->mainController.getDisplayController().getButtonStatus());
-    json += ",\"leftReel\":" + std::to_string(httpController->mainController.getReelController().getReelStopInfo().leftStop);
-    json += ",\"centreReel\":" + std::to_string(httpController->mainController.getReelController().getReelStopInfo().leftStop);
-    json += ",\"rightReel\":" + std::to_string(httpController->mainController.getReelController().getReelStopInfo().leftStop);
+    json += ",\"leftReel\":" + std::to_string(
+        httpController->mainController.getReelController().getReelStopInfo().leftStop);
+    json += ",\"centreReel\":" + std::to_string(
+        httpController->mainController.getReelController().getReelStopInfo().leftStop);
+    json += ",\"rightReel\":" + std::to_string(
+        httpController->mainController.getReelController().getReelStopInfo().leftStop);
     json += ",\"rssi\":" + std::to_string(rssi);
     json += "}";
 
@@ -526,4 +539,3 @@ esp_err_t HttpController::wifi_ws_handler(httpd_req_t* req)
 
     return ESP_OK;
 }
-

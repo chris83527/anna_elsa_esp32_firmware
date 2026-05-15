@@ -145,7 +145,7 @@ void PaymentController::start()
     facade_->enableHopper();
 
     acceptorThread_->start();
-    //hopperThread_->start();
+    hopperThread_->start();
 
     dispatcherThread_ = std::make_unique<EventDispatcherThread>(
         eventQueue_,
@@ -166,7 +166,7 @@ void PaymentController::stop()
     running_ = false;
 
     acceptorThread_->stop();
-    //hopperThread_->stop();
+    hopperThread_->stop();
 
     if (dispatcherThread_)
     {
@@ -272,6 +272,7 @@ void PaymentController::payoutBank()
 {
     ESP_LOGI(TAG, "payoutBank called. Bank total: %d", this->bank);
     payoutInProgress.store(true);
+    hopperThread_->stop(); // don't want it interfering
 
     ESP_LOGI(TAG, "Testing hopper status");
     TestHopperStatus testHopperStatus{};
@@ -280,18 +281,19 @@ void PaymentController::payoutBank()
     if (err != CctalkError::OK || testHopperStatus.statusRegister1 != 0)
     {
         ESP_LOGE(TAG, "Hopper status not ok: %d", testHopperStatus.statusRegister1);
-        if ((testHopperStatus.statusRegister1 | HopperStatusRegister1Bits::OK) != HopperStatusRegister1Bits::OK)
+        if (testHopperStatus.statusRegister1 != 0)
         {
             ESP_LOGI(TAG, "Hopper status register 1: %d", testHopperStatus.statusRegister1);
-            ESP_LOGI(TAG, "Resetting hopper");
+            ESP_LOGI(TAG, "Performing soft reset of hopper");
             err = facade_->resetDevice(facade_->getHopperAddress());
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
             lastPayoutStatus = {}; // reset lastPayout status too
         }
 
         ESP_LOGI(TAG, "Re-testing hopper status");
         TestHopperStatus testHopperStatus{};
         CctalkError err = facade_->testHopper(testHopperStatus);
-        if ((testHopperStatus.statusRegister1 | HopperStatusRegister1Bits::OK) != HopperStatusRegister1Bits::OK)
+        if (testHopperStatus.statusRegister1 != 0)
         {
             ESP_LOGI(TAG, "Hopper status register 1: %d", testHopperStatus.statusRegister1);
             ESP_LOGI(TAG, "Giving up. Please check hopper");
@@ -358,8 +360,7 @@ void PaymentController::payoutBank()
                 // dispensed. Check with the Hopper Test command if the hopper has timed-out (due to jams or empty).
                 ESP_LOGI(TAG, "Rechecking hopper status after payout");
                 err = facade_->testHopper(testHopperStatus);
-                if ((testHopperStatus.statusRegister1 | static_cast<uint8_t>(HopperStatusRegister1Bits::OK)) !=
-                    static_cast<uint8_t>(HopperStatusRegister1Bits::OK))
+                if (testHopperStatus.statusRegister1 != 0)
                 {
                     ESP_LOGI(TAG, "Hopper status register 1: %d", testHopperStatus.statusRegister1);
                     ESP_LOGI(TAG, "Resetting hopper");
@@ -374,6 +375,7 @@ void PaymentController::payoutBank()
         }
     }
 
+    hopperThread_->start(); // restart the thread
     payoutInProgress.store(false);
 }
 
@@ -473,11 +475,21 @@ void PaymentController::onEvent(const CctalkEvent& evt)
         this->mainController->getHttpController().broadcast_status();
         break;
 
-    case CctalkEventType::HopperPayoutStatusChanged:
+    case CctalkEventType::TestHopperStatus:
+        if (evt.hopper.statusRegister1 != 0)
+        {
+            ESP_LOGI(TAG, "Hopper status register 1: %d", evt.hopper.statusRegister1);
+        }
         break;
     }
 }
 
+HopperPayoutStatus PaymentController::getLastPayoutStatus() const
+{
+    return lastPayoutStatus;
+}
+
+// Payment Class
 void Payment::clear()
 {
     tenCentIn = 0;
@@ -536,3 +548,4 @@ uint16_t Payment::getTwoEuro() const
 {
     return twoEuroIn;
 }
+
