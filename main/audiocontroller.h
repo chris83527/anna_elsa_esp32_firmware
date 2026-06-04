@@ -63,7 +63,7 @@ public:
     static constexpr const char* SND_WONT_GET_AWAY_WITH_THIS =
         "wont-get-away-with-this.wav";
     static constexpr const char* SND_LET_IT_GO = "letitgo.wav";
-    static constexpr const char* SND_THEYRE_TROLLES = "theyretrolls.wav";
+    static constexpr const char* SND_THEYRE_TROLLS = "theyretrolls.wav";
     static constexpr const char* SND_CANT_FEEL_LEGS = "cantfeellegs.wav";
     static constexpr const char* SND_THATS_BETTER = "thatsbetter.wav";
     static constexpr const char* SND_KERCHING = "kerching.wav";

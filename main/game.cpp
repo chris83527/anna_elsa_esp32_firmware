@@ -256,22 +256,24 @@ void Game::playNormalSpin()
 
     this->paymentController.incrementGameCount();
     this->paymentController.removeFromCredit(20);
-    this->audioController.playAudioFile(Sounds::SND_NOW_THATS_ICE);
+    this->audioController.playAudioFile(Sounds::SND_LET_IT_GO);
 
     spinReels(holdLeft, holdCentre, holdRight);
 
     if (isWinningLine())
     {
+        this->audioController.playAudioFile(Sounds::SND_NOW_THATS_ICE);
         transferOrGamble();
     }
     else if (nudges > 0)
     {
+        this->audioController.playAudioFile(Sounds::SND_THEYRE_TROLLS);
         playNudges(nudges);
     }
     else
     {
         ESP_LOGI(TAG, "Returning from game to main loop");
-        this->audioController.playAudioFileAsync(
+        this->audioController.playAudioFile(
             Sounds::SND_WONT_GET_AWAY_WITH_THIS);
     }
 }
@@ -528,7 +530,7 @@ bool Game::isWinningLine() const
 void Game::playFeatureMatrix()
 {
     uint8_t featureIndex = 0;
-    this->audioController.playAudioFile(Sounds::SND_LET_IT_GO);
+    this->audioController.playAudioFile(Sounds::SND_COLDER_BY_THE_MINUTE);
     this->displayController.getLampData()
         .at(DisplayController::LMP_START)
         .lampState = LampState::blinkslow;
@@ -539,13 +541,29 @@ void Game::playFeatureMatrix()
     {
         featureIndex = frand::random8(12); // number of features
 
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(0)).lampState= LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(1)).lampState= LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(2)).lampState= LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(3)).lampState= LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(4)).lampState= LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(5)).lampState= LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(6)).lampState= LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(7)).lampState= LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(8)).lampState= LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(9)).lampState= LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(10)).lampState= LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(11)).lampState= LampState::off;
+
         this->displayController.getLampData()
             .at(DisplayController::FEATURE_LAMPS.at(featureIndex))
-            .lampState = LampState::blinkfast;
+            .lampState = LampState::on;
+        this->displayController.getLampData()
+            .at(DisplayController::FEATURE_LAMPS.at(featureIndex))
+            .activeRgb = Colour::White;
 
         btnStatus = this->displayController.getButtonStatus();
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     this->displayController.getLampData()
@@ -705,7 +723,7 @@ void Game::playShuffle()
 
     this->paymentController.incrementGameCount();
     this->paymentController.removeFromCredit(20);
-    this->audioController.playAudioFile(Sounds::SND_NOW_THATS_ICE);
+    this->audioController.playAudioFile(Sounds::SND_LET_IT_GO);
 
     shuffleReels(holdLeft, holdCentre, holdRight);
 

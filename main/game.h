@@ -119,7 +119,6 @@ private:
 
     MainController* mainController;
 
-private:
     bool isInProgress = false;
 
     DisplayController& displayController;
@@ -145,10 +144,13 @@ private:
     };
 
     static constexpr WinningLine winningCombinations[8] = {
-        {0, 0, 0, 20, false, false}, {1, 1, 1, 80, true, false},
+        {0, 0, 0, 20, false, false},
+        {1, 1, 1, 80, true, false},
         {1, 1, 255, 40, false, false}, // Olaf, Olaf, Any
-        {2, 2, 2, 120, true, false}, {3, 3, 3, 300, false, false},
-        {4, 4, 4, 160, false, true}, {5, 5, 5, 200, true, false},
+        {2, 2, 2, 120, true, false},
+        {3, 3, 3, 300, false, false},
+        {4, 4, 4, 160, false, true},
+        {5, 5, 5, 200, true, false},
         {6, 6, 6, 400, true, false}
     };
 
@@ -157,6 +159,7 @@ private:
         140, 160, 180, 200, 240, 280,
         340, 380, 420, 460, 500
     };
+
     static constexpr uint8_t PRIZE_TRAIL_PRIZES_LENGTH =
         sizeof(PRIZE_TRAIL_PRIZES) / 16;
 
