@@ -107,6 +107,7 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) const
         .lampState = LampState::off;
 
     displayController.displayVFDText("    LET IT GO!!     ");
+    this->audioController.playAudioFileAsync(Sounds::SND_LET_IT_GO);
 
     this->reelController.spin(reelStopLeft, reelStopCentre, reelStopRight);
 
@@ -126,6 +127,7 @@ void Game::shuffleReels(bool holdLeft, bool holdCentre, bool holdRight) const
         .lampState = LampState::off;
 
     displayController.displayVFDText("    LET IT GO!!     ");
+    this->audioController.playAudioFileAsync(Sounds::SND_LET_IT_GO);
 
     this->reelController.shuffle(reelStopLeft, reelStopCentre, reelStopRight);
 
@@ -256,7 +258,6 @@ void Game::playNormalSpin()
 
     this->paymentController.incrementGameCount();
     this->paymentController.removeFromCredit(20);
-    this->audioController.playAudioFileAsync(Sounds::SND_LET_IT_GO);
 
     spinReels(holdLeft, holdCentre, holdRight);
 
@@ -449,6 +450,8 @@ void Game::transferOrGamble()
     }
     else if ((btnStatus & BTN_START_MASK_BIT) == BTN_START_MASK_BIT)
     {
+        this->paymentController.moveTransferToBank();
+        this->audioController.playAudioFile(Sounds::SND_KERCHING);
         playFeatureMatrix();
     }
 
@@ -534,6 +537,9 @@ void Game::playFeatureMatrix()
     this->displayController.displayVFDText("   FEATURE MATRIX   ");
     uint8_t featureIndex = 0;
     this->audioController.playAudioFileAsync(Sounds::SND_COLDER_BY_THE_MINUTE);
+
+    this->displayController.resetLampData();
+
     this->displayController.getLampData()
         .at(DisplayController::LMP_START)
         .lampState = LampState::blinkslow;
@@ -570,6 +576,10 @@ void Game::playFeatureMatrix()
     }
 
     this->displayController.getLampData()
+            .at(DisplayController::LMP_START)
+            .lampState = LampState::off;
+
+    this->displayController.getLampData()
         .at(DisplayController::FEATURE_LAMPS.at(featureIndex))
         .lampState = LampState::off;
 
@@ -596,6 +606,7 @@ void Game::playFeatureMatrix()
     case 3:
     case 7:
         // Lose
+        this->paymentController.removeFromBank(this->paymentController.getTransfer()); // lose the current win
         this->audioController.playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
         break;
     case 4:
@@ -612,11 +623,14 @@ void Game::playFeatureMatrix()
         break;
     }
 
+    this->displayController.resetLampData();
     this->displayController.clearText();
 }
 
 void Game::playTrail()
 {
+
+    displayController.displayVFDText("       TRAIL!       ");
     uint8_t index = 0;
     while (PRIZE_TRAIL_PRIZES[index] < this->paymentController.getTransfer() &&
         index < PRIZE_TRAIL_PRIZES_LENGTH)
@@ -626,10 +640,15 @@ void Game::playTrail()
 
     // this->displayController.TRAIL_LAMPS[index],
     // false);
+    this_thread::sleep_for(std::chrono::seconds(5)); // just for now
 }
 
 void Game::playHiLo()
 {
+    displayController.displayVFDText("      SHUFFLE!      ");
+
+    this_thread::sleep_for(std::chrono::seconds(5)); // just for now
+
 }
 
 void Game::playShuffle()
@@ -765,8 +784,6 @@ void Game::playFreeSpin()
 
     // loop waiting for button press.
     displayController.waitForButton(BTN_START_MASK_BIT);
-
-    this->audioController.playAudioFile(Sounds::SND_NOW_THATS_ICE);
 
     spinReels(false, false, false); // no holds
 
