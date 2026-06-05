@@ -256,18 +256,16 @@ void Game::playNormalSpin()
 
     this->paymentController.incrementGameCount();
     this->paymentController.removeFromCredit(20);
-    this->audioController.playAudioFile(Sounds::SND_LET_IT_GO);
+    this->audioController.playAudioFileAsync(Sounds::SND_LET_IT_GO);
 
     spinReels(holdLeft, holdCentre, holdRight);
 
     if (isWinningLine())
     {
-        this->audioController.playAudioFile(Sounds::SND_NOW_THATS_ICE);
         transferOrGamble();
     }
     else if (nudges > 0)
     {
-        this->audioController.playAudioFile(Sounds::SND_THEYRE_TROLLS);
         playNudges(nudges);
     }
     else
@@ -283,6 +281,8 @@ void Game::playNudges(int nudges)
     ESP_LOGI(TAG, "Entering playNudges(%d)", nudges);
 
     std::string nudgeText = "        NUDGE        ";
+
+    this->audioController.playAudioFileAsync(Sounds::SND_THEYRE_TROLLS);
 
     displayController.displayVFDText(nudgeText);
 
@@ -412,6 +412,8 @@ void Game::transferOrGamble()
 
     displayController.displayVFDText(" TRANSFER OR GAMBLE ");
 
+    this->audioController.playAudioFileAsync(Sounds::SND_NOW_THATS_ICE);
+
     this->displayController.getLampData()
         .at(DisplayController::LMP_TRANSFER)
         .lampState = LampState::blinkfast;
@@ -529,8 +531,9 @@ bool Game::isWinningLine() const
 
 void Game::playFeatureMatrix()
 {
+    this->displayController.displayVFDText("   FEATURE MATRIX   ");
     uint8_t featureIndex = 0;
-    this->audioController.playAudioFile(Sounds::SND_COLDER_BY_THE_MINUTE);
+    this->audioController.playAudioFileAsync(Sounds::SND_COLDER_BY_THE_MINUTE);
     this->displayController.getLampData()
         .at(DisplayController::LMP_START)
         .lampState = LampState::blinkslow;
@@ -593,6 +596,7 @@ void Game::playFeatureMatrix()
     case 3:
     case 7:
         // Lose
+        this->audioController.playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
         break;
     case 4:
     case 5:
@@ -607,6 +611,8 @@ void Game::playFeatureMatrix()
     default:
         break;
     }
+
+    this->displayController.clearText();
 }
 
 void Game::playTrail()
@@ -723,7 +729,7 @@ void Game::playShuffle()
 
     this->paymentController.incrementGameCount();
     this->paymentController.removeFromCredit(20);
-    this->audioController.playAudioFile(Sounds::SND_LET_IT_GO);
+    this->audioController.playAudioFileAsync(Sounds::SND_LET_IT_GO);
 
     shuffleReels(holdLeft, holdCentre, holdRight);
 
