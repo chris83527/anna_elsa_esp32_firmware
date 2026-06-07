@@ -66,7 +66,6 @@ public:
     ~Game();
     void start();
     [[nodiscard]] bool isGameInProgress() const;
-    void playNudges(int nudges);
     void initialise();
 
 public:
@@ -108,6 +107,7 @@ private:
     void transferOrGamble();
     [[nodiscard]] bool offerHold() const;
     void playFeatureMatrix();
+    void playNudges();
     void playTrail();
     void playHiLo();
     void playShuffle();
@@ -163,7 +163,21 @@ private:
     static constexpr uint8_t PRIZE_TRAIL_PRIZES_LENGTH =
         sizeof(PRIZE_TRAIL_PRIZES) / 16;
 
-    uint8_t moves;
+    uint8_t moves = 0;
+    uint8_t nudges = 0;
+
+    enum game_state_e : uint8_t
+    {
+        START_GAME,
+        LOSE,
+        SPIN,
+        PLAY_NUDGES,
+        TRANSFER_OR_GAMBLE,
+        FEATURE_MATRIX,
+        COLLECT_OR_CONTINUE,
+        PAYOUT,
+
+    } gameState;
 };
 
 #endif /* GAME_H */

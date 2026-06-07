@@ -75,18 +75,60 @@ void Game::start()
     ESP_LOGI(TAG, "Beginning game");
 
     this->isInProgress = true;
+    gameState = START_GAME;
 
     this->displayController.stopAttractMode();
     this->displayController.resetLampData();
     this->audioController.stopPlaying();
 
-    playNormalSpin();
-
-    // payout
-    if ((this->paymentController.getBank() > 0) &&
-        (this->paymentController.getCredit() < 20))
+    while (isInProgress)
     {
-        collectOrContinue();
+        switch (gameState)
+        {
+        case START_GAME:
+            if (this->paymentController.getCredit() > 0)
+            {
+                gameState = SPIN;
+            }
+            else
+            {
+                isInProgress = false;
+            }
+            break;
+        case SPIN:
+            playNormalSpin();
+            break;
+        case PLAY_NUDGES:
+            playNudges();
+            break;
+        case FEATURE_MATRIX:
+            playFeatureMatrix();
+            break;
+        case LOSE:
+            this->audioController.playAudioFile(
+                Sounds::SND_WONT_GET_AWAY_WITH_THIS);
+
+            gameState = START_GAME;
+            break;
+        case TRANSFER_OR_GAMBLE:
+            transferOrGamble();
+            break;
+        case COLLECT_OR_CONTINUE:
+            collectOrContinue();
+            break;
+        case PAYOUT:
+            // payout
+            if ((this->paymentController.getBank() > 0) &&
+                (this->paymentController.getCredit() < 20))
+            {
+                gameState = COLLECT_OR_CONTINUE;
+            }
+            else
+            {
+                gameState = START_GAME;
+            }
+            break;
+        }
     }
 
     isInProgress = false;
@@ -136,7 +178,7 @@ void Game::shuffleReels(bool holdLeft, bool holdCentre, bool holdRight) const
 
 void Game::playNormalSpin()
 {
-    uint8_t nudges = frand::random8(5); // 0 - 5
+    nudges = frand::random8(5); // 0 - 5
     bool hold = offerHold();
 
     this->displayController.getLampData()
@@ -263,21 +305,19 @@ void Game::playNormalSpin()
 
     if (isWinningLine())
     {
-        transferOrGamble();
+        gameState = TRANSFER_OR_GAMBLE;
     }
     else if (nudges > 0)
     {
-        playNudges(nudges);
+        gameState = PLAY_NUDGES;
     }
     else
     {
-        ESP_LOGI(TAG, "Returning from game to main loop");
-        this->audioController.playAudioFile(
-            Sounds::SND_WONT_GET_AWAY_WITH_THIS);
+        gameState = LOSE;
     }
 }
 
-void Game::playNudges(int nudges)
+void Game::playNudges()
 {
     ESP_LOGI(TAG, "Entering playNudges(%d)", nudges);
 
@@ -352,13 +392,11 @@ void Game::playNudges(int nudges)
 
         if (isWinningLine())
         {
-            transferOrGamble();
+            gameState = TRANSFER_OR_GAMBLE;
             return;
         }
-        else
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(30));
-        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
 
         nudges--;
     }
@@ -367,11 +405,11 @@ void Game::playNudges(int nudges)
 
     if (isWinningLine())
     {
-        transferOrGamble();
+        gameState = TRANSFER_OR_GAMBLE;
     }
     else
     {
-        this->audioController.playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
+        gameState = LOSE;
     }
 
     ESP_LOGD(TAG, "Exiting nudges()");
@@ -411,9 +449,12 @@ void Game::transferOrGamble()
 {
     ESP_LOGD(TAG, "Entering transferOrGamble()");
 
-    displayController.displayVFDText(" TRANSFER OR GAMBLE ");
-
     this->audioController.playAudioFileAsync(Sounds::SND_NOW_THATS_ICE);
+
+    displayController.displayVFDText(" TRANSFER OR GAMBLE ");
+    this_thread::sleep_for(std::chrono::seconds(3));
+    //displayController.displayVFDText("Win: %")
+
 
     this->displayController.getLampData()
         .at(DisplayController::LMP_TRANSFER)
@@ -447,12 +488,11 @@ void Game::transferOrGamble()
     {
         this->paymentController.moveTransferToBank();
         this->audioController.playAudioFile(Sounds::SND_KERCHING);
+        gameState = START_GAME;
     }
     else if ((btnStatus & BTN_START_MASK_BIT) == BTN_START_MASK_BIT)
     {
-        this->paymentController.moveTransferToBank();
-        this->audioController.playAudioFile(Sounds::SND_KERCHING);
-        playFeatureMatrix();
+        gameState = FEATURE_MATRIX;
     }
 
     ESP_LOGD(TAG, "Exiting transferOrGamble()");
@@ -550,18 +590,18 @@ void Game::playFeatureMatrix()
     {
         featureIndex = frand::random8(12); // number of features
 
-        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(0)).lampState= LampState::off;
-        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(1)).lampState= LampState::off;
-        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(2)).lampState= LampState::off;
-        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(3)).lampState= LampState::off;
-        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(4)).lampState= LampState::off;
-        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(5)).lampState= LampState::off;
-        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(6)).lampState= LampState::off;
-        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(7)).lampState= LampState::off;
-        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(8)).lampState= LampState::off;
-        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(9)).lampState= LampState::off;
-        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(10)).lampState= LampState::off;
-        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(11)).lampState= LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(0)).lampState = LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(1)).lampState = LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(2)).lampState = LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(3)).lampState = LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(4)).lampState = LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(5)).lampState = LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(6)).lampState = LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(7)).lampState = LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(8)).lampState = LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(9)).lampState = LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(10)).lampState = LampState::off;
+        displayController.getLampData().at(DisplayController::FEATURE_LAMPS.at(11)).lampState = LampState::off;
 
         this->displayController.getLampData()
             .at(DisplayController::FEATURE_LAMPS.at(featureIndex))
@@ -576,8 +616,8 @@ void Game::playFeatureMatrix()
     }
 
     this->displayController.getLampData()
-            .at(DisplayController::LMP_START)
-            .lampState = LampState::off;
+        .at(DisplayController::LMP_START)
+        .lampState = LampState::off;
 
     this->displayController.getLampData()
         .at(DisplayController::FEATURE_LAMPS.at(featureIndex))
@@ -597,6 +637,8 @@ void Game::playFeatureMatrix()
         break;
     case 1:
         // Double Money
+        this->paymentController.setTransfer(this->paymentController.getTransfer() * 2);
+        gameState = TRANSFER_OR_GAMBLE;
         break;
     case 2:
     case 6:
@@ -606,8 +648,7 @@ void Game::playFeatureMatrix()
     case 3:
     case 7:
         // Lose
-        this->paymentController.removeFromBank(this->paymentController.getTransfer()); // lose the current win
-        this->audioController.playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
+        gameState = LOSE;
         break;
     case 4:
     case 5:
@@ -629,7 +670,6 @@ void Game::playFeatureMatrix()
 
 void Game::playTrail()
 {
-
     displayController.displayVFDText("       TRAIL!       ");
     uint8_t index = 0;
     while (PRIZE_TRAIL_PRIZES[index] < this->paymentController.getTransfer() &&
@@ -641,14 +681,16 @@ void Game::playTrail()
     // this->displayController.TRAIL_LAMPS[index],
     // false);
     this_thread::sleep_for(std::chrono::seconds(5)); // just for now
+    gameState = START_GAME;
 }
 
 void Game::playHiLo()
 {
     displayController.displayVFDText("      SHUFFLE!      ");
 
-    this_thread::sleep_for(std::chrono::seconds(5)); // just for now
 
+    this_thread::sleep_for(std::chrono::seconds(5)); // just for now
+    gameState = START_GAME;
 }
 
 void Game::playShuffle()
@@ -754,11 +796,11 @@ void Game::playShuffle()
 
     if (isWinningLine())
     {
-        transferOrGamble();
+        gameState = TRANSFER_OR_GAMBLE;
     }
     else
     {
-        this->audioController.playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
+        gameState = LOSE;
     }
 
     this->displayController.getLampData()
@@ -789,11 +831,11 @@ void Game::playFreeSpin()
 
     if (isWinningLine())
     {
-        transferOrGamble();
+        gameState = TRANSFER_OR_GAMBLE;
     }
     else
     {
-        this->audioController.playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
+        gameState = LOSE;
     }
 
     this->displayController.getLampData()
@@ -816,4 +858,7 @@ void Game::playFreeSpin()
         .lampState = LampState::off;
 }
 
-bool Game::isGameInProgress() const { return this->isInProgress; }
+bool Game::isGameInProgress() const
+{
+    return this->isInProgress;
+}
