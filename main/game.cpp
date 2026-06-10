@@ -453,7 +453,8 @@ void Game::transferOrGamble()
 
     displayController.displayVFDText(" TRANSFER OR GAMBLE ");
     this_thread::sleep_for(std::chrono::seconds(3));
-    //displayController.displayVFDText("Win: %")
+    //std::string str("00000", 6);
+    //displayController.displayVFDText(std::format("Win: %s", itoa(this->paymentController.getTransfer(), str.data(), 10)));
 
 
     this->displayController.getLampData()
@@ -644,6 +645,7 @@ void Game::playFeatureMatrix()
     case 6:
         // Shuffle
         playShuffle();
+        gameState = TRANSFER_OR_GAMBLE;
         break;
     case 3:
     case 7:
@@ -655,10 +657,12 @@ void Game::playFeatureMatrix()
     case 11:
         // Palace
         playTrail();
+        gameState = TRANSFER_OR_GAMBLE;
         break;
     case 9:
         // Hi/Lo
         playHiLo();
+        gameState = TRANSFER_OR_GAMBLE;
         break;
     default:
         break;
@@ -671,22 +675,61 @@ void Game::playFeatureMatrix()
 void Game::playTrail()
 {
     displayController.displayVFDText("       TRAIL!       ");
-    uint8_t index = 0;
+    uint8_t index = 1; // don't start on 20ct or the index-1 won't work
+    uint8_t randomValue;
     while (PRIZE_TRAIL_PRIZES[index] < this->paymentController.getTransfer() &&
         index < PRIZE_TRAIL_PRIZES_LENGTH)
     {
-        index++;
+        randomValue = frand::random8(0,10);
+
+        this->displayController.resetLampData();
+        this->displayController.getLampData().at(DisplayController::TRAIL_LAMPS[index]).lampState = LampState::on;
+        this->displayController.getLampData()
+            .at(DisplayController::LMP_TRANSFER)
+            .lampState = LampState::blinkfast;
+        this->displayController.getLampData()
+            .at(DisplayController::LMP_START)
+            .lampState = LampState::blinkslow;
+
+        // loop waiting for button press.
+        std::bitset<8> btnStatus = this->displayController.getButtonStatus();
+        while (!btnStatus.test(BTN_TRANSFER) && !btnStatus.test(BTN_START))
+        {
+            this->displayController.getLampData().at(DisplayController::TRAIL_LAMPS[index - 1]).lampState =
+                LampState::on;
+            this->displayController.getLampData().at(DisplayController::TRAIL_LAMPS[index - 1]).lampState =
+                LampState::off;
+            this_thread::sleep_for(std::chrono::milliseconds(500));
+            this->displayController.getLampData().at(DisplayController::TRAIL_LAMPS[index - 1]).lampState =
+                LampState::off;
+            this->displayController.getLampData().at(DisplayController::TRAIL_LAMPS[index - 1]).lampState =
+                LampState::on;
+            this_thread::sleep_for(std::chrono::milliseconds(500));
+
+            btnStatus = this->displayController.getButtonStatus();
+        }
+
+        if (btnStatus.test(BTN_START) && randomValue == 0)
+        {
+            index++;
+        } else
+        {
+            this->paymentController.setTransfer(PRIZE_TRAIL_PRIZES[index]);
+        }
+
+        this_thread::sleep_for(std::chrono::seconds(2));
+
+        this->displayController.resetLampData();
     }
 
-    // this->displayController.TRAIL_LAMPS[index],
-    // false);
+
     this_thread::sleep_for(std::chrono::seconds(5)); // just for now
     gameState = START_GAME;
 }
 
 void Game::playHiLo()
 {
-    displayController.displayVFDText("      SHUFFLE!      ");
+    displayController.displayVFDText("       HI / LO!      ");
 
 
     this_thread::sleep_for(std::chrono::seconds(5)); // just for now
