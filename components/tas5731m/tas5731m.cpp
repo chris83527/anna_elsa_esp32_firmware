@@ -170,12 +170,26 @@ esp_err_t TAS5731M::setMute(bool mute)
 
 esp_err_t TAS5731M::enableChannel()
 {
-    return i2s_channel_enable(channelHandle);
+    i2s_chan_info_t i2sChanInfo;
+    i2s_channel_get_info(channelHandle, &i2sChanInfo);
+    if (!i2sChanInfo.is_enabled)
+    {
+        return i2s_channel_enable(channelHandle);
+    }
+
+    return ESP_OK;
 }
 
 esp_err_t TAS5731M::disableChannel()
 {
-    return i2s_channel_disable(channelHandle);
+    i2s_chan_info_t i2sChanInfo;
+    i2s_channel_get_info(channelHandle, &i2sChanInfo);
+    if (i2sChanInfo.is_enabled)
+    {
+        return i2s_channel_disable(channelHandle);
+    }
+
+    return ESP_OK;
 }
 
 esp_err_t TAS5731M::writeAudioData(char* audioData, int bytesRead)
