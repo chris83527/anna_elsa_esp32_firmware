@@ -677,10 +677,18 @@ void Game::playTrail()
     displayController.displayVFDText("       TRAIL!       ");
     uint8_t index = 1; // don't start on 20ct or the index-1 won't work
     uint8_t randomValue;
+
+    // find our index - there is probably a better way to do this
     while (PRIZE_TRAIL_PRIZES[index] < this->paymentController.getTransfer() &&
         index < PRIZE_TRAIL_PRIZES_LENGTH)
     {
-        randomValue = frand::random8(0,10);
+        index++;
+    }
+
+    // now play the trail
+    while (index < PRIZE_TRAIL_PRIZES_LENGTH)
+    {
+        randomValue = frand::random8(0, 10);
 
         this->displayController.resetLampData();
         this->displayController.getLampData().at(DisplayController::TRAIL_LAMPS[index]).lampState = LampState::on;
@@ -700,9 +708,9 @@ void Game::playTrail()
             this->displayController.getLampData().at(DisplayController::TRAIL_LAMPS[index - 1]).lampState =
                 LampState::off;
             this_thread::sleep_for(std::chrono::milliseconds(500));
-            this->displayController.getLampData().at(DisplayController::TRAIL_LAMPS[index - 1]).lampState =
+            this->displayController.getLampData().at(DisplayController::TRAIL_LAMPS[index]).lampState =
                 LampState::off;
-            this->displayController.getLampData().at(DisplayController::TRAIL_LAMPS[index - 1]).lampState =
+            this->displayController.getLampData().at(DisplayController::TRAIL_LAMPS[index]).lampState =
                 LampState::on;
             this_thread::sleep_for(std::chrono::milliseconds(500));
 
@@ -712,9 +720,18 @@ void Game::playTrail()
         if (btnStatus.test(BTN_START) && randomValue == 0)
         {
             index++;
-        } else
+        }
+        else if (btnStatus.test(BTN_START) && randomValue != 0)
+        {
+            this->paymentController.setTransfer(0);
+            gameState = LOSE;
+            break;
+        }
+        else
         {
             this->paymentController.setTransfer(PRIZE_TRAIL_PRIZES[index]);
+            gameState = TRANSFER_OR_GAMBLE;
+            break;
         }
 
         this_thread::sleep_for(std::chrono::seconds(2));
@@ -722,9 +739,6 @@ void Game::playTrail()
         this->displayController.resetLampData();
     }
 
-
-    this_thread::sleep_for(std::chrono::seconds(5)); // just for now
-    gameState = START_GAME;
 }
 
 void Game::playHiLo()
