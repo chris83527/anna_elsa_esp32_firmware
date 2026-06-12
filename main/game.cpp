@@ -108,18 +108,9 @@ void Game::start()
             this->audioController.playAudioFile(
                 Sounds::SND_WONT_GET_AWAY_WITH_THIS);
 
-            gameState = START_GAME;
-            break;
-        case TRANSFER_OR_GAMBLE:
-            transferOrGamble();
-            break;
-        case COLLECT_OR_CONTINUE:
-            collectOrContinue();
-            break;
-        case PAYOUT:
             // payout
-            if ((this->paymentController.getBank() > 0) &&
-                (this->paymentController.getCredit() < 20))
+            if (this->paymentController.getBank() > 0 &&
+                this->paymentController.getCredit() < 20)
             {
                 gameState = COLLECT_OR_CONTINUE;
             }
@@ -127,6 +118,13 @@ void Game::start()
             {
                 gameState = START_GAME;
             }
+            break;
+        case TRANSFER_OR_GAMBLE:
+            transferOrGamble();
+            break;
+        case COLLECT_OR_CONTINUE:
+            collectOrContinue();
+            gameState = START_GAME;
             break;
         }
     }
@@ -738,7 +736,6 @@ void Game::playTrail()
 
         this->displayController.resetLampData();
     }
-
 }
 
 void Game::playHiLo()

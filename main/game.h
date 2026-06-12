@@ -175,8 +175,6 @@ private:
         TRANSFER_OR_GAMBLE,
         FEATURE_MATRIX,
         COLLECT_OR_CONTINUE,
-        PAYOUT,
-
     } gameState;
 };
 
