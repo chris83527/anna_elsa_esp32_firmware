@@ -103,7 +103,7 @@ public:
     };
 
 private:
-    void collectOrContinue() const;
+    void collectOrContinue();
     void transferOrGamble();
     [[nodiscard]] bool offerHold() const;
     void playFeatureMatrix();

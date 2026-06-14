@@ -497,7 +497,7 @@ void Game::transferOrGamble()
     ESP_LOGD(TAG, "Exiting transferOrGamble()");
 }
 
-void Game::collectOrContinue() const
+void Game::collectOrContinue()
 {
     ESP_LOGD(TAG, "Entering collectOrContinue()");
     displayController.displayVFDText("COLLECT OR CONTINUE");
