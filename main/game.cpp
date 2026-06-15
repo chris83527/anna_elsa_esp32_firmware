@@ -391,7 +391,7 @@ void Game::playNudges()
         if (isWinningLine())
         {
             gameState = TRANSFER_OR_GAMBLE;
-            return;
+            break;
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
