@@ -86,6 +86,7 @@ void Game::start()
         switch (gameState)
         {
         case START_GAME:
+
             if (this->paymentController.getCredit() > 0)
             {
                 gameState = SPIN;
