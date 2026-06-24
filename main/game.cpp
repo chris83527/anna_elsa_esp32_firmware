@@ -9,7 +9,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holder nor the names of itscontributors
+ * 3. Neither the name of the copyright holder nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  * without specific prior written permission.
  *
@@ -54,7 +54,7 @@ Game::Game(DisplayController& displayController,
     : mainController(nullptr),
       displayController(displayController),
       audioController(audioController),
-      paymentController(paymentController), reelController(reelController), moves(0)
+      paymentController(paymentController), reelController(reelController), gameState(START_GAME)
 {
     ESP_LOGI(TAG, "Entering constructor");
 
@@ -65,10 +65,6 @@ Game::Game(DisplayController& displayController,
 
 Game::~Game()
 = default;
-
-void Game::initialise()
-{
-}
 
 void Game::start()
 {
@@ -86,7 +82,7 @@ void Game::start()
         switch (gameState)
         {
         case START_GAME:
-
+            ESP_LOGI(TAG, "Start Game");
             if (this->paymentController.getCredit() > 0)
             {
                 gameState = SPIN;
@@ -103,26 +99,37 @@ void Game::start()
 
             break;
         case SPIN:
+            ESP_LOGI(TAG, "Spin");
             playNormalSpin();
             break;
         case PLAY_NUDGES:
+            ESP_LOGI(TAG, "Play Nudges");
             playNudges();
             break;
         case FEATURE_MATRIX:
+            ESP_LOGI(TAG, "Feature Matrix");
             playFeatureMatrix();
             break;
         case LOSE:
+            ESP_LOGI(TAG, "Lose");
             this->audioController.playAudioFile(
                 Sounds::SND_WONT_GET_AWAY_WITH_THIS);
 
             gameState = START_GAME;
             break;
         case TRANSFER_OR_GAMBLE:
+            ESP_LOGI(TAG, "Transfer or Gamble");
             transferOrGamble();
             break;
         case COLLECT_OR_CONTINUE:
+            ESP_LOGI(TAG, "Collect or Continue");
             collectOrContinue();
             break;
+        default:
+            ESP_LOGI(TAG, "DEFAULT!!");
+            gameState = START_GAME;
+            break;
+
         }
     }
 
@@ -143,7 +150,7 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) const
         .at(DisplayController::LMP_START)
         .lampState = LampState::off;
 
-    displayController.displayVFDText("    LET IT GO!!     ");
+    DisplayController::displayVFDText("    LET IT GO!!     ");
     this->audioController.playAudioFileAsync(Sounds::SND_LET_IT_GO);
 
     this->reelController.spin(reelStopLeft, reelStopCentre, reelStopRight);
@@ -163,7 +170,7 @@ void Game::shuffleReels(bool holdLeft, bool holdCentre, bool holdRight) const
         .at(DisplayController::LMP_START)
         .lampState = LampState::off;
 
-    displayController.displayVFDText("    LET IT GO!!     ");
+    DisplayController::displayVFDText("    LET IT GO!!     ");
     this->audioController.playAudioFileAsync(Sounds::SND_LET_IT_GO);
 
     this->reelController.shuffle(reelStopLeft, reelStopCentre, reelStopRight);
@@ -202,7 +209,7 @@ void Game::playNormalSpin()
     this->displayController.getLampData()
         .at(DisplayController::LMP_START)
         .lampState = LampState::blinkslow;
-    displayController.displayVFDText("PRESS START TO BEGIN");
+    DisplayController::displayVFDText("PRESS START TO BEGIN");
 
     // loop waiting for button press.
     bool holdLeft = false;
@@ -320,7 +327,7 @@ void Game::playNudges()
 
     this->audioController.playAudioFileAsync(Sounds::SND_THEYRE_TROLLS);
 
-    displayController.displayVFDText(nudgeText);
+    DisplayController::displayVFDText(nudgeText);
 
     while (nudges > 0)
     {
@@ -446,7 +453,7 @@ void Game::transferOrGamble()
 
     this->audioController.playAudioFileAsync(Sounds::SND_NOW_THATS_ICE);
 
-    displayController.displayVFDText(" TRANSFER OR GAMBLE ");
+    DisplayController::displayVFDText(" TRANSFER OR GAMBLE ");
     this_thread::sleep_for(std::chrono::seconds(3));
     //std::string str("00000", 6);
     //displayController.displayVFDText(std::format("Win: %s", itoa(this->paymentController.getTransfer(), str.data(), 10)));
@@ -497,7 +504,7 @@ void Game::transferOrGamble()
 void Game::collectOrContinue()
 {
     ESP_LOGD(TAG, "Entering collectOrContinue()");
-    displayController.displayVFDText("COLLECT OR CONTINUE");
+    DisplayController::displayVFDText("COLLECT OR CONTINUE");
 
     this->displayController.getLampData()
         .at(DisplayController::LMP_START)
@@ -572,7 +579,7 @@ bool Game::isWinningLine() const
 
 void Game::playFeatureMatrix()
 {
-    this->displayController.displayVFDText("   FEATURE MATRIX   ");
+    DisplayController::displayVFDText("   FEATURE MATRIX   ");
     uint8_t featureIndex = 0;
     this->audioController.playAudioFileAsync(Sounds::SND_COLDER_BY_THE_MINUTE);
 
@@ -666,14 +673,13 @@ void Game::playFeatureMatrix()
     }
 
     this->displayController.resetLampData();
-    this->displayController.clearText();
+    DisplayController::clearText();
 }
 
 void Game::playTrail()
 {
-    displayController.displayVFDText("       TRAIL!       ");
+    DisplayController::displayVFDText("       TRAIL!       ");
     uint8_t index = 1; // don't start on 20ct or the index-1 won't work
-    uint8_t randomValue;
 
     // find our index - there is probably a better way to do this
     while (PRIZE_TRAIL_PRIZES[index] < this->paymentController.getTransfer() &&
@@ -685,7 +691,7 @@ void Game::playTrail()
     // now play the trail
     while (index < PRIZE_TRAIL_PRIZES_LENGTH)
     {
-        randomValue = frand::random8(0, 10);
+        uint8_t randomValue = frand::random8(0, 10);
 
         this->displayController.resetLampData();
         this->displayController.getLampData().at(DisplayController::TRAIL_LAMPS[index]).lampState = LampState::on;
@@ -739,7 +745,7 @@ void Game::playTrail()
 
 void Game::playHiLo()
 {
-    displayController.displayVFDText("       HI / LO!      ");
+    DisplayController::displayVFDText("       HI / LO!      ");
 
 
     this_thread::sleep_for(std::chrono::seconds(5)); // just for now
@@ -748,7 +754,7 @@ void Game::playHiLo()
 
 void Game::playShuffle()
 {
-    displayController.displayVFDText("      SHUFFLE!      ");
+    DisplayController::displayVFDText("      SHUFFLE!      ");
 
     // loop waiting for button press.
     bool holdLeft = false;
@@ -875,10 +881,9 @@ void Game::playShuffle()
 
 void Game::playFreeSpin()
 {
-    displayController.displayVFDText("     FREE SPIN!     ");
+    DisplayController::displayVFDText("     FREE SPIN!     ");
 
-    // loop waiting for button press.
-    displayController.waitForButton(BTN_START_MASK_BIT);
+    this->audioController.playAudioFileAsync(Sounds::SND_LET_IT_GO);
 
     spinReels(false, false, false); // no holds
 

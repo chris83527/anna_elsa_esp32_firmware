@@ -66,7 +66,6 @@ public:
     ~Game();
     void start();
     [[nodiscard]] bool isGameInProgress() const;
-    void initialise();
 
 public:
     // 0 = Hans

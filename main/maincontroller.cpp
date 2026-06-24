@@ -236,7 +236,6 @@ void MainController::start()
 
     displayController.displayVFDText("INITIALISING 0C");
     displayController.scrollOledText("Init game");
-    game.initialise();
 
     displayController.displayVFDText("INITIALISING 0D");
 
