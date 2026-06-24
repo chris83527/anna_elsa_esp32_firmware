@@ -857,6 +857,10 @@ void Game::playShuffle()
     {
         gameState = TRANSFER_OR_GAMBLE;
     }
+    else if (nudges > 0)
+    {
+        gameState = PLAY_NUDGES;
+    }
     else
     {
         gameState = LOSE;
