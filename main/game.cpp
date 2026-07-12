@@ -133,8 +133,6 @@ void Game::start()
         }
     }
 
-    isInProgress = false;
-
     ESP_LOGI(TAG, "Exiting game");
 }
 
@@ -404,6 +402,7 @@ void Game::playNudges()
     }
 
     this->displayController.resetLampData();
+    DisplayController::clearText();
 
     if (isWinningLine())
     {
@@ -425,7 +424,7 @@ bool Game::offerHold() const
     uint8_t centrePos;
     uint8_t rightPos;
 
-    uint8_t hold = (frand::random8(10) == 1); // 1 in 10 chance
+    uint8_t hold = frand::random8(10) == 1; // 1 in 10 chance
 
     leftPos = this->reelController.getReelStopInfo().leftStop;
     centrePos = this->reelController.getReelStopInfo().centreStop;
@@ -436,11 +435,11 @@ bool Game::offerHold() const
     uint8_t rightSymbolId = symbolsRightReel[rightPos];
 
     bool result =
-    (((leftSymbolId == centreSymbolId) || (leftSymbolId == rightSymbolId) ||
-            (centreSymbolId == rightSymbolId)) &&
-        !(((leftSymbolId == centreSymbolId) && (leftSymbolId == rightSymbolId) &&
-            (centreSymbolId == rightSymbolId))) &&
-        hold > 0);
+    (leftSymbolId == centreSymbolId || leftSymbolId == rightSymbolId ||
+        centreSymbolId == rightSymbolId) &&
+    !(leftSymbolId == centreSymbolId && leftSymbolId == rightSymbolId &&
+        centreSymbolId == rightSymbolId) &&
+    hold > 0;
 
     ESP_LOGD(TAG, "Exiting offerHold(). Returning %s", result ? "true" : "false");
 
@@ -487,6 +486,8 @@ void Game::transferOrGamble()
         .at(DisplayController::LMP_HOLD_HI)
         .lampState = LampState::off;
 
+    DisplayController::clearText();
+
     if ((btnStatus & BTN_TRANSFER_MASK_BIT) == BTN_TRANSFER_MASK_BIT)
     {
         this->paymentController.moveTransferToBank();
@@ -522,6 +523,8 @@ void Game::collectOrContinue()
     this->displayController.getLampData()
         .at(DisplayController::LMP_COLLECT)
         .lampState = LampState::off;
+
+    DisplayController::clearText();
 
     if ((btnStatus & BTN_COLLECT_MASK_BIT) == BTN_COLLECT_MASK_BIT)
     {
@@ -560,12 +563,12 @@ bool Game::isWinningLine() const
 
     for (int i = 0; i < 7; i++)
     {
-        if (((leftSymbolId == winningCombinations[i].leftSymbolId) ||
-                (winningCombinations[i].leftSymbolId == 255)) &&
-            ((centreSymbolId == winningCombinations[i].centreSymbolId) ||
-                (winningCombinations[i].centreSymbolId == 255)) &&
-            ((rightSymbolId == winningCombinations[i].rightSymbolId) ||
-                (winningCombinations[i].rightSymbolId == 255)))
+        if ((leftSymbolId == winningCombinations[i].leftSymbolId ||
+                winningCombinations[i].leftSymbolId == 255) &&
+            (centreSymbolId == winningCombinations[i].centreSymbolId ||
+                winningCombinations[i].centreSymbolId == 255) &&
+            (rightSymbolId == winningCombinations[i].rightSymbolId ||
+                winningCombinations[i].rightSymbolId == 255))
         {
             this->paymentController.setTransfer(winningCombinations[i].amount);
             isWin = true;
@@ -628,6 +631,9 @@ void Game::playFeatureMatrix()
         .at(DisplayController::FEATURE_LAMPS.at(featureIndex))
         .lampState = LampState::off;
 
+    this->displayController.resetLampData();
+    DisplayController::clearText();
+
     // Feature has been chosen, let's continue...
     switch (featureIndex)
     {
@@ -672,8 +678,6 @@ void Game::playFeatureMatrix()
         break;
     }
 
-    this->displayController.resetLampData();
-    DisplayController::clearText();
 }
 
 void Game::playTrail()
@@ -881,6 +885,9 @@ void Game::playShuffle()
     this->displayController.getLampData()
         .at(DisplayController::LMP_HOLD_HI)
         .lampState = LampState::off;
+
+    displayController.resetLampData();
+    DisplayController::clearText();
 }
 
 void Game::playFreeSpin()
@@ -918,6 +925,9 @@ void Game::playFreeSpin()
     this->displayController.getLampData()
         .at(DisplayController::LMP_HOLD_HI)
         .lampState = LampState::off;
+
+    DisplayController::clearText();
+
 }
 
 bool Game::isGameInProgress() const

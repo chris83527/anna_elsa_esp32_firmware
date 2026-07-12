@@ -160,6 +160,7 @@ bool ReelController::initialise()
     }
 
     // Switch off (PWM at quarter duty cycle to hold the motors)ty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     esp_err_t err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
@@ -195,13 +196,15 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
            Game::symbolMap[centreSymbolId].c_str(),
            Game::symbolMap[rightSymbolId].c_str());
 
-    int leftSteps = (((this->reelStopInfo.leftStop - 1) + 75) * STEPS_PER_STOP);
+    int leftSteps = (this->reelStopInfo.leftStop - 1 + 75) * STEPS_PER_STOP;
     int centreSteps =
-        (((this->reelStopInfo.centreStop - 1) + 50) * STEPS_PER_STOP);
-    int rightSteps = (((this->reelStopInfo.rightStop - 1) + 25) * STEPS_PER_STOP);
+        (this->reelStopInfo.centreStop - 1 + 50) * STEPS_PER_STOP;
+    int rightSteps = (this->reelStopInfo.rightStop - 1 + 25) * STEPS_PER_STOP;
 
     // Switch on
-    gpio_set_level(GPIO_MOTOR_EN, 1);
+    //gpio_set_level(GPIO_MOTOR_EN, 1);
+    esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
+    err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
     if (leftSymbol > 0)
     {
@@ -273,7 +276,7 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     // Switch off (PWM at quarter duty cycle to hold the motors)
-    esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+    err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
@@ -316,7 +319,10 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
     int rightSteps = (((this->reelStopInfo.rightStop - 1) + 25) * STEPS_PER_STOP);
 
     // Switch on
-    gpio_set_level(GPIO_MOTOR_EN, 1);
+    //gpio_set_level(GPIO_MOTOR_EN, 1);
+    esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
+    err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+
 
     if (leftStop > 0)
     {
@@ -388,7 +394,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
     // Switch off (PWM at quarter duty cycle to hold the motors)
-    esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+    err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
@@ -427,7 +433,10 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
     int rightSteps = rightStops * STEPS_PER_STOP;
 
     // Switch on
-    gpio_set_level(GPIO_MOTOR_EN, 1);
+    //gpio_set_level(GPIO_MOTOR_EN, 1);
+    esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
+    err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+
 
     if (leftStops > 0)
     {
@@ -499,7 +508,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     // Switch off (PWM at quarter duty cycle to hold the motors)
-    esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
+    err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
@@ -687,7 +696,10 @@ void ReelController::test()
                  Game::symbolMap[rightSymbolId].c_str());
 
         // Switch on
-        gpio_set_level(GPIO_MOTOR_EN, 1);
+        //gpio_set_level(GPIO_MOTOR_EN, 1);
+        esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
+        err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+
 
         uint8_t leftSteps = i * STEPS_PER_STOP;
         uint8_t centreSteps = i * STEPS_PER_STOP;
