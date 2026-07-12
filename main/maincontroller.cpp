@@ -78,7 +78,7 @@ void MainController::start()
     }
     else
     {
-        displayController.displayVFDText("INITIALISING 01");
+        DisplayController::displayVFDText("INITIALISING 01");
     }
 
     // Set up a timer to blink the CPU LED
@@ -94,7 +94,7 @@ void MainController::start()
     ESP_ERROR_CHECK(esp_timer_start_periodic(timer_handler, blinkDelay));
 
 
-    displayController.displayVFDText("INITIALISING 02");
+    DisplayController::displayVFDText("INITIALISING 02");
     // Initialize NVS
     ESP_LOGD(TAG, "Setting up NVS");
     displayController.scrollOledText("Init NVS");
@@ -125,7 +125,7 @@ void MainController::start()
     displayController.scrollOledText("  -> ok");
     //}
 
-    displayController.displayVFDText("INITIALISING 04");
+    DisplayController::displayVFDText("INITIALISING 04");
     displayController.scrollOledText("Init LittleFS");
     esp_vfs_littlefs_conf_t conf = {
         .base_path = "/httpd",
@@ -158,11 +158,11 @@ void MainController::start()
     }
 
     // initialise audio subsystem
-    displayController.displayVFDText("INITIALISING 05");
+    DisplayController::displayVFDText("INITIALISING 05");
     displayController.scrollOledText("Init Audio");
     this->audioController.initialise();
 
-    displayController.displayVFDText("INITIALISING 06");
+    DisplayController::displayVFDText("INITIALISING 06");
     displayController.scrollOledText("Init WiFi");
     
     ESP_ERROR_CHECK(wifi.init());
@@ -196,7 +196,7 @@ void MainController::start()
 
 
 
-    displayController.displayVFDText("INITIALISING 08");
+    DisplayController::displayVFDText("INITIALISING 08");
     displayController.scrollOledText("Init Display");
     if (displayController.initialise() != ESP_OK)
     {
@@ -209,12 +209,12 @@ void MainController::start()
         displayController.scrollOledText("  -> ok");
     }
 
-    displayController.displayVFDText("INITIALISING 09");
+    DisplayController::displayVFDText("INITIALISING 09");
     displayController.scrollOledText("Load stats");
 
     paymentController.start();
 
-    displayController.displayVFDText("INITIALISING 0A");
+    DisplayController::displayVFDText("INITIALISING 0A");
     displayController.scrollOledText("Init cctalk");
 
     displayController.displayVFDText("INITIALISING 0B");
@@ -234,10 +234,10 @@ void MainController::start()
     ESP_ERROR_CHECK(esp_timer_stop(timer_handler));
     ESP_ERROR_CHECK(esp_timer_start_periodic(timer_handler, 5000000));
 
-    displayController.displayVFDText("INITIALISING 0C");
+    DisplayController::displayVFDText("INITIALISING 0C");
     displayController.scrollOledText("Init game");
 
-    displayController.displayVFDText("INITIALISING 0D");
+    DisplayController::displayVFDText("INITIALISING 0D");
 
     // Set up a timer to update the statistics every 5 seconds
     esp_timer_create_args_t updateStatisticsTimerArgs = {
@@ -251,7 +251,7 @@ void MainController::start()
     ESP_ERROR_CHECK(esp_timer_create(&updateStatisticsTimerArgs, &updateStatisticsTimerHandler));
     ESP_ERROR_CHECK(esp_timer_start_periodic(updateStatisticsTimerHandler, 5000000));
 
-    displayController.displayVFDText("                    ");
+    DisplayController::displayVFDText("                    ");
 
     // "state machine"
     for (;;)

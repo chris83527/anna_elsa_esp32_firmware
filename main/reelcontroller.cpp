@@ -191,7 +191,7 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
     uint8_t rightSymbolId =
         Game::symbolsRightReel[this->reelStopInfo.rightStop - 1];
 
-    printf("Calculated reel positions: %s - %s - %s",
+    ESP_LOGD(TAG, "Calculated reel positions: %s - %s - %s",
            Game::symbolMap[leftSymbolId].c_str(),
            Game::symbolMap[centreSymbolId].c_str(),
            Game::symbolMap[rightSymbolId].c_str());
@@ -284,6 +284,7 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
     }
 
     this->commandInProgress = false;
+    ESP_LOGI(TAG, "spin() exiting");
 }
 
 void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
@@ -306,23 +307,21 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
         Game::symbolsCentreReel[this->reelStopInfo.centreStop - 1];
     uint8_t rightSymbolId =
         Game::symbolsRightReel[this->reelStopInfo.rightStop - 1];
-    printf("Calculated reel positions: %s - %s - %s",
+
+    ESP_LOGD(TAG, "Calculated reel positions: %s - %s - %s",
                Game::symbolMap[leftSymbolId].c_str(),
                Game::symbolMap[centreSymbolId].c_str(),
                Game::symbolMap[rightSymbolId].c_str());
 
     mainController->getHttpController().broadcast_status();
 
-    int leftSteps = (((this->reelStopInfo.leftStop - 1) + 75) * STEPS_PER_STOP);
-    int centreSteps =
-        (((this->reelStopInfo.centreStop - 1) + 50) * STEPS_PER_STOP);
-    int rightSteps = (((this->reelStopInfo.rightStop - 1) + 25) * STEPS_PER_STOP);
+    int leftSteps = (this->reelStopInfo.leftStop - 1 + 75) * STEPS_PER_STOP;
+    int centreSteps = (this->reelStopInfo.centreStop - 1 + 50) * STEPS_PER_STOP;
+    int rightSteps = (this->reelStopInfo.rightStop - 1 + 25) * STEPS_PER_STOP;
 
     // Switch on
-    //gpio_set_level(GPIO_MOTOR_EN, 1);
     esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-
+    err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
     if (leftStop > 0)
     {
@@ -395,7 +394,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
 
     // Switch off (PWM at quarter duty cycle to hold the motors)
     err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "ledc_set_duty_and_update failed: %s", esp_err_to_name(err));
@@ -433,7 +432,6 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
     int rightSteps = rightStops * STEPS_PER_STOP;
 
     // Switch on
-    //gpio_set_level(GPIO_MOTOR_EN, 1);
     esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
     err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
@@ -531,7 +529,7 @@ void ReelController::calibrate()
     // Switch on
     gpio_set_level(GPIO_MOTOR_EN, 1);
 
-    mainController->getDisplayController().displayVFDText("LEFT CW: 00");
+    DisplayController::displayVFDText("LEFT CW: 00");
     this->leftReel.home(pca9629a::Driver::Direction::CW);
     std::bitset<8> btnStatus = 0;
     while (!btnStatus.test(BTN_START))
@@ -539,14 +537,14 @@ void ReelController::calibrate()
         if (btnStatus.test(BTN_HOLD_HI))
         {
             leftCwCorrection--;
-            mainController->getDisplayController().displayVFDText(
+            DisplayController::displayVFDText(
                 std::string("LEFT CW: ").append(std::to_string(leftCwCorrection)));
             leftReel.moveSteps(pca9629a::Driver::Direction::CCW, 1, 1);
         }
         else if (btnStatus.test(BTN_HOLD_LO))
         {
             leftCwCorrection++;
-            mainController->getDisplayController().displayVFDText(
+            DisplayController::displayVFDText(
                 std::string("LEFT CW: ").append(std::to_string(leftCwCorrection)));
             leftReel.moveSteps(pca9629a::Driver::Direction::CW, 1, 1);
         }
@@ -554,7 +552,7 @@ void ReelController::calibrate()
         btnStatus = mainController->getDisplayController().getButtonStatus();
     }
 
-    mainController->getDisplayController().displayVFDText("LEFT CCW: 00");
+    DisplayController::displayVFDText("LEFT CCW: 00");
     this->leftReel.home(pca9629a::Driver::Direction::CCW);
     btnStatus = 0;
     while (!btnStatus.test(BTN_START))
@@ -562,14 +560,14 @@ void ReelController::calibrate()
         if (btnStatus.test(BTN_HOLD_HI))
         {
             leftCcwCorrection--;
-            mainController->getDisplayController().displayVFDText(
+            DisplayController::displayVFDText(
                 std::string("LEFT CCW: ").append(std::to_string(leftCcwCorrection)));
             leftReel.moveSteps(pca9629a::Driver::Direction::CW, 1, 1);
         }
         else if (btnStatus.test(BTN_HOLD_LO))
         {
             leftCcwCorrection++;
-            mainController->getDisplayController().displayVFDText(
+            DisplayController::displayVFDText(
                 std::string("LEFT CCW: ").append(std::to_string(leftCcwCorrection)));
             leftReel.moveSteps(pca9629a::Driver::Direction::CCW, 1, 1);
         }
@@ -577,7 +575,7 @@ void ReelController::calibrate()
         btnStatus = mainController->getDisplayController().getButtonStatus();
     }
 
-    mainController->getDisplayController().displayVFDText("CENTRE CW: 00");
+    DisplayController::displayVFDText("CENTRE CW: 00");
     this->rightReel.home(pca9629a::Driver::Direction::CW);
     btnStatus = 0;
     while (!btnStatus.test(BTN_START))
@@ -585,7 +583,7 @@ void ReelController::calibrate()
         if (btnStatus.test(BTN_HOLD_HI))
         {
             centreCwCorrection--;
-            mainController->getDisplayController().displayVFDText(
+            DisplayController::displayVFDText(
                 std::string("CENTRE CW: ")
                 .append(std::to_string(centreCwCorrection)));
             centreReel.moveSteps(pca9629a::Driver::Direction::CCW, 1, 1);
@@ -593,7 +591,7 @@ void ReelController::calibrate()
         else if (btnStatus.test(BTN_HOLD_LO))
         {
             centreCwCorrection++;
-            mainController->getDisplayController().displayVFDText(
+            DisplayController::displayVFDText(
                 std::string("CENTRE CW: ")
                 .append(std::to_string(centreCwCorrection)));
             centreReel.moveSteps(pca9629a::Driver::Direction::CW, 1, 1);
@@ -602,7 +600,7 @@ void ReelController::calibrate()
         btnStatus = mainController->getDisplayController().getButtonStatus();
     }
 
-    mainController->getDisplayController().displayVFDText("CENTRE CCW: 00");
+    DisplayController::displayVFDText("CENTRE CCW: 00");
     this->rightReel.home(pca9629a::Driver::Direction::CCW);
     btnStatus = 0;
     while (!btnStatus.test(BTN_START))
@@ -610,7 +608,7 @@ void ReelController::calibrate()
         if (btnStatus.test(BTN_HOLD_HI))
         {
             centreCcwCorrection--;
-            mainController->getDisplayController().displayVFDText(
+            DisplayController::displayVFDText(
                 std::string("CENTRE CCW: ")
                 .append(std::to_string(rightCcwCorrection)));
             centreReel.moveSteps(pca9629a::Driver::Direction::CW, 1, 1);
@@ -618,7 +616,7 @@ void ReelController::calibrate()
         else if (btnStatus.test(BTN_HOLD_LO))
         {
             centreCcwCorrection++;
-            mainController->getDisplayController().displayVFDText(
+            DisplayController::displayVFDText(
                 std::string("CENTRE CCW: ")
                 .append(std::to_string(rightCcwCorrection)));
             centreReel.moveSteps(pca9629a::Driver::Direction::CCW, 1, 1);
@@ -627,7 +625,7 @@ void ReelController::calibrate()
         btnStatus = mainController->getDisplayController().getButtonStatus();
     }
 
-    mainController->getDisplayController().displayVFDText("RIGHT CW: 00");
+    DisplayController::displayVFDText("RIGHT CW: 00");
     this->rightReel.home(pca9629a::Driver::Direction::CW);
     btnStatus = 0;
     while (!btnStatus.test(BTN_START))
@@ -635,14 +633,14 @@ void ReelController::calibrate()
         if (btnStatus.test(BTN_HOLD_HI))
         {
             rightCwCorrection--;
-            mainController->getDisplayController().displayVFDText(
+            DisplayController::displayVFDText(
                 std::string("RIGHT CW: ").append(std::to_string(rightCwCorrection)));
             rightReel.moveSteps(pca9629a::Driver::Direction::CCW, 1, 1);
         }
         else if (btnStatus.test(BTN_HOLD_LO))
         {
             rightCwCorrection++;
-            mainController->getDisplayController().displayVFDText(
+            DisplayController::displayVFDText(
                 std::string("RIGHT CW: ").append(std::to_string(rightCwCorrection)));
             rightReel.moveSteps(pca9629a::Driver::Direction::CW, 1, 1);
         }
@@ -650,7 +648,7 @@ void ReelController::calibrate()
         btnStatus = mainController->getDisplayController().getButtonStatus();
     }
 
-    mainController->getDisplayController().displayVFDText("RIGHTCCW: 00");
+    DisplayController::displayVFDText("RIGHTCCW: 00");
     this->rightReel.home(pca9629a::Driver::Direction::CCW);
     btnStatus = 0;
     while (!btnStatus.test(BTN_START))
@@ -658,7 +656,7 @@ void ReelController::calibrate()
         if (btnStatus.test(BTN_HOLD_HI))
         {
             rightCcwCorrection--;
-            mainController->getDisplayController().displayVFDText(
+            DisplayController::displayVFDText(
                 std::string("RIGHT CCW: ")
                 .append(std::to_string(rightCcwCorrection)));
             rightReel.moveSteps(pca9629a::Driver::Direction::CW, 1, 1);
@@ -666,7 +664,7 @@ void ReelController::calibrate()
         else if (btnStatus.test(BTN_HOLD_LO))
         {
             rightCcwCorrection++;
-            mainController->getDisplayController().displayVFDText(
+            DisplayController::displayVFDText(
                 std::string("RIGHT CCW: ")
                 .append(std::to_string(rightCcwCorrection)));
             rightReel.moveSteps(pca9629a::Driver::Direction::CCW, 1, 1);
@@ -723,7 +721,7 @@ void ReelController::test()
             std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }
 
-        mainController->getDisplayController().waitForButton(BTN_START_MASK_BIT);
+        uint8_t buttons = mainController->getDisplayController().waitForButton(BTN_START_MASK_BIT);
 
         // Switch off (PWM at quarter duty cycle to hold the motors)
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);

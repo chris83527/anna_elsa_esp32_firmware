@@ -71,7 +71,7 @@ void Game::start()
     ESP_LOGI(TAG, "Beginning game");
 
     this->isInProgress = true;
-    gameState = START_GAME;
+    this->gameState = START_GAME;
 
     this->displayController.stopAttractMode();
     this->displayController.resetLampData();
@@ -79,7 +79,8 @@ void Game::start()
 
     while (isInProgress)
     {
-        switch (gameState)
+        ESP_LOGI(TAG, "Game state: %d", this->gameState);
+        switch (this->gameState)
         {
         case START_GAME:
             ESP_LOGI(TAG, "Start Game");
@@ -112,9 +113,7 @@ void Game::start()
             break;
         case LOSE:
             ESP_LOGI(TAG, "Lose");
-            this->audioController.playAudioFile(
-                Sounds::SND_WONT_GET_AWAY_WITH_THIS);
-
+            this->audioController.playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
             gameState = START_GAME;
             break;
         case TRANSFER_OR_GAMBLE:
@@ -126,7 +125,7 @@ void Game::start()
             collectOrContinue();
             break;
         default:
-            ESP_LOGI(TAG, "DEFAULT!!");
+            ESP_LOGI(TAG, "DEFAULT!! - SHOULDN'T BE HERE!");
             gameState = START_GAME;
             break;
 
@@ -305,15 +304,15 @@ void Game::playNormalSpin()
 
     if (isWinningLine())
     {
-        gameState = TRANSFER_OR_GAMBLE;
+        this->gameState = TRANSFER_OR_GAMBLE;
     }
     else if (nudges > 0)
     {
-        gameState = PLAY_NUDGES;
+        this->gameState = PLAY_NUDGES;
     }
     else
     {
-        gameState = LOSE;
+        this->gameState = LOSE;
     }
 }
 
@@ -392,7 +391,7 @@ void Game::playNudges()
 
         if (isWinningLine())
         {
-            gameState = TRANSFER_OR_GAMBLE;
+            this->gameState = TRANSFER_OR_GAMBLE;
             break;
         }
 
@@ -406,11 +405,11 @@ void Game::playNudges()
 
     if (isWinningLine())
     {
-        gameState = TRANSFER_OR_GAMBLE;
+        this->gameState = TRANSFER_OR_GAMBLE;
     }
     else
     {
-        gameState = LOSE;
+        this->gameState = LOSE;
     }
 
     ESP_LOGD(TAG, "Exiting nudges()");
@@ -655,7 +654,6 @@ void Game::playFeatureMatrix()
     case 6:
         // Shuffle
         playShuffle();
-        gameState = TRANSFER_OR_GAMBLE;
         break;
     case 3:
     case 7:
@@ -667,12 +665,10 @@ void Game::playFeatureMatrix()
     case 11:
         // Palace
         playTrail();
-        gameState = TRANSFER_OR_GAMBLE;
         break;
     case 9:
         // Hi/Lo
         playHiLo();
-        gameState = TRANSFER_OR_GAMBLE;
         break;
     default:
         break;
@@ -896,20 +892,9 @@ void Game::playFreeSpin()
 
     this->audioController.playAudioFileAsync(Sounds::SND_LET_IT_GO);
 
-    spinReels(false, false, false); // no holds
-
-    if (isWinningLine())
-    {
-        gameState = TRANSFER_OR_GAMBLE;
-    }
-    else
-    {
-        gameState = LOSE;
-    }
-
     this->displayController.getLampData()
-        .at(DisplayController::LMP_START)
-        .lampState = LampState::off;
+     .at(DisplayController::LMP_START)
+     .lampState = LampState::off;
     this->displayController.getLampData()
         .at(DisplayController::LMP_COLLECT)
         .lampState = LampState::off;
@@ -925,6 +910,17 @@ void Game::playFreeSpin()
     this->displayController.getLampData()
         .at(DisplayController::LMP_HOLD_HI)
         .lampState = LampState::off;
+
+    spinReels(false, false, false); // no holds
+
+    if (isWinningLine())
+    {
+        gameState = TRANSFER_OR_GAMBLE;
+    }
+    else
+    {
+        gameState = LOSE;
+    }
 
     DisplayController::clearText();
 

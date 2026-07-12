@@ -91,7 +91,6 @@ void AudioController::playAudioFile(const char* filepath)
     if (!file.is_open())
     {
         ESP_LOGE(TAG, "Failed to open file");
-        // return ESP_ERR_INVALID_ARG;
         return;
     }
 
@@ -123,7 +122,7 @@ void AudioController::playAudioFileAsync(const char* filepath)
     cfg.stack_size = 4192;
     esp_pthread_set_cfg(&cfg);
     */
-    std::thread([&]() { playAudioFile(filepath); }).detach();
+    std::thread([&] { playAudioFile(filepath); }).detach();
 }
 
 void AudioController::setVolume(int volume)
