@@ -733,7 +733,6 @@ void ReelController::test()
         esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
         err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
-
         uint8_t leftSteps = i * STEPS_PER_STOP;
         uint8_t centreSteps = i * STEPS_PER_STOP;
         uint8_t rightSteps = i * STEPS_PER_STOP;

@@ -39,7 +39,7 @@ MainController::MainController(std::unique_ptr<ICctalkUart> uart) :
     paymentController(this,
                       std::move(uart)),
     displayController(paymentController, i2c_bus),
-    audioController( i2c_bus, this),
+    audioController(i2c_bus, this),
     reelController(this, i2c_bus),
     game(displayController, audioController, paymentController, reelController),
     ds3231(i2c_bus, DS3231_ADDR), httpController(wifi, this)
@@ -164,7 +164,7 @@ void MainController::start()
 
     DisplayController::displayVFDText("INITIALISING 06");
     displayController.scrollOledText("Init WiFi");
-    
+
     ESP_ERROR_CHECK(wifi.init());
     ESP_ERROR_CHECK(wifi.start_async());
 
@@ -176,7 +176,8 @@ void MainController::start()
     // Wait until Wi-Fi mode is known
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    if (wifi.is_ap_mode()) {
+    if (wifi.is_ap_mode())
+    {
         dnsServer.start("192.168.4.1");
         ESP_LOGW("main", "Captive portal active");
     }
@@ -193,7 +194,6 @@ void MainController::start()
             esp_ota_mark_app_valid_cancel_rollback();
         }
     }
-
 
 
     DisplayController::displayVFDText("INITIALISING 08");
@@ -315,8 +315,8 @@ DS3231& MainController::getDs3231() { return this->ds3231; }
 
 void MainController::error(int errorCode)
 {
-        displayController.clearText();
-    displayController.displayVFDText(errors[errorCode].errorMsg);
+    displayController.clearText();
+    //displayController.displayVFDText(errors[errorCode].errorMsg);
     //    //displayController->scrollOledText(errors[errorCode].errorMsg);
     //
     //    if (errors[errorCode].attendantRequired) {
