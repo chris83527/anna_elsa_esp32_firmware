@@ -315,7 +315,8 @@ DS3231& MainController::getDs3231() { return this->ds3231; }
 
 void MainController::error(int errorCode)
 {
-    //    displayController->clearText();
+        displayController.clearText();
+    displayController.displayVFDText(errors[errorCode].errorMsg);
     //    //displayController->scrollOledText(errors[errorCode].errorMsg);
     //
     //    if (errors[errorCode].attendantRequired) {

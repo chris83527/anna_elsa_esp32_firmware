@@ -134,7 +134,7 @@ bool ReelController::initialise()
     this->centreReel.moveSteps(pca9629a::Driver::Direction::CW, 50 * STEPS_PER_STOP, 1); // 2x complete turn
     this->rightReel.moveSteps(pca9629a::Driver::Direction::CW, 25 * STEPS_PER_STOP, 1); // 1x complete turn
 
-    for (int i = 0; i < 10000; i++)
+    for (int i = 0; i < 200; i++)
     {
         if (leftReel.isStopped() && centreReel.isStopped() &&
             rightReel.isStopped())
@@ -144,12 +144,30 @@ bool ReelController::initialise()
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
+    if (!leftReel.isStopped())
+    {
+        ESP_LOGE(TAG, "LEFT REEL TIMEOUT");
+        //mainController->error()
+    }
+
+    if (!centreReel.isStopped())
+    {
+        ESP_LOGE(TAG, "CENTRE REEL TIMEOUT");
+        //mainController->error()
+    }
+
+    if (!rightReel.isStopped())
+    {
+        ESP_LOGE(TAG, "RIGHT REEL TIMEOUT");
+        //mainController->error()
+    }
+
     this->leftReel.home(pca9629a::Driver::Direction::CW); // return to home
     this->centreReel.home(pca9629a::Driver::Direction::CW); // return to home
     this->rightReel.home(pca9629a::Driver::Direction::CW); // return to home
 
     // Wait for reels to stop (max 10 seconds)
-    for (int i = 0; i < 100000; i++)
+    for (int i = 0; i < 200; i++)
     {
         if (leftReel.isStopped() && centreReel.isStopped() &&
             rightReel.isStopped())
@@ -161,7 +179,7 @@ bool ReelController::initialise()
 
     // Switch off (PWM at quarter duty cycle to hold the motors)ty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
     ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    esp_err_t err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    esp_err_t err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "ledc_set_duty_and_update failed: %s", esp_err_to_name(err));
@@ -202,9 +220,8 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
     int rightSteps = (this->reelStopInfo.rightStop - 1 + 25) * STEPS_PER_STOP;
 
     // Switch on
-    //gpio_set_level(GPIO_MOTOR_EN, 1);
     esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
     if (leftSymbol > 0)
     {
@@ -232,7 +249,7 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
     bool leftFinished = leftReel.isStopped();
     bool centreFinished = centreReel.isStopped();
     bool rightFinished = rightReel.isStopped();
-    for (;;)
+    for (int i = 0; i < 200; i++)
     {
         if (leftFinished && leftPlayAudio)
         {
@@ -273,11 +290,29 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
         }
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    if (!leftFinished)
+    {
+        ESP_LOGE(TAG, "LEFT REEL TIMEOUT");
+        //mainController->error()
+    }
+
+    if (!centreFinished)
+    {
+        ESP_LOGE(TAG, "CENTRE REEL TIMEOUT");
+        //mainController->error()
+    }
+
+    if (!rightFinished)
+    {
+        ESP_LOGE(TAG, "RIGHT REEL TIMEOUT");
+        //mainController->error()
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
     // Switch off (PWM at quarter duty cycle to hold the motors)
     err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "ledc_set_duty_and_update failed: %s", esp_err_to_name(err));
@@ -307,9 +342,9 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
     uint8_t rightSymbolId =
         Game::symbolsRightReel[this->reelStopInfo.rightStop - 1];
     printf("Calculated reel positions: %s - %s - %s",
-               Game::symbolMap[leftSymbolId].c_str(),
-               Game::symbolMap[centreSymbolId].c_str(),
-               Game::symbolMap[rightSymbolId].c_str());
+           Game::symbolMap[leftSymbolId].c_str(),
+           Game::symbolMap[centreSymbolId].c_str(),
+           Game::symbolMap[rightSymbolId].c_str());
 
     mainController->getHttpController().broadcast_status();
 
@@ -321,7 +356,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
     // Switch on
     //gpio_set_level(GPIO_MOTOR_EN, 1);
     esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
 
     if (leftStop > 0)
@@ -350,7 +385,7 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
     bool centreFinished = centreReel.isStopped();
     bool rightFinished = rightReel.isStopped();
 
-    for (;;)
+    for (int i = 0; i < 200; i++)
     {
         if (leftFinished && leftPlayAudio)
         {
@@ -391,11 +426,11 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
         }
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
     // Switch off (PWM at quarter duty cycle to hold the motors)
     err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "ledc_set_duty_and_update failed: %s", esp_err_to_name(err));
@@ -435,7 +470,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
     // Switch on
     //gpio_set_level(GPIO_MOTOR_EN, 1);
     esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-    err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
 
     if (leftStops > 0)
@@ -464,7 +499,7 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
     bool centreFinished = centreReel.isStopped();
     bool rightFinished = rightReel.isStopped();
 
-    for (;;)
+    for (int i = 0; i < 200; i++)
     {
         if (leftFinished && leftPlayAudio)
         {
@@ -505,11 +540,11 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
         }
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
     // Switch off (PWM at quarter duty cycle to hold the motors)
     err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_QUARTER);
-    err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "ledc_set_duty_and_update failed: %s", esp_err_to_name(err));
@@ -698,14 +733,15 @@ void ReelController::test()
         // Switch on
         //gpio_set_level(GPIO_MOTOR_EN, 1);
         esp_err_t err = ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_FULL);
-        err= ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        err = ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
 
         uint8_t leftSteps = i * STEPS_PER_STOP;
         uint8_t centreSteps = i * STEPS_PER_STOP;
         uint8_t rightSteps = i * STEPS_PER_STOP;
 
-        if (leftSteps > 0) {
+        if (leftSteps > 0)
+        {
             leftReel.moveStepsAfterHome(pca9629a::Driver::Direction::CW, leftSteps, 1);
         }
         if (centreSteps > 0)
