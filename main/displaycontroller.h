@@ -215,7 +215,7 @@ public:
         std::array{LAMP_PRIZE_PALACE, LAMP_PRIZE_400_CENT},
     };
 
-    static constexpr int MAX_BRIGHTNESS = 200;
+    static constexpr int MAX_BRIGHTNESS = 230;
 
     /*
 

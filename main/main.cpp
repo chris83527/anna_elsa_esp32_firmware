@@ -73,7 +73,7 @@ extern "C" void app_main()
     esp_log_level_set("DisplayController", ESP_LOG_INFO);
     esp_log_level_set("PaymentController", ESP_LOG_INFO);
     esp_log_level_set("MainController", ESP_LOG_INFO);
-    esp_log_level_set("Game", ESP_LOG_INFO);
+    esp_log_level_set("Game", ESP_LOG_DEBUG);
     esp_log_level_set("HopperThread", ESP_LOG_INFO);
 
     auto uart = std::make_unique<EspIdfCctalkUart>(CCTALK_UART, CCTALK_GPIO_TX, CCTALK_GPIO_RX);

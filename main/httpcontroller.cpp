@@ -399,8 +399,12 @@ void HttpController::broadcast_status()
 
 esp_err_t HttpController::ota_upload_handler(httpd_req_t* req)
 {
-    esp_ota_handle_t ota_handle = 0;
+    char buf[1024];
+    esp_ota_handle_t ota_handle;
+    int remaining = req->content_len;
+
     const esp_partition_t* update_partition = esp_ota_get_next_update_partition(nullptr);
+
     if (!update_partition)
     {
         ESP_LOGE(TAG, "No OTA partition");
@@ -419,53 +423,42 @@ esp_err_t HttpController::ota_upload_handler(httpd_req_t* req)
         return err;
     }
 
-    int remaining = req->content_len;
-    char buf[1024];
-
     while (remaining > 0)
     {
         int to_read = remaining > (int)sizeof(buf) ? sizeof(buf) : remaining;
-        int r = httpd_req_recv(req, buf, to_read);
-        if (r <= 0)
-        {
-            ESP_LOGE(TAG, "OTA recv error: %d", r);
-            esp_ota_end(ota_handle);
-            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OTA recv error");
+        int recv_len = httpd_req_recv(req, buf, to_read);
+
+        // Timeout Error: Just retry
+        if (recv_len == HTTPD_SOCK_ERR_TIMEOUT) {
+            continue;
+
+            // Serious Error: Abort OTA
+        } else if (recv_len <= 0) {
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Protocol Error");
             return ESP_FAIL;
         }
 
-        err = esp_ota_write(ota_handle, buf, r);
-        if (err != ESP_OK)
-        {
-            ESP_LOGE(TAG, "esp_ota_write failed: %s", esp_err_to_name(err));
-            esp_ota_end(ota_handle);
-            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OTA write failed");
-            return err;
+        // Successful Upload: Flash firmware chunk
+        if (esp_ota_write(ota_handle, (const void *)buf, recv_len) != ESP_OK) {
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Flash Error");
+            return ESP_FAIL;
         }
 
-        remaining -= r;
+        remaining -= recv_len;
     }
 
-    err = esp_ota_end(ota_handle);
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "esp_ota_end failed: %s", esp_err_to_name(err));
-        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OTA end failed");
-        return err;
+    // Validate and switch to new OTA image and reboot
+    if (esp_ota_end(ota_handle) != ESP_OK || esp_ota_set_boot_partition(update_partition) != ESP_OK) {
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Validation / Activation Error");
+        return ESP_FAIL;
     }
 
-    err = esp_ota_set_boot_partition(update_partition);
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "esp_ota_set_boot_partition failed: %s", esp_err_to_name(err));
-        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OTA set boot failed");
-        return err;
-    }
+    httpd_resp_sendstr(req, "Firmware update complete, rebooting now!\n");
 
-    ESP_LOGI(TAG, "OTA OK, rebooting...");
-    httpd_resp_sendstr(req, "OK, rebooting");
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
     esp_restart();
+
     return ESP_OK;
 }
 
