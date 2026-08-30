@@ -51,6 +51,9 @@
 
 #include "config.h"
 #include "audiocontroller.h"
+
+#include <future>
+
 #include "maincontroller.h"
 
 static const char* TAG = "AudioController";
@@ -101,15 +104,16 @@ void AudioController::playAudioFile(const char* filepath)
 
     this->playing = true;
 
-    while (file.good())
+    while (file.good() && isPlaying())
     {
         file.read(audioData, AUDIO_BUFFER);
         std::streamsize bytesRead = file.gcount();
         tas5731m.writeAudioData(audioData, bytesRead);
-
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         ESP_LOGV(TAG, "Bytes read: %d", bytesRead);
     }
 
+    this->playing = false;
     tas5731m.disableChannel();
 }
 
@@ -122,7 +126,7 @@ void AudioController::playAudioFileAsync(const char* filepath)
     cfg.stack_size = 4192;
     esp_pthread_set_cfg(&cfg);
     */
-    std::thread([&] { playAudioFile(filepath); }).detach();
+    auto res = std::async(std::launch::async, [&] { playAudioFile(filepath); });
 }
 
 void AudioController::setVolume(int volume)

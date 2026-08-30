@@ -89,7 +89,7 @@ public:
     [[nodiscard]] bool isPlaying() const;
 
 private:
-    bool playing{};
+    std::atomic<bool> playing{};
     int vol{};
 
     static constexpr gpio_num_t TAS5731M_RST_GPIO = GPIO_NUM_14;
