@@ -109,7 +109,7 @@ void AudioController::playAudioFile(const char* filepath)
         file.read(audioData, AUDIO_BUFFER);
         std::streamsize bytesRead = file.gcount();
         tas5731m.writeAudioData(audioData, bytesRead);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         ESP_LOGV(TAG, "Bytes read: %d", bytesRead);
     }
 

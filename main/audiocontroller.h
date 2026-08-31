@@ -38,6 +38,7 @@
 #ifndef __AUDIOCONTROLLER_H__
 #define __AUDIOCONTROLLER_H__
 #include "tas5731m.hpp"
+#include <atomic>
 
 class MainController;
 
