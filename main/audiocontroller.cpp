@@ -117,7 +117,7 @@ void AudioController::playAudioFile(const char* filepath)
     tas5731m.disableChannel();
 }
 
-void AudioController::playAudioFileAsync(const char* filepath)
+std::future AudioController::playAudioFileAsync(const char* filepath)
 {
     /*
     auto cfg = esp_pthread_get_default_config();
@@ -126,7 +126,7 @@ void AudioController::playAudioFileAsync(const char* filepath)
     cfg.stack_size = 4192;
     esp_pthread_set_cfg(&cfg);
     */
-    auto res = std::async(std::launch::async, [&] { playAudioFile(filepath); });
+    return std::async(std::launch::async, [&] { playAudioFile(filepath); });
 }
 
 void AudioController::setVolume(int volume)
