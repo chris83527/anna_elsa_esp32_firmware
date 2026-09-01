@@ -137,7 +137,7 @@ void Game::start()
 
 void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) const
 {
-    ESP_LOGI(TAG, "Entering spinReels()");
+    ESP_LOGD(TAG, "Entering spinReels()");
 
     uint8_t reelStopLeft = holdLeft ? 0 : frand::random8(1, 25);
     uint8_t reelStopCentre = holdCentre ? 0 : frand::random8(1, 25);
@@ -152,12 +152,12 @@ void Game::spinReels(bool holdLeft, bool holdCentre, bool holdRight) const
 
     this->reelController.spin(reelStopLeft, reelStopCentre, reelStopRight);
 
-    ESP_LOGI(TAG, "Exiting spinReels()");
+    ESP_LOGD(TAG, "Exiting spinReels()");
 }
 
 void Game::shuffleReels(bool holdLeft, bool holdCentre, bool holdRight) const
 {
-    ESP_LOGI(TAG, "Entering shuffleReels()");
+    ESP_LOGD(TAG, "Entering shuffleReels()");
 
     uint8_t reelStopLeft = holdLeft ? 0 : frand::random8(1, 25);
     uint8_t reelStopCentre = holdCentre ? 0 : frand::random8(1, 25);
@@ -172,7 +172,7 @@ void Game::shuffleReels(bool holdLeft, bool holdCentre, bool holdRight) const
 
     this->reelController.shuffle(reelStopLeft, reelStopCentre, reelStopRight);
 
-    ESP_LOGI(TAG, "Exiting shuffleReels()");
+    ESP_LOGD(TAG, "Exiting shuffleReels()");
 }
 
 void Game::playNormalSpin()
@@ -318,7 +318,7 @@ void Game::playNormalSpin()
 
 void Game::playNudges()
 {
-    ESP_LOGI(TAG, "Entering playNudges(%d)", nudges);
+    ESP_LOGD(TAG, "Entering playNudges(%d)", nudges);
 
     std::string nudgeText = "        NUDGE        ";
 
@@ -543,7 +543,7 @@ void Game::collectOrContinue()
 
 bool Game::isWinningLine() const
 {
-    ESP_LOGI(TAG, "Entering isWinningLine()");
+    ESP_LOGD(TAG, "Entering isWinningLine()");
 
     bool isWin = false;
 
@@ -575,7 +575,7 @@ bool Game::isWinningLine() const
         }
     }
 
-    ESP_LOGI(TAG, "Exiting isWinningLine()");
+    ESP_LOGD(TAG, "Exiting isWinningLine()");
     return isWin;
 }
 

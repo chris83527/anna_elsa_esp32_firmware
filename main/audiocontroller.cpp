@@ -102,7 +102,7 @@ void AudioController::playAudioFile(const char* filepath)
 
     this->playing = true;
 
-    while (file.good() && isPlaying())
+    while (file.good() && this->playing.load())
     {
         file.read(audioData, AUDIO_BUFFER);
         std::streamsize bytesRead = file.gcount();
@@ -117,7 +117,7 @@ void AudioController::playAudioFile(const char* filepath)
 
 void AudioController::playAudioFileAsync(const char* filepath)
 {
-    std::thread( [&] { playAudioFile(filepath); });
+    std::thread( [&] { playAudioFile(filepath); }).detach();
 }
 
 void AudioController::setVolume(int volume)

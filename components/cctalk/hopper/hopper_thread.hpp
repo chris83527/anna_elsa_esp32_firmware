@@ -29,7 +29,7 @@ private:
     void run() {
 
         while (running_) {
-            ESP_LOGI(TAG, "Testing hopper status");
+            ESP_LOGD(TAG, "Testing hopper status");
             TestHopperStatus testHopperStatus{};
             CctalkError err = facade_.testHopper(testHopperStatus);
             queue_.push(CctalkEvent::makeHopper(testHopperStatus));

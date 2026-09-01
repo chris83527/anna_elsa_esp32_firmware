@@ -466,7 +466,7 @@ uint16_t PaymentController::getTransfer() const { return transfer; }
 
 void PaymentController::onEvent(const CctalkEvent& evt)
 {
-    ESP_LOGI(TAG, "onEvent called!");
+    ESP_LOGD(TAG, "onEvent called!");
     switch (evt.type)
     {
     case CctalkEventType::CoinAccepted:
@@ -479,7 +479,7 @@ void PaymentController::onEvent(const CctalkEvent& evt)
     case CctalkEventType::TestHopperStatus:
         if (evt.hopper.statusRegister1 != 0)
         {
-            ESP_LOGI(TAG, "Hopper status register 1: %d", evt.hopper.statusRegister1);
+            ESP_LOGD(TAG, "Hopper status register 1: %d", evt.hopper.statusRegister1);
         }
         break;
     }
