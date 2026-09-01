@@ -82,7 +82,7 @@ public:
 
     void initialise();
     void playAudioFile(const char* filepath);
-    std::future<void> playAudioFileAsync(const char* filepath);
+    void playAudioFileAsync(const char* filepath);
     void stopPlaying();
     int getVolume();
     void setVolume(int volume);

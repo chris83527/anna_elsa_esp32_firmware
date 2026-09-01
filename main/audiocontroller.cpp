@@ -115,9 +115,9 @@ void AudioController::playAudioFile(const char* filepath)
     tas5731m.disableChannel();
 }
 
-std::future<void> AudioController::playAudioFileAsync(const char* filepath)
+void AudioController::playAudioFileAsync(const char* filepath)
 {
-    return std::async(std::launch::async, [&] { playAudioFile(filepath); });
+    std::thread( [&] { playAudioFile(filepath); });
 }
 
 void AudioController::setVolume(int volume)
