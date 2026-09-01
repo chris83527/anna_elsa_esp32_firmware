@@ -44,6 +44,7 @@
 #include <sys/stat.h>
 #include <thread>
 #include <vector>
+#include <future>
 
 #include "freertos/FreeRTOS.h"
 #include "esp_log.h"
@@ -51,9 +52,6 @@
 
 #include "config.h"
 #include "audiocontroller.h"
-
-#include <future>
-
 #include "maincontroller.h"
 
 static const char* TAG = "AudioController";
@@ -117,15 +115,8 @@ void AudioController::playAudioFile(const char* filepath)
     tas5731m.disableChannel();
 }
 
-std::future AudioController::playAudioFileAsync(const char* filepath)
+std::future<void> AudioController::playAudioFileAsync(const char* filepath)
 {
-    /*
-    auto cfg = esp_pthread_get_default_config();
-    cfg.thread_name = "PlayAudioAsync";
-    cfg.prio = 5;
-    cfg.stack_size = 4192;
-    esp_pthread_set_cfg(&cfg);
-    */
     return std::async(std::launch::async, [&] { playAudioFile(filepath); });
 }
 
