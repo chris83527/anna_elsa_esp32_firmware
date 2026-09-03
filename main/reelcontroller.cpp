@@ -253,19 +253,19 @@ void ReelController::spin(const uint8_t leftSymbol, const uint8_t centreSymbol,
     {
         if (leftFinished && leftPlayAudio)
         {
-            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFileAsync(Sounds::SND_REEL_STOP);
             leftPlayAudio = false;
         }
 
         if (centreFinished && centrePlayAudio)
         {
-            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFileAsync(Sounds::SND_REEL_STOP);
             centrePlayAudio = false;
         }
 
         if (rightFinished && rightPlayAudio)
         {
-            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFileAsync(Sounds::SND_REEL_STOP);
             rightPlayAudio = false;
         }
 
@@ -388,19 +388,19 @@ void ReelController::shuffle(const uint8_t leftStop, const uint8_t centreStop,
     {
         if (leftFinished && leftPlayAudio)
         {
-            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFileAsync(Sounds::SND_REEL_STOP);
             leftPlayAudio = false;
         }
 
         if (centreFinished && centrePlayAudio)
         {
-            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFileAsync(Sounds::SND_REEL_STOP);
             centrePlayAudio = false;
         }
 
         if (rightFinished && rightPlayAudio)
         {
-            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFileAsync(Sounds::SND_REEL_STOP);
             rightPlayAudio = false;
         }
 
@@ -501,19 +501,19 @@ void ReelController::nudge(const uint8_t leftStops, const uint8_t centreStops,
     {
         if (leftFinished && leftPlayAudio)
         {
-            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFileAsync(Sounds::SND_REEL_STOP);
             leftPlayAudio = false;
         }
 
         if (centreFinished && centrePlayAudio)
         {
-            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFileAsync(Sounds::SND_REEL_STOP);
             centrePlayAudio = false;
         }
 
         if (rightFinished && rightPlayAudio)
         {
-            mainController->getAudioController().playAudioFile(Sounds::SND_REEL_STOP);
+            mainController->getAudioController().playAudioFileAsync(Sounds::SND_REEL_STOP);
             rightPlayAudio = false;
         }
 

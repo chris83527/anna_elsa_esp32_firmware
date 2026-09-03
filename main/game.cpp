@@ -75,7 +75,6 @@ void Game::start()
 
     this->displayController.stopAttractMode();
     this->displayController.resetLampData();
-    this->audioController.stopPlaying();
 
     while (isInProgress)
     {
@@ -113,7 +112,7 @@ void Game::start()
             break;
         case LOSE:
             ESP_LOGI(TAG, "Lose");
-            this->audioController.playAudioFile(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
+            this->audioController.playAudioFileSync(Sounds::SND_WONT_GET_AWAY_WITH_THIS);
             gameState = START_GAME;
             break;
         case TRANSFER_OR_GAMBLE:
@@ -224,7 +223,7 @@ void Game::playNormalSpin()
                 this->displayController.getLampData()
                     .at(DisplayController::LMP_HOLD)
                     .lampState = LampState::on;
-                this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+                this->audioController.playAudioFileAsync(Sounds::SND_REEL_STOP);
                 this->displayController.getLampData()
                     .at(DisplayController::LMP_COLLECT)
                     .lampState = LampState::blinkslow;
@@ -235,7 +234,7 @@ void Game::playNormalSpin()
                 this->displayController.getLampData()
                     .at(DisplayController::LMP_HOLD_HI)
                     .lampState = LampState::on;
-                this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+                this->audioController.playAudioFileAsync(Sounds::SND_REEL_STOP);
                 this->displayController.getLampData()
                     .at(DisplayController::LMP_COLLECT)
                     .lampState = LampState::blinkslow;
@@ -246,7 +245,7 @@ void Game::playNormalSpin()
                 this->displayController.getLampData()
                     .at(DisplayController::LMP_HOLD_LO)
                     .lampState = LampState::on;
-                this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+                this->audioController.playAudioFileAsync(Sounds::SND_REEL_STOP);
                 this->displayController.getLampData()
                     .at(DisplayController::LMP_COLLECT)
                     .lampState = LampState::blinkslow;
@@ -490,7 +489,7 @@ void Game::transferOrGamble()
     if ((btnStatus & BTN_TRANSFER_MASK_BIT) == BTN_TRANSFER_MASK_BIT)
     {
         this->paymentController.moveTransferToBank();
-        this->audioController.playAudioFile(Sounds::SND_KERCHING);
+        this->audioController.playAudioFileAsync(Sounds::SND_KERCHING);
         gameState = START_GAME;
     }
     else if ((btnStatus & BTN_START_MASK_BIT) == BTN_START_MASK_BIT)
@@ -774,7 +773,7 @@ void Game::playShuffle()
                 this->displayController.getLampData()
                     .at(DisplayController::LMP_HOLD)
                     .lampState = LampState::on;
-                this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+                this->audioController.playAudioFileAsync(Sounds::SND_REEL_STOP);
                 this->displayController.getLampData()
                     .at(DisplayController::LMP_COLLECT)
                     .lampState = LampState::blinkslow;
@@ -785,7 +784,7 @@ void Game::playShuffle()
                 this->displayController.getLampData()
                     .at(DisplayController::LMP_HOLD_HI)
                     .lampState = LampState::on;
-                this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+                this->audioController.playAudioFileAsync(Sounds::SND_REEL_STOP);
                 this->displayController.getLampData()
                     .at(DisplayController::LMP_COLLECT)
                     .lampState = LampState::blinkslow;
@@ -796,7 +795,7 @@ void Game::playShuffle()
                 this->displayController.getLampData()
                     .at(DisplayController::LMP_HOLD_LO)
                     .lampState = LampState::on;
-                this->audioController.playAudioFile(Sounds::SND_REEL_STOP);
+                this->audioController.playAudioFileAsync(Sounds::SND_REEL_STOP);
                 this->displayController.getLampData()
                     .at(DisplayController::LMP_COLLECT)
                     .lampState = LampState::blinkslow;
