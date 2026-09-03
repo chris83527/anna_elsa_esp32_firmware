@@ -76,7 +76,7 @@ void AudioController::initialise()
     playAudioFileSync(Sounds::SND_STARTUP);
 }
 
-void AudioController::playAudioFile(const char* filepath, std::size_t myGen)
+void AudioController::playAudioFile(const char* filepath)
 {
 
     std::string uri = "/spiffs/";
@@ -99,7 +99,7 @@ void AudioController::playAudioFile(const char* filepath, std::size_t myGen)
 
     tas5731m.enableChannel();
 
-    while (file.good() && myGen == this->generation_)
+    while (file.good() && !cancelFlag_.load())
     {
         file.read(audioData, AUDIO_BUFFER);
         std::streamsize bytesRead = file.gcount();
@@ -113,20 +113,48 @@ void AudioController::playAudioFile(const char* filepath, std::size_t myGen)
 
 void AudioController::playAudioFileSync(const char* filepath)
 {
+    // Cancel previous work
+    cancelFlag_.store(true);
+
+    // Wait for previous thread to finish
+    if (workerThread_.joinable()) {
+        workerThread_.join();
+    }
+
+    // Prevent simultaneous execution
     std::unique_lock lock(mutex_);
-    std::size_t myGen = ++generation_;   // cancel previous
-    playAudioFile(filepath, myGen);
+
+    cancelFlag_.store(false);
+    running_.store(true);
+
+    playAudioFile(filepath);
+
+    running_.store(false);
 }
 
-std::future<void> AudioController::playAudioFileAsync(const char* filepath)
+void AudioController::playAudioFileAsync(const char* filepath)
 {
-    std::size_t myGen = ++generation_;   // cancel previous
+    // Cancel previous work
+    cancelFlag_.store(true);
 
-    return std::async(std::launch::async, [this, filepath, myGen] {
+    // Join previous thread if running
+    if (workerThread_.joinable()) {
+        workerThread_.join();
+    }
+
+    cancelFlag_.store(false);
+    running_.store(true);
+
+    // Launch new thread
+    workerThread_ = std::thread([this, &filepath]()
+    {
         std::unique_lock lock(mutex_);
-        playAudioFile(filepath, myGen);
+        playAudioFile(filepath);
+        running_.store(false);
     });
 }
+
+
 
 void AudioController::setVolume(int volume)
 {

@@ -83,7 +83,7 @@ public:
     void initialise();
 
     void playAudioFileSync(const char* filepath);
-    std::future<void> playAudioFileAsync(const char* filepath);
+    void playAudioFileAsync(const char* filepath);
 
     //void stopPlaying();
 
@@ -106,10 +106,12 @@ private:
 
     MainController* mainController;
 
-    void playAudioFile(const char* filepath, std::size_t myGen);
+    void playAudioFile(const char* filepath);
 
+    std::thread workerThread_;
     std::mutex mutex_;
-    std::atomic<std::size_t> generation_;
+    std::atomic<bool> cancelFlag_;
+    std::atomic<bool> running_;
 };
 
 #endif /* __AUDIOCONTROLLER_H__ */
