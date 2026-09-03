@@ -73,12 +73,11 @@ void AudioController::initialise()
 
     setVolume(mainController->getNvsController().readValueFromNVS("volume")); // Get this volume from NVRAM
 
-    playAudioFile(Sounds::SND_STARTUP);
+    playAudioFileSync(Sounds::SND_STARTUP);
 }
 
-void AudioController::playAudioFile(const char* filepath)
+void AudioController::playAudioFile(const char* filepath, std::size_t myGen)
 {
-    stopPlaying();
 
     std::string uri = "/spiffs/";
     uri = uri.append(filepath);
@@ -100,9 +99,7 @@ void AudioController::playAudioFile(const char* filepath)
 
     tas5731m.enableChannel();
 
-    this->playing = true;
-
-    while (file.good() && this->playing.load())
+    while (file.good() && myGen == this->generation_)
     {
         file.read(audioData, AUDIO_BUFFER);
         std::streamsize bytesRead = file.gcount();
@@ -111,13 +108,25 @@ void AudioController::playAudioFile(const char* filepath)
         ESP_LOGV(TAG, "Bytes read: %d", bytesRead);
     }
 
-    this->playing = false;
     tas5731m.disableChannel();
 }
 
-void AudioController::playAudioFileAsync(const char* filepath)
+
+void AudioController::playAudioFileSync(const char* filepath)
 {
-    std::thread( [&] { playAudioFile(filepath); }).detach();
+    std::unique_lock lock(mutex_);
+    std::size_t myGen = ++generation_;   // cancel previous
+    playAudioFile(filepath, myGen);
+}
+
+std::future<void> AudioController::playAudioFileAsync(const char* filepath)
+{
+    std::size_t myGen = ++generation_;   // cancel previous
+
+    return std::async(std::launch::async, [this, filepath, myGen] {
+        std::unique_lock lock(mutex_);
+        playAudioFile(filepath, myGen);
+    });
 }
 
 void AudioController::setVolume(int volume)
@@ -143,7 +152,3 @@ int AudioController::getVolume()
 {
     return tas5731m.getMasterVolume();
 }
-
-void AudioController::stopPlaying() { this->playing = false; }
-
-bool AudioController::isPlaying() const { return this->playing; }

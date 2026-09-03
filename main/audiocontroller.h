@@ -81,17 +81,18 @@ public:
     ~AudioController() = default;
 
     void initialise();
-    void playAudioFile(const char* filepath);
-    void playAudioFileAsync(const char* filepath);
-    void stopPlaying();
+
+    void playAudioFileSync(const char* filepath);
+    std::future<void> playAudioFileAsync(const char* filepath);
+
+    //void stopPlaying();
+
     int getVolume();
     void setVolume(int volume);
     void mute();
     void unmute();
-    [[nodiscard]] bool isPlaying() const;
 
 private:
-    std::atomic<bool> playing{};
     int vol{};
 
     static constexpr gpio_num_t TAS5731M_RST_GPIO = GPIO_NUM_14;
@@ -104,6 +105,11 @@ private:
     TAS5731M tas5731m;
 
     MainController* mainController;
+
+    void playAudioFile(const char* filepath, std::size_t myGen);
+
+    std::mutex mutex_;
+    std::atomic<std::size_t> generation_;
 };
 
 #endif /* __AUDIOCONTROLLER_H__ */
